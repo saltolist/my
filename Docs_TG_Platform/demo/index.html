@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TG Platform — Demo</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:     #0f0f0f;
+      --bg2:    #161616;
+      --bg3:    #1e1e1e;
+      --bg4:    #252525;
+      --bg5:    #2e2e2e;
+      --border:  #2a2a2a;
+      --border2: #383838;
+      --text:    #e8e8e8;
+      --text2:   #9a9a9a;
+      --text3:   #606060;
+      --accent:  #5b8ff9;
+      --accent2: #3d6fe8;
+      --adim:    rgba(91,143,249,0.12);
+      --green:   #4caf82;
+      --orange:  #e8954a;
+      --red:     #e85a5a;
+      --purple:  #9b7cdb;
+      --nav-w:   220px;
+      --hdr:     56px;
+      --r:       10px;
+      --rs:      6px;
+      --font:    -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; overflow: hidden; }
+
+    /* ── Layout ── */
+    #app { display: flex; height: 100vh; }
+
+    /* ════════════════════════════════
+       SIDEBAR
+    ════════════════════════════════ */
+    #sidebar {
+      width: var(--nav-w); min-width: var(--nav-w);
+      background: var(--bg2); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 10px;
+      padding: 16px 16px 12px; cursor: pointer;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo-mark {
+      width: 32px; height: 32px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #fff;
+    }
+    .logo-name { font-size: 13px; font-weight: 600; color: var(--text); }
+
+    .new-chat-btn {
+      margin: 12px 12px 4px;
+      padding: 8px 12px;
+      background: var(--adim); border: 1px solid rgba(91,143,249,0.25);
+      border-radius: var(--rs); color: var(--accent);
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      display: flex; align-items: center; gap: 6px; transition: background .15s;
+    }
+    .new-chat-btn:hover { background: rgba(91,143,249,0.2); }
+
+    .nav-items { flex: 1; overflow-y: auto; padding: 8px 0; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 16px; cursor: pointer;
+      font-size: 13px; color: var(--text2);
+      transition: background .1s, color .1s; position: relative;
+    }
+    .nav-item:hover { background: var(--bg3); color: var(--text); }
+    .nav-item.active { background: var(--bg4); color: var(--text); font-weight: 500; }
+    .nav-item.active::before {
+      content: ''; position: absolute; left: 0; top: 4px; bottom: 4px;
+      width: 3px; background: var(--accent); border-radius: 0 2px 2px 0;
+    }
+    .nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+    .nav-divider { height: 1px; background: var(--border); margin: 8px 12px; }
+    .sidebar-bottom { padding: 8px 0 12px; border-top: 1px solid var(--border); }
+
+    /* ── Main wrapper ── */
+    #main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+    .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+    .screen.active { display: flex; }
+
+    /* ── Page header (shared) ── */
+    .page-header {
+      height: var(--hdr); min-height: var(--hdr);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 20px; gap: 10px;
+      background: var(--bg2); flex-shrink: 0;
+    }
+    .page-header h2 { font-size: 15px; font-weight: 600; margin-right: auto; }
+    .breadcrumb { font-size: 13px; color: var(--text2); display: flex; align-items: center; gap: 4px; }
+    .breadcrumb b { color: var(--text); }
+    .breadcrumb .bc-link { color: var(--accent); cursor: pointer; }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 6px 14px; border-radius: var(--rs);
+      font-size: 13px; font-weight: 500; cursor: pointer; border: none;
+      transition: opacity .15s, background .15s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-ghost { background: var(--bg4); color: var(--text2); border: 1px solid var(--border2); }
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+    .btn-danger { background: rgba(232,90,90,.1); color: var(--red); border: 1px solid rgba(232,90,90,.3); }
+
+    /* ── Context menu (•••) ── */
+    .ctx-wrap { position: relative; display: inline-flex; }
+    .ctx-btn {
+      padding: 4px 8px; border-radius: var(--rs);
+      background: transparent; border: 1px solid transparent;
+      color: var(--text3); font-size: 15px; letter-spacing: 2px; cursor: pointer;
+      transition: all .15s; line-height: 1;
+    }
+    .ctx-btn:hover { background: var(--bg4); border-color: var(--border2); color: var(--text2); }
+    .ctx-dropdown {
+      display: none; position: absolute; top: calc(100% + 4px); right: 0; z-index: 300;
+      background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--r);
+      min-width: 190px; box-shadow: 0 8px 24px rgba(0,0,0,.4); overflow: hidden;
+    }
+    .ctx-dropdown.open { display: block; }
+    .ctx-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px; font-size: 13px; color: var(--text2);
+      cursor: pointer; transition: background .1s, color .1s;
+    }
+    .ctx-item:hover { background: var(--bg4); color: var(--text); }
+    .ctx-item.danger { color: var(--red); }
+    .ctx-item.danger:hover { background: rgba(232,90,90,.08); }
+
+    /* ── Chat input (shared) ── */
+    .input-wrap {
+      padding: 12px 20px 16px; border-top: 1px solid var(--border);
+      background: var(--bg2); flex-shrink: 0;
+      display: flex; justify-content: center;
+    }
+    .input-box {
+      display: flex; align-items: flex-end; gap: 6px;
+      background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: var(--r); padding: 8px 10px;
+      transition: border-color .15s;
+      width: 700px; max-width: 100%;
+    }
+    .input-box:focus-within { border-color: var(--accent); }
+    .input-box textarea {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--text); font-family: var(--font); font-size: 14px;
+      resize: none; height: 50px; min-height: 50px; max-height: 50px; line-height: 1.5;
+    }
+    .input-box textarea::placeholder { color: var(--text3); }
+    .icon-btn {
+      width: 30px; height: 30px; border-radius: var(--rs);
+      background: transparent; border: none;
+      color: var(--text3); cursor: pointer; font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, color .15s; flex-shrink: 0;
+    }
+    .icon-btn:hover { background: var(--bg5); color: var(--text2); }
+    .send-btn {
+      width: 32px; height: 32px; border-radius: var(--rs); flex-shrink: 0;
+      background: var(--accent); border: none; color: #fff;
+      cursor: pointer; font-size: 18px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .send-btn:hover { background: var(--accent2); }
+
+    /* ── Chat messages (shared) ── */
+    .chat-messages { flex: 1; overflow-y: auto; padding: 16px 0; display: flex; flex-direction: column; gap: 0; }
+    .chat-messages:empty { display: none; }
+    .msg-row { display: flex; padding: 6px 20px; animation: fadeUp .2s; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+    .msg-body { flex: 1; max-width: 660px; }
+    .msg-text { background: var(--bg3); border-radius: var(--r); padding: 10px 14px; font-size: 14px; line-height: 1.65; color: var(--text); }
+    .msg-row.user { justify-content: flex-end; }
+    .msg-row.user .msg-body { flex: 0 1 400px; max-width: 400px; }
+    .msg-row.user .msg-text { background: var(--adim); border: 1px solid rgba(91,143,249,.2); }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+    /* ════════════════════════════════
+       SCREEN: NEW GLOBAL CHAT (home)
+    ════════════════════════════════ */
+    #screen-home { background: var(--bg); }
+    .home-layout { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .home-intro {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 10px; padding: 40px 20px;
+    }
+    .home-logo {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      border-radius: 16px; display: flex; align-items: center; justify-content: center;
+      font-size: 28px; margin-bottom: 6px;
+    }
+    .home-intro h3 { font-size: 20px; font-weight: 600; }
+    .home-intro p { font-size: 14px; color: var(--text2); text-align: center; max-width: 380px; line-height: 1.6; }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 14px; }
+    .chip {
+      padding: 7px 14px; background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: 20px; font-size: 13px; color: var(--text2);
+      cursor: pointer; transition: all .15s;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--accent); background: var(--adim); }
+
+    /* ════════════════════════════════
+       SCREEN: GLOBAL CHAT (open chat)
+    ════════════════════════════════ */
+    #screen-gchat { background: var(--bg); }
+    .gchat-layout { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .gchat-messages { flex: 1; overflow-y: auto; padding: 16px 0; display: flex; flex-direction: column; gap: 0; align-items: center; }
+    .gchat-messages > * { width: 800px; max-width: 100%; }
+    #screen-home .input-box,
+    #screen-gchat .input-box,
+    #screen-post .input-box { width: 800px; max-width: 100%; }
+
+    /* ════════════════════════════════
+       SCREEN: FEED
+    ════════════════════════════════ */
+    #screen-feed { background: var(--bg); }
+    .feed-layout { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .feed-scroll { flex: 1; overflow-y: auto; padding: 24px 0; display: flex; flex-direction: column; align-items: center; }
+    .feed-inner  { width: 700px; max-width: 100%; padding: 0 16px; }
+    .feed-section { margin-top: 0; }
+    .feed-section + .feed-section { margin-top: 0; }
+    .section-label {
+      font-size: 11px; font-weight: 600; letter-spacing: .08em;
+      color: var(--text3); text-transform: uppercase;
+      text-align: center;
+      width: 500px; max-width: 100%;
+      margin: 28px 0 16px;
+    }
+    .feed-section-cards { display: flex; flex-direction: column; gap: 10px; }
+    .post-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 14px 16px; cursor: pointer;
+      transition: border-color .15s, background .15s;
+      display: flex; align-items: flex-start; gap: 10px;
+      width: 500px; max-width: 100%;
+    }
+    .post-card:hover { border-color: var(--border2); background: var(--bg3); }
+    .drag-handle { color: var(--text3); font-size: 16px; cursor: grab; flex-shrink: 0; line-height: 1.4; user-select: none; padding-top: 2px; }
+    .post-card-body { flex: 1; min-width: 0; }
+    .post-card-text {
+      font-size: 14px; line-height: 1.7; color: var(--text);
+      white-space: pre-wrap; word-break: break-word;
+      margin-bottom: 10px;
+    }
+    .post-card-text.empty { color: var(--text3); font-style: italic; }
+    .post-card-media {
+      background: var(--bg4); border: 1px dashed var(--border2);
+      border-radius: var(--rs); padding: 18px 0;
+      text-align: center; font-size: 22px; margin-bottom: 10px;
+      color: var(--text3);
+    }
+    .post-meta { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text3); flex-wrap: wrap; }
+    .post-status { display: flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 500; }
+    .dot-g { color: var(--green); } .dot-o { color: var(--orange); } .dot-gr { color: var(--text3); }
+    .post-metrics { display: flex; gap: 10px; font-size: 12px; color: var(--text2); }
+    .tag-pill { padding: 2px 7px; background: var(--bg4); border-radius: 4px; font-size: 11px; color: var(--text3); }
+    .post-card-footer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    /* ════════════════════════════════
+       SCREEN: POST SPACE
+    ════════════════════════════════ */
+    #screen-post { background: var(--bg); }
+    .post-hdr {
+      border-bottom: 1px solid var(--border); background: var(--bg2);
+      padding: 10px 20px; flex-shrink: 0;
+    }
+    .post-hdr-top { display: flex; align-items: center; gap: 8px; }
+    .post-hdr-top .breadcrumb { flex: 1; }
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px;
+    }
+    .badge-pub { background: rgba(76,175,130,.12); color: var(--green); }
+    .badge-dft { background: rgba(152,152,152,.1); color: var(--text2); }
+    .badge-sch { background: rgba(232,149,74,.12); color: var(--orange); }
+    .post-status-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 10px; flex-wrap: wrap;
+    }
+    .post-card-metrics { font-size: 12px; color: var(--text3); }
+    .edit-trigger-btn {
+      margin-left: auto; padding: 3px 10px; border-radius: var(--rs);
+      background: var(--bg4); border: 1px solid var(--border2);
+      color: var(--text2); font-size: 12px; cursor: pointer; transition: all .15s;
+      white-space: nowrap;
+    }
+    .edit-trigger-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* post body */
+    .post-body { flex: 1; overflow-y: auto; padding: 18px 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .post-body-inner { width: 800px; max-width: 100%; padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
+    .post-body-inner .post-msg-card { width: 500px; max-width: 100%; }
+    .post-body-inner .msg-row { padding: 6px 0; }
+    .post-body.hidden { display: none; }
+    .post-msg-card {
+      background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--r);
+      padding: 14px 16px;
+    }
+    .post-msg-label { font-size: 10px; font-weight: 600; letter-spacing: .07em; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; }
+    .post-msg-text { font-size: 14px; line-height: 1.7; color: var(--text); white-space: pre-wrap; }
+    .post-msg-textarea {
+      width: 100%; background: var(--bg3); border: 1px solid var(--accent);
+      border-radius: var(--rs); color: var(--text); font-family: var(--font);
+      font-size: 14px; line-height: 1.7; padding: 10px 12px; resize: vertical; min-height: 120px; outline: none;
+    }
+    .post-edit-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+
+    /* notes grid in post */
+    .notes-grid { flex: 1; overflow-y: auto; padding: 18px 22px; display: none; }
+    .notes-grid.visible { display: block; }
+    .notes-grid-inner { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+    .note-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 12px; cursor: pointer; transition: border-color .15s;
+      min-height: 90px; display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .note-card:hover { border-color: var(--border2); }
+    .note-card-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+    .note-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+    .note-date { font-size: 11px; color: var(--text3); }
+    .note-del { font-size: 13px; color: var(--text3); cursor: pointer; transition: color .15s; }
+    .note-del:hover { color: var(--red); }
+
+    /* ════════════════════════════════
+       SCREEN: NOTE PAGE
+    ════════════════════════════════ */
+    #screen-note { background: var(--bg); }
+    .note-page { flex: 1; overflow-y: auto; padding: 0 24px 24px; }
+    .note-title-row {
+      display: flex; align-items: baseline; gap: 10px;
+      padding: 20px 0 6px;
+    }
+    .note-title-static { font-size: 20px; font-weight: 600; color: var(--text); flex: 1; }
+    .note-title-input {
+      flex: 1; background: var(--bg3); border: 1px solid var(--accent);
+      border-radius: var(--rs); color: var(--text); font-family: var(--font);
+      font-size: 18px; font-weight: 600; padding: 5px 10px; outline: none;
+    }
+    .note-ctrl { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .ai-toggle {
+      padding: 3px 9px; border-radius: 20px; font-size: 12px; cursor: pointer;
+      border: 1px solid var(--border2); background: var(--bg4); color: var(--text3);
+      transition: all .15s;
+    }
+    .ai-toggle.on { background: rgba(91,143,249,.12); border-color: var(--accent); color: var(--accent); }
+    .note-mode-btns { display: flex; gap: 6px; }
+    .note-local-info {
+      font-size: 12px; color: var(--text3); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .note-local-info a { color: var(--accent); cursor: pointer; text-decoration: none; }
+    .note-local-info a:hover { text-decoration: underline; }
+    .note-divider { border: none; border-top: 1px solid var(--border); margin: 0 0 14px; }
+    .note-body-view { font-size: 14px; line-height: 1.8; color: var(--text); white-space: pre-wrap; flex: 1; }
+    .note-body-edit {
+      width: 100%; background: var(--bg3); border: 1px solid var(--accent);
+      border-radius: var(--rs); color: var(--text); font-family: var(--font);
+      font-size: 14px; line-height: 1.8; padding: 12px; resize: vertical; min-height: 200px; outline: none;
+    }
+    .note-timestamps { font-size: 11px; color: var(--text3); margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); }
+
+    /* ════════════════════════════════
+       SCREEN: CHATS LIST
+    ════════════════════════════════ */
+    #screen-chats { background: var(--bg); }
+    .chats-scroll { flex: 1; overflow-y: auto; padding: 20px 24px; }
+    .chats-tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .chats-tab {
+      padding: 8px 16px; font-size: 13px; color: var(--text3); cursor: pointer;
+      border-bottom: 2px solid transparent; transition: all .15s; margin-bottom: -1px;
+    }
+    .chats-tab:hover { color: var(--text2); }
+    .chats-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+    .chat-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 12px 14px; margin-bottom: 8px; cursor: pointer;
+      transition: border-color .15s; display: flex; align-items: flex-start; gap: 10px;
+    }
+    .chat-card:hover { border-color: var(--border2); }
+    .chat-card-icon {
+      width: 34px; height: 34px; border-radius: 9px; background: var(--bg4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; flex-shrink: 0;
+    }
+    .chat-card-body { flex: 1; min-width: 0; }
+    .chat-card-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+    .chat-card-preview { font-size: 12px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chat-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+    .chat-card-date { font-size: 11px; color: var(--text3); }
+    .chat-del-btn {
+      font-size: 14px; color: var(--text3); background: none; border: none; cursor: pointer;
+      transition: color .15s; padding: 0; line-height: 1;
+    }
+    .chat-del-btn:hover { color: var(--red); }
+    .to-post-btn {
+      padding: 3px 8px; font-size: 11px; border-radius: var(--rs);
+      background: var(--bg4); border: 1px solid var(--border2);
+      color: var(--text3); cursor: pointer; transition: all .15s;
+    }
+    .to-post-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ════════════════════════════════
+       SCREEN: NOTES LIST
+    ════════════════════════════════ */
+    #screen-notes { background: var(--bg); }
+    .notes-page { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .notes-toolbar {
+      padding: 12px 24px 0; flex-shrink: 0;
+    }
+    .notes-search {
+      width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: var(--r); color: var(--text); font-family: var(--font);
+      font-size: 14px; padding: 8px 14px; outline: none; transition: border-color .15s;
+    }
+    .notes-search:focus { border-color: var(--accent); }
+    .notes-filter-row { display: flex; align-items: center; gap: 8px; padding: 10px 24px 0; }
+    .filter-tab {
+      padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer;
+      border: 1px solid var(--border2); background: var(--bg4); color: var(--text3);
+      transition: all .15s;
+    }
+    .filter-tab:hover { border-color: var(--border2); color: var(--text2); }
+    .filter-tab.active { background: var(--adim); border-color: var(--accent); color: var(--accent); }
+    .filter-spacer { flex: 1; }
+    .notes-grid-page { flex: 1; overflow-y: auto; padding: 14px 24px 20px; }
+    .notes-grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .note-card-page {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 14px; cursor: pointer; transition: border-color .15s;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .note-card-page:hover { border-color: var(--border2); }
+    .note-card-ai { font-size: 14px; margin-bottom: 2px; }
+    .note-card-name { font-size: 13px; font-weight: 500; color: var(--text); }
+    .note-card-preview { font-size: 12px; color: var(--text3); line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .note-card-footer-pg { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+    .note-card-date-pg { font-size: 11px; color: var(--text3); }
+    .note-ai-toggle {
+      font-size: 11px; padding: 2px 7px; border-radius: 20px; cursor: pointer;
+      border: 1px solid var(--border2); background: var(--bg4); color: var(--text3); transition: all .15s;
+    }
+    .note-ai-toggle.on { background: var(--adim); border-color: var(--accent); color: var(--accent); }
+
+    /* ════════════════════════════════
+       SCREEN: ANALYTICS
+    ════════════════════════════════ */
+    #screen-analytics { background: var(--bg); }
+    .analytics-scroll { flex: 1; overflow-y: auto; padding: 20px 24px; }
+    .period-tabs { display: flex; gap: 6px; margin-bottom: 20px; }
+    .period-tab {
+      padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer;
+      border: 1px solid var(--border2); background: var(--bg4); color: var(--text3); transition: all .15s;
+    }
+    .period-tab.active { background: var(--adim); border-color: var(--accent); color: var(--accent); }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 12px; margin-bottom: 24px; }
+    .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+    .stat-label { font-size: 12px; color: var(--text3); margin-bottom: 6px; }
+    .stat-value { font-size: 26px; font-weight: 700; color: var(--text); }
+    .stat-delta { font-size: 12px; margin-top: 4px; display: flex; align-items: center; gap: 3px; }
+    .delta-up { color: var(--green); } .delta-dn { color: var(--red); }
+    .section-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+    .analytics-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 18px; margin-bottom: 16px; }
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .bar-label { font-size: 12px; color: var(--text2); width: 150px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { flex: 1; height: 7px; background: var(--bg4); border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; background: var(--accent); transition: width .6s; }
+    .bar-fill.g { background: var(--green); } .bar-fill.o { background: var(--orange); } .bar-fill.p { background: var(--purple); }
+    .bar-val { font-size: 12px; color: var(--text3); width: 44px; text-align: right; flex-shrink: 0; }
+    .top-table { width: 100%; border-collapse: collapse; }
+    .top-table th { text-align: left; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; padding: 0 0 8px; border-bottom: 1px solid var(--border); }
+    .top-table td { padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .top-table td:first-child { color: var(--text); }
+    .top-table td:not(:first-child) { color: var(--text2); text-align: right; }
+    .top-table tr:last-child td { border-bottom: none; }
+    .top-link { color: var(--accent); cursor: pointer; font-size: 12px; }
+
+    /* ════════════════════════════════
+       SCREEN: PROFILE
+    ════════════════════════════════ */
+    #screen-profile { background: var(--bg); }
+    .profile-scroll { flex: 1; overflow-y: auto; padding: 20px 24px; max-width: 820px; }
+    .profile-tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .profile-tab { padding: 8px 16px; font-size: 13px; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s; margin-bottom: -1px; }
+    .profile-tab:hover { color: var(--text2); }
+    .profile-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+    .profile-panel { display: none; }
+    .profile-panel.active { display: block; }
+    .profile-section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 18px; margin-bottom: 14px; }
+    .profile-section-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+    .profile-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+    .profile-label { font-size: 11px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: .06em; }
+    .profile-val { font-size: 14px; color: var(--text); }
+    .profile-input { background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--rs); color: var(--text); font-family: var(--font); font-size: 14px; padding: 8px 12px; width: 100%; outline: none; transition: border-color .15s; }
+    .profile-input:focus { border-color: var(--accent); }
+    .profile-textarea { min-height: 80px; resize: vertical; }
+    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .rubric-item { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--rs); padding: 10px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+    .rubric-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .rubric-name { font-size: 13px; font-weight: 500; color: var(--text); }
+    .rubric-freq { font-size: 12px; color: var(--text3); margin-left: auto; }
+
+    /* ── Empty state ── */
+    .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; text-align: center; gap: 8px; color: var(--text3); }
+    .empty .eico { font-size: 32px; }
+    .empty p { font-size: 14px; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══════════════════════════════
+       SIDEBAR
+  ══════════════════════════════ -->
+  <nav id="sidebar">
+    <div class="sidebar-logo" onclick="goHome()">
+      <div class="logo-mark">TG</div>
+        <div class="logo-name">TG Platform</div>
+    </div>
+
+    <button class="new-chat-btn" onclick="goHome()">
+      <span>＋</span> Новый чат
+    </button>
+
+    <div class="nav-items">
+      <div class="nav-item active" id="nav-home" onclick="goHome()">
+        <span class="nav-icon">💬</span> Чат
+      </div>
+      <div class="nav-item" id="nav-feed" onclick="navigate('feed')">
+        <span class="nav-icon">📋</span> Лента
+      </div>
+      <div class="nav-item" id="nav-chats" onclick="navigate('chats')">
+        <span class="nav-icon">🗂</span> Чаты
+      </div>
+      <div class="nav-item" id="nav-notes" onclick="navigate('notes')">
+        <span class="nav-icon">📝</span> Заметки
+      </div>
+      <div class="nav-item" id="nav-analytics" onclick="navigate('analytics')">
+        <span class="nav-icon">📊</span> Аналитика
+      </div>
+    </div>
+
+    <div class="nav-divider"></div>
+    <div class="sidebar-bottom">
+      <div class="nav-item" id="nav-profile" onclick="navigate('profile')">
+        <span class="nav-icon">⚙️</span> Профиль канала
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════
+       MAIN
+  ══════════════════════════════ -->
+  <div id="main">
+
+    <!-- ══ HOME / NEW GLOBAL CHAT ══ -->
+    <div class="screen active" id="screen-home">
+      <div class="home-layout">
+        <div class="home-intro">
+          <div class="home-logo">✦</div>
+          <h3>Чем помочь сегодня?</h3>
+          <p>Макро-ИИ знает весь контекст твоего канала: посты, аудиторию, рубрики, метрики. Задай любой вопрос или дай задачу.</p>
+          <div class="suggestions">
+            <div class="chip" onclick="homeSuggest(this)">Составь контент-план на неделю</div>
+            <div class="chip" onclick="homeSuggest(this)">Какие рубрики работают хуже всего?</div>
+            <div class="chip" onclick="homeSuggest(this)">Предложи 5 тем для постов</div>
+            <div class="chip" onclick="homeSuggest(this)">Почему охваты упали?</div>
+          </div>
+        </div>
+        <div class="input-wrap">
+          <div class="input-box">
+            <button class="icon-btn" title="Закрепить посты в контексте">📌</button>
+            <button class="icon-btn" title="Прикрепить файл">📎</button>
+            <textarea id="home-input" placeholder="Написать сообщение..." rows="1"
+              onkeydown="handleKey(event,'home')" oninput="autoResize(this)"></textarea>
+            <button class="send-btn" onclick="sendHome()">↑</button>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ OPEN GLOBAL CHAT ══ -->
+    <div class="screen" id="screen-gchat">
+      <div class="page-header">
+        <div class="breadcrumb">
+          <span class="bc-link" onclick="navigate('chats')">Чаты</span>
+          <span>/</span>
+          <b id="gchat-title">—</b>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="navigate('chats')">← Назад</button>
+        <div class="ctx-wrap">
+          <button class="ctx-btn" onclick="ctxToggle('gchat-ctx')">•••</button>
+          <div class="ctx-dropdown" id="gchat-ctx">
+            <div class="ctx-item danger" onclick="ctxDeleteChat()">🗑 Удалить чат</div>
+          </div>
+        </div>
+      </div>
+      <div class="gchat-layout">
+        <div class="gchat-messages" id="gchat-messages"></div>
+        <div class="input-wrap">
+          <div class="input-box">
+            <button class="icon-btn" title="Закрепить посты">📌</button>
+            <button class="icon-btn" title="Медиа">📎</button>
+            <button class="icon-btn" title="Файл">💬</button>
+            <textarea id="gchat-input" placeholder="Написать сообщение..." rows="1"
+              onkeydown="handleKey(event,'gchat')" oninput="autoResize(this)"></textarea>
+            <button class="send-btn" onclick="sendGChat()">↑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FEED ══ -->
+    <div class="screen" id="screen-feed">
+      <div class="page-header">
+        <h2>Лента</h2>
+        </div>
+      <div class="feed-layout">
+        <div class="feed-scroll" id="feed-scroll"><!-- JS --></div>
+        <div class="input-wrap">
+          <div class="input-box">
+            <button class="icon-btn" title="Добавить медиа">📎</button>
+            <textarea id="feed-input" placeholder="Написать пост..." rows="1"
+              onkeydown="handleKey(event,'feed')" oninput="autoResize(this)"></textarea>
+            <button class="send-btn" onclick="sendFeedDraft()">↑</button>
+      </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ POST SPACE ══ -->
+    <div class="screen" id="screen-post">
+      <div class="post-hdr">
+        <div class="post-hdr-top">
+          <div class="breadcrumb">
+            <span class="bc-link" onclick="navigate('feed')">Лента</span>
+            <span>/</span>
+            <b id="post-bc">—</b>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="navigate('feed')">← Назад</button>
+          <div class="ctx-wrap">
+            <button class="ctx-btn" onclick="ctxToggle('post-ctx')">•••</button>
+            <div class="ctx-dropdown" id="post-ctx"><!-- JS --></div>
+        </div>
+        </div>
+      </div>
+
+      <!-- Chat mode -->
+      <div id="post-chat" class="post-body"><!-- JS --></div>
+      <div id="post-chat-input-wrap" class="input-wrap">
+        <div class="input-box">
+          <button class="icon-btn" title="Медиа из поста">📎</button>
+          <button class="icon-btn" title="Прикрепить файл">💬</button>
+          <textarea id="post-input" placeholder="Написать сообщение..." rows="1"
+            onkeydown="handleKey(event,'post')" oninput="autoResize(this)"></textarea>
+          <button class="send-btn" onclick="sendPost()">↑</button>
+        </div>
+      </div>
+
+      <!-- Notes mode -->
+      <div id="post-notes" class="notes-grid">
+        <div class="notes-grid-inner" id="post-notes-inner"><!-- JS --></div>
+        </div>
+      </div>
+
+    <!-- ══ NOTE PAGE ══ -->
+    <div class="screen" id="screen-note">
+      <div class="page-header" id="note-hdr-row"><!-- JS --></div>
+      <div class="note-page" id="note-page-body"><!-- JS --></div>
+    </div>
+
+    <!-- ══ CHATS LIST ══ -->
+    <div class="screen" id="screen-chats">
+      <div class="page-header"><h2>Чаты</h2></div>
+      <div class="chats-scroll">
+        <div class="chats-tabs">
+          <div class="chats-tab active" id="tab-global" onclick="switchChatsTab('global')">Глобальные</div>
+          <div class="chats-tab" id="tab-local" onclick="switchChatsTab('local')">Локальные</div>
+          </div>
+        <div id="chats-global"><!-- JS --></div>
+        <div id="chats-local" style="display:none"><!-- JS --></div>
+      </div>
+    </div>
+
+    <!-- ══ NOTES LIST ══ -->
+    <div class="screen" id="screen-notes">
+      <div class="page-header">
+        <h2>Заметки</h2>
+        <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="newGlobalNote()">+ Новая</button>
+        </div>
+      <div class="notes-page">
+        <div class="notes-toolbar">
+          <input class="notes-search" id="notes-search" placeholder="🔍  Поиск по заметкам..." oninput="renderNotesList()">
+      </div>
+        <div class="notes-filter-row">
+          <div class="filter-tab active" id="nf-all"    onclick="setNoteFilter('all')">Все</div>
+          <div class="filter-tab"        id="nf-ai"     onclick="setNoteFilter('ai')">В контексте ИИ</div>
+          <div class="filter-tab"        id="nf-noai"   onclick="setNoteFilter('noai')">Не в контексте</div>
+            </div>
+        <div class="notes-grid-page">
+          <div class="notes-grid-layout" id="notes-grid-pg"><!-- JS --></div>
+          </div>
+      </div>
+    </div>
+
+    <!-- ══ ANALYTICS ══ -->
+    <div class="screen" id="screen-analytics">
+      <div class="page-header"><h2>Аналитика канала</h2></div>
+      <div class="analytics-scroll">
+        <div class="period-tabs">
+          <div class="period-tab active">7 дней</div>
+          <div class="period-tab" onclick="this.parentNode.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">30 дней</div>
+          <div class="period-tab" onclick="this.parentNode.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">90 дней</div>
+          <div class="period-tab" onclick="this.parentNode.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Всё время</div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Охваты</div><div class="stat-value">38 200</div><div class="stat-delta delta-up">↑ +12%</div></div>
+          <div class="stat-card"><div class="stat-label">Подписчики</div><div class="stat-value">8 412</div><div class="stat-delta delta-up">↑ +34</div></div>
+          <div class="stat-card"><div class="stat-label">ER</div><div class="stat-value">4.8%</div><div class="stat-delta delta-up">↑ +0.3%</div></div>
+      </div>
+        <div class="analytics-card">
+          <div class="section-title">По рубрикам</div>
+          <div class="bar-row"><div class="bar-label">Психология денег</div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><div class="bar-val">6 200</div></div>
+          <div class="bar-row"><div class="bar-label">Разбор</div><div class="bar-track"><div class="bar-fill o" style="width:77%"></div></div><div class="bar-val">4 800</div></div>
+          <div class="bar-row"><div class="bar-label">Личный опыт</div><div class="bar-track"><div class="bar-fill g" style="width:63%"></div></div><div class="bar-val">3 900</div></div>
+          <div class="bar-row"><div class="bar-label">Новости</div><div class="bar-track"><div class="bar-fill p" style="width:34%"></div></div><div class="bar-val">2 100</div></div>
+          </div>
+        <div class="analytics-card">
+          <div class="section-title">Лучшие посты за период</div>
+          <table class="top-table">
+            <thead><tr><th>Пост</th><th>Охваты</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>Синдром чистого листа с деньгами</td><td>5 100</td><td><span class="top-link" onclick="openPost(1)">→</span></td></tr>
+              <tr><td>Почему ИИС — не страшно</td><td>4 200</td><td><span class="top-link" onclick="openPost(2)">→</span></td></tr>
+              <tr><td>Личный опыт с ETF</td><td>3 800</td><td><span class="top-link">→</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PROFILE ══ -->
+    <div class="screen" id="screen-profile">
+      <div class="page-header"><h2>Профиль канала</h2></div>
+      <div class="profile-scroll">
+        <div class="profile-tabs">
+          <div class="profile-tab active" onclick="switchProfileTab(0,this)">Канал</div>
+          <div class="profile-tab" onclick="switchProfileTab(1,this)">Настройки</div>
+          <div class="profile-tab" onclick="switchProfileTab(2,this)">Аналитика платформы</div>
+        </div>
+        <!-- Tab 0: Канал -->
+        <div class="profile-panel active" id="ptab-0">
+          <div class="profile-section">
+            <div class="profile-section-title">Целевая аудитория <button class="btn btn-ghost btn-sm">Изменить</button></div>
+            <div class="profile-val">Начинающие инвесторы, 25–38 лет, работают в найме. Хотят начать инвестировать, но боятся сделать первый шаг.</div>
+      </div>
+        <div class="profile-section">
+            <div class="profile-section-title">Рубрики <button class="btn btn-primary btn-sm">+ Рубрика</button></div>
+            <div class="rubric-item"><div class="rubric-dot" style="background:var(--accent)"></div><div class="rubric-name">Психология денег</div><div class="rubric-freq">раз в 5 дней</div></div>
+            <div class="rubric-item"><div class="rubric-dot" style="background:var(--orange)"></div><div class="rubric-name">Разбор</div><div class="rubric-freq">раз в неделю</div></div>
+            <div class="rubric-item"><div class="rubric-dot" style="background:var(--green)"></div><div class="rubric-name">Личный опыт</div><div class="rubric-freq">раз в 2 нед.</div></div>
+            </div>
+          <div class="profile-section">
+            <div class="profile-section-title">Тон и голос <button class="btn btn-ghost btn-sm">Изменить</button></div>
+            <div class="profile-val">Разговорный, от 1-го лица, без жаргона. Личные истории + практичные выводы.</div>
+            </div>
+          <div class="profile-section">
+            <div class="profile-section-title">Запрещённые темы <button class="btn btn-ghost btn-sm">Изменить</button></div>
+            <div class="profile-val">Крипто, конкретные брокеры, политика, агрессивный маркетинг.</div>
+          </div>
+          </div>
+        <!-- Tab 1: Настройки -->
+        <div class="profile-panel" id="ptab-1">
+        <div class="profile-section">
+            <div class="profile-section-title">ИИ-движок</div>
+            <div class="profile-row"><div class="profile-label">Модель</div><input class="profile-input" value="GPT-4o"></div>
+            <div class="profile-row"><div class="profile-label">API-ключ</div><input class="profile-input" type="password" value="sk-•••••••••••••••••••"></div>
+          <div class="profile-grid">
+              <div class="profile-row"><div class="profile-label">Температура</div><input class="profile-input" value="0.7"></div>
+              <div class="profile-row"><div class="profile-label">Max tokens</div><input class="profile-input" value="2048"></div>
+            </div>
+            <div class="profile-row"><div class="profile-label">Системный промпт</div><textarea class="profile-input profile-textarea">Ты помогаешь автору Telegram-канала о личных финансах...</textarea></div>
+            <button class="btn btn-primary" style="margin-top:4px">Сохранить всё</button>
+            </div>
+        <div class="profile-section">
+            <div class="profile-section-title">Telegram</div>
+            <div class="profile-row"><div class="profile-label">Канал</div><div class="profile-val">@dengibeznpaniki &nbsp;•&nbsp; <span style="color:var(--green)">подключён ✓</span></div></div>
+            <button class="btn btn-ghost btn-sm">Переподключить</button>
+            </div>
+          </div>
+        <!-- Tab 2: Аналитика платформы -->
+        <div class="profile-panel" id="ptab-2">
+        <div class="profile-section">
+            <div class="profile-section-title">Использование ИИ</div>
+            <div class="stat-grid" style="margin-bottom:0">
+              <div class="stat-card"><div class="stat-label">Запросов</div><div class="stat-value">47</div></div>
+              <div class="stat-card"><div class="stat-label">Токенов</div><div class="stat-value">182K</div></div>
+              <div class="stat-card"><div class="stat-label">Стоимость</div><div class="stat-value">$1.40</div></div>
+            </div>
+            </div>
+        <div class="profile-section">
+            <div class="profile-section-title">Активность</div>
+            <div class="profile-val" style="font-size:13px;color:var(--text2)">Чатов создано: 12 &nbsp;•&nbsp; Заметок: 8 &nbsp;•&nbsp; Постов: 6</div>
+          </div>
+          </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ══════════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════════
+const posts = [
+  {
+    id: 1, status: 'published', date: '28 апр',
+    rubric: 'Психология денег',
+    metrics: { views: '5 100', reactions: 87, reposts: 23 },
+    text: `Два года я не мог нажать кнопку "Открыть счёт". Не потому что не было денег. Просто мозг не пускал.
+
+Это называется "паралич анализа" — когда знаешь что делать, понимаешь зачем, но всё равно откладываешь.
+
+Вот что мне помогло:
+
+1. Убрал "правильность" из уравнения. Нет идеального момента.
+2. Сделал минимальный шаг — 1 000 рублей в индекс.
+3. Перестал читать прогнозы.`,
+    notes: [
+      { id: 101, title: 'Барьер №2 — первая сделка', date: '29 апр', ai: false, body: 'Следующий барьер после открытия счёта — первая сделка.' },
+      { id: 102, title: 'Альтернативный финал поста', date: '28 апр', ai: false, body: 'Другой финал: сфокусироваться на маленьком шаге.' },
+      { id: 103, title: 'Факты для поста про ИИС', date: '27 апр', ai: true, body: 'Налоговый вычет типа А: до 52 000 руб/год.' },
+    ],
+    chatHistory: [
+      { role: 'user', text: 'Этот пост работает лучше обычного. Как думаешь, почему?' },
+      { role: 'ai', text: 'По паттернам канала — посты от первого лица с личной историей преодоления страха получают на 35% больше охватов. Здесь сработало три вещи: конкретный числовой заголовок, универсальная боль аудитории и практичные шаги в конце.' },
+    ]
+  },
+  {
+    id: 2, status: 'published', date: '25 апр',
+    rubric: 'Разбор',
+    metrics: { views: '4 200', reactions: 61, reposts: 18 },
+    text: `ИИС пугает людей аббревиатурой. Расшифруем: индивидуальный инвестиционный счёт.
+
+Две причины открыть прямо сейчас:
+→ Налоговый вычет типа А: возвращаешь до 52 000 рублей в год.
+→ Типа Б: освобождение прибыли от налогов.
+
+Минус один: деньги нужно держать 3 года.`,
+    notes: [], chatHistory: []
+  },
+  {
+    id: 3, status: 'scheduled', date: '5 мая 19:00',
+    rubric: 'Психология денег',
+    text: `Ты уже открыл счёт. Теперь смотришь на кнопку "Купить" — и снова что-то останавливает.
+
+Первая сделка — это особый психологический порог.`,
+    notes: [], chatHistory: []
+  },
+  {
+    id: 4, status: 'draft', created: '1 мая',
+    rubric: null,
+    text: 'Апрель закрыт. Разбираю что покупал и почему.',
+    notes: [], chatHistory: []
+  }
+];
+
+const globalChats = [
+  {
+    id: 'gc1', title: 'Анализ недели',
+    preview: 'Три поста за неделю. Лучший...',
+    date: '1 мая',
+    history: [
+      { role: 'user', text: 'Проанализируй эту неделю' },
+      { role: 'ai',   text: 'Три поста за неделю. Лучший — "Синдром чистого листа" (+34% к среднему). Рубрика "Психология денег" обогнала "Разбор" по охватам второй раз подряд.' },
+    ]
+  },
+  {
+    id: 'gc2', title: 'Контент-план на май',
+    preview: 'Составь контент-план на следующую...',
+    date: '28 апр',
+    history: [
+      { role: 'user', text: 'Составь контент-план на следующую неделю' },
+      { role: 'ai',   text: '📅 Пн — «Психология денег»: продолжение серии про барьеры\n📅 Ср — «Разбор»: ошибки начинающих инвесторов\n📅 Пт — «Личный опыт»: что купил в апреле' },
+    ]
+  }
+];
+
+const globalNotes = [
+  { id: 'gn1', title: 'Структура серии про барьеры инвестора', ai: true,  date: '1 мая',  body: 'Серия "Барьеры инвестора"\n\n1. Синдром чистого листа — открыть счёт\n2. Первая сделка — что и когда купить\n3. Первый убыток — как не паниковать\n4. Регулярные пополнения — автоматизация\n\nФормат: личный опыт + практика' },
+  { id: 'gn2', title: 'Мониторинг конкурентов',                ai: false, date: '28 апр', body: 'Подборка каналов о финансах...' },
+  { id: 'gn3', title: 'Правила канала (расширенные)',           ai: true,  date: '25 апр', body: 'Запреты, тон, структура...' },
+  { id: 'gn4', title: 'Идеи постов на май',                    ai: false, date: '20 апр', body: '- Психология сложного %\n- Как читать отчётность\n- Первые ETF' },
+];
+
+// ══════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════
+let currentPost  = null;
+let postMode     = 'chat'; // 'chat' | 'notes'
+let isEditing    = false;
+let currentGChat = null;
+let currentNote  = null;
+let noteMode     = 'view'; // 'view' | 'edit'
+let noteFrom     = 'notes'; // where to go back
+let chatsTab     = 'global';
+let noteFilter   = 'all';
+
+// ══════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════
+const SCREENS = ['home','gchat','feed','post','note','chats','notes','analytics','profile'];
+
+function navigate(id) {
+  SCREENS.forEach(s => {
+    const el = document.getElementById('screen-' + s);
+    if (el) el.classList.toggle('active', s === id);
+  });
+  // nav highlight — map screen id → nav id
+  const map = { home:'home', gchat:'home', feed:'feed', post:'feed', note:'notes', chats:'chats', notes:'notes', analytics:'analytics', profile:'profile' };
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navId = map[id];
+  if (navId) { const n = document.getElementById('nav-' + navId); if (n) n.classList.add('active'); }
+  // screen-specific renders
+  if (id === 'feed')      renderFeed();
+  if (id === 'chats')     renderChats();
+  if (id === 'notes')     renderNotesList();
+}
+
+function goHome() {
+  document.getElementById('home-input').value = '';
+  navigate('home');
+}
+
+// ══════════════════════════════════════════════════
+//  FEED
+// ══════════════════════════════════════════════════
+function renderFeed() {
+  const pub  = posts.filter(p => p.status === 'published');
+  const sch  = posts.filter(p => p.status === 'scheduled');
+  const dft  = posts.filter(p => p.status === 'draft');
+  let inner = '';
+  inner += `<div class="feed-section"><div class="section-label">Опубликованные</div><div class="feed-section-cards">${pub.map(postCardHTML).join('')}</div></div>`;
+  inner += `<div class="feed-section"><div class="section-label">Отложенные</div><div class="feed-section-cards">${sch.map(postCardHTML).join('')}</div></div>`;
+  inner += `<div class="feed-section"><div class="section-label">Черновики</div><div class="feed-section-cards">${dft.map(postCardHTML).join('')}</div></div>`;
+  document.getElementById('feed-scroll').innerHTML = `<div class="feed-inner">${inner}</div>`;
+}
+
+function postCardHTML(p) {
+  let statusHtml;
+  if (p.status === 'published') statusHtml = `<span class="post-status"><span class="dot-g">●</span> Опубликован</span>`;
+  else if (p.status === 'scheduled') statusHtml = `<span class="post-status"><span class="dot-o">◷</span> Отложено · ${p.date}</span>`;
+  else statusHtml = `<span class="post-status"><span class="dot-gr">✏</span> Черновик · создан ${p.created}</span>`;
+
+  const metrics = (p.status === 'published' && p.metrics)
+    ? `<div class="post-metrics"><span>👁 ${p.metrics.views}</span><span>❤ ${p.metrics.reactions}</span><span>↗ ${p.metrics.reposts}</span></div>`
+    : '';
+  const rubric = p.rubric ? `<span class="tag-pill">${p.rubric}</span>` : '';
+  const drag   = p.status === 'draft' ? `<div class="drag-handle">⠿</div>` : '';
+  const date   = p.status === 'published' ? `<span>·</span><span>${p.date}</span>` : '';
+
+  const textHtml = p.text
+    ? `<div class="post-card-text">${p.text}</div>`
+    : `<div class="post-card-text empty">Пост пустой — нажми чтобы начать писать</div>`;
+  const mediaHtml = p.media
+    ? `<div class="post-card-media">🖼 ${p.media}</div>`
+    : '';
+
+  return `<div class="post-card" onclick="openPost(${p.id})">
+    ${drag}
+    <div class="post-card-body">
+      ${textHtml}
+      ${mediaHtml}
+      <div class="post-card-footer">
+        <div class="post-meta">${statusHtml}${date}${rubric ? `<span>·</span>${rubric}` : ''}</div>
+        ${metrics}
+      </div>
+    </div>
+  </div>`;
+}
+
+function sendFeedDraft() {
+  const inp = document.getElementById('feed-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  const np = {
+      id: Date.now(), status: 'draft', created: 'только что',
+    rubric: null, text, notes: [], chatHistory: []
+  };
+  posts.push(np);
+  inp.value = ''; autoResize(inp);
+  renderFeed();
+}
+
+// ══════════════════════════════════════════════════
+//  POST SPACE
+// ══════════════════════════════════════════════════
+function openPost(id) {
+  if (id === 'new') {
+    const np = { id: Date.now(), status: 'draft', created: 'только что', rubric: null, text: '', notes: [], chatHistory: [] };
+    posts.push(np);
+    currentPost = np;
+  } else {
+    currentPost = posts.find(p => p.id === id);
+  }
+  if (!currentPost) return;
+  postMode  = 'chat';
+  isEditing = false;
+  navigate('post');
+  renderPostHeader();
+  renderPostBody();
+}
+
+function renderPostHeader() {
+  const p = currentPost;
+  document.getElementById('post-bc').textContent = truncate(postTitle(p), 38);
+
+  // rebuild ctx menu items based on post status
+  let ctxItems = ``;
+  ctxItems += `<div class="ctx-item" onclick="scrollToPostTop()">↑ К посту</div>`;
+  ctxItems += `<div class="ctx-item ${postMode==='notes'?'active':''}" onclick="togglePostMode()">${postMode === 'chat' ? '📋 Заметки' : '💬 Чат'}</div>`;
+  if (p.status === 'draft') {
+    ctxItems += `<div class="ctx-item" onclick="ctxPublishPost()">📢 Опубликовать</div>`;
+    ctxItems += `<div class="ctx-item" onclick="ctxSchedulePost()">🕐 Запланировать</div>`;
+  }
+  if (p.status === 'scheduled') {
+    ctxItems += `<div class="ctx-item" onclick="ctxPublishPost()">📢 Опубликовать</div>`;
+    ctxItems += `<div class="ctx-item" onclick="ctxCancelSchedule()">✕ Отменить публикацию</div>`;
+  }
+  ctxItems += `<div class="ctx-item danger" onclick="ctxPostDelete()">🗑 Удалить</div>`;
+  const ctxEl = document.getElementById('post-ctx');
+  if (ctxEl) ctxEl.innerHTML = ctxItems;
+}
+
+function renderPostBody() {
+  const p = currentPost;
+  const chatEl  = document.getElementById('post-chat');
+  const notesEl = document.getElementById('post-notes');
+  const inputEl = document.getElementById('post-chat-input-wrap');
+
+  if (postMode === 'chat') {
+    chatEl.classList.remove('hidden');
+    notesEl.classList.remove('visible');
+    inputEl.style.display = '';
+
+    let badge;
+    if (p.status === 'published') badge = `<span class="status-badge badge-pub">● Опубликован</span>`;
+    else if (p.status === 'scheduled') badge = `<span class="status-badge badge-sch">◷ Отложено · ${p.date}</span>`;
+    else badge = `<span class="status-badge badge-dft">✏ Черновик</span>`;
+    const metrics = (p.status === 'published' && p.metrics)
+      ? `<span class="post-card-metrics">👁 ${p.metrics.views} · ❤ ${p.metrics.reactions} · ↗ ${p.metrics.reposts}</span>`
+      : '';
+
+    let inner = `<div class="post-msg-card" id="post-msg-card">
+      <div class="post-msg-label">Вы</div>`;
+    if (isEditing) {
+      inner += `<textarea class="post-msg-textarea" id="post-text-edit">${p.text}</textarea>
+        <div class="post-edit-actions">
+          <button class="btn btn-ghost btn-sm" onclick="cancelEdit()">Отмена</button>
+          <button class="btn btn-primary btn-sm" onclick="saveEdit()">Сохранить</button>
+        </div>`;
+    } else {
+      inner += `<div class="post-msg-text">${p.text || '<span style="color:var(--text3)">Пост пустой — начни писать...</span>'}</div>
+        <div class="post-status-row">${badge}${metrics}<button class="edit-trigger-btn" onclick="startEdit()">✏ Редактировать</button></div>`;
+    }
+    inner += `</div>`;
+
+    p.chatHistory.forEach(m => { inner += chatMsgHTML(m.role, m.text); });
+    chatEl.innerHTML = `<div class="post-body-inner">${inner}</div>`;
+  } else {
+    chatEl.classList.add('hidden');
+    notesEl.classList.add('visible');
+    inputEl.style.display = 'none';
+    renderPostNotes();
+  }
+}
+
+function renderPostNotes() {
+  const p = currentPost;
+  let html = '';
+  p.notes.forEach(n => {
+    html += `<div class="note-card" onclick="openNoteFromPost(${n.id})">
+      <div class="note-card-title">${n.title}</div>
+      <div class="note-card-footer">
+        <span class="note-date">${n.date}</span>
+        <span class="note-del" onclick="event.stopPropagation();deletePostNote(${n.id})">🗑</span>
+      </div>
+    </div>`;
+  });
+  html += `<div class="note-card" style="border-style:dashed;align-items:center;justify-content:center;display:flex;flex-direction:column;gap:4px;color:var(--text3)" onclick="addPostNote()">
+    <span style="font-size:22px">＋</span><span style="font-size:12px">Новая заметка</span>
+  </div>`;
+  if (p.notes.length === 0) html = `<div class="empty"><div class="eico">📝</div><p>Нет заметок для этого поста</p></div>` + html;
+  document.getElementById('post-notes-inner').innerHTML = html;
+}
+
+function togglePostMode() {
+  postMode = postMode === 'chat' ? 'notes' : 'chat';
+  renderPostHeader();
+  renderPostBody();
+}
+
+function startEdit() { isEditing = true; renderPostBody(); setTimeout(() => { const ta = document.getElementById('post-text-edit'); if(ta){ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);} },30); }
+function cancelEdit() { isEditing = false; renderPostBody(); }
+function saveEdit() {
+  const ta = document.getElementById('post-text-edit');
+  if (ta) { currentPost.text = ta.value; }
+  isEditing = false; renderPostHeader(); renderPostBody();
+}
+function ctxPublishPost()   { document.querySelectorAll('.ctx-dropdown').forEach(d=>d.classList.remove('open')); currentPost.status='published'; currentPost.date='сегодня'; currentPost.metrics={views:'0',reactions:0,reposts:0}; renderPostHeader(); }
+function ctxSchedulePost()  { document.querySelectorAll('.ctx-dropdown').forEach(d=>d.classList.remove('open')); currentPost.status='scheduled'; currentPost.date='10 мая 20:00'; renderPostHeader(); }
+function ctxCancelSchedule(){ document.querySelectorAll('.ctx-dropdown').forEach(d=>d.classList.remove('open')); currentPost.status='draft'; currentPost.created='сейчас'; renderPostHeader(); }
+function scrollToPostTop(){ const c = document.getElementById('post-chat'); if(c) c.scrollTop = 0; }
+
+function addPostNote() {
+  const title = prompt('Название заметки:');
+  if (!title) return;
+  currentPost.notes.push({ id: Date.now(), title, date: 'сейчас', ai: false, body: '' });
+  renderPostNotes();
+}
+function deletePostNote(id) {
+  if (!confirm('Удалить заметку?')) return;
+  currentPost.notes = currentPost.notes.filter(n => n.id !== id);
+  renderPostNotes();
+}
+function openNoteFromPost(id) {
+  const n = currentPost.notes.find(n => n.id === id);
+  if (!n) return;
+  currentNote = { ...n, postId: currentPost.id, isGlobal: false };
+  noteFrom = 'post';
+  noteMode = 'view';
+  navigate('note');
+  renderNotePage();
+}
+
+// ══════════════════════════════════════════════════
+//  NOTE PAGE
+// ══════════════════════════════════════════════════
+function openGlobalNote(id) {
+  const n = globalNotes.find(n => n.id === id);
+  if (!n) return;
+  currentNote = { ...n, isGlobal: true };
+  noteFrom = 'notes';
+  noteMode = 'view';
+  navigate('note');
+  renderNotePage();
+}
+
+function newGlobalNote() {
+  const title = prompt('Название заметки:');
+  if (!title) return;
+  const nn = { id: 'gn' + Date.now(), title, ai: false, date: 'сейчас', body: '', isGlobal: true };
+  globalNotes.unshift(nn);
+  currentNote = { ...nn };
+  noteFrom = 'notes';
+  noteMode = 'edit';
+  navigate('note');
+  renderNotePage();
+}
+
+function renderNotePage() {
+  const n = currentNote;
+  if (!n) return;
+
+  // Header row
+  const backLabel = n.isGlobal ? 'Заметки' : 'Лента / Пост';
+  const hdr = document.getElementById('note-hdr-row');
+  hdr.innerHTML = `
+    <div class="breadcrumb" style="flex:1">
+      <span class="bc-link" onclick="backFromNote()">${backLabel}</span>
+      <span>/</span>
+      <b>${truncate(n.title, 30)}</b>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="backFromNote()">← Назад</button>
+    <div class="ctx-wrap">
+      <button class="ctx-btn" onclick="ctxToggle('note-ctx')">•••</button>
+      <div class="ctx-dropdown" id="note-ctx">
+        <div class="ctx-item danger" onclick="ctxDeleteNote()">🗑 Удалить заметку</div>
+      </div>
+    </div>`;
+
+  // Body
+  const body = document.getElementById('note-page-body');
+  const aiToggleHtml = n.isGlobal
+    ? `<button class="ai-toggle ${n.ai?'on':''}" onclick="toggleNoteAI()">${n.ai ? '● Учитывать ИИ' : '○ Учитывать ИИ'}</button>`
+    : '';
+
+  if (noteMode === 'view') {
+    body.innerHTML = `
+      <div class="note-title-row">
+        <div class="note-title-static">${n.title}</div>
+        <div class="note-ctrl">
+          ${aiToggleHtml}
+          <button class="btn btn-ghost btn-sm" onclick="setNoteMode('edit')">Ред.</button>
+          <button class="btn btn-primary btn-sm" onclick="saveNote()">Сохранить</button>
+        </div>
+      </div>
+      ${!n.isGlobal ? `<div class="note-local-info">📌 Локальная &nbsp;•&nbsp; <a onclick="openPost(${n.postId})">→ пост</a></div>` : ''}
+      <hr class="note-divider">
+      <div class="note-body-view">${n.body || '<span style="color:var(--text3)">Заметка пустая</span>'}</div>
+      <div class="note-timestamps">Создана: ${n.date} &nbsp;•&nbsp; Изменена: ${n.date}</div>`;
+  } else {
+    body.innerHTML = `
+      <div class="note-title-row">
+        <input class="note-title-input" id="note-title-inp" value="${n.title}">
+        <div class="note-ctrl">
+          ${aiToggleHtml}
+          <button class="btn btn-ghost btn-sm" onclick="setNoteMode('view')">Просмотр</button>
+          <button class="btn btn-primary btn-sm" onclick="saveNote()">Сохранить</button>
+        </div>
+      </div>
+      ${!n.isGlobal ? `<div class="note-local-info">📌 Локальная &nbsp;•&nbsp; <a onclick="openPost(${n.postId})">→ пост</a></div>` : ''}
+      <hr class="note-divider">
+      <textarea class="note-body-edit" id="note-body-inp">${n.body}</textarea>
+      <div class="note-timestamps">Создана: ${n.date} &nbsp;•&nbsp; Изменена: сейчас</div>`;
+  }
+}
+
+function setNoteMode(m) { noteMode = m; renderNotePage(); }
+
+function saveNote() {
+  const titleInp = document.getElementById('note-title-inp');
+  const bodyInp  = document.getElementById('note-body-inp');
+  if (titleInp) currentNote.title = titleInp.value.trim() || currentNote.title;
+  if (bodyInp)  currentNote.body  = bodyInp.value;
+
+  if (currentNote.isGlobal) {
+    const idx = globalNotes.findIndex(n => n.id === currentNote.id);
+    if (idx !== -1) Object.assign(globalNotes[idx], { title: currentNote.title, body: currentNote.body });
+  } else {
+    const post = posts.find(p => p.id === currentNote.postId);
+    if (post) {
+      const idx = post.notes.findIndex(n => n.id === currentNote.id);
+      if (idx !== -1) Object.assign(post.notes[idx], { title: currentNote.title, body: currentNote.body });
+    }
+  }
+  noteMode = 'edit';
+  renderNotePage();
+}
+
+function toggleNoteAI() {
+  currentNote.ai = !currentNote.ai;
+  if (currentNote.isGlobal) {
+    const n = globalNotes.find(n => n.id === currentNote.id);
+    if (n) n.ai = currentNote.ai;
+  }
+  renderNotePage();
+}
+
+function backFromNote() {
+  if (noteFrom === 'post') { navigate('post'); }
+  else { navigate('notes'); }
+}
+
+// ══════════════════════════════════════════════════
+//  CHATS LIST
+// ══════════════════════════════════════════════════
+function renderChats() {
+  // global
+  let gHtml = '';
+  if (globalChats.length === 0) gHtml = `<div class="empty"><div class="eico">💬</div><p>Нет глобальных чатов</p></div>`;
+  globalChats.forEach(c => {
+    gHtml += `<div class="chat-card" onclick="openGChat('${c.id}')">
+      <div class="chat-card-icon">✦</div>
+      <div class="chat-card-body">
+        <div class="chat-card-title">${c.title}</div>
+        <div class="chat-card-preview">"${c.preview}"</div>
+      </div>
+      <div class="chat-card-right">
+        <div class="chat-card-date">${c.date}</div>
+        <button class="chat-del-btn" onclick="event.stopPropagation();deleteGChat('${c.id}')">🗑</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('chats-global').innerHTML = gHtml;
+
+  // local
+  const localPosts = posts.filter(p => p.chatHistory.length > 0);
+  let lHtml = '';
+  if (localPosts.length === 0) lHtml = `<div class="empty"><div class="eico">📄</div><p>Нет локальных чатов</p></div>`;
+  localPosts.forEach(p => {
+    const last = p.chatHistory[p.chatHistory.length - 1];
+    lHtml += `<div class="chat-card" onclick="openLocalChat(${p.id})">
+      <div class="chat-card-icon">📄</div>
+      <div class="chat-card-body">
+        <div class="chat-card-title">${postTitle(p)}</div>
+        <div class="chat-card-preview">"${truncate(last.text, 55)}"</div>
+      </div>
+      <div class="chat-card-right">
+        <div class="chat-card-date">${p.date || p.created || ''}</div>
+        <button class="to-post-btn" onclick="event.stopPropagation();openPost(${p.id})">→ пост</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('chats-local').innerHTML = lHtml;
+}
+
+function switchChatsTab(tab) {
+  chatsTab = tab;
+  document.getElementById('tab-global').classList.toggle('active', tab === 'global');
+  document.getElementById('tab-local').classList.toggle('active', tab === 'local');
+  document.getElementById('chats-global').style.display = tab === 'global' ? '' : 'none';
+  document.getElementById('chats-local').style.display  = tab === 'local'  ? '' : 'none';
+}
+
+function openGChat(id) {
+  currentGChat = globalChats.find(c => c.id === id);
+  if (!currentGChat) return;
+  document.getElementById('gchat-title').textContent = currentGChat.title;
+  const msgs = document.getElementById('gchat-messages');
+  msgs.innerHTML = '';
+  currentGChat.history.forEach(m => {
+    msgs.innerHTML += chatMsgHTML(m.role, m.text);
+  });
+  msgs.scrollTop = msgs.scrollHeight;
+  navigate('gchat');
+}
+
+function openLocalChat(postId) { openPost(postId); }
+
+function deleteGChat(id) {
+  if (!confirm('Удалить чат?')) return;
+  const idx = globalChats.findIndex(c => c.id === id);
+  if (idx !== -1) globalChats.splice(idx, 1);
+  renderChats();
+}
+
+// ══════════════════════════════════════════════════
+//  NOTES LIST
+// ══════════════════════════════════════════════════
+let noteFilterState = 'all';
+function setNoteFilter(f) {
+  noteFilterState = f;
+  ['all','ai','noai'].forEach(k => document.getElementById('nf-'+k).classList.toggle('active', k === f));
+  renderNotesList();
+}
+
+function renderNotesList() {
+  const q = (document.getElementById('notes-search').value || '').toLowerCase();
+  let items = globalNotes.filter(n => {
+    if (noteFilterState === 'ai'   && !n.ai) return false;
+    if (noteFilterState === 'noai' &&  n.ai) return false;
+    if (q && !n.title.toLowerCase().includes(q) && !n.body.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  let html = '';
+  items.forEach(n => {
+    html += `<div class="note-card-page" onclick="openGlobalNote('${n.id}')">
+      ${n.ai ? '<div class="note-card-ai">🤖</div>' : ''}
+      <div class="note-card-name">${n.title}</div>
+      <div class="note-card-preview">${n.body}</div>
+      <div class="note-card-footer-pg">
+        <span class="note-card-date-pg">${n.date}</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="note-ai-toggle ${n.ai?'on':''}" onclick="event.stopPropagation();toggleGlobalNoteAI('${n.id}')">${n.ai?'● ИИ':'○ ИИ'}</button>
+          <button class="note-del" onclick="event.stopPropagation();deleteGlobalNote('${n.id}')">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  });
+  if (html === '') html = `<div class="empty" style="grid-column:1/-1"><div class="eico">📝</div><p>Нет заметок</p></div>`;
+  document.getElementById('notes-grid-pg').innerHTML = html;
+}
+
+function toggleGlobalNoteAI(id) {
+  const n = globalNotes.find(n => n.id === id);
+  if (n) n.ai = !n.ai;
+  renderNotesList();
+}
+
+function deleteGlobalNote(id) {
+  if (!confirm('Удалить заметку?')) return;
+  const idx = globalNotes.findIndex(n => n.id === id);
+  if (idx !== -1) globalNotes.splice(idx, 1);
+  renderNotesList();
+}
+
+// ══════════════════════════════════════════════════
+//  HOME → sends into global chat
+// ══════════════════════════════════════════════════
+const globalReplies = {
+  'контент-план': 'Вот контент-план на следующую неделю:\n\n📅 Пн, 4 мая — «Психология денег»: продолжение серии про барьеры\n📅 Ср, 6 мая — «Разбор»: ошибки начинающих инвесторов\n📅 Пт, 8 мая — «Личный опыт»: что купил в апреле\n\nОптимальное время: 19:00 в будни.',
+  'рубрик': 'По метрикам за 3 месяца:\n\n🟠 Личный опыт — 5 800 средний охват\n🔵 Психология денег — 5 100\n🟣 Разбор — 4 200\n🟢 Инструменты — 3 600 (хуже всего)',
+  'тем': '5 идей по профилю канала:\n\n1. «Как я выбрал брокера: 3 ошибки» — личный опыт\n2. «Инфляция съедает депозит: сколько именно» — конкретика\n3. «Первый год: честная статистика» — итоги\n4. «Почему я не доверяю советникам» — мнение\n5. «ОФЗ без страха» — разбор',
+  'охват': 'Охваты снизились в конце апреля — совпало с уменьшением частоты постов: три недели по 2 поста вместо 4–5. Рекомендую вернуться к ритму.',
+};
+
+function sendHome() {
+  const inp = document.getElementById('home-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = ''; autoResize(inp);
+  // create new chat and open it
+  const nc = { id: 'gc' + Date.now(), title: truncate(text, 40), preview: text, date: 'сейчас', history: [] };
+  globalChats.unshift(nc);
+  currentGChat = nc;
+  document.getElementById('gchat-title').textContent = nc.title;
+  const msgs = document.getElementById('gchat-messages');
+  msgs.innerHTML = '';
+  navigate('gchat');
+  appendGChatMsg('user', text);
+  setTimeout(() => { appendGChatMsg('ai', getGlobalReply(text)); }, 900);
+}
+
+function homeSuggest(el) {
+  document.getElementById('home-input').value = el.textContent;
+  sendHome();
+}
+
+function sendGChat() {
+  if (!currentGChat) return;
+  const inp = document.getElementById('gchat-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = ''; autoResize(inp);
+  currentGChat.history.push({ role: 'user', text });
+  appendGChatMsg('user', text);
+  setTimeout(() => {
+    const reply = getGlobalReply(text);
+    currentGChat.history.push({ role: 'ai', text: reply });
+    appendGChatMsg('ai', reply);
+  }, 900);
+}
+
+function appendGChatMsg(role, text) {
+  const msgs = document.getElementById('gchat-messages');
+  msgs.innerHTML += chatMsgHTML(role, text);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function getGlobalReply(text) {
+  const t = text.toLowerCase();
+  for (const k in globalReplies) { if (t.includes(k)) return globalReplies[k]; }
+  return 'Анализирую контекст канала... Дай чуть больше деталей: это про конкретный пост или про канал в целом?';
+}
+
+// ══════════════════════════════════════════════════
+//  POST CHAT
+// ══════════════════════════════════════════════════
+function sendPost() {
+  if (!currentPost) return;
+  const inp = document.getElementById('post-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = ''; autoResize(inp);
+  currentPost.chatHistory.push({ role: 'user', text });
+  renderPostBody();
+  setTimeout(() => {
+    const reply = getPostReply(text);
+    currentPost.chatHistory.push({ role: 'ai', text: reply });
+    renderPostBody();
+    const area = document.getElementById('post-chat');
+    if (area) area.scrollTop = area.scrollHeight;
+  }, 800);
+}
+
+function getPostReply(text) {
+  const t = text.toLowerCase();
+  if (t.includes('перепиш') || t.includes('rewrite'))
+    return 'Вот переработанная версия вступления:\n\n«Есть вещь, которую я откладывал два года. Не из-за лени — из-за страха.»\n\nСтало короче и острее. Применить?';
+  if (t.includes('заголов'))
+    return 'Варианты заголовков:\n\n1. «Два года я боялся нажать одну кнопку»\n2. «Паралич анализа в личных финансах»\n3. «Открыл счёт с третьей попытки»';
+  if (t.includes('почему') || t.includes('аналити'))
+    return 'По паттернам канала: посты с личной историей преодоления страха дают на 35% больше охватов. Три фактора: конкретная ситуация, универсальная боль, практичное решение.';
+  return 'Понял. Работаю с контекстом поста. Что именно хочешь улучшить — структуру, тон или конкретный абзац?';
+}
+
+// ══════════════════════════════════════════════════
+//  CONTEXT MENUS
+// ══════════════════════════════════════════════════
+function ctxToggle(id) {
+  const menu = document.getElementById(id);
+  if (!menu) return;
+  const isOpen = menu.classList.contains('open');
+  document.querySelectorAll('.ctx-dropdown').forEach(d => d.classList.remove('open'));
+  if (!isOpen) menu.classList.add('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.ctx-wrap')) document.querySelectorAll('.ctx-dropdown').forEach(d => d.classList.remove('open'));
+});
+
+function ctxPostEdit() {
+  document.querySelectorAll('.ctx-dropdown').forEach(d => d.classList.remove('open'));
+  if (!currentPost) return;
+  postMode  = 'chat';
+  isEditing = true;
+  renderPostHeader();
+  renderPostBody();
+  setTimeout(() => {
+    const card = document.getElementById('post-msg-card');
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const ta = document.getElementById('post-text-edit');
+    if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+  }, 50);
+}
+function ctxPostDelete() {
+  document.querySelectorAll('.ctx-dropdown').forEach(d => d.classList.remove('open'));
+  if (!currentPost) return;
+  if (!confirm(`Удалить пост «${postTitle(currentPost)}»?`)) return;
+  const idx = posts.findIndex(p => p.id === currentPost.id);
+  if (idx !== -1) posts.splice(idx, 1);
+  currentPost = null;
+  navigate('feed');
+}
+function ctxDeleteChat() {
+  document.querySelectorAll('.ctx-dropdown').forEach(d => d.classList.remove('open'));
+  if (!currentGChat) return;
+  if (!confirm(`Удалить чат «${currentGChat.title}»?`)) return;
+  const idx = globalChats.findIndex(c => c.id === currentGChat.id);
+  if (idx !== -1) globalChats.splice(idx, 1);
+  currentGChat = null;
+  navigate('chats');
+}
+function ctxDeleteNote() {
+  document.querySelectorAll('.ctx-dropdown').forEach(d => d.classList.remove('open'));
+  if (!currentNote) return;
+  if (!confirm(`Удалить заметку «${currentNote.title}»?`)) return;
+  if (currentNote.isGlobal) {
+    const idx = globalNotes.findIndex(n => n.id === currentNote.id);
+    if (idx !== -1) globalNotes.splice(idx, 1);
+    navigate('notes');
+  } else {
+    const post = posts.find(p => p.id === currentNote.postId);
+    if (post) post.notes = post.notes.filter(n => n.id !== currentNote.id);
+    navigate('post');
+    renderPostBody();
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  PROFILE TABS
+// ══════════════════════════════════════════════════
+function switchProfileTab(idx, el) {
+  document.querySelectorAll('.profile-tab').forEach((t,i) => t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.profile-panel').forEach((p,i) => p.classList.toggle('active', i === idx));
+}
+
+// ══════════════════════════════════════════════════
+//  SHARED HELPERS
+// ══════════════════════════════════════════════════
+function chatMsgHTML(role, text) {
+  const isUser = role === 'user';
+  return `<div class="msg-row ${isUser?'user':'ai'}">
+    <div class="msg-body">
+      <div class="msg-text">${text.replace(/\n/g,'<br>')}</div>
+    </div>
+  </div>`;
+}
+
+function handleKey(e, ctx) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    if      (ctx === 'home')  sendHome();
+    else if (ctx === 'gchat') sendGChat();
+    else if (ctx === 'feed')  sendFeedDraft();
+    else if (ctx === 'post')  sendPost();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function truncate(str, n) {
+  return str && str.length > n ? str.slice(0, n) + '…' : (str || '');
+}
+
+function extractTitle(text) {
+  if (!text) return '';
+  const firstLine = text.split('\n')[0];
+  const dotIdx = firstLine.indexOf('.');
+  return (dotIdx !== -1 ? firstLine.slice(0, dotIdx) : firstLine).trim();
+}
+
+function postTitle(p) {
+  return extractTitle(p.text) || '(без названия)';
+}
+
+
+// ── Init ──
+renderFeed();
+renderNotesList();
+</script>
+
+</body>
+</html>
