@@ -415,17 +415,19 @@
     .notes-grid.visible { display: flex; justify-content: center; }
     .notes-grid-inner {
       width: min(var(--composer-w), 100%);
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
       gap: 12px;
       padding: 0 12px;
       align-items: stretch;
     }
+    .notes-grid-inner .note-card { width: calc((100% - 24px) / 3); }
     @media (max-width: 980px) {
-      .notes-grid-inner { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .notes-grid-inner .note-card { width: calc((100% - 12px) / 2); }
     }
     @media (max-width: 700px) {
-      .notes-grid-inner { grid-template-columns: 1fr; }
+      .notes-grid-inner .note-card { width: 100%; }
     }
     .note-card {
       background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
@@ -445,7 +447,7 @@
     .note-del { font-size: 13px; color: var(--text3); cursor: pointer; transition: color .15s; }
     .note-del:hover { color: var(--red); }
     .note-card.new-note { border-style: dashed; align-items: center; justify-content: center; gap: 4px; color: var(--text3); }
-    .notes-grid-inner > .empty { grid-column: 1 / -1; }
+    .notes-grid-inner > .empty { width: 100%; }
 
     /* ════════════════════════════════
        SCREEN: NOTE PAGE
