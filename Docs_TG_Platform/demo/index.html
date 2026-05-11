@@ -25,7 +25,9 @@
       --orange:  #e8954a;
       --red:     #e85a5a;
       --purple:  #9b7cdb;
-      --nav-w:   120px;
+      --nav-w:   96px;
+      --content-w: 1160px;
+      --composer-w: 800px;
       --hdr:     56px;
       --r:       10px;
       --rs:      6px;
@@ -111,6 +113,8 @@
       transition: opacity .15s, background .15s;
     }
     .btn:hover { opacity: .85; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .btn:disabled:hover { opacity: .45; }
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-ghost { background: var(--bg4); color: var(--text2); border: 1px solid var(--border2); }
     .btn-sm { padding: 4px 10px; font-size: 12px; }
@@ -139,6 +143,15 @@
     .ctx-item:hover { background: var(--bg4); color: var(--text); }
     .ctx-item.danger { color: var(--red); }
     .ctx-item.danger:hover { background: rgba(232,90,90,.08); }
+    .ctx-item.disabled { color: var(--text3); cursor: default; }
+    .ctx-item.disabled:hover { background: transparent; color: var(--text3); }
+    .attach-dropdown {
+      top: auto;
+      right: auto;
+      left: 0;
+      bottom: calc(100% + 6px);
+      min-width: 230px;
+    }
 
     /* ── Chat input (shared) ── */
     .input-wrap {
@@ -153,19 +166,31 @@
       backdrop-filter: blur(4px);
     }
     .input-box {
-      display: flex; align-items: flex-end; gap: 6px;
-      background: transparent; border: none;
-      border-radius: var(--r); padding: 0;
-      transition: opacity .15s;
+      display: flex; flex-direction: column; gap: 8px;
+      background: var(--bg2); border: none;
+      border-radius: var(--r); padding: 8px 10px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05), 0 8px 24px rgba(0,0,0,.35);
+      transition: opacity .15s, box-shadow .15s;
       width: 700px; max-width: 100%;
     }
-    .input-box:focus-within { opacity: 1; }
+    .input-box:focus-within { opacity: 1; box-shadow: inset 0 0 0 1px rgba(91,143,249,.45), 0 10px 28px rgba(0,0,0,.4); }
     .input-box textarea {
       flex: 1; background: transparent; border: none; outline: none;
       color: var(--text); font-family: var(--font); font-size: 14px;
-      resize: none; height: 50px; min-height: 50px; max-height: 50px; line-height: 1.5;
+      resize: none; width: 100%;
+      height: 22px; min-height: 22px; max-height: 150px; line-height: 1.5;
     }
     .input-box textarea::placeholder { color: var(--text3); }
+    .input-bottom {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%;
+    }
+    .input-tools {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: transparent; border-radius: 0;
+      padding: 0;
+      width: fit-content;
+    }
     .icon-btn {
       width: 30px; height: 30px; border-radius: var(--rs);
       background: transparent; border: none;
@@ -175,16 +200,20 @@
     }
     .icon-btn:hover { background: var(--bg5); color: var(--text2); }
     .send-btn {
-      width: 32px; height: 32px; border-radius: var(--rs); flex-shrink: 0;
+      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
       background: var(--accent); border: none; color: #fff;
-      cursor: pointer; font-size: 18px; font-weight: 700;
+      cursor: pointer; font-size: 15px; font-weight: 700;
       display: flex; align-items: center; justify-content: center;
       transition: background .15s;
     }
     .send-btn:hover { background: var(--accent2); }
 
     /* ── Chat messages (shared) ── */
-    .chat-messages { flex: 1; overflow-y: auto; padding: 16px 0; display: flex; flex-direction: column; gap: 0; }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 16px 0 90px;
+      display: flex; flex-direction: column; gap: 0;
+      scroll-padding-bottom: 90px;
+    }
     .chat-messages:empty { display: none; }
     .msg-row { display: flex; padding: 6px 20px; animation: fadeUp .2s; }
     @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
@@ -233,11 +262,15 @@
     ════════════════════════════════ */
     #screen-gchat { background: var(--bg); }
     .gchat-layout { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-    .gchat-messages { flex: 1; overflow-y: auto; padding: 16px 0; display: flex; flex-direction: column; gap: 0; align-items: center; }
-    .gchat-messages > * { width: 800px; max-width: 100%; }
+    .gchat-messages {
+      flex: 1; overflow-y: auto; padding: 16px 0 90px;
+      display: flex; flex-direction: column; gap: 0; align-items: center;
+      scroll-padding-bottom: 90px;
+    }
+    .gchat-messages > * { width: var(--composer-w); max-width: 100%; }
     #screen-home .input-box,
     #screen-gchat .input-box,
-    #screen-post .input-box { width: 800px; max-width: 100%; }
+    #screen-post .input-box { width: var(--composer-w); max-width: 100%; }
     #screen-home .input-wrap {
       width: 100%;
       margin-top: 0;
@@ -246,13 +279,21 @@
       position: static;
       backdrop-filter: none;
     }
+    #screen-home .input-box textarea {
+      height: 44px;
+      min-height: 44px;
+    }
 
     /* ════════════════════════════════
        SCREEN: FEED
     ════════════════════════════════ */
     #screen-feed { background: var(--bg); }
     .feed-layout { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-    .feed-scroll { flex: 1; overflow-y: auto; padding: 24px 0; display: flex; flex-direction: column; align-items: center; }
+    .feed-scroll {
+      flex: 1; overflow-y: auto; padding: 24px 0 90px;
+      display: flex; flex-direction: column; align-items: center;
+      scroll-padding-bottom: 90px;
+    }
     .feed-inner  { width: 700px; max-width: 100%; padding: 0 16px; }
     .feed-section { margin-top: 0; }
     .feed-section + .feed-section { margin-top: 0; }
@@ -303,14 +344,28 @@
     }
     .post-hdr-top { display: flex; align-items: center; gap: 8px; }
     .post-hdr-top .breadcrumb { flex: 1; }
+    .post-hdr-actions {
+      display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+      min-width: 240px;
+    }
+    .post-back-btn {
+      margin-left: auto;
+      transition: transform .2s;
+    }
+    .post-hdr-actions.has-jump .post-back-btn { transform: translateX(-6px); }
     .jump-post-btn {
       display: inline-flex; align-items: center; gap: 4px;
       padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border2);
       background: var(--bg4); color: var(--text2); font-size: 12px; cursor: pointer;
+      width: 0; padding-left: 0; padding-right: 0; border-width: 0;
+      overflow: hidden; white-space: nowrap;
       transform: translateY(-4px); opacity: 0; pointer-events: none;
-      transition: opacity .2s, transform .2s, border-color .15s, color .15s;
+      transition: width .2s, padding .2s, border-width .2s, opacity .2s, transform .2s, border-color .15s, color .15s;
     }
-    .jump-post-btn.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .jump-post-btn.visible {
+      width: 86px; padding-left: 10px; padding-right: 10px; border-width: 1px;
+      opacity: 1; transform: translateY(0); pointer-events: auto;
+    }
     .jump-post-btn:hover { border-color: var(--accent); color: var(--accent); }
     .status-badge {
       display: inline-flex; align-items: center; gap: 5px;
@@ -333,7 +388,11 @@
     .edit-trigger-btn:hover { border-color: var(--accent); color: var(--accent); }
 
     /* post body */
-    .post-body { flex: 1; overflow-y: auto; padding: 18px 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .post-body {
+      flex: 1; overflow-y: auto; padding: 18px 0 90px;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      scroll-padding-bottom: 90px;
+    }
     .post-body-inner { width: 800px; max-width: 100%; padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
     .post-body-inner .post-msg-card { width: 500px; max-width: 100%; }
     .post-body-inner .msg-row { padding: 6px 0; }
@@ -352,37 +411,147 @@
     .post-edit-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
 
     /* notes grid in post */
-    .notes-grid { flex: 1; overflow-y: auto; padding: 18px 22px; display: none; }
-    .notes-grid.visible { display: block; }
-    .notes-grid-inner { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+    .notes-grid { flex: 1; overflow-y: auto; padding: 18px 0 20px; display: none; }
+    .notes-grid.visible { display: flex; justify-content: center; }
+    .notes-grid-inner {
+      width: min(var(--composer-w), 100%);
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      padding: 0 12px;
+      align-items: stretch;
+    }
+    @media (max-width: 980px) {
+      .notes-grid-inner { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 700px) {
+      .notes-grid-inner { grid-template-columns: 1fr; }
+    }
     .note-card {
       background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
       padding: 12px; cursor: pointer; transition: border-color .15s;
-      min-height: 90px; display: flex; flex-direction: column; justify-content: space-between;
+      height: 200px; display: flex; flex-direction: column;
     }
     .note-card:hover { border-color: var(--border2); }
+    .note-card-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
     .note-card-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
-    .note-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+    .note-card-preview-post {
+      flex: 1; min-height: 0;
+      font-size: 12px; color: var(--text3); line-height: 1.5; overflow: hidden;
+      display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical;
+    }
+    .note-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 8px; }
     .note-date { font-size: 11px; color: var(--text3); }
     .note-del { font-size: 13px; color: var(--text3); cursor: pointer; transition: color .15s; }
     .note-del:hover { color: var(--red); }
+    .note-card.new-note { border-style: dashed; align-items: center; justify-content: center; gap: 4px; color: var(--text3); }
+    .notes-grid-inner > .empty { grid-column: 1 / -1; }
 
     /* ════════════════════════════════
        SCREEN: NOTE PAGE
     ════════════════════════════════ */
     #screen-note { background: var(--bg); }
-    .note-page { flex: 1; overflow-y: auto; padding: 0 24px 24px; }
+    #note-hdr-row {
+      background: transparent;
+      border-bottom: none;
+      max-width: 1220px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px 24px 0;
+      height: auto;
+      min-height: unset;
+    }
+    .note-page {
+      flex: 1; overflow-y: auto; padding: 14px 24px 28px;
+      display: flex; justify-content: center;
+    }
+    .note-layout {
+      width: min(var(--content-w), 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .note-shell {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.24);
+      overflow: hidden;
+    }
+    .note-shell-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 14px;
+    }
+    .note-shell-content { padding: 20px 22px; }
     .note-title-row {
-      display: flex; align-items: baseline; gap: 10px;
-      padding: 20px 0 6px;
+      width: 100%;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      min-height: 34px;
     }
-    .note-title-static { font-size: 20px; font-weight: 600; color: var(--text); flex: 1; }
-    .note-title-input {
-      flex: 1; background: transparent; border: none;
-      border-radius: var(--rs); color: var(--text); font-family: var(--font);
-      font-size: 18px; font-weight: 600; padding: 5px 10px; outline: none;
+    .note-title-block {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-self: center;
     }
-    .note-ctrl { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .note-title-static,
+    .note-title-edit {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.25;
+      white-space: normal;
+      word-break: normal;
+      overflow-wrap: break-word;
+      min-height: 35px;
+      text-align: left;
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
+      box-sizing: border-box;
+      margin: 0;
+    }
+    .note-title-edit {
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 0;
+      width: 100%;
+      resize: none;
+      overflow: hidden;
+      overflow-y: hidden;
+      min-height: 35px;
+    }
+    .note-title-edit::placeholder { color: var(--text3); font-weight: 600; }
+    .title-single-line { white-space: nowrap; }
+    .title-multi-line { white-space: normal; }
+    .note-title-static.title-single-line {
+      display: flex;
+      align-items: center;
+      min-height: 34px;
+    }
+    .note-title-edit.title-single-line {
+      height: 34px !important;
+      min-height: 34px;
+      line-height: 34px;
+      overflow: hidden;
+    }
+    .note-title-edit.title-multi-line {
+      line-height: 1.25;
+    }
+    .note-ctrl {
+      display: flex; align-items: center; gap: 6px;
+      flex-shrink: 0;
+      align-self: center;
+    }
     .ai-toggle {
       padding: 3px 9px; border-radius: 20px; font-size: 12px; cursor: pointer;
       border: 1px solid var(--border2); background: var(--bg4); color: var(--text3);
@@ -397,19 +566,57 @@
     .note-local-info a { color: var(--accent); cursor: pointer; text-decoration: none; }
     .note-local-info a:hover { text-decoration: underline; }
     .note-divider { border: none; border-top: 1px solid var(--border); margin: 0 0 14px; }
-    .note-body-view { font-size: 14px; line-height: 1.8; color: var(--text); white-space: pre-wrap; flex: 1; }
+    .note-body-view { font-size: 15px; line-height: 1.85; color: var(--text); white-space: pre-wrap; min-height: 500px; }
     .note-body-edit {
-      width: 100%; background: transparent; border: none;
-      border-radius: var(--rs); color: var(--text); font-family: var(--font);
-      font-size: 14px; line-height: 1.8; padding: 12px; resize: vertical; min-height: 200px; outline: none;
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      color: var(--text); font-family: var(--font);
+      font-size: 14px; line-height: 1.8;
+      padding: 0;
+      resize: none;
+      min-height: 500px;
+      overflow: hidden;
+      outline: none;
+      transition: none;
     }
-    .note-timestamps { font-size: 11px; color: var(--text3); margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .note-files {
+      margin-top: 14px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .note-files-label {
+      font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--text3); font-weight: 600;
+    }
+    .note-file-item {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--rs);
+      padding: 8px 10px; font-size: 12px; color: var(--text2);
+    }
+    .note-file-item b { color: var(--text); font-weight: 500; }
+    a.note-file-item {
+      text-decoration: none;
+      color: var(--text2);
+      transition: border-color .15s, background .15s;
+    }
+    a.note-file-item:hover {
+      border-color: var(--accent);
+      background: var(--bg3);
+    }
+    .note-timestamps {
+      font-size: 11px; color: var(--text3);
+      margin-top: 10px; padding: 0 4px;
+    }
 
     /* ════════════════════════════════
        SCREEN: CHATS LIST
     ════════════════════════════════ */
     #screen-chats { background: var(--bg); }
-    .chats-scroll { flex: 1; overflow-y: auto; padding: 20px 24px; }
+    .chats-scroll {
+      flex: 1; overflow-y: auto; padding: 20px 24px;
+      display: flex; justify-content: center;
+    }
+    .chats-scroll-inner { width: min(var(--content-w), 100%); }
     .chats-tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
     .chats-tab {
       padding: 8px 16px; font-size: 13px; color: var(--text3); cursor: pointer;
@@ -449,11 +656,15 @@
        SCREEN: NOTES LIST
     ════════════════════════════════ */
     #screen-notes { background: var(--bg); }
-    .notes-page { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .notes-page { flex: 1; display: flex; flex-direction: column; overflow: hidden; align-items: center; }
     .notes-toolbar {
-      padding: 12px 24px 0; flex-shrink: 0;
+      width: min(var(--content-w), 100%);
+      padding: 12px 0 0; flex-shrink: 0;
     }
-    .notes-scope-tabs { display: flex; gap: 0; margin: 8px 24px 0; border-bottom: 1px solid var(--border); }
+    .notes-scope-tabs {
+      width: min(var(--content-w), 100%);
+      display: flex; gap: 0; margin: 8px 0 0; border-bottom: 1px solid var(--border);
+    }
     .notes-scope-tab {
       padding: 8px 16px; font-size: 13px; color: var(--text3); cursor: pointer;
       border-bottom: 2px solid transparent; transition: all .15s; margin-bottom: -1px;
@@ -465,7 +676,10 @@
       border-radius: var(--r); color: var(--text); font-family: var(--font);
       font-size: 14px; padding: 8px 14px; outline: none; transition: border-color .15s;
     }
-    .notes-filter-row { display: flex; align-items: center; gap: 8px; padding: 10px 24px 0; }
+    .notes-filter-row {
+      width: min(var(--content-w), 100%);
+      display: flex; align-items: center; gap: 8px; padding: 10px 0 0;
+    }
     .filter-tab {
       padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer;
       border: 1px solid var(--border2); background: var(--bg4); color: var(--text3);
@@ -474,24 +688,37 @@
     .filter-tab:hover { border-color: var(--border2); color: var(--text2); }
     .filter-tab.active { background: var(--adim); border-color: var(--accent); color: var(--accent); }
     .filter-spacer { flex: 1; }
-    .notes-grid-page { flex: 1; overflow-y: auto; padding: 14px 24px 20px; }
-    .notes-grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .notes-grid-page {
+      width: min(var(--content-w), 100%);
+      flex: 1; overflow-y: auto; padding: 14px 0 20px;
+    }
+    .notes-grid-layout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
     .note-card-page {
       background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
-      padding: 14px; cursor: pointer; transition: border-color .15s;
+      padding: 16px; cursor: pointer; transition: border-color .15s;
       display: flex; flex-direction: column; gap: 8px;
+      height: 200px;
     }
     .note-card-page:hover { border-color: var(--border2); }
-    .note-card-ai { font-size: 14px; margin-bottom: 2px; }
     .note-card-name { font-size: 13px; font-weight: 500; color: var(--text); }
-    .note-card-preview { font-size: 12px; color: var(--text3); line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-    .note-card-footer-pg { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+    .note-card-preview {
+      flex: 1;
+      font-size: 12px; color: var(--text3); line-height: 1.5; overflow: hidden;
+      display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical;
+    }
+    .note-card-footer-pg { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
     .note-card-date-pg { font-size: 11px; color: var(--text3); }
     .note-ai-toggle {
       font-size: 11px; padding: 2px 7px; border-radius: 20px; cursor: pointer;
       border: 1px solid var(--border2); background: var(--bg4); color: var(--text3); transition: all .15s;
     }
     .note-ai-toggle.on { background: var(--adim); border-color: var(--accent); color: var(--accent); }
+    @media (max-width: 1100px) {
+      .notes-grid-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 760px) {
+      .notes-grid-layout { grid-template-columns: 1fr; }
+    }
 
     /* ════════════════════════════════
        SCREEN: ANALYTICS
@@ -606,22 +833,23 @@
         <div class="home-intro">
           <div class="home-logo">✦</div>
           <h3>Чем помочь сегодня?</h3>
-          <p>Макро-ИИ знает весь контекст твоего канала: посты, аудиторию, рубрики, метрики. Задай любой вопрос или дай задачу.</p>
-          <div class="suggestions">
-            <div class="chip" onclick="homeSuggest(this)">Составь контент-план на неделю</div>
-            <div class="chip" onclick="homeSuggest(this)">Какие рубрики работают хуже всего?</div>
-            <div class="chip" onclick="homeSuggest(this)">Предложи 5 тем для постов</div>
-            <div class="chip" onclick="homeSuggest(this)">Почему охваты упали?</div>
-          </div>
         </div>
         <div class="input-wrap">
           <div class="input-box">
-            <button class="icon-btn" title="Закрепить посты в контексте">📌</button>
-            <button class="icon-btn" title="Прикрепить файл">📎</button>
             <textarea id="home-input" placeholder="Написать сообщение..." rows="1"
               onkeydown="handleKey(event,'home')" oninput="autoResize(this)"></textarea>
-            <button class="send-btn" onclick="sendHome()">↑</button>
+            <div class="input-bottom">
+              <div class="input-tools">
+                <button class="icon-btn" title="Закрепить посты в контексте">📌</button>
+                <div class="ctx-wrap">
+                  <button class="icon-btn" title="Прикрепить" onclick="toggleGlobalAttachMenu(event,'home')">📎</button>
+                  <div class="ctx-dropdown attach-dropdown" id="home-attach-menu"><!-- JS --></div>
+                </div>
+              </div>
+              <button class="send-btn" onclick="sendHome()">↑</button>
             </div>
+            </div>
+          <input type="file" id="home-file-input" style="display:none" onchange="onGlobalFilePicked('home',event)">
         </div>
       </div>
     </div>
@@ -646,13 +874,20 @@
         <div class="gchat-messages" id="gchat-messages"></div>
         <div class="input-wrap">
           <div class="input-box">
-            <button class="icon-btn" title="Закрепить посты">📌</button>
-            <button class="icon-btn" title="Медиа">📎</button>
-            <button class="icon-btn" title="Файл">💬</button>
             <textarea id="gchat-input" placeholder="Написать сообщение..." rows="1"
               onkeydown="handleKey(event,'gchat')" oninput="autoResize(this)"></textarea>
-            <button class="send-btn" onclick="sendGChat()">↑</button>
+            <div class="input-bottom">
+              <div class="input-tools">
+                <button class="icon-btn" title="Закрепить посты">📌</button>
+                <div class="ctx-wrap">
+                  <button class="icon-btn" title="Прикрепить" onclick="toggleGlobalAttachMenu(event,'gchat')">📎</button>
+                  <div class="ctx-dropdown attach-dropdown" id="gchat-attach-menu"><!-- JS --></div>
+                </div>
+              </div>
+              <button class="send-btn" onclick="sendGChat()">↑</button>
+            </div>
           </div>
+          <input type="file" id="gchat-file-input" style="display:none" onchange="onGlobalFilePicked('gchat',event)">
         </div>
       </div>
     </div>
@@ -666,10 +901,14 @@
         <div class="feed-scroll" id="feed-scroll"><!-- JS --></div>
         <div class="input-wrap">
           <div class="input-box">
-            <button class="icon-btn" title="Добавить медиа">📎</button>
             <textarea id="feed-input" placeholder="Написать пост..." rows="1"
               onkeydown="handleKey(event,'feed')" oninput="autoResize(this)"></textarea>
-            <button class="send-btn" onclick="sendFeedDraft()">↑</button>
+            <div class="input-bottom">
+              <div class="input-tools">
+                <button class="icon-btn" title="Добавить медиа">📎</button>
+              </div>
+              <button class="send-btn" onclick="sendFeedDraft()">↑</button>
+            </div>
       </div>
         </div>
       </div>
@@ -684,8 +923,10 @@
             <span>/</span>
             <b id="post-bc">—</b>
           </div>
-          <button class="btn btn-ghost btn-sm" onclick="navigate('feed')">← Назад</button>
-          <button class="jump-post-btn" id="post-jump-btn" onclick="scrollToPostTop()">↑ К посту</button>
+          <div class="post-hdr-actions" id="post-hdr-actions">
+            <button class="btn btn-ghost btn-sm post-back-btn" onclick="navigate('feed')">← Назад</button>
+            <button class="jump-post-btn" id="post-jump-btn" onclick="scrollToPostTop()">↑ К посту</button>
+          </div>
           <div class="ctx-wrap">
             <button class="ctx-btn" onclick="ctxToggle('post-ctx')">•••</button>
             <div class="ctx-dropdown" id="post-ctx"><!-- JS --></div>
@@ -697,12 +938,19 @@
       <div id="post-chat" class="post-body"><!-- JS --></div>
       <div id="post-chat-input-wrap" class="input-wrap">
         <div class="input-box">
-          <button class="icon-btn" title="Медиа из поста">📎</button>
-          <button class="icon-btn" title="Прикрепить файл">💬</button>
           <textarea id="post-input" placeholder="Написать сообщение..." rows="1"
             onkeydown="handleKey(event,'post')" oninput="autoResize(this)"></textarea>
-          <button class="send-btn" onclick="sendPost()">↑</button>
+          <div class="input-bottom">
+            <div class="input-tools">
+              <div class="ctx-wrap">
+                <button class="icon-btn" title="Прикрепить" onclick="togglePostAttachMenu(event)">📎</button>
+                <div class="ctx-dropdown attach-dropdown" id="post-attach-menu"><!-- JS --></div>
+              </div>
+            </div>
+            <button class="send-btn" onclick="sendPost()">↑</button>
+          </div>
         </div>
+        <input type="file" id="post-file-input" style="display:none" onchange="onPostFilePicked(event)">
       </div>
 
       <!-- Notes mode -->
@@ -715,18 +963,21 @@
     <div class="screen" id="screen-note">
       <div class="page-header" id="note-hdr-row"><!-- JS --></div>
       <div class="note-page" id="note-page-body"><!-- JS --></div>
+      <input type="file" id="note-file-input" style="display:none" onchange="onNoteFilePicked(event)">
     </div>
 
     <!-- ══ CHATS LIST ══ -->
     <div class="screen" id="screen-chats">
       <div class="page-header"><h2>Чаты</h2></div>
       <div class="chats-scroll">
-        <div class="chats-tabs">
-          <div class="chats-tab active" id="tab-global" onclick="switchChatsTab('global')">Глобальные</div>
-          <div class="chats-tab" id="tab-local" onclick="switchChatsTab('local')">Локальные</div>
-          </div>
-        <div id="chats-global"><!-- JS --></div>
-        <div id="chats-local" style="display:none"><!-- JS --></div>
+        <div class="chats-scroll-inner">
+          <div class="chats-tabs">
+            <div class="chats-tab active" id="tab-global" onclick="switchChatsTab('global')">Глобальные</div>
+            <div class="chats-tab" id="tab-local" onclick="switchChatsTab('local')">Локальные</div>
+            </div>
+          <div id="chats-global"><!-- JS --></div>
+          <div id="chats-local" style="display:none"><!-- JS --></div>
+        </div>
       </div>
     </div>
 
@@ -959,6 +1210,8 @@ let noteFrom     = 'notes'; // where to go back
 let chatsTab     = 'global';
 let noteFilter   = 'all';
 let noteScope    = 'global';
+let pinnedPostIds = [1, 2];
+let noteSavedSnapshot = '';
 
 // ══════════════════════════════════════════════════
 //  NAVIGATION
@@ -966,6 +1219,7 @@ let noteScope    = 'global';
 const SCREENS = ['home','gchat','feed','post','note','chats','notes','analytics','profile'];
 
 function navigate(id) {
+  if (!canLeaveNotePage(id)) return;
   SCREENS.forEach(s => {
     const el = document.getElementById('screen-' + s);
     if (el) el.classList.toggle('active', s === id);
@@ -1137,14 +1391,20 @@ function renderPostNotes() {
   let html = '';
   p.notes.forEach(n => {
     html += `<div class="note-card" onclick="openNoteFromPost(${n.id})">
-      <div class="note-card-title">${n.title}</div>
+      <div class="note-card-body">
+        <div class="note-card-title">${n.title}</div>
+        <div class="note-card-preview-post">${n.body || 'Пустая заметка'}</div>
+      </div>
       <div class="note-card-footer">
         <span class="note-date">${n.date}</span>
-        <span class="note-del" onclick="event.stopPropagation();deletePostNote(${n.id})">🗑</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="note-ai-toggle ${n.ai?'on':''}" onclick="event.stopPropagation();togglePostNoteAI(${n.id})">${n.ai?'● ИИ':'○ ИИ'}</button>
+          <span class="note-del" onclick="event.stopPropagation();deletePostNote(${n.id})">🗑</span>
+        </div>
       </div>
     </div>`;
   });
-  html += `<div class="note-card" style="border-style:dashed;align-items:center;justify-content:center;display:flex;flex-direction:column;gap:4px;color:var(--text3)" onclick="addPostNote()">
+  html += `<div class="note-card new-note" onclick="addPostNote()">
     <span style="font-size:22px">＋</span><span style="font-size:12px">Новая заметка</span>
   </div>`;
   if (p.notes.length === 0) html = `<div class="empty"><div class="eico">📝</div><p>Нет заметок для этого поста</p></div>` + html;
@@ -1174,8 +1434,10 @@ function scrollToPostTop(){
 
 function togglePostJumpButton(show) {
   const btn = document.getElementById('post-jump-btn');
+  const actions = document.getElementById('post-hdr-actions');
   if (!btn) return;
   btn.classList.toggle('visible', !!show);
+  if (actions) actions.classList.toggle('has-jump', !!show);
 }
 
 function syncPostJumpButton() {
@@ -1183,9 +1445,133 @@ function syncPostJumpButton() {
   const scrollArea = document.getElementById('post-chat');
   const postCard = document.getElementById('post-msg-card');
   if (!scrollArea || !postCard) return togglePostJumpButton(false);
-  const cardBottom = postCard.offsetTop + postCard.offsetHeight;
-  const cardOutOfView = scrollArea.scrollTop > cardBottom - 24;
-  togglePostJumpButton(cardOutOfView);
+  const scrollRect = scrollArea.getBoundingClientRect();
+  const cardRect = postCard.getBoundingClientRect();
+  const cardHiddenByTop = cardRect.bottom < (scrollRect.top + 8);
+  togglePostJumpButton(cardHiddenByTop);
+}
+
+function getPostMediaItems() {
+  if (!currentPost) return [];
+  if (Array.isArray(currentPost.media)) return currentPost.media;
+  if (typeof currentPost.media === 'string' && currentPost.media.trim()) return [currentPost.media.trim()];
+  return [];
+}
+
+function renderPostAttachMenu() {
+  const menu = document.getElementById('post-attach-menu');
+  if (!menu) return;
+  const media = getPostMediaItems();
+  let html = '';
+  if (media.length > 0) {
+    media.forEach((item, idx) => {
+      html += `<div class="ctx-item" onclick="attachPostMedia(${idx})">🖼 Медиа из поста: ${truncate(String(item), 28)}</div>`;
+    });
+  } else {
+    html += `<div class="ctx-item disabled">🖼 В посте нет медиа</div>`;
+  }
+  html += `<div class="ctx-item" onclick="triggerPostFilePicker()">📎 Прикрепить файл с компьютера</div>`;
+  menu.innerHTML = html;
+}
+
+function togglePostAttachMenu(event) {
+  if (event) event.stopPropagation();
+  renderPostAttachMenu();
+  ctxToggle('post-attach-menu');
+}
+
+function attachPostMedia(idx) {
+  document.querySelectorAll('.ctx-dropdown').forEach(d => d.classList.remove('open'));
+  if (!currentPost) return;
+  const media = getPostMediaItems();
+  const picked = media[idx];
+  if (!picked) return;
+  currentPost.chatHistory.push({ role: 'user', text: `Прикрепил медиа из поста: ${picked}` });
+  renderPostBody();
+  const area = document.getElementById('post-chat');
+  if (area) area.scrollTop = area.scrollHeight;
+}
+
+function triggerPostFilePicker() {
+  document.querySelectorAll('.ctx-dropdown').forEach(d => d.classList.remove('open'));
+  const fileInput = document.getElementById('post-file-input');
+  if (fileInput) fileInput.click();
+}
+
+function onPostFilePicked(event) {
+  if (!currentPost) return;
+  const file = event?.target?.files?.[0];
+  if (!file) return;
+  currentPost.chatHistory.push({ role: 'user', text: `Прикрепил файл: ${file.name}` });
+  renderPostBody();
+  const area = document.getElementById('post-chat');
+  if (area) area.scrollTop = area.scrollHeight;
+  event.target.value = '';
+}
+
+function getPinnedPostsMediaItems() {
+  return posts
+    .filter(p => pinnedPostIds.includes(p.id))
+    .flatMap(p => {
+      if (Array.isArray(p.media)) return p.media.map(m => ({ postId: p.id, media: m, postTitle: postTitle(p) }));
+      if (typeof p.media === 'string' && p.media.trim()) return [{ postId: p.id, media: p.media.trim(), postTitle: postTitle(p) }];
+      return [];
+    });
+}
+
+function renderGlobalAttachMenu(scope) {
+  const menu = document.getElementById(`${scope}-attach-menu`);
+  if (!menu) return;
+  const media = getPinnedPostsMediaItems();
+  let html = '';
+  if (media.length > 0) {
+    media.forEach((item, idx) => {
+      html += `<div class="ctx-item" onclick="attachPinnedMedia('${scope}',${idx})">🖼 ${truncate(item.postTitle, 16)}: ${truncate(String(item.media), 20)}</div>`;
+    });
+  } else {
+    html += `<div class="ctx-item disabled">🖼 В запиненных постах нет медиа</div>`;
+  }
+  html += `<div class="ctx-item" onclick="triggerGlobalFilePicker('${scope}')">📎 Прикрепить файл с компьютера</div>`;
+  menu.innerHTML = html;
+}
+
+function toggleGlobalAttachMenu(event, scope) {
+  if (event) event.stopPropagation();
+  renderGlobalAttachMenu(scope);
+  ctxToggle(`${scope}-attach-menu`);
+}
+
+function applyGlobalAttachment(scope, text) {
+  if (scope === 'gchat' && currentGChat) {
+    currentGChat.history.push({ role: 'user', text });
+    appendGChatMsg('user', text);
+    return;
+  }
+  const inp = document.getElementById('home-input');
+  if (!inp) return;
+  inp.value = inp.value.trim() ? `${inp.value}\n${text}` : text;
+  autoResize(inp);
+}
+
+function attachPinnedMedia(scope, idx) {
+  document.querySelectorAll('.ctx-dropdown').forEach(d => d.classList.remove('open'));
+  const media = getPinnedPostsMediaItems();
+  const picked = media[idx];
+  if (!picked) return;
+  applyGlobalAttachment(scope, `Прикрепил медиа из поста «${picked.postTitle}»: ${picked.media}`);
+}
+
+function triggerGlobalFilePicker(scope) {
+  document.querySelectorAll('.ctx-dropdown').forEach(d => d.classList.remove('open'));
+  const fileInput = document.getElementById(`${scope}-file-input`);
+  if (fileInput) fileInput.click();
+}
+
+function onGlobalFilePicked(scope, event) {
+  const file = event?.target?.files?.[0];
+  if (!file) return;
+  applyGlobalAttachment(scope, `Прикрепил файл: ${file.name}`);
+  event.target.value = '';
 }
 
 function addPostNote() {
@@ -1199,10 +1585,18 @@ function deletePostNote(id) {
   currentPost.notes = currentPost.notes.filter(n => n.id !== id);
   renderPostNotes();
 }
+function togglePostNoteAI(id) {
+  const n = currentPost?.notes.find(n => n.id === id);
+  if (!n) return;
+  n.ai = !n.ai;
+  renderPostNotes();
+}
 function openNoteFromPost(id) {
   const n = currentPost.notes.find(n => n.id === id);
   if (!n) return;
   currentNote = { ...n, postId: currentPost.id, isGlobal: false };
+  if (!Array.isArray(currentNote.files)) currentNote.files = [];
+  noteSavedSnapshot = buildNoteSnapshot(currentNote);
   noteFrom = 'post';
   noteMode = 'view';
   navigate('note');
@@ -1216,6 +1610,8 @@ function openGlobalNote(id) {
   const n = globalNotes.find(n => n.id === id);
   if (!n) return;
   currentNote = { ...n, isGlobal: true };
+  if (!Array.isArray(currentNote.files)) currentNote.files = [];
+  noteSavedSnapshot = buildNoteSnapshot(currentNote);
   noteFrom = 'notes';
   noteMode = 'view';
   navigate('note');
@@ -1225,9 +1621,10 @@ function openGlobalNote(id) {
 function newGlobalNote() {
   const title = prompt('Название заметки:');
   if (!title) return;
-  const nn = { id: 'gn' + Date.now(), title, ai: false, date: 'сейчас', body: '', isGlobal: true };
+  const nn = { id: 'gn' + Date.now(), title, ai: false, date: 'сейчас', body: '', files: [], isGlobal: true };
   globalNotes.unshift(nn);
   currentNote = { ...nn };
+  noteSavedSnapshot = buildNoteSnapshot(currentNote);
   noteFrom = 'notes';
   noteMode = 'edit';
   navigate('note');
@@ -1237,6 +1634,7 @@ function newGlobalNote() {
 function renderNotePage() {
   const n = currentNote;
   if (!n) return;
+  if (!Array.isArray(n.files)) n.files = [];
 
   // Header row
   const backLabel = n.isGlobal ? 'Заметки' : 'Лента / Пост';
@@ -1263,63 +1661,259 @@ function renderNotePage() {
 
   if (noteMode === 'view') {
     body.innerHTML = `
-      <div class="note-title-row">
-        <div class="note-title-static">${n.title}</div>
-        <div class="note-ctrl">
-          ${aiToggleHtml}
-          <button class="btn btn-ghost btn-sm" onclick="setNoteMode('edit')">Ред.</button>
-          <button class="btn btn-primary btn-sm" onclick="saveNote()">Сохранить</button>
+      <div class="note-layout">
+        <div class="note-shell">
+          <div class="note-shell-header">
+            <div class="note-title-block">
+              <div class="note-title-row">
+                <div class="note-title-static" id="note-title-static-el">${n.title}</div>
+              </div>
+            </div>
+            <div class="note-ctrl">
+              ${aiToggleHtml}
+              <button class="btn btn-ghost btn-sm" onclick="setNoteMode('edit')">Ред.</button>
+              <button class="btn btn-primary btn-sm" id="note-save-btn" onclick="saveNote()">Сохранить</button>
+            </div>
+          </div>
+          <div class="note-shell-content">
+            ${!n.isGlobal ? `<div class="note-local-info">📌 Локальная &nbsp;•&nbsp; <a onclick="openPost(${n.postId})">→ пост</a></div>` : ''}
+            <div class="note-body-view">${n.body || '<span style="color:var(--text3)">Заметка пустая</span>'}</div>
+            ${renderNoteFilesHTML(n.files)}
+          </div>
         </div>
+        <div class="note-timestamps">Создана: ${n.date} &nbsp;•&nbsp; Изменена: ${n.date}</div>
       </div>
-      ${!n.isGlobal ? `<div class="note-local-info">📌 Локальная &nbsp;•&nbsp; <a onclick="openPost(${n.postId})">→ пост</a></div>` : ''}
-      <hr class="note-divider">
-      <div class="note-body-view">${n.body || '<span style="color:var(--text3)">Заметка пустая</span>'}</div>
-      <div class="note-timestamps">Создана: ${n.date} &nbsp;•&nbsp; Изменена: ${n.date}</div>`;
+      `;
   } else {
     body.innerHTML = `
-      <div class="note-title-row">
-        <input class="note-title-input" id="note-title-inp" value="${n.title}">
-        <div class="note-ctrl">
-          ${aiToggleHtml}
-          <button class="btn btn-ghost btn-sm" onclick="setNoteMode('view')">Просмотр</button>
-          <button class="btn btn-primary btn-sm" onclick="saveNote()">Сохранить</button>
+      <div class="note-layout">
+        <div class="note-shell">
+          <div class="note-shell-header">
+            <div class="note-title-block">
+              <div class="note-title-row">
+                <textarea class="note-title-edit" id="note-title-inp" rows="1" placeholder="Без названия">${n.title || ''}</textarea>
+              </div>
+            </div>
+            <div class="note-ctrl">
+              ${aiToggleHtml}
+              <button class="btn btn-ghost btn-sm" onclick="triggerNoteFilePicker()">📎 Файл</button>
+              <button class="btn btn-ghost btn-sm" onclick="setNoteMode('view')">Просмотр</button>
+              <button class="btn btn-primary btn-sm" id="note-save-btn" onclick="saveNote()">Сохранить</button>
+            </div>
+          </div>
+          <div class="note-shell-content">
+            ${!n.isGlobal ? `<div class="note-local-info">📌 Локальная &nbsp;•&nbsp; <a onclick="openPost(${n.postId})">→ пост</a></div>` : ''}
+            <textarea class="note-body-edit" id="note-body-inp">${n.body}</textarea>
+            ${renderNoteFilesHTML(n.files)}
+          </div>
         </div>
+        <div class="note-timestamps">Создана: ${n.date} &nbsp;•&nbsp; Изменена: сейчас</div>
       </div>
-      ${!n.isGlobal ? `<div class="note-local-info">📌 Локальная &nbsp;•&nbsp; <a onclick="openPost(${n.postId})">→ пост</a></div>` : ''}
-      <hr class="note-divider">
-      <textarea class="note-body-edit" id="note-body-inp">${n.body}</textarea>
-      <div class="note-timestamps">Создана: ${n.date} &nbsp;•&nbsp; Изменена: сейчас</div>`;
+      `;
+    const titleInp = document.getElementById('note-title-inp');
+    const bodyInp = document.getElementById('note-body-inp');
+    if (titleInp) {
+      titleInp.addEventListener('input', () => {
+        autoGrowNoteTitle(titleInp);
+        fitNoteTitleSize();
+        syncNoteSaveButtonState();
+      });
+      autoGrowNoteTitle(titleInp);
+      fitNoteTitleSize();
+    }
+    if (bodyInp) {
+      autoGrowNoteBody(bodyInp);
+      bodyInp.addEventListener('input', () => {
+        autoGrowNoteBody(bodyInp);
+        syncNoteSaveButtonState();
+      });
+    }
+  }
+  if (noteMode !== 'edit') {
+    fitNoteTitleSize();
+  }
+  requestAnimationFrame(() => fitNoteTitleSize());
+  syncNoteSaveButtonState();
+}
+
+function renderNoteFilesHTML(files = []) {
+  if (!files.length) return '';
+  return `<div class="note-files">
+    <div class="note-files-label">Вложения</div>
+    ${files.map(f => {
+      if (f.url) {
+        return `<a class="note-file-item" href="${f.url}" target="_blank" rel="noopener noreferrer">📎 <b>${f.name}</b> <span>(${f.type || 'file'})</span></a>`;
+      }
+      return `<div class="note-file-item">📎 <b>${f.name}</b> <span>(${f.type || 'file'})</span></div>`;
+    }).join('')}
+  </div>`;
+}
+
+function setNoteMode(m) {
+  if (noteMode === 'edit' && m === 'view') {
+    applyLiveNoteDraftToCurrentNote();
+  }
+  noteMode = m;
+  renderNotePage();
+}
+
+function applyLiveNoteDraftToCurrentNote() {
+  if (!currentNote) return;
+  const draft = getLiveNoteDraft();
+  if (typeof draft.title === 'string') currentNote.title = draft.title;
+  if (typeof draft.body === 'string') currentNote.body = draft.body;
+  currentNote.ai = !!draft.ai;
+}
+
+function buildNoteSnapshot(note, draft = {}) {
+  const title = draft.title ?? note.title ?? '';
+  const body = draft.body ?? note.body ?? '';
+  const ai = draft.ai ?? !!note.ai;
+  const files = (draft.files ?? note.files ?? []).map(f => ({ name: f.name || '', type: f.type || '', url: f.url || '' }));
+  return JSON.stringify({ title, body, ai, files });
+}
+
+function getLiveNoteDraft() {
+  if (!currentNote) return {};
+  const titleInp = document.getElementById('note-title-inp');
+  const bodyInp = document.getElementById('note-body-inp');
+  const titleRaw = titleInp
+    ? (typeof titleInp.value === 'string' ? titleInp.value : (titleInp.textContent || ''))
+    : currentNote.title;
+  return {
+    title: (titleRaw || '').trim(),
+    body: bodyInp ? bodyInp.value : currentNote.body,
+    ai: currentNote.ai,
+    files: currentNote.files || [],
+  };
+}
+
+function hasUnsavedNoteChanges() {
+  if (!currentNote) return false;
+  const snapshot = buildNoteSnapshot(currentNote, getLiveNoteDraft());
+  return snapshot !== noteSavedSnapshot;
+}
+
+function canLeaveNotePage(nextScreenId) {
+  const noteScreen = document.getElementById('screen-note');
+  const isOnNoteScreen = !!noteScreen?.classList.contains('active');
+  if (!isOnNoteScreen) return true;
+  if (nextScreenId === 'note') return true;
+  if (!hasUnsavedNoteChanges()) return true;
+  return confirm('У вас есть несохранённые изменения в заметке. Покинуть страницу без сохранения?');
+}
+
+function syncNoteSaveButtonState() {
+  const btn = document.getElementById('note-save-btn');
+  if (!btn || !currentNote) return;
+  const liveSnapshot = buildNoteSnapshot(currentNote, getLiveNoteDraft());
+  btn.disabled = liveSnapshot === noteSavedSnapshot;
+}
+
+function autoGrowNoteBody(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = Math.max(el.scrollHeight, 500) + 'px';
+}
+
+function autoGrowNoteTitle(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = `${Math.max(el.scrollHeight, 35)}px`;
+}
+
+function fitNoteTitleSize() {
+  const editEl = document.getElementById('note-title-inp');
+  const viewEl = document.getElementById('note-title-static-el');
+  const titleEl = editEl || viewEl;
+  if (!titleEl) return;
+  const maxSize = 28;
+  const minSize = 13;
+  const availableWidth = titleEl.clientWidth;
+  if (availableWidth <= 0) return;
+  let size = maxSize;
+  titleEl.style.fontSize = `${size}px`;
+  titleEl.style.whiteSpace = 'nowrap';
+  if (editEl) editEl.setAttribute('wrap', 'off');
+  while (size > minSize && titleEl.scrollWidth > availableWidth) {
+    size -= 1;
+    titleEl.style.fontSize = `${size}px`;
+  }
+  const fitsSingleLine = titleEl.scrollWidth <= availableWidth;
+  titleEl.classList.remove('title-single-line', 'title-multi-line');
+  titleEl.classList.add(fitsSingleLine ? 'title-single-line' : 'title-multi-line');
+
+  if (editEl) {
+    editEl.setAttribute('wrap', fitsSingleLine ? 'off' : 'soft');
+    editEl.style.whiteSpace = fitsSingleLine ? 'nowrap' : 'pre-wrap';
+    editEl.style.overflowX = 'hidden';
+    if (fitsSingleLine) {
+      editEl.style.height = '34px';
+    } else {
+      editEl.style.height = 'auto';
+      autoGrowNoteTitle(editEl);
+    }
+  } else {
+    titleEl.style.whiteSpace = fitsSingleLine ? 'nowrap' : 'normal';
   }
 }
 
-function setNoteMode(m) { noteMode = m; renderNotePage(); }
-
 function saveNote() {
+  const draftSnapshot = buildNoteSnapshot(currentNote, getLiveNoteDraft());
+  if (draftSnapshot === noteSavedSnapshot) return;
   const titleInp = document.getElementById('note-title-inp');
   const bodyInp  = document.getElementById('note-body-inp');
-  if (titleInp) currentNote.title = titleInp.value.trim() || currentNote.title;
+  if (titleInp) {
+    const titleRaw = typeof titleInp.value === 'string' ? titleInp.value : (titleInp.textContent || '');
+    currentNote.title = titleRaw.trim() || currentNote.title;
+  }
   if (bodyInp)  currentNote.body  = bodyInp.value;
+  if (!Array.isArray(currentNote.files)) currentNote.files = [];
 
   if (currentNote.isGlobal) {
     const idx = globalNotes.findIndex(n => n.id === currentNote.id);
-    if (idx !== -1) Object.assign(globalNotes[idx], { title: currentNote.title, body: currentNote.body });
+    if (idx !== -1) Object.assign(globalNotes[idx], { title: currentNote.title, body: currentNote.body, files: currentNote.files });
   } else {
     const post = posts.find(p => p.id === currentNote.postId);
     if (post) {
       const idx = post.notes.findIndex(n => n.id === currentNote.id);
-      if (idx !== -1) Object.assign(post.notes[idx], { title: currentNote.title, body: currentNote.body });
+      if (idx !== -1) Object.assign(post.notes[idx], { title: currentNote.title, body: currentNote.body, files: currentNote.files });
     }
   }
-  noteMode = 'edit';
+  noteSavedSnapshot = buildNoteSnapshot(currentNote);
   renderNotePage();
+}
+
+function triggerNoteFilePicker() {
+  const inp = document.getElementById('note-file-input');
+  if (inp) inp.click();
+}
+
+function onNoteFilePicked(event) {
+  const file = event?.target?.files?.[0];
+  if (!file || !currentNote) return;
+  if (!Array.isArray(currentNote.files)) currentNote.files = [];
+  currentNote.files.push({
+    id: 'nf' + Date.now(),
+    name: file.name,
+    type: file.type || 'file',
+    url: URL.createObjectURL(file),
+  });
+  const bodyInp = document.getElementById('note-body-inp');
+  const fileBlock = `\n[Файл: ${file.name}]`;
+  if (bodyInp) {
+    bodyInp.value = bodyInp.value.trimEnd() + fileBlock;
+    currentNote.body = bodyInp.value;
+    autoGrowNoteBody(bodyInp);
+  } else {
+    currentNote.body = (currentNote.body || '').trimEnd() + fileBlock;
+  }
+  renderNotePage();
+  event.target.value = '';
 }
 
 function toggleNoteAI() {
   currentNote.ai = !currentNote.ai;
-  if (currentNote.isGlobal) {
-    const n = globalNotes.find(n => n.id === currentNote.id);
-    if (n) n.ai = currentNote.ai;
-  }
   renderNotePage();
 }
 
@@ -1436,7 +2030,6 @@ function renderNotesList() {
       ? `openGlobalNote('${n.id}')`
       : `openLocalNoteFromList(${n.postId}, ${n.id})`;
     html += `<div class="note-card-page" onclick="${openAction}">
-      ${n.ai ? '<div class="note-card-ai">🤖</div>' : ''}
       <div class="note-card-name">${n.title}</div>
       <div class="note-card-preview">${n.body}</div>
       ${!n.isGlobal ? `<div class="note-local-info">📌 Локальная • <a onclick="event.stopPropagation();openPost(${n.postId})">к посту</a></div>` : ''}
@@ -1693,6 +2286,17 @@ function extractTitle(text) {
 function postTitle(p) {
   return extractTitle(p.text) || '(без названия)';
 }
+
+window.addEventListener('resize', () => {
+  if (!currentNote) return;
+  fitNoteTitleSize();
+});
+
+window.addEventListener('beforeunload', (e) => {
+  if (!hasUnsavedNoteChanges()) return;
+  e.preventDefault();
+  e.returnValue = '';
+});
 
 
 // ── Init ──
