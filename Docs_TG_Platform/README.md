@@ -67,6 +67,7 @@ TG Platform
 - `concept/08-roadmap.md` - фазы разработки (MVP и далее)
 - `concept/09-user-scenario.md` - сквозной пользовательский сценарий
 - `concept/10-pages.md` - функциональная спецификация страниц
+- `concept/11-reusable-modules-integration.md` - как TG Platform собирается на базе reusable-modules
 
 ### Wireframes
 
