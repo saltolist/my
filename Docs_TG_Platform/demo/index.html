@@ -182,9 +182,39 @@
     }
     .input-box textarea::placeholder { color: var(--text3); }
     .input-bottom {
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex; align-items: center; gap: 8px;
       width: 100%;
     }
+    .composer-mode {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+    .composer-select {
+      height: 28px;
+      border-radius: 7px;
+      border: 1px solid var(--border2);
+      background: var(--bg4);
+      color: var(--text2);
+      font-size: 12px;
+      padding: 0 8px;
+      width: 150px;
+      min-width: 150px;
+      max-width: 150px;
+      outline: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: clip;
+    }
+    .composer-select:focus { border-color: var(--accent); color: var(--text); }
+    .composer-select:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+    .composer-multi-input { width: 150px; min-width: 150px; max-width: 150px; text-align: center; color: var(--text); }
+    .composer-multi-input.hidden { display: none; }
     .input-tools {
       display: inline-flex; align-items: center; gap: 6px;
       background: transparent; border-radius: 0;
@@ -205,6 +235,7 @@
       cursor: pointer; font-size: 15px; font-weight: 700;
       display: flex; align-items: center; justify-content: center;
       transition: background .15s;
+      margin-left: auto;
     }
     .send-btn:hover { background: var(--accent2); }
 
@@ -222,6 +253,61 @@
     .msg-row.user { justify-content: flex-end; }
     .msg-row.user .msg-body { flex: 0 1 400px; max-width: 400px; }
     .msg-row.user .msg-text { background: var(--adim); border: 1px solid rgba(91,143,249,.2); }
+    .ai-target-chip {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border2);
+      background: var(--bg4);
+      color: var(--text2);
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .ai-variant-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 6px;
+      padding: 0 2px;
+    }
+    .ai-variant-label {
+      font-size: 11px;
+      color: var(--text3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      min-width: 0;
+    }
+    .ai-variant-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .ai-variant-arrow {
+      width: 24px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1px solid var(--border2);
+      background: var(--bg3);
+      color: var(--text2);
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color .12s, color .12s, background .12s;
+    }
+    .ai-variant-arrow:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--bg4);
+    }
 
     /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -759,7 +845,13 @@
        SCREEN: PROFILE
     ════════════════════════════════ */
     #screen-profile { background: var(--bg); }
-    .profile-scroll { flex: 1; overflow-y: auto; padding: 20px 24px; max-width: 820px; }
+    .profile-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      width: min(var(--content-w), 100%);
+      margin: 0 auto;
+    }
     .profile-tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
     .profile-tab { padding: 8px 16px; font-size: 13px; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s; margin-bottom: -1px; }
     .profile-tab:hover { color: var(--text2); }
@@ -769,6 +861,22 @@
     .profile-section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 18px; margin-bottom: 14px; }
     .profile-section-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
     .profile-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+    .profile-model-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .profile-model-row .profile-input { margin: 0; }
+    .profile-model-provider { width: 170px; flex: 0 0 170px; }
+    .profile-model-name { width: 220px; flex: 0 0 220px; }
+    .profile-model-key { flex: 1; min-width: 160px; }
+    .profile-model-multi { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .toggle-disabled-strike {
+      text-decoration: line-through;
+      color: var(--text3);
+      opacity: .75;
+    }
     .profile-label { font-size: 11px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: .06em; }
     .profile-val { font-size: 14px; color: var(--text); }
     .profile-input { background: transparent; border: none; border-radius: var(--rs); color: var(--text); font-family: var(--font); font-size: 14px; padding: 8px 12px; width: 100%; outline: none; }
@@ -848,6 +956,12 @@
                   <div class="ctx-dropdown attach-dropdown" id="home-attach-menu"><!-- JS --></div>
                 </div>
               </div>
+              <div class="composer-mode">
+                <select id="composer-llm-home" class="composer-select" onchange="onComposerLlmChange('home', this.value)"></select>
+                <select id="composer-web-home" class="composer-select" onchange="onComposerWebSearchChange('home', this.value)"></select>
+                <input id="composer-multi-home" class="composer-select composer-multi-input hidden" value="Мультиответ" disabled>
+              </div>
+              <div style="flex:1"></div>
               <button class="send-btn" onclick="sendHome()">↑</button>
             </div>
             </div>
@@ -886,6 +1000,12 @@
                   <div class="ctx-dropdown attach-dropdown" id="gchat-attach-menu"><!-- JS --></div>
                 </div>
               </div>
+              <div class="composer-mode">
+                <select id="composer-llm-gchat" class="composer-select" onchange="onComposerLlmChange('gchat', this.value)"></select>
+                <select id="composer-web-gchat" class="composer-select" onchange="onComposerWebSearchChange('gchat', this.value)"></select>
+                <input id="composer-multi-gchat" class="composer-select composer-multi-input hidden" value="Мультиответ" disabled>
+              </div>
+              <div style="flex:1"></div>
               <button class="send-btn" onclick="sendGChat()">↑</button>
             </div>
           </div>
@@ -949,6 +1069,12 @@
                 <div class="ctx-dropdown attach-dropdown" id="post-attach-menu"><!-- JS --></div>
               </div>
             </div>
+            <div class="composer-mode">
+              <select id="composer-llm-post" class="composer-select" onchange="onComposerLlmChange('post', this.value)"></select>
+              <select id="composer-web-post" class="composer-select" onchange="onComposerWebSearchChange('post', this.value)"></select>
+              <input id="composer-multi-post" class="composer-select composer-multi-input hidden" value="Мультиответ" disabled>
+            </div>
+            <div style="flex:1"></div>
             <button class="send-btn" onclick="sendPost()">↑</button>
           </div>
         </div>
@@ -1078,14 +1204,28 @@
         <div class="profile-panel" id="ptab-1">
         <div class="profile-section">
             <div class="profile-section-title">ИИ-движок</div>
-            <div class="profile-row"><div class="profile-label">Модель</div><input class="profile-input" value="GPT-4o"></div>
-            <div class="profile-row"><div class="profile-label">API-ключ</div><input class="profile-input" type="password" value="sk-•••••••••••••••••••"></div>
-          <div class="profile-grid">
-              <div class="profile-row"><div class="profile-label">Температура</div><input class="profile-input" value="0.7"></div>
-              <div class="profile-row"><div class="profile-label">Max tokens</div><input class="profile-input" value="2048"></div>
+            <div class="profile-row"><div class="profile-label">LLM-модели</div></div>
+            <div id="llm-models-list"></div>
+            <button class="btn btn-ghost btn-sm" onclick="addLlmModelRow()">Добавить LLM модель</button>
+            <div class="profile-row" style="margin-top:14px"><div class="profile-label">Web Search модели</div></div>
+            <div id="web-models-list"></div>
+            <button class="btn btn-ghost btn-sm" onclick="addWebSearchModelRow()">Добавить Web Search модель</button>
+            <div class="profile-row" style="margin-top:14px">
+              <div class="profile-label">Мультиответ</div>
+              <label class="profile-val" style="display:flex;align-items:center;gap:8px">
+                <input type="checkbox" id="multiresponse-toggle" onchange="toggleMultiResponse(this.checked)">
+                <span id="multiresponse-toggle-label">Включить</span>
+              </label>
             </div>
-            <div class="profile-row"><div class="profile-label">Системный промпт</div><textarea class="profile-input profile-textarea">Ты помогаешь автору Telegram-канала о личных финансах...</textarea></div>
-            <button class="btn btn-primary" style="margin-top:4px">Сохранить всё</button>
+            <div class="profile-val" style="font-size:12px;color:var(--text3);margin-top:8px">При включенном мультиответе в поле ввода показывается один заблокированный режим.</div>
+            <button class="btn btn-primary" id="model-settings-save-btn" onclick="saveModelSettings()" disabled style="margin-top:10px">Сохранить</button>
+            </div>
+        <div class="profile-section">
+            <div class="profile-section-title">Системный промпт</div>
+            <div class="profile-row">
+              <textarea class="profile-input profile-textarea" id="system-prompt-input" oninput="onSystemPromptInput()"></textarea>
+            </div>
+            <button class="btn btn-primary" id="system-prompt-save-btn" onclick="saveSystemPrompt()" disabled>Сохранить</button>
             </div>
         <div class="profile-section">
             <div class="profile-section-title">Telegram</div>
@@ -1199,6 +1339,19 @@ const globalNotes = [
   { id: 'gn4', title: 'Идеи постов на май',                    ai: false, date: '20 апр', body: '- Психология сложного %\n- Как читать отчётность\n- Первые ETF' },
 ];
 
+const aiProfileConfig = {
+  llmModels: [
+    { id: 'llm-1', provider: 'OpenAI', model: 'gpt-4o', apiKey: 'sk-openai-demo', active: true, includeInMulti: true },
+    { id: 'llm-2', provider: 'Anthropic', model: 'claude-3-7-sonnet', apiKey: 'sk-anthropic-demo', active: true, includeInMulti: false },
+  ],
+  webSearchModels: [
+    { id: 'web-1', provider: 'Perplexity', model: 'sonar-pro', apiKey: 'pk-perplexity-demo', active: true, includeInMulti: true },
+    { id: 'web-2', provider: 'Tavily', model: 'search-v1', apiKey: 'tvly-demo', active: true, includeInMulti: false },
+  ],
+  multiResponseEnabled: false,
+  systemPrompt: 'Ты помогаешь автору Telegram-канала о личных финансах...',
+};
+
 // ══════════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════════
@@ -1214,6 +1367,13 @@ let noteFilter   = 'all';
 let noteScope    = 'global';
 let pinnedPostIds = [1, 2];
 let noteSavedSnapshot = '';
+let systemPromptSavedSnapshot = aiProfileConfig.systemPrompt;
+let modelSettingsSavedSnapshot = '';
+const composerTargets = {
+  home: { llmId: 'llm-1', webId: 'web-1' },
+  gchat: { llmId: 'llm-1', webId: 'web-1' },
+  post: { llmId: 'llm-1', webId: 'web-1' },
+};
 
 // ══════════════════════════════════════════════════
 //  NAVIGATION
@@ -1222,6 +1382,7 @@ const SCREENS = ['home','gchat','feed','post','note','chats','notes','analytics'
 
 function navigate(id) {
   if (!canLeaveNotePage(id)) return;
+  if (!canLeaveProfileSettings(id)) return;
   SCREENS.forEach(s => {
     const el = document.getElementById('screen-' + s);
     if (el) el.classList.toggle('active', s === id);
@@ -1240,6 +1401,408 @@ function navigate(id) {
 function goHome() {
   document.getElementById('home-input').value = '';
   navigate('home');
+}
+
+const LLM_PROVIDER_MODELS = {
+  OpenAI: ['gpt-4o', 'gpt-4.1', 'gpt-4.1-mini'],
+  Anthropic: ['claude-3-7-sonnet', 'claude-3-5-sonnet'],
+  Mistral: ['mistral-large', 'mistral-small'],
+  Google: ['gemini-1.5-pro', 'gemini-1.5-flash'],
+  DeepSeek: ['deepseek-chat', 'deepseek-reasoner'],
+  OpenRouter: ['meta-llama/llama-3.1-70b-instruct', 'qwen/qwen-2.5-72b-instruct'],
+};
+
+const WEB_SEARCH_PROVIDER_MODELS = {
+  Perplexity: ['sonar-pro', 'sonar-reasoning'],
+  Tavily: ['search-v1'],
+  SerpAPI: ['google-search'],
+  Exa: ['exa-neural'],
+};
+
+function shortComposerLabel(value, maxLen = 22) {
+  const text = String(value || '').trim();
+  if (text.length <= maxLen) return text;
+  return text.slice(0, Math.max(0, maxLen - 2)) + '..';
+}
+
+function getLlmModelLabel(id) {
+  const model = aiProfileConfig.llmModels.find(item => item.id === id);
+  return model ? `${model.provider} / ${model.model || 'модель'}` : 'LLM не выбрана';
+}
+
+function getWebSearchModelLabel(id) {
+  if (!id) return 'Нет';
+  const model = aiProfileConfig.webSearchModels.find(item => item.id === id);
+  return model ? `${model.provider} / ${model.model || 'модель'}` : 'Нет';
+}
+
+function ensureValidComposerTargets() {
+  const availableLlm = aiProfileConfig.llmModels.filter(item => item.provider && item.model && item.active);
+  const availableWeb = aiProfileConfig.webSearchModels.filter(item => item.provider && item.model && item.active);
+  const fallbackLlm = availableLlm[0]?.id || '';
+  Object.keys(composerTargets).forEach(scope => {
+    const target = composerTargets[scope] || {};
+    if (!availableLlm.some(item => item.id === target.llmId)) target.llmId = fallbackLlm;
+    if (target.webId && !availableWeb.some(item => item.id === target.webId)) target.webId = '';
+    if (typeof target.webId !== 'string') target.webId = '';
+    composerTargets[scope] = target;
+  });
+}
+
+function getMultiResponsePairs() {
+  const llmSelected = aiProfileConfig.llmModels.filter(item => item.provider && item.model && item.active && item.includeInMulti);
+  const webSelected = aiProfileConfig.webSearchModels.filter(item => item.provider && item.model && item.active && item.includeInMulti);
+  const pairs = [];
+  if (webSelected.length === 0) {
+    llmSelected.forEach(llm => {
+      pairs.push({
+        id: `${llm.id}|none`,
+        llmId: llm.id,
+        webId: '',
+        label: `${llm.provider}/${llm.model}`,
+      });
+    });
+    return pairs;
+  }
+  llmSelected.forEach(llm => {
+    webSelected.forEach(web => {
+      pairs.push({
+        id: `${llm.id}|${web.id}`,
+        llmId: llm.id,
+        webId: web.id,
+        label: `${llm.provider}/${llm.model} + ${web.provider}/${web.model}`,
+      });
+    });
+  });
+  return pairs;
+}
+
+function getMultiResponseEligibility() {
+  const llmSelectedCount = aiProfileConfig.llmModels.filter(item => item.provider && item.model && item.active && item.includeInMulti).length;
+  const webSelectedCount = aiProfileConfig.webSearchModels.filter(item => item.provider && item.model && item.active && item.includeInMulti).length;
+  const eligible = llmSelectedCount >= 2 || (llmSelectedCount >= 1 && webSelectedCount >= 2);
+  return { eligible, llmSelectedCount, webSelectedCount };
+}
+
+function syncMultiResponseToggleAvailability() {
+  const toggle = document.getElementById('multiresponse-toggle');
+  const label = document.getElementById('multiresponse-toggle-label');
+  if (!toggle || !label) return;
+  const { eligible } = getMultiResponseEligibility();
+  toggle.disabled = !eligible;
+  label.classList.toggle('toggle-disabled-strike', !eligible);
+  if (!eligible && aiProfileConfig.multiResponseEnabled) {
+    aiProfileConfig.multiResponseEnabled = false;
+  }
+  toggle.checked = aiProfileConfig.multiResponseEnabled;
+}
+
+function renderComposerControls() {
+  ensureValidComposerTargets();
+  const scopes = ['home', 'gchat', 'post'];
+  const llmOptions = aiProfileConfig.llmModels.filter(item => item.provider && item.model && item.active);
+  const webOptions = aiProfileConfig.webSearchModels.filter(item => item.provider && item.model && item.active);
+  scopes.forEach(scope => {
+    const llmSelect = document.getElementById(`composer-llm-${scope}`);
+    const webSelect = document.getElementById(`composer-web-${scope}`);
+    const multiInput = document.getElementById(`composer-multi-${scope}`);
+    if (!llmSelect || !webSelect || !multiInput) return;
+
+    llmSelect.innerHTML = llmOptions.length > 0
+      ? llmOptions.map(item => `<option value="${item.id}">${shortComposerLabel(`${item.provider} / ${item.model}`)}</option>`).join('')
+      : '<option value="">Нет LLM моделей</option>';
+    webSelect.innerHTML = `
+      <option value="">Нет</option>
+      ${webOptions.map(item => `<option value="${item.id}">${shortComposerLabel(`${item.provider} / ${item.model}`)}</option>`).join('')}
+    `;
+    if (llmOptions.length > 0) llmSelect.value = composerTargets[scope].llmId;
+    webSelect.value = composerTargets[scope].webId || '';
+    llmSelect.disabled = llmOptions.length === 0;
+    webSelect.disabled = false;
+
+    const isMulti = aiProfileConfig.multiResponseEnabled;
+    llmSelect.style.display = isMulti ? 'none' : '';
+    webSelect.style.display = isMulti ? 'none' : '';
+    if (isMulti) {
+      llmSelect.disabled = true;
+      webSelect.disabled = true;
+    }
+    multiInput.classList.toggle('hidden', !isMulti);
+  });
+}
+
+function onComposerLlmChange(scope, value) {
+  composerTargets[scope].llmId = value;
+}
+
+function onComposerWebSearchChange(scope, value) {
+  composerTargets[scope].webId = value;
+}
+
+function updateLlmProvider(index, provider) {
+  if (!aiProfileConfig.llmModels[index]) return;
+  const row = aiProfileConfig.llmModels[index];
+  row.provider = provider;
+  if (!provider) {
+    row.model = '';
+    row.apiKey = '';
+  } else {
+    const models = LLM_PROVIDER_MODELS[provider] || [];
+    if (!models.includes(row.model)) row.model = models[0] || '';
+  }
+  renderAiProfileControls();
+  renderComposerControls();
+  syncModelSettingsSaveButton();
+}
+
+function updateLlmModel(index, modelName) {
+  if (!aiProfileConfig.llmModels[index]) return;
+  aiProfileConfig.llmModels[index].model = modelName;
+  renderComposerControls();
+  syncModelSettingsSaveButton();
+}
+
+function updateLlmApiKey(index, value) {
+  if (!aiProfileConfig.llmModels[index]) return;
+  aiProfileConfig.llmModels[index].apiKey = value;
+  syncModelSettingsSaveButton();
+}
+
+function toggleLlmActive(index, checked) {
+  if (!aiProfileConfig.llmModels[index]) return;
+  const row = aiProfileConfig.llmModels[index];
+  row.active = !!checked;
+  if (!row.active) row.includeInMulti = false;
+  renderComposerControls();
+  syncMultiResponseToggleAvailability();
+  syncModelSettingsSaveButton();
+}
+
+function toggleLlmInMulti(index, checked) {
+  if (!aiProfileConfig.llmModels[index]) return;
+  aiProfileConfig.llmModels[index].includeInMulti = !!checked;
+  syncMultiResponseToggleAvailability();
+  syncModelSettingsSaveButton();
+}
+
+function updateWebProvider(index, provider) {
+  if (!aiProfileConfig.webSearchModels[index]) return;
+  const row = aiProfileConfig.webSearchModels[index];
+  row.provider = provider;
+  if (!provider) {
+    row.model = '';
+    row.apiKey = '';
+  } else {
+    const models = WEB_SEARCH_PROVIDER_MODELS[provider] || [];
+    if (!models.includes(row.model)) row.model = models[0] || '';
+  }
+  renderAiProfileControls();
+  renderComposerControls();
+  syncModelSettingsSaveButton();
+}
+
+function updateWebModel(index, modelName) {
+  if (!aiProfileConfig.webSearchModels[index]) return;
+  aiProfileConfig.webSearchModels[index].model = modelName;
+  renderComposerControls();
+  syncModelSettingsSaveButton();
+}
+
+function updateWebApiKey(index, value) {
+  if (!aiProfileConfig.webSearchModels[index]) return;
+  aiProfileConfig.webSearchModels[index].apiKey = value;
+  syncModelSettingsSaveButton();
+}
+
+function toggleWebActive(index, checked) {
+  if (!aiProfileConfig.webSearchModels[index]) return;
+  const row = aiProfileConfig.webSearchModels[index];
+  row.active = !!checked;
+  if (!row.active) row.includeInMulti = false;
+  renderComposerControls();
+  syncMultiResponseToggleAvailability();
+  syncModelSettingsSaveButton();
+}
+
+function toggleWebInMulti(index, checked) {
+  if (!aiProfileConfig.webSearchModels[index]) return;
+  aiProfileConfig.webSearchModels[index].includeInMulti = !!checked;
+  syncMultiResponseToggleAvailability();
+  syncModelSettingsSaveButton();
+}
+
+function addLlmModelRow() {
+  aiProfileConfig.llmModels.push({
+    id: 'llm-' + Date.now(),
+    provider: '',
+    model: '',
+    apiKey: '',
+    active: true,
+    includeInMulti: false,
+  });
+  renderAiProfileControls();
+  renderComposerControls();
+  syncModelSettingsSaveButton();
+}
+
+function addWebSearchModelRow() {
+  aiProfileConfig.webSearchModels.push({
+    id: 'web-' + Date.now(),
+    provider: '',
+    model: '',
+    apiKey: '',
+    active: true,
+    includeInMulti: false,
+  });
+  renderAiProfileControls();
+  renderComposerControls();
+  syncModelSettingsSaveButton();
+}
+
+function renderAiProfileControls() {
+  const llmWrap = document.getElementById('llm-models-list');
+  const webWrap = document.getElementById('web-models-list');
+  const toggle = document.getElementById('multiresponse-toggle');
+  if (!llmWrap || !webWrap || !toggle) return;
+
+  llmWrap.innerHTML = aiProfileConfig.llmModels.map((model, idx) => `
+    <div class="profile-model-row">
+      <select class="profile-input profile-model-provider" onchange="updateLlmProvider(${idx}, this.value)">
+        <option value="">Выберите провайдера</option>
+        ${Object.keys(LLM_PROVIDER_MODELS).map(provider => `<option value="${provider}" ${provider === model.provider ? 'selected' : ''}>${provider}</option>`).join('')}
+      </select>
+      <select class="profile-input profile-model-name" onchange="updateLlmModel(${idx}, this.value)" ${model.provider ? '' : 'disabled'}>
+        <option value="">Выберите модель</option>
+        ${(LLM_PROVIDER_MODELS[model.provider] || []).map(modelName => `<option value="${modelName}" ${modelName === model.model ? 'selected' : ''}>${modelName}</option>`).join('')}
+      </select>
+      <input class="profile-input profile-model-key" type="password" value="${model.apiKey}" placeholder="API key" oninput="updateLlmApiKey(${idx}, this.value)" style="${model.provider ? '' : 'display:none'}">
+      <label class="profile-val profile-model-multi">
+        <input type="checkbox" ${model.active ? 'checked' : ''} onchange="toggleLlmActive(${idx}, this.checked)">
+        Активна
+      </label>
+      <label class="profile-val profile-model-multi">
+        <input type="checkbox" ${model.includeInMulti ? 'checked' : ''} onchange="toggleLlmInMulti(${idx}, this.checked)">
+        В мультиответ
+      </label>
+    </div>
+  `).join('');
+
+  webWrap.innerHTML = aiProfileConfig.webSearchModels.map((model, idx) => `
+    <div class="profile-model-row">
+      <select class="profile-input profile-model-provider" onchange="updateWebProvider(${idx}, this.value)">
+        <option value="">Выберите провайдера</option>
+        ${Object.keys(WEB_SEARCH_PROVIDER_MODELS).map(provider => `<option value="${provider}" ${provider === model.provider ? 'selected' : ''}>${provider}</option>`).join('')}
+      </select>
+      <select class="profile-input profile-model-name" onchange="updateWebModel(${idx}, this.value)" ${model.provider ? '' : 'disabled'}>
+        <option value="">Выберите модель</option>
+        ${(WEB_SEARCH_PROVIDER_MODELS[model.provider] || []).map(modelName => `<option value="${modelName}" ${modelName === model.model ? 'selected' : ''}>${modelName}</option>`).join('')}
+      </select>
+      <input class="profile-input profile-model-key" type="password" value="${model.apiKey}" placeholder="API key" oninput="updateWebApiKey(${idx}, this.value)" style="${model.provider ? '' : 'display:none'}">
+      <label class="profile-val profile-model-multi">
+        <input type="checkbox" ${model.active ? 'checked' : ''} onchange="toggleWebActive(${idx}, this.checked)">
+        Активна
+      </label>
+      <label class="profile-val profile-model-multi">
+        <input type="checkbox" ${model.includeInMulti ? 'checked' : ''} onchange="toggleWebInMulti(${idx}, this.checked)">
+        В мультиответ
+      </label>
+    </div>
+  `).join('');
+
+  syncMultiResponseToggleAvailability();
+  syncModelSettingsSaveButton();
+}
+
+function toggleMultiResponse(enabled) {
+  const { eligible } = getMultiResponseEligibility();
+  aiProfileConfig.multiResponseEnabled = !!enabled && eligible;
+  syncMultiResponseToggleAvailability();
+  renderComposerControls();
+  syncModelSettingsSaveButton();
+}
+
+function getSystemPromptDraft() {
+  const input = document.getElementById('system-prompt-input');
+  if (!input) return systemPromptSavedSnapshot;
+  return input.value;
+}
+
+function buildModelSettingsSnapshot() {
+  return JSON.stringify({
+    llmModels: aiProfileConfig.llmModels.map(item => ({
+      provider: item.provider || '',
+      model: item.model || '',
+      apiKey: item.apiKey || '',
+      active: !!item.active,
+      includeInMulti: !!item.includeInMulti,
+    })),
+    webSearchModels: aiProfileConfig.webSearchModels.map(item => ({
+      provider: item.provider || '',
+      model: item.model || '',
+      apiKey: item.apiKey || '',
+      active: !!item.active,
+      includeInMulti: !!item.includeInMulti,
+    })),
+    multiResponseEnabled: !!aiProfileConfig.multiResponseEnabled,
+  });
+}
+
+function hasUnsavedModelSettingsChanges() {
+  return buildModelSettingsSnapshot() !== modelSettingsSavedSnapshot;
+}
+
+function syncModelSettingsSaveButton() {
+  const btn = document.getElementById('model-settings-save-btn');
+  if (!btn) return;
+  btn.disabled = !hasUnsavedModelSettingsChanges();
+}
+
+function saveModelSettings() {
+  if (!hasUnsavedModelSettingsChanges()) return;
+  modelSettingsSavedSnapshot = buildModelSettingsSnapshot();
+  syncModelSettingsSaveButton();
+}
+
+function hasUnsavedSystemPromptChanges() {
+  return getSystemPromptDraft() !== systemPromptSavedSnapshot;
+}
+
+function syncSystemPromptSaveButton() {
+  const btn = document.getElementById('system-prompt-save-btn');
+  if (!btn) return;
+  btn.disabled = !hasUnsavedSystemPromptChanges();
+}
+
+function onSystemPromptInput() {
+  syncSystemPromptSaveButton();
+}
+
+function saveSystemPrompt() {
+  const input = document.getElementById('system-prompt-input');
+  if (!input) return;
+  if (!hasUnsavedSystemPromptChanges()) return;
+  aiProfileConfig.systemPrompt = input.value;
+  systemPromptSavedSnapshot = aiProfileConfig.systemPrompt;
+  syncSystemPromptSaveButton();
+}
+
+function hydrateSystemPromptEditor() {
+  const input = document.getElementById('system-prompt-input');
+  if (!input) return;
+  input.value = aiProfileConfig.systemPrompt;
+  systemPromptSavedSnapshot = aiProfileConfig.systemPrompt;
+  syncSystemPromptSaveButton();
+}
+
+function canLeaveProfileSettings(nextScreenId) {
+  const profileScreen = document.getElementById('screen-profile');
+  const settingsTab = document.getElementById('ptab-1');
+  const isProfileActive = !!profileScreen?.classList.contains('active');
+  const isSettingsActive = !!settingsTab?.classList.contains('active');
+  if (!isProfileActive || !isSettingsActive) return true;
+  if (nextScreenId === 'profile') return true;
+  if (!hasUnsavedSystemPromptChanges() && !hasUnsavedModelSettingsChanges()) return true;
+  return confirm('Есть несохранённые изменения в настройках профиля. Уйти без сохранения?');
 }
 
 // ══════════════════════════════════════════════════
@@ -1374,7 +1937,7 @@ function renderPostBody() {
     }
     inner += `</div>`;
 
-    p.chatHistory.forEach(m => { inner += chatMsgHTML(m.role, m.text); });
+    p.chatHistory.forEach((m, idx) => { inner += chatMsgHTML(m, { scope: 'post', entityId: p.id, index: idx }); });
     chatEl.innerHTML = `<div class="post-body-inner">${inner}</div>`;
     chatEl.onscroll = syncPostJumpButton;
     syncPostJumpButton();
@@ -1546,7 +2109,7 @@ function toggleGlobalAttachMenu(event, scope) {
 function applyGlobalAttachment(scope, text) {
   if (scope === 'gchat' && currentGChat) {
     currentGChat.history.push({ role: 'user', text });
-    appendGChatMsg('user', text);
+    renderCurrentGChatMessages();
     return;
   }
   const inp = document.getElementById('home-input');
@@ -1979,12 +2542,7 @@ function openGChat(id) {
   currentGChat = globalChats.find(c => c.id === id);
   if (!currentGChat) return;
   document.getElementById('gchat-title').textContent = currentGChat.title;
-  const msgs = document.getElementById('gchat-messages');
-  msgs.innerHTML = '';
-  currentGChat.history.forEach(m => {
-    msgs.innerHTML += chatMsgHTML(m.role, m.text);
-  });
-  msgs.scrollTop = msgs.scrollHeight;
+  renderCurrentGChatMessages();
   navigate('gchat');
 }
 
@@ -2097,21 +2655,85 @@ const globalReplies = {
   'охват': 'Охваты снизились в конце апреля — совпало с уменьшением частоты постов: три недели по 2 поста вместо 4–5. Рекомендую вернуться к ритму.',
 };
 
+function composeVariantText(baseReply, label, idx) {
+  const tails = [
+    'Фокус: структурно и практично.',
+    'Фокус: более разговорный тон.',
+    'Фокус: кратко, без потери сути.',
+    'Фокус: акцент на метриках и выводах.',
+  ];
+  return `${baseReply}\n\n— ${label}\n${tails[idx % tails.length]}`;
+}
+
+function buildAiMessage(baseReply, scope) {
+  if (aiProfileConfig.multiResponseEnabled) {
+    const pairs = getMultiResponsePairs();
+    if (pairs.length > 0) {
+      const variants = pairs.map((pair, idx) => ({
+        key: pair.id,
+        label: pair.label,
+        text: composeVariantText(baseReply, pair.label, idx),
+      }));
+      return { role: 'ai', variants, selectedVariant: 0, mode: 'multi' };
+    }
+  }
+  const target = composerTargets[scope] || {};
+  const llmLabel = getLlmModelLabel(target.llmId);
+  const webLabel = getWebSearchModelLabel(target.webId);
+  const label = target.webId ? `${llmLabel} + ${webLabel}` : llmLabel;
+  return {
+    role: 'ai',
+    text: composeVariantText(baseReply, label, 0),
+    mode: 'single',
+    targetLabel: label,
+    llmLabel,
+    webLabel,
+  };
+}
+
+function hasLlmForSend(scope) {
+  if (aiProfileConfig.multiResponseEnabled) {
+    return aiProfileConfig.llmModels.some(item => item.provider && item.model && item.active && item.includeInMulti);
+  }
+  const target = composerTargets[scope] || {};
+  if (!target.llmId) return false;
+  return aiProfileConfig.llmModels.some(item => item.id === target.llmId && item.provider && item.model && item.active);
+}
+
+function assertLlmReady(scope) {
+  if (hasLlmForSend(scope)) return true;
+  alert('Активируйте LLM модель.');
+  return false;
+}
+
+function renderCurrentGChatMessages() {
+  const msgs = document.getElementById('gchat-messages');
+  if (!msgs || !currentGChat) return;
+  msgs.innerHTML = '';
+  currentGChat.history.forEach((message, idx) => {
+    msgs.innerHTML += chatMsgHTML(message, { scope: 'gchat', entityId: currentGChat.id, index: idx });
+  });
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
 function sendHome() {
   const inp = document.getElementById('home-input');
   const text = inp.value.trim();
   if (!text) return;
+  if (!assertLlmReady('home')) return;
   inp.value = ''; autoResize(inp);
   // create new chat and open it
   const nc = { id: 'gc' + Date.now(), title: truncate(text, 40), preview: text, date: 'сейчас', history: [] };
   globalChats.unshift(nc);
   currentGChat = nc;
   document.getElementById('gchat-title').textContent = nc.title;
-  const msgs = document.getElementById('gchat-messages');
-  msgs.innerHTML = '';
   navigate('gchat');
-  appendGChatMsg('user', text);
-  setTimeout(() => { appendGChatMsg('ai', getGlobalReply(text)); }, 900);
+  currentGChat.history.push({ role: 'user', text });
+  renderCurrentGChatMessages();
+  setTimeout(() => {
+    currentGChat.history.push(buildAiMessage(getGlobalReply(text), 'home'));
+    renderCurrentGChatMessages();
+  }, 900);
 }
 
 function homeSuggest(el) {
@@ -2124,20 +2746,14 @@ function sendGChat() {
   const inp = document.getElementById('gchat-input');
   const text = inp.value.trim();
   if (!text) return;
+  if (!assertLlmReady('gchat')) return;
   inp.value = ''; autoResize(inp);
   currentGChat.history.push({ role: 'user', text });
-  appendGChatMsg('user', text);
+  renderCurrentGChatMessages();
   setTimeout(() => {
-    const reply = getGlobalReply(text);
-    currentGChat.history.push({ role: 'ai', text: reply });
-    appendGChatMsg('ai', reply);
+    currentGChat.history.push(buildAiMessage(getGlobalReply(text), 'gchat'));
+    renderCurrentGChatMessages();
   }, 900);
-}
-
-function appendGChatMsg(role, text) {
-  const msgs = document.getElementById('gchat-messages');
-  msgs.innerHTML += chatMsgHTML(role, text);
-  msgs.scrollTop = msgs.scrollHeight;
 }
 
 function getGlobalReply(text) {
@@ -2154,12 +2770,13 @@ function sendPost() {
   const inp = document.getElementById('post-input');
   const text = inp.value.trim();
   if (!text) return;
+  if (!assertLlmReady('post')) return;
   inp.value = ''; autoResize(inp);
   currentPost.chatHistory.push({ role: 'user', text });
   renderPostBody();
   setTimeout(() => {
     const reply = getPostReply(text);
-    currentPost.chatHistory.push({ role: 'ai', text: reply });
+    currentPost.chatHistory.push(buildAiMessage(reply, 'post'));
     renderPostBody();
     const area = document.getElementById('post-chat');
     if (area) area.scrollTop = area.scrollHeight;
@@ -2243,18 +2860,102 @@ function ctxDeleteNote() {
 //  PROFILE TABS
 // ══════════════════════════════════════════════════
 function switchProfileTab(idx, el) {
+  const isSettingsActive = !!document.getElementById('ptab-1')?.classList.contains('active');
+  if (isSettingsActive && idx !== 1 && (hasUnsavedSystemPromptChanges() || hasUnsavedModelSettingsChanges())) {
+    const ok = confirm('Есть несохранённые изменения в настройках профиля. Перейти без сохранения?');
+    if (!ok) return;
+  }
   document.querySelectorAll('.profile-tab').forEach((t,i) => t.classList.toggle('active', i === idx));
   document.querySelectorAll('.profile-panel').forEach((p,i) => p.classList.toggle('active', i === idx));
+  if (idx === 1) {
+    renderAiProfileControls();
+    syncSystemPromptSaveButton();
+    syncModelSettingsSaveButton();
+  }
 }
 
 // ══════════════════════════════════════════════════
 //  SHARED HELPERS
 // ══════════════════════════════════════════════════
-function chatMsgHTML(role, text) {
-  const isUser = role === 'user';
+function setAiVariant(scope, entityId, idx, variantIdx) {
+  const messageIdx = Number(idx);
+  const targetVariant = Number(variantIdx);
+  if (scope === 'gchat') {
+    const chat = globalChats.find(c => c.id === entityId);
+    const msg = chat?.history?.[messageIdx];
+    if (!msg || !Array.isArray(msg.variants)) return;
+    msg.selectedVariant = targetVariant;
+    if (currentGChat?.id === entityId) renderCurrentGChatMessages();
+    return;
+  }
+  if (scope === 'post') {
+    const postId = Number(entityId);
+    const post = posts.find(p => p.id === postId);
+    const msg = post?.chatHistory?.[messageIdx];
+    if (!msg || !Array.isArray(msg.variants)) return;
+    msg.selectedVariant = targetVariant;
+    if (currentPost?.id === postId) renderPostBody();
+  }
+}
+
+function cycleAiVariant(scope, entityId, idx, delta) {
+  const messageIdx = Number(idx);
+  const shift = Number(delta);
+  if (scope === 'gchat') {
+    const chat = globalChats.find(c => c.id === entityId);
+    const msg = chat?.history?.[messageIdx];
+    if (!msg || !Array.isArray(msg.variants) || msg.variants.length === 0) return;
+    const current = Number(msg.selectedVariant) || 0;
+    const next = (current + shift + msg.variants.length) % msg.variants.length;
+    setAiVariant(scope, entityId, idx, next);
+    return;
+  }
+  if (scope === 'post') {
+    const postId = Number(entityId);
+    const post = posts.find(p => p.id === postId);
+    const msg = post?.chatHistory?.[messageIdx];
+    if (!msg || !Array.isArray(msg.variants) || msg.variants.length === 0) return;
+    const current = Number(msg.selectedVariant) || 0;
+    const next = (current + shift + msg.variants.length) % msg.variants.length;
+    setAiVariant(scope, entityId, idx, next);
+  }
+}
+
+function chatMsgHTML(message, ctx = null) {
+  const msg = (typeof message === 'string')
+    ? { role: 'ai', text: message }
+    : (message || { role: 'ai', text: '' });
+  const isUser = msg.role === 'user';
+  const plainText = (msg.text || '').replace(/\n/g, '<br>');
+
+  let topHtml = '';
+  let footerHtml = '';
+  let textHtml = plainText;
+  if (!isUser && Array.isArray(msg.variants) && msg.variants.length > 0) {
+    const selectedIdx = Math.min(Math.max(Number(msg.selectedVariant) || 0, 0), msg.variants.length - 1);
+    const selected = msg.variants[selectedIdx];
+    textHtml = (selected?.text || '').replace(/\n/g, '<br>');
+    if (ctx) {
+      const showArrows = msg.variants.length > 1;
+      footerHtml = `<div class="ai-variant-footer">
+        <div class="ai-variant-label">${selected?.label || ''}</div>
+        ${showArrows ? `<div class="ai-variant-nav">
+          <button class="ai-variant-arrow" onclick="cycleAiVariant('${ctx.scope}','${ctx.entityId}',${ctx.index},-1)">←</button>
+          <button class="ai-variant-arrow" onclick="cycleAiVariant('${ctx.scope}','${ctx.entityId}',${ctx.index},1)">→</button>
+        </div>` : `<div class="ai-variant-nav"></div>`}
+      </div>`;
+    }
+  } else if (!isUser && msg.targetLabel) {
+    footerHtml = `<div class="ai-variant-footer">
+      <div class="ai-variant-label">${msg.targetLabel}</div>
+      <div class="ai-variant-nav"></div>
+    </div>`;
+  }
+
   return `<div class="msg-row ${isUser?'user':'ai'}">
     <div class="msg-body">
-      <div class="msg-text">${text.replace(/\n/g,'<br>')}</div>
+      <div class="msg-text">${topHtml}${textHtml}</div>
+      ${footerHtml}
     </div>
   </div>`;
 }
@@ -2295,13 +2996,18 @@ window.addEventListener('resize', () => {
 });
 
 window.addEventListener('beforeunload', (e) => {
-  if (!hasUnsavedNoteChanges()) return;
+  if (!hasUnsavedNoteChanges() && !hasUnsavedSystemPromptChanges() && !hasUnsavedModelSettingsChanges()) return;
   e.preventDefault();
   e.returnValue = '';
 });
 
 
 // ── Init ──
+renderComposerControls();
+renderAiProfileControls();
+hydrateSystemPromptEditor();
+modelSettingsSavedSnapshot = buildModelSettingsSnapshot();
+syncModelSettingsSaveButton();
 renderFeed();
 renderNotesList();
 </script>
