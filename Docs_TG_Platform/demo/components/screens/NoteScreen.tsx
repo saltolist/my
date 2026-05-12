@@ -14,9 +14,11 @@ export default function NoteScreen() {
   if (!note) {
     return (
       <div className="page-header">
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate("notes")} type="button">
-          ← Назад
-        </button>
+        <div className="page-header-left">
+          <button className="btn btn-ghost btn-sm" onClick={() => navigate("notes")} type="button">
+            ← Назад
+          </button>
+        </div>
       </div>
     );
   }
@@ -27,35 +29,39 @@ export default function NoteScreen() {
   return (
     <>
       <div className="page-header" id="note-hdr-row">
-        <div className="breadcrumb" style={{ flex: 1 }}>
-          <span className="bc-link" onClick={goBack}>
-            {backLabel}
-          </span>
-          <span>/</span>
-          <b>{truncate(note.title, 30)}</b>
+        <div className="page-header-left">
+          <div className="breadcrumb">
+            <span className="bc-link" onClick={goBack}>
+              {backLabel}
+            </span>
+            <span>/</span>
+            <b>{truncate(note.title, 30)}</b>
+          </div>
         </div>
-        <button className="btn btn-ghost btn-sm" onClick={goBack} type="button">
-          ← Назад
-        </button>
-        <ContextMenu
-          items={[
-            {
-              label: "Удалить заметку",
-              icon: "🗑",
-              danger: true,
-              onClick: () => {
-                if (!confirm(`Удалить заметку «${note.title}»?`)) return;
-                if (note.isGlobal) {
-                  dispatch({ type: "DELETE_GLOBAL_NOTE", noteId: note.id });
-                  navigate("notes");
-                } else {
-                  dispatch({ type: "DELETE_POST_NOTE", postId: note.postId, noteId: note.id });
-                  navigate("post");
-                }
+        <div className="page-header-right">
+          <button className="btn btn-ghost btn-sm" onClick={goBack} type="button">
+            ← Назад
+          </button>
+          <ContextMenu
+            items={[
+              {
+                label: "Удалить заметку",
+                icon: "🗑",
+                danger: true,
+                onClick: () => {
+                  if (!confirm(`Удалить заметку «${note.title}»?`)) return;
+                  if (note.isGlobal) {
+                    dispatch({ type: "DELETE_GLOBAL_NOTE", noteId: note.id });
+                    navigate("notes");
+                  } else {
+                    dispatch({ type: "DELETE_POST_NOTE", postId: note.postId, noteId: note.id });
+                    navigate("post");
+                  }
+                },
               },
-            },
-          ]}
-        />
+            ]}
+          />
+        </div>
       </div>
       <div className="note-page" id="note-page-body">
         {state.noteMode === "view" ? <NoteView note={note} onOpenPost={openPost} /> : <NoteEdit note={note} />}

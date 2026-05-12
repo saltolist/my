@@ -18,31 +18,35 @@ export default function GlobalChatScreen() {
   return (
     <>
       <div className="page-header">
-        <div className="breadcrumb">
-          <span className="bc-link" onClick={() => navigate("chats")}>
-            Чаты
-          </span>
-          <span>/</span>
-          <b>{chat?.title || "—"}</b>
+        <div className="page-header-left">
+          <div className="breadcrumb">
+            <span className="bc-link" onClick={() => navigate("chats")}>
+              Чаты
+            </span>
+            <span>/</span>
+            <b>{chat?.title || "—"}</b>
+          </div>
         </div>
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate("chats")} type="button">
-          ← Назад
-        </button>
-        <ContextMenu
-          items={[
-            {
-              label: "Удалить чат",
-              icon: "🗑",
-              danger: true,
-              onClick: () => {
-                if (!chat) return;
-                if (!confirm(`Удалить чат «${chat.title}»?`)) return;
-                dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: chat.id });
-                navigate("chats");
+        <div className="page-header-right">
+          <button className="btn btn-ghost btn-sm" onClick={() => navigate("chats")} type="button">
+            ← Назад
+          </button>
+          <ContextMenu
+            items={[
+              {
+                label: "Удалить чат",
+                icon: "🗑",
+                danger: true,
+                onClick: () => {
+                  if (!chat) return;
+                  if (!confirm(`Удалить чат «${chat.title}»?`)) return;
+                  dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: chat.id });
+                  navigate("chats");
+                },
               },
-            },
-          ]}
-        />
+            ]}
+          />
+        </div>
       </div>
       <div className="gchat-layout">
         <div className="gchat-messages" ref={messagesRef}>

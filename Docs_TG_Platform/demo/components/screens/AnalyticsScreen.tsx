@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/state/AppContext";
+import PageHeader from "../PageHeader";
 
 const PERIODS = ["7 дней", "30 дней", "90 дней", "Всё время"];
 
@@ -11,9 +12,7 @@ export default function AnalyticsScreen() {
 
   return (
     <>
-      <div className="page-header">
-        <h2>Аналитика канала</h2>
-      </div>
+      <PageHeader title="Аналитика канала" backTo="home" />
       <div className="analytics-scroll">
         <div className="period-tabs">
           {PERIODS.map((p, i) => (

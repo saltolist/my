@@ -4,24 +4,31 @@ import { useEffect, useRef, useState } from "react";
 import { useApp } from "@/state/AppContext";
 import PostCard from "../feed/PostCard";
 import DraftsSection from "../feed/DraftsSection";
-import { autoResize, readFileAsMedia } from "@/lib/helpers";
+import { autoResize, postTitle, readFileAsMedia } from "@/lib/helpers";
 import AttachMenu from "../composer/AttachMenu";
 import PostMediaBlock from "../post/PostMediaBlock";
+import PageHeader from "../PageHeader";
 import type { Post, PostMedia } from "@/lib/types";
 
 export default function FeedScreen() {
   const { state, dispatch, openPost } = useApp();
   const [draft, setDraft] = useState("");
   const [pendingMedia, setPendingMedia] = useState<PostMedia[]>([]);
+  const [search, setSearch] = useState("");
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (taRef.current) autoResize(taRef.current, 16);
   }, [draft]);
 
-  const published = state.posts.filter((p) => p.status === "published");
-  const scheduled = state.posts.filter((p) => p.status === "scheduled");
-  const drafts = state.posts.filter((p) => p.status === "draft");
+  const q = search.trim().toLowerCase();
+  const matchPost = (p: Post) =>
+    !q ||
+    postTitle(p).toLowerCase().includes(q) ||
+    (p.text || "").toLowerCase().includes(q);
+  const published = state.posts.filter((p) => p.status === "published" && matchPost(p));
+  const scheduled = state.posts.filter((p) => p.status === "scheduled" && matchPost(p));
+  const drafts = state.posts.filter((p) => p.status === "draft" && matchPost(p));
 
   function submitDraft() {
     const text = draft.trim();
@@ -47,9 +54,19 @@ export default function FeedScreen() {
 
   return (
     <>
-      <div className="page-header">
-        <h2>Лента</h2>
-      </div>
+      <PageHeader
+        title="Лента"
+        backTo="home"
+        search={
+          <input
+            type="text"
+            className="page-header-search"
+            placeholder="Поиск по постам..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        }
+      />
       <div className="feed-layout">
         <div className="feed-scroll" id="feed-scroll">
           <div className="feed-inner">

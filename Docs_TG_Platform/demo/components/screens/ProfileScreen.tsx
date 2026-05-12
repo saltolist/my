@@ -5,6 +5,7 @@ import ChannelTab from "../profile/ChannelTab";
 import AiModelsBlock from "../profile/AiModelsBlock";
 import SystemPromptBlock from "../profile/SystemPromptBlock";
 import TelegramBlock from "../profile/TelegramBlock";
+import PageHeader from "../PageHeader";
 import { useApp } from "@/state/AppContext";
 
 export default function ProfileScreen() {
@@ -23,9 +24,7 @@ export default function ProfileScreen() {
 
   return (
     <>
-      <div className="page-header">
-        <h2>Профиль канала</h2>
-      </div>
+      <PageHeader title="Профиль канала" backTo="home" />
       <div className="profile-scroll">
         <div className="profile-tabs">
           {["Канал", "Настройки", "Аналитика платформы"].map((label, i) => (

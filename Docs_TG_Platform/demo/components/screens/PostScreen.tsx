@@ -43,9 +43,13 @@ export default function PostScreen() {
   if (!post) {
     return (
       <div className="post-hdr">
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate("feed")} type="button">
-          ← Назад
-        </button>
+        <div className="post-hdr-top">
+          <div className="page-header-left">
+            <button className="btn btn-ghost btn-sm" onClick={() => navigate("feed")} type="button">
+              ← Назад
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -112,21 +116,16 @@ export default function PostScreen() {
     <>
       <div className="post-hdr">
         <div className="post-hdr-top">
-          <div className="breadcrumb">
-            <span className="bc-link" onClick={() => navigate("feed")}>
-              Лента
-            </span>
-            <span>/</span>
-            <b>{truncate(postTitle(post), 38)}</b>
+          <div className="page-header-left">
+            <div className="breadcrumb">
+              <span className="bc-link" onClick={() => navigate("feed")}>
+                Лента
+              </span>
+              <span>/</span>
+              <b>{truncate(postTitle(post), 38)}</b>
+            </div>
           </div>
-          <div className={`post-hdr-actions${showJump ? " has-jump" : ""}`}>
-            <button
-              className="btn btn-ghost btn-sm post-back-btn"
-              onClick={() => navigate("feed")}
-              type="button"
-            >
-              ← Назад
-            </button>
+          <div className="page-header-right">
             <button
               className={`jump-post-btn${showJump ? " visible" : ""}`}
               onClick={() => chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
@@ -134,8 +133,15 @@ export default function PostScreen() {
             >
               ↑ К посту
             </button>
+            <button
+              className="btn btn-ghost btn-sm post-back-btn"
+              onClick={() => navigate("feed")}
+              type="button"
+            >
+              ← Назад
+            </button>
+            <ContextMenu items={ctxItems} />
           </div>
-          <ContextMenu items={ctxItems} />
         </div>
       </div>
 

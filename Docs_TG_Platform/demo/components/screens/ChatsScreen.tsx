@@ -1,21 +1,40 @@
 "use client";
 
+import { useState } from "react";
 import { useApp } from "@/state/AppContext";
 import { postTitle, truncate } from "@/lib/helpers";
+import PageHeader from "../PageHeader";
 
 export default function ChatsScreen() {
   const { state, dispatch, openGChat, openPost } = useApp();
   const tab = state.chatsTab;
+  const [search, setSearch] = useState("");
 
   const setTab = (t: "global" | "local") => dispatch({ type: "SET_STATE", patch: { chatsTab: t } });
 
-  const localPosts = state.posts.filter((p) => p.chatHistory.length > 0);
+  const q = search.trim().toLowerCase();
+  const globalChats = state.globalChats.filter((c) =>
+    !q || c.title.toLowerCase().includes(q) || (c.preview || "").toLowerCase().includes(q),
+  );
+  const localPosts = state.posts
+    .filter((p) => p.chatHistory.length > 0)
+    .filter((p) => !q || postTitle(p).toLowerCase().includes(q));
 
   return (
     <>
-      <div className="page-header">
-        <h2>Чаты</h2>
-      </div>
+      <PageHeader
+        title="Чаты"
+        backTo="home"
+        search={
+          <input
+            type="text"
+            className="page-header-search"
+            placeholder="Поиск по чатам..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        }
+      />
       <div className="chats-scroll">
         <div className="chats-scroll-inner">
           <div className="chats-tabs">
@@ -27,13 +46,13 @@ export default function ChatsScreen() {
             </div>
           </div>
           <div style={{ display: tab === "global" ? "" : "none" }}>
-            {state.globalChats.length === 0 ? (
+            {globalChats.length === 0 ? (
               <div className="empty">
                 <div className="eico">💬</div>
                 <p>Нет глобальных чатов</p>
               </div>
             ) : (
-              state.globalChats.map((c) => (
+              globalChats.map((c) => (
                 <div key={c.id} className="chat-card" onClick={() => openGChat(c.id)}>
                   <div className="chat-card-icon">✦</div>
                   <div className="chat-card-body">

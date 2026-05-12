@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useApp } from "@/state/AppContext";
 import { postTitle } from "@/lib/helpers";
+import PageHeader from "../PageHeader";
 import type { GlobalNote, LocalNote, NoteFile } from "@/lib/types";
 
 type AnyNote =
@@ -101,21 +102,20 @@ export default function NotesScreen() {
 
   return (
     <>
-      <div className="page-header">
-        <h2>Заметки</h2>
-        <button className="btn btn-primary btn-sm" style={{ marginLeft: "auto" }} onClick={newGlobal} type="button">
-          + Новая глобальная
-        </button>
-      </div>
-      <div className="notes-page">
-        <div className="notes-toolbar">
+      <PageHeader
+        title="Заметки"
+        backTo="home"
+        search={
           <input
-            className="notes-search"
-            placeholder="🔍  Поиск по заметкам..."
+            type="text"
+            className="page-header-search"
+            placeholder="Поиск по заметкам..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-        </div>
+        }
+      />
+      <div className="notes-page">
         <div className="notes-scope-tabs">
           <div
             className={`notes-scope-tab${scope === "global" ? " active" : ""}`}
@@ -140,6 +140,15 @@ export default function NotesScreen() {
               {k === "all" ? "Все" : k === "ai" ? "В контексте ИИ" : "Не в контексте"}
             </div>
           ))}
+          {scope === "global" ? (
+            <button
+              className="btn btn-primary btn-sm notes-new-global-btn"
+              onClick={newGlobal}
+              type="button"
+            >
+              + Новая глобальная
+            </button>
+          ) : null}
         </div>
         <div className="notes-grid-page">
           <div className="notes-grid-layout">
