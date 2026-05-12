@@ -131,3 +131,5 @@ export type ComposerAttachment =
   | { id: string; kind: "post"; postId: number; title: string }
   | { id: string; kind: "file"; name: string; file?: File }
   | { id: string; kind: "media"; postId: number; postTitle: string; media: string };
+
+export type ThemeMode = "light" | "system" | "dark";

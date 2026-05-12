@@ -32,7 +32,11 @@ export default function PostScreen() {
       if (!chatScrollRef.current || !postCardRef.current) return;
       const sr = chatScrollRef.current.getBoundingClientRect();
       const cr = postCardRef.current.getBoundingClientRect();
-      setShowJump(cr.bottom < sr.top + 8);
+      const hdr = chatScrollRef.current
+        .closest(".screen")
+        ?.querySelector<HTMLElement>(".post-hdr");
+      const hdrH = hdr?.getBoundingClientRect().height ?? 0;
+      setShowJump(cr.bottom < sr.top + hdrH + 8);
     };
     sync();
     const el = chatScrollRef.current;

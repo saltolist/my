@@ -16,6 +16,49 @@ export function postTitle(post: Post): string {
   return extractTitle(post.text) || "(без названия)";
 }
 
+const RU_MONTHS_3: Record<string, number> = {
+  янв: 0,
+  фев: 1,
+  мар: 2,
+  апр: 3,
+  май: 4,
+  мая: 4,
+  июн: 5,
+  июл: 6,
+  авг: 7,
+  сен: 8,
+  окт: 9,
+  ноя: 10,
+  дек: 11,
+};
+
+export function postFreshness(post: Post): number {
+  const raw = (post.date || post.created || "").trim().toLowerCase();
+  if (!raw) return 0;
+  if (/^(только что|сейчас|сегодня)/.test(raw)) return Date.now();
+  const m = raw.match(/(\d{1,2})\s+([а-яё]+)(?:\s+(\d{1,2}):(\d{2}))?/);
+  if (!m) return 0;
+  const day = parseInt(m[1], 10);
+  const month = RU_MONTHS_3[m[2].slice(0, 3)];
+  if (month === undefined) return 0;
+  const year = new Date().getFullYear();
+  const hour = m[3] ? parseInt(m[3], 10) : 0;
+  const minute = m[4] ? parseInt(m[4], 10) : 0;
+  return new Date(year, month, day, hour, minute).getTime();
+}
+
+export function postStatusIcon(post: Post): string {
+  if (post.status === "published") return "📢";
+  if (post.status === "scheduled") return "🕐";
+  return "📝";
+}
+
+export function postStatusLabel(post: Post): string {
+  if (post.status === "published") return `Опубликован${post.date ? ` · ${post.date}` : ""}`;
+  if (post.status === "scheduled") return `Отложен${post.date ? ` · ${post.date}` : ""}`;
+  return `Черновик${post.created ? ` · ${post.created}` : ""}`;
+}
+
 export function shortComposerLabel(value: string, maxLen = 22): string {
   const text = String(value || "").trim();
   if (text.length <= maxLen) return text;

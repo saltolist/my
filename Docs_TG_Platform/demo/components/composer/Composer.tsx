@@ -1,8 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { createPortal } from "react-dom";
 import { useApp } from "@/state/AppContext";
-import { autoResize, postTitle, shortComposerLabel, truncate } from "@/lib/helpers";
+import {
+  postFreshness,
+  postStatusIcon,
+  postStatusLabel,
+  postTitle,
+  shortComposerLabel,
+  truncate,
+} from "@/lib/helpers";
 import type { ComposerAttachment, ComposerScope, Post } from "@/lib/types";
 import AttachMenu from "./AttachMenu";
 import ModelPicker, { BrainIcon, SearchIcon } from "./ModelPicker";
@@ -13,11 +28,59 @@ type Props = {
   onSubmit: (text: string) => boolean;
 };
 
+type MentionState = {
+  textNode: Text;
+  atOffset: number;
+  caretOffset: number;
+  query: string;
+} | null;
+
+type MentionPos =
+  | { mode: "up"; bottom: number; left: number; width: number }
+  | { mode: "down"; top: number; left: number; width: number };
+
+const MAX_MENTION_RESULTS = 8;
+
+const DEFAULT_PLACEHOLDER = "Сообщение... введите @ чтобы прикрепить пост";
+
+let attachCounter = 0;
+function nextAttachId(): string {
+  attachCounter += 1;
+  return `att-${Date.now()}-${attachCounter}`;
+}
+
+function chipIcon(att: ComposerAttachment): string {
+  if (att.kind === "post") return "📝";
+  if (att.kind === "file") return "📎";
+  return "🖼";
+}
+
+function chipLabel(att: ComposerAttachment): string {
+  if (att.kind === "post") return `@${att.title}`;
+  if (att.kind === "file") return att.name;
+  return `${att.postTitle} · ${att.media}`;
+}
+
+function serializeChip(att: ComposerAttachment): string {
+  if (att.kind === "post") return `@${att.title}`;
+  if (att.kind === "file") return `Прикрепил файл: ${att.name}`;
+  return `Прикрепил медиа из поста «${att.postTitle}»: ${att.media}`;
+}
+
 export default function Composer({ scope, placeholder, onSubmit }: Props) {
   const { state, setComposerLlm, setComposerWeb } = useApp();
-  const [value, setValue] = useState("");
   const [attachments, setAttachments] = useState<ComposerAttachment[]>([]);
-  const taRef = useRef<HTMLTextAreaElement>(null);
+  const [isEmpty, setIsEmpty] = useState(true);
+  const [mention, setMention] = useState<MentionState>(null);
+  const [mentionIndex, setMentionIndex] = useState(0);
+  const [mentionPos, setMentionPos] = useState<MentionPos | null>(null);
+
+  const editorRef = useRef<HTMLDivElement>(null);
+  const inputBoxRef = useRef<HTMLDivElement>(null);
+  const mentionRef = useRef<HTMLDivElement>(null);
+  const attachmentsRef = useRef<ComposerAttachment[]>([]);
+  attachmentsRef.current = attachments;
+
   const placement: "up" | "down" = scope === "home" ? "down" : "up";
 
   const cfg = state.aiProfileConfig;
@@ -26,129 +89,457 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
   const webOptions = cfg.webSearchModels.filter((m) => m.provider && m.model && m.active);
   const isMulti = cfg.multiResponseEnabled;
 
-  const maxLines = scope === "home" ? 10 : 16;
+  const effectivePlaceholder = placeholder || DEFAULT_PLACEHOLDER;
+
+  const attachedPostIds = useMemo(
+    () =>
+      attachments
+        .filter((a): a is Extract<ComposerAttachment, { kind: "post" }> => a.kind === "post")
+        .map((a) => a.postId),
+    [attachments],
+  );
+
+  const mentionCandidates = useMemo<Post[]>(() => {
+    const base = state.posts.filter((p) => {
+      if (attachedPostIds.includes(p.id)) return false;
+      if (scope === "post" && p.id === state.currentPostId) return false;
+      return true;
+    });
+    return [...base].sort((a, b) => postFreshness(b) - postFreshness(a) || b.id - a.id);
+  }, [state.posts, state.currentPostId, scope, attachedPostIds]);
+
+  const mentionMatches = useMemo<Post[]>(() => {
+    if (!mention) return [];
+    const q = mention.query.trim().toLowerCase();
+    if (!q) return mentionCandidates.slice(0, MAX_MENTION_RESULTS);
+    return mentionCandidates
+      .filter((p) => postTitle(p).toLowerCase().includes(q))
+      .slice(0, MAX_MENTION_RESULTS);
+  }, [mention, mentionCandidates]);
 
   useEffect(() => {
-    if (taRef.current) autoResize(taRef.current, maxLines);
-  }, [value, maxLines]);
+    setMentionIndex(0);
+  }, [mention?.query, mentionMatches.length]);
 
-  function addAttachment(att: ComposerAttachment) {
-    setAttachments((prev) => {
-      if (att.kind === "post" && prev.some((p) => p.kind === "post" && p.postId === att.postId)) {
-        return prev;
-      }
-      if (
-        att.kind === "media" &&
-        prev.some(
-          (p) => p.kind === "media" && p.postId === att.postId && p.media === att.media,
-        )
-      ) {
-        return prev;
-      }
-      return [...prev, att];
+  const isEditorEmpty = useCallback((): boolean => {
+    const el = editorRef.current;
+    if (!el) return true;
+    if (el.querySelector(".inline-chip")) return false;
+    const text = (el.textContent || "").replace(/\u200b/g, "").trim();
+    return text.length === 0;
+  }, []);
+
+  const refreshIsEmpty = useCallback(() => {
+    setIsEmpty(isEditorEmpty());
+  }, [isEditorEmpty]);
+
+  function createChipElement(att: ComposerAttachment): HTMLSpanElement {
+    const el = document.createElement("span");
+    el.className = "inline-chip";
+    el.contentEditable = "false";
+    el.setAttribute("data-attach-id", att.id);
+    el.setAttribute("data-attach-kind", att.kind);
+    el.title = chipLabel(att);
+
+    const icon = document.createElement("span");
+    icon.className = "inline-chip-icon";
+    icon.textContent = chipIcon(att);
+    el.appendChild(icon);
+
+    const label = document.createElement("span");
+    label.className = "inline-chip-label";
+    label.textContent = truncate(chipLabel(att), 36);
+    el.appendChild(label);
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "inline-chip-remove";
+    remove.setAttribute("aria-label", "Удалить вложение");
+    remove.contentEditable = "false";
+    remove.textContent = "×";
+    remove.addEventListener("mousedown", (e) => e.preventDefault());
+    remove.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      removeChipById(att.id);
     });
-    requestAnimationFrame(() => taRef.current?.focus());
+    el.appendChild(remove);
+
+    return el;
   }
 
-  function removeAttachment(id: string) {
+  function removeChipById(id: string) {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const chip = editor.querySelector(`[data-attach-id="${CSS.escape(id)}"]`);
+    if (chip) chip.remove();
     setAttachments((prev) => prev.filter((a) => a.id !== id));
+    refreshIsEmpty();
   }
 
-  function candidatePostsForMention(): Post[] {
-    if (scope === "post") {
-      return state.posts.filter((p) => p.id !== state.currentPostId);
+  function detectMentionFromSelection(): MentionState {
+    const editor = editorRef.current;
+    if (!editor) return null;
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || !sel.isCollapsed) return null;
+    const range = sel.getRangeAt(0);
+    if (!editor.contains(range.startContainer)) return null;
+    const node = range.startContainer;
+    if (node.nodeType !== Node.TEXT_NODE) return null;
+    const text = node.textContent || "";
+    const caret = range.startOffset;
+    let atIdx = -1;
+    for (let i = caret - 1; i >= 0; i -= 1) {
+      const ch = text[i];
+      if (ch === "@") {
+        atIdx = i;
+        break;
+      }
+      if (ch === " " || ch === "\n" || ch === "\t" || ch === ";") return null;
     }
-    return state.posts;
+    if (atIdx < 0) return null;
+    const before = atIdx === 0 ? "" : text[atIdx - 1];
+    if (before && !/[\s\n]/.test(before)) return null;
+    const query = text.slice(atIdx + 1, caret);
+    if (query.length > 60) return null;
+    return { textNode: node as Text, atOffset: atIdx, caretOffset: caret, query };
   }
 
-  function tryParseMention(input: string): { value: string; matched?: Post } {
-    if (!input.endsWith(";")) return { value: input };
-    const lastAt = input.lastIndexOf("@", input.length - 2);
-    if (lastAt < 0) return { value: input };
-    const between = input.slice(lastAt + 1, input.length - 1).trim();
-    if (!between) return { value: input };
-    if (between.includes("\n")) return { value: input };
-    const lower = between.toLowerCase();
-    const candidates = candidatePostsForMention();
-    const matched =
-      candidates.find((p) => postTitle(p).toLowerCase() === lower) ||
-      candidates.find((p) => postTitle(p).toLowerCase().startsWith(lower)) ||
-      candidates.find((p) => postTitle(p).toLowerCase().includes(lower));
-    if (!matched) return { value: input };
-    const before = input.slice(0, lastAt).replace(/\s+$/, "");
-    return { value: before, matched };
+  function refreshMention() {
+    setMention(detectMentionFromSelection());
   }
 
-  function onChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    const next = e.target.value;
-    const parsed = tryParseMention(next);
-    if (parsed.matched) {
-      setValue(parsed.value);
-      addAttachment({
-        id: `att-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        kind: "post",
-        postId: parsed.matched.id,
-        title: postTitle(parsed.matched),
-      });
+  function collectAttachmentsFromDom(): ComposerAttachment[] {
+    const editor = editorRef.current;
+    if (!editor) return [];
+    const ids = new Set<string>();
+    editor.querySelectorAll<HTMLElement>(".inline-chip").forEach((el) => {
+      const id = el.getAttribute("data-attach-id");
+      if (id) ids.add(id);
+    });
+    return attachmentsRef.current.filter((a) => ids.has(a.id));
+  }
+
+  function serializeEditor(): string {
+    const editor = editorRef.current;
+    if (!editor) return "";
+    const segments: string[] = [];
+    const present = new Map<string, ComposerAttachment>(
+      attachmentsRef.current.map((a) => [a.id, a]),
+    );
+    const walk = (node: Node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        segments.push(node.textContent || "");
+        return;
+      }
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const el = node as HTMLElement;
+        if (el.classList.contains("inline-chip")) {
+          const id = el.getAttribute("data-attach-id");
+          const att = id ? present.get(id) : null;
+          if (att) segments.push(serializeChip(att));
+          return;
+        }
+        if (el.tagName === "BR") {
+          segments.push("\n");
+          return;
+        }
+        if (el.tagName === "DIV" || el.tagName === "P") {
+          segments.push("\n");
+        }
+        el.childNodes.forEach((c) => walk(c));
+        return;
+      }
+    };
+    editor.childNodes.forEach((c) => walk(c));
+    return segments.join("").replace(/\n{3,}/g, "\n\n").trim();
+  }
+
+  function clearEditor() {
+    const editor = editorRef.current;
+    if (!editor) return;
+    editor.innerHTML = "";
+    setAttachments([]);
+    setMention(null);
+    refreshIsEmpty();
+  }
+
+  function placeCaretAfter(node: Node) {
+    const sel = window.getSelection();
+    if (!sel) return;
+    const range = document.createRange();
+    range.setStartAfter(node);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  function addAttachmentInline(att: ComposerAttachment) {
+    const editor = editorRef.current;
+    if (!editor) return;
+    if (att.kind === "post" && attachmentsRef.current.some((a) => a.kind === "post" && a.postId === att.postId)) {
       return;
     }
-    setValue(next);
+    if (
+      att.kind === "media" &&
+      attachmentsRef.current.some(
+        (a) => a.kind === "media" && a.postId === att.postId && a.media === att.media,
+      )
+    ) {
+      return;
+    }
+    const chip = createChipElement(att);
+    const sel = window.getSelection();
+    let inserted = false;
+    if (sel && sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      if (editor.contains(range.startContainer)) {
+        range.deleteContents();
+        range.insertNode(chip);
+        const space = document.createTextNode("\u00A0");
+        chip.parentNode?.insertBefore(space, chip.nextSibling);
+        placeCaretAfter(space);
+        inserted = true;
+      }
+    }
+    if (!inserted) {
+      editor.appendChild(chip);
+      const space = document.createTextNode("\u00A0");
+      editor.appendChild(space);
+      placeCaretAfter(space);
+      editor.focus();
+    }
+    setAttachments((prev) => [...prev, att]);
+    refreshIsEmpty();
   }
 
-  function formatAttachment(a: ComposerAttachment): string {
-    if (a.kind === "post") return `@${a.title}`;
-    if (a.kind === "file") return `Прикрепил файл: ${a.name}`;
-    return `Прикрепил медиа из поста «${a.postTitle}»: ${a.media}`;
+  function pickMention(post: Post) {
+    if (!mention) return;
+    const { textNode, atOffset, caretOffset } = mention;
+    if (!editorRef.current?.contains(textNode)) return;
+    const text = textNode.textContent || "";
+    if (atOffset < 0 || atOffset > text.length || caretOffset < atOffset) return;
+    const before = text.slice(0, atOffset);
+    let after = text.slice(caretOffset);
+    after = after.replace(/^;\s*/, "");
+    textNode.textContent = before;
+    const chip = createChipElement({
+      id: nextAttachId(),
+      kind: "post",
+      postId: post.id,
+      title: postTitle(post),
+    });
+    const parent = textNode.parentNode;
+    if (!parent) return;
+    if (textNode.nextSibling) {
+      parent.insertBefore(chip, textNode.nextSibling);
+    } else {
+      parent.appendChild(chip);
+    }
+    const spaceText = after.startsWith(" ") || after.startsWith("\u00A0") ? after : "\u00A0" + after;
+    const tail = document.createTextNode(spaceText);
+    if (chip.nextSibling) {
+      parent.insertBefore(tail, chip.nextSibling);
+    } else {
+      parent.appendChild(tail);
+    }
+    const sel = window.getSelection();
+    if (sel) {
+      const range = document.createRange();
+      range.setStart(tail, 1);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+    setAttachments((prev) => [
+      ...prev,
+      {
+        id: chip.getAttribute("data-attach-id") as string,
+        kind: "post",
+        postId: post.id,
+        title: postTitle(post),
+      },
+    ]);
+    setMention(null);
+    refreshIsEmpty();
+  }
+
+  function onEditorInput() {
+    const live = collectAttachmentsFromDom();
+    if (live.length !== attachmentsRef.current.length) {
+      setAttachments(live);
+    }
+    refreshIsEmpty();
+    refreshMention();
   }
 
   function submit() {
-    const text = value.trim();
-    const lines: string[] = [];
-    if (text) lines.push(text);
-    for (const a of attachments) lines.push(formatAttachment(a));
-    if (lines.length === 0) return;
-    const ok = onSubmit(lines.join("\n"));
-    if (ok) {
-      setValue("");
-      setAttachments([]);
-    }
+    const text = serializeEditor();
+    if (!text) return;
+    const ok = onSubmit(text);
+    if (ok) clearEditor();
   }
 
-  function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+  function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (mention && mentionMatches.length > 0) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setMentionIndex((i) => (i + 1) % mentionMatches.length);
+        return;
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setMentionIndex((i) => (i - 1 + mentionMatches.length) % mentionMatches.length);
+        return;
+      }
+      if (e.key === "Enter" || e.key === "Tab") {
+        e.preventDefault();
+        pickMention(mentionMatches[mentionIndex]);
+        return;
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setMention(null);
+        return;
+      }
+    }
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       submit();
-    }
-    if (e.key === "Backspace" && value === "" && attachments.length > 0) {
-      e.preventDefault();
-      setAttachments((prev) => prev.slice(0, -1));
+      return;
     }
   }
 
+  function onPaste(e: React.ClipboardEvent<HTMLDivElement>) {
+    e.preventDefault();
+    const text = e.clipboardData.getData("text/plain");
+    if (!text) return;
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+    const parts = text.split("\n");
+    parts.forEach((part, i) => {
+      if (i > 0) range.insertNode(document.createElement("br"));
+      if (part) range.insertNode(document.createTextNode(part));
+      range.collapse(false);
+    });
+    refreshIsEmpty();
+    refreshMention();
+  }
+
+  const updateMentionPos = useCallback(() => {
+    const box = inputBoxRef.current;
+    if (!box) return;
+    const r = box.getBoundingClientRect();
+    if (placement === "down") {
+      setMentionPos({ mode: "down", top: r.bottom + 6, left: r.left, width: r.width });
+    } else {
+      setMentionPos({
+        mode: "up",
+        bottom: window.innerHeight - r.top + 6,
+        left: r.left,
+        width: r.width,
+      });
+    }
+  }, [placement]);
+
+  useLayoutEffect(() => {
+    if (mention && mentionMatches.length > 0) updateMentionPos();
+  }, [mention, mentionMatches.length, updateMentionPos]);
+
+  useEffect(() => {
+    if (!mention || mentionMatches.length === 0) return;
+    const onScroll = () => updateMentionPos();
+    const onDocMouseDown = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (editorRef.current?.contains(target)) return;
+      if (mentionRef.current?.contains(target)) return;
+      setMention(null);
+    };
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onScroll);
+    document.addEventListener("mousedown", onDocMouseDown);
+    return () => {
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onScroll);
+      document.removeEventListener("mousedown", onDocMouseDown);
+    };
+  }, [mention, mentionMatches.length, updateMentionPos]);
+
+  useEffect(() => {
+    const onSelChange = () => {
+      if (!editorRef.current) return;
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      const range = sel.getRangeAt(0);
+      if (!editorRef.current.contains(range.startContainer)) return;
+      refreshMention();
+    };
+    document.addEventListener("selectionchange", onSelChange);
+    return () => document.removeEventListener("selectionchange", onSelChange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const maxLines = scope === "home" ? 10 : 16;
+
+  const mentionDropdown =
+    mention && mentionMatches.length > 0 && mentionPos && typeof document !== "undefined" ? (
+      <div
+        ref={mentionRef}
+        className={`mention-dropdown mention-dropdown-${mentionPos.mode}`}
+        style={
+          mentionPos.mode === "down"
+            ? { top: mentionPos.top, left: mentionPos.left, width: mentionPos.width }
+            : { bottom: mentionPos.bottom, left: mentionPos.left, width: mentionPos.width }
+        }
+        onMouseDown={(e) => e.preventDefault()}
+      >
+        <div className="mention-hint">Прикрепить пост</div>
+        {mentionMatches.map((p, i) => (
+          <div
+            key={p.id}
+            className={`mention-item${i === mentionIndex ? " active" : ""}`}
+            onMouseEnter={() => setMentionIndex(i)}
+            onClick={() => pickMention(p)}
+          >
+            <span className="mention-item-icon">{postStatusIcon(p)}</span>
+            <span className="mention-item-body">
+              <span className="mention-item-title">{truncate(postTitle(p), 48)}</span>
+              <span className="mention-item-meta">{postStatusLabel(p)}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    ) : null;
+
   return (
     <div className="input-wrap">
-      <div className="input-box">
-        {attachments.length > 0 ? (
-          <div className="attach-chips">
-            {attachments.map((a) => (
-              <Chip key={a.id} att={a} onRemove={() => removeAttachment(a.id)} />
-            ))}
-          </div>
-        ) : null}
-        <textarea
-          ref={taRef}
-          id={`${scope}-input`}
-          placeholder={placeholder || "Написать сообщение..."}
-          rows={1}
-          value={value}
-          onChange={onChange}
+      <div
+        className="input-box"
+        ref={inputBoxRef}
+        style={{ ["--composer-max-lines" as string]: String(maxLines) }}
+      >
+        <div
+          ref={editorRef}
+          className={`composer-editor${isEmpty ? " is-empty" : ""}`}
+          contentEditable
+          suppressContentEditableWarning
+          role="textbox"
+          aria-multiline="true"
+          aria-label={effectivePlaceholder}
+          data-placeholder={effectivePlaceholder}
+          onInput={onEditorInput}
           onKeyDown={onKeyDown}
+          onKeyUp={refreshMention}
+          onClick={refreshMention}
+          onPaste={onPaste}
         />
         <div className="input-bottom">
           <div className="input-tools">
             <AttachMenu
               scope={scope}
-              onAttach={addAttachment}
+              onAttach={addAttachmentInline}
               placement={placement}
               attachments={attachments}
             />
@@ -198,30 +589,9 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
           </button>
         </div>
       </div>
+      {mentionDropdown && typeof document !== "undefined"
+        ? createPortal(mentionDropdown, document.body)
+        : null}
     </div>
-  );
-}
-
-function Chip({ att, onRemove }: { att: ComposerAttachment; onRemove: () => void }) {
-  const icon = att.kind === "post" ? "📝" : att.kind === "file" ? "📎" : "🖼";
-  const label =
-    att.kind === "post"
-      ? `@${att.title}`
-      : att.kind === "file"
-        ? att.name
-        : `${att.postTitle} · ${att.media}`;
-  return (
-    <span className="attach-chip" title={label}>
-      <span className="attach-chip-icon">{icon}</span>
-      <span className="attach-chip-label">{truncate(label, 32)}</span>
-      <button
-        type="button"
-        className="attach-chip-remove"
-        onClick={onRemove}
-        aria-label="Удалить вложение"
-      >
-        ×
-      </button>
-    </span>
   );
 }

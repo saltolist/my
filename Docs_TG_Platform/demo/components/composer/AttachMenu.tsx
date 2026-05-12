@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useApp, postById } from "@/state/AppContext";
-import { getPostMediaItems, isImageMedia, isVideoMedia, postTitle, truncate } from "@/lib/helpers";
+import { getPostMediaItems, isImageMedia, isVideoMedia, postTitle } from "@/lib/helpers";
 import type { ComposerAttachment, Post, PostMedia } from "@/lib/types";
 
 export type AttachScope = "home" | "gchat" | "post" | "feed";
@@ -19,7 +19,7 @@ type Pos =
   | { mode: "up"; bottom: number; left: number }
   | { mode: "down"; top: number; left: number };
 
-type SubmenuKey = "posts" | "pinnedMedia" | "postMedia" | null;
+type SubmenuKey = "pinnedMedia" | "postMedia" | null;
 
 let attachIdCounter = 0;
 function nextAttachId(): string {
@@ -121,7 +121,6 @@ export default function AttachMenu({
     .filter((a): a is Extract<ComposerAttachment, { kind: "post" }> => a.kind === "post")
     .map((a) => a.postId);
   const attachedPostsMedia = collectAttachedMedia(state.posts, attachedPostIds);
-  const feedPosts = state.posts.filter((p) => !attachedPostIds.includes(p.id));
 
   const dropdownContent =
     open && scope !== "feed" && pos ? (
@@ -138,15 +137,10 @@ export default function AttachMenu({
           <PostScopeMenu
             submenu={submenu}
             setSubmenu={setSubmenu}
-            posts={feedPosts.filter((p) => p.id !== currentPost?.id)}
             media={postMedia}
             postTitleText={currentPost ? postTitle(currentPost) : ""}
             attachedMedia={attachedPostsMedia}
             hasAttachedPosts={attachedPostIds.length > 0}
-            onPickPost={(p) => {
-              onAttach({ id: nextAttachId(), kind: "post", postId: p.id, title: postTitle(p) });
-              close();
-            }}
             onPickMedia={(media) => {
               if (currentPost) {
                 onAttach({
@@ -177,13 +171,8 @@ export default function AttachMenu({
           <HomeScopeMenu
             submenu={submenu}
             setSubmenu={setSubmenu}
-            posts={feedPosts}
             attachedMedia={attachedPostsMedia}
             hasAttachedPosts={attachedPostIds.length > 0}
-            onPickPost={(p) => {
-              onAttach({ id: nextAttachId(), kind: "post", postId: p.id, title: postTitle(p) });
-              close();
-            }}
             onPickAttachedMedia={(item) => {
               onAttach({
                 id: nextAttachId(),
@@ -239,63 +228,21 @@ export default function AttachMenu({
 function HomeScopeMenu({
   submenu,
   setSubmenu,
-  posts,
   attachedMedia,
   hasAttachedPosts,
-  onPickPost,
   onPickAttachedMedia,
   onPickFile,
 }: {
   submenu: SubmenuKey;
   setSubmenu: (k: SubmenuKey) => void;
-  posts: Post[];
   attachedMedia: AttachedMediaItem[];
   hasAttachedPosts: boolean;
-  onPickPost: (p: Post) => void;
   onPickAttachedMedia: (item: AttachedMediaItem) => void;
   onPickFile: () => void;
 }) {
   const hasAttachedMedia = attachedMedia.length > 0;
   return (
     <>
-      <div
-        className={`ctx-item attach-parent${submenu === "posts" ? " active" : ""}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSubmenu(submenu === "posts" ? null : "posts");
-        }}
-      >
-        <span className="attach-item-label">
-          <span className="attach-item-icon">📝</span>
-          Прикрепить пост
-        </span>
-        <span className="attach-chevron">›</span>
-        {submenu === "posts" ? (
-          <div
-            className="ctx-dropdown attach-submenu open"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {posts.length > 0 ? (
-              posts.map((p) => (
-                <div
-                  key={p.id}
-                  className="ctx-item"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onPickPost(p);
-                  }}
-                >
-                  <span className="attach-item-icon">{statusIcon(p)}</span>
-                  {truncate(postTitle(p), 32)}
-                </div>
-              ))
-            ) : (
-              <div className="ctx-item disabled">В ленте нет постов</div>
-            )}
-          </div>
-        ) : null}
-      </div>
-
       <div className="ctx-item" onClick={onPickFile}>
         <span className="attach-item-label">
           <span className="attach-item-icon">📎</span>
@@ -343,24 +290,20 @@ function HomeScopeMenu({
 function PostScopeMenu({
   submenu,
   setSubmenu,
-  posts,
   media,
   postTitleText,
   attachedMedia,
   hasAttachedPosts,
-  onPickPost,
   onPickMedia,
   onPickAttachedMedia,
   onPickFile,
 }: {
   submenu: SubmenuKey;
   setSubmenu: (k: SubmenuKey) => void;
-  posts: Post[];
   media: PostMedia[];
   postTitleText: string;
   attachedMedia: AttachedMediaItem[];
   hasAttachedPosts: boolean;
-  onPickPost: (p: Post) => void;
   onPickMedia: (media: PostMedia) => void;
   onPickAttachedMedia: (item: AttachedMediaItem) => void;
   onPickFile: () => void;
@@ -369,44 +312,6 @@ function PostScopeMenu({
   const hasAttachedMedia = attachedMedia.length > 0;
   return (
     <>
-      <div
-        className={`ctx-item attach-parent${submenu === "posts" ? " active" : ""}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSubmenu(submenu === "posts" ? null : "posts");
-        }}
-      >
-        <span className="attach-item-label">
-          <span className="attach-item-icon">📝</span>
-          Прикрепить пост
-        </span>
-        <span className="attach-chevron">›</span>
-        {submenu === "posts" ? (
-          <div
-            className="ctx-dropdown attach-submenu open"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {posts.length > 0 ? (
-              posts.map((p) => (
-                <div
-                  key={p.id}
-                  className="ctx-item"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onPickPost(p);
-                  }}
-                >
-                  <span className="attach-item-icon">{statusIcon(p)}</span>
-                  {truncate(postTitle(p), 32)}
-                </div>
-              ))
-            ) : (
-              <div className="ctx-item disabled">В ленте нет других постов</div>
-            )}
-          </div>
-        ) : null}
-      </div>
-
       {hasMedia ? (
         <div
           className={`ctx-item attach-parent${submenu === "postMedia" ? " active" : ""}`}
@@ -520,12 +425,6 @@ function MediaThumbInner({ media }: { media: PostMedia }) {
     return <video className="attach-media-thumb-img" src={media.url} muted playsInline preload="metadata" />;
   }
   return <span className="attach-media-thumb-doc" aria-hidden="true">📎</span>;
-}
-
-function statusIcon(p: Post): string {
-  if (p.status === "published") return "📢";
-  if (p.status === "scheduled") return "🕐";
-  return "📝";
 }
 
 type AttachedMediaItem = { postId: number; media: PostMedia; postTitle: string };

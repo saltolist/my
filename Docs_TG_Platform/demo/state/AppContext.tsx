@@ -41,6 +41,7 @@ import type {
   PostMode,
   ScreenId,
   TelegramProfileConfig,
+  ThemeMode,
 } from "@/lib/types";
 
 type ComposerTargets = Record<ComposerScope, ComposerTarget>;
@@ -72,6 +73,8 @@ type State = {
   systemPromptSavedSnapshot: string;
   modelSettingsSavedSnapshot: string;
   telegramSettingsSavedSnapshot: string;
+
+  theme: ThemeMode;
 };
 
 type Action =
@@ -298,6 +301,8 @@ const initialState: State = {
   systemPromptSavedSnapshot: initialAiProfileConfig.systemPrompt,
   modelSettingsSavedSnapshot: buildInitialAiSnapshot(),
   telegramSettingsSavedSnapshot: buildInitialTelegramSnapshot(),
+
+  theme: "dark",
 };
 
 export type DirtyKey = "note" | "profile-ai" | "profile-prompt" | "profile-telegram";
@@ -383,6 +388,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
     window.addEventListener("beforeunload", onBeforeUnload);
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [noteDirty, profileSettingsDirty]);
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem("tg-demo-theme");
+      if (stored === "light" || stored === "system" || stored === "dark") {
+        if (stored !== state.theme) {
+          dispatch({ type: "SET_STATE", patch: { theme: stored } });
+        }
+      }
+    } catch {}
+    // run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    try {
+      document.documentElement.setAttribute("data-theme", state.theme);
+      window.localStorage.setItem("tg-demo-theme", state.theme);
+    } catch {}
+  }, [state.theme]);
 
   const goHome = useCallback(() => navigate("home"), [navigate]);
 

@@ -5,6 +5,7 @@ import ChannelTab from "../profile/ChannelTab";
 import AiModelsBlock from "../profile/AiModelsBlock";
 import SystemPromptBlock from "../profile/SystemPromptBlock";
 import TelegramBlock from "../profile/TelegramBlock";
+import ThemeBlock from "../profile/ThemeBlock";
 import PageHeader from "../PageHeader";
 import { useApp } from "@/state/AppContext";
 
@@ -41,6 +42,7 @@ export default function ProfileScreen() {
         <ChannelTab active={tab === 0} />
 
         <div className={`profile-panel${tab === 1 ? " active" : ""}`}>
+          <ThemeBlock />
           <AiModelsBlock />
           <SystemPromptBlock />
           <TelegramBlock />
