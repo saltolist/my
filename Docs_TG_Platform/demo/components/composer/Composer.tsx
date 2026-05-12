@@ -2,24 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useApp } from "@/state/AppContext";
-import { autoResize, getPostMediaItems, postTitle, shortComposerLabel, truncate } from "@/lib/helpers";
-import type { ComposerScope, Post } from "@/lib/types";
-import { postById } from "@/state/AppContext";
+import { autoResize, postTitle, shortComposerLabel, truncate } from "@/lib/helpers";
+import type { ComposerAttachment, ComposerScope, Post } from "@/lib/types";
+import AttachMenu from "./AttachMenu";
 
 type Props = {
   scope: ComposerScope;
   placeholder?: string;
   onSubmit: (text: string) => boolean;
-  showPin?: boolean;
 };
 
-export default function Composer({ scope, placeholder, onSubmit, showPin = false }: Props) {
+export default function Composer({ scope, placeholder, onSubmit }: Props) {
   const { state, setComposerLlm, setComposerWeb } = useApp();
   const [value, setValue] = useState("");
+  const [attachments, setAttachments] = useState<ComposerAttachment[]>([]);
   const taRef = useRef<HTMLTextAreaElement>(null);
-  const [attachOpen, setAttachOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
 
   const cfg = state.aiProfileConfig;
   const target = state.composerTargets[scope];
@@ -31,20 +28,86 @@ export default function Composer({ scope, placeholder, onSubmit, showPin = false
     if (taRef.current) autoResize(taRef.current);
   }, [value]);
 
-  useEffect(() => {
-    function onDocClick(e: MouseEvent) {
-      if (!wrapRef.current) return;
-      if (!wrapRef.current.contains(e.target as Node)) setAttachOpen(false);
+  function addAttachment(att: ComposerAttachment) {
+    setAttachments((prev) => {
+      if (att.kind === "post" && prev.some((p) => p.kind === "post" && p.postId === att.postId)) {
+        return prev;
+      }
+      if (
+        att.kind === "media" &&
+        prev.some(
+          (p) => p.kind === "media" && p.postId === att.postId && p.media === att.media,
+        )
+      ) {
+        return prev;
+      }
+      return [...prev, att];
+    });
+    requestAnimationFrame(() => taRef.current?.focus());
+  }
+
+  function removeAttachment(id: string) {
+    setAttachments((prev) => prev.filter((a) => a.id !== id));
+  }
+
+  function candidatePostsForMention(): Post[] {
+    if (scope === "post") {
+      return state.posts.filter((p) => p.id !== state.currentPostId);
     }
-    document.addEventListener("click", onDocClick);
-    return () => document.removeEventListener("click", onDocClick);
-  }, []);
+    return state.posts;
+  }
+
+  function tryParseMention(input: string): { value: string; matched?: Post } {
+    if (!input.endsWith(";")) return { value: input };
+    const lastAt = input.lastIndexOf("@", input.length - 2);
+    if (lastAt < 0) return { value: input };
+    const between = input.slice(lastAt + 1, input.length - 1).trim();
+    if (!between) return { value: input };
+    if (between.includes("\n")) return { value: input };
+    const lower = between.toLowerCase();
+    const candidates = candidatePostsForMention();
+    const matched =
+      candidates.find((p) => postTitle(p).toLowerCase() === lower) ||
+      candidates.find((p) => postTitle(p).toLowerCase().startsWith(lower)) ||
+      candidates.find((p) => postTitle(p).toLowerCase().includes(lower));
+    if (!matched) return { value: input };
+    const before = input.slice(0, lastAt).replace(/\s+$/, "");
+    return { value: before, matched };
+  }
+
+  function onChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const next = e.target.value;
+    const parsed = tryParseMention(next);
+    if (parsed.matched) {
+      setValue(parsed.value);
+      addAttachment({
+        id: `att-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        kind: "post",
+        postId: parsed.matched.id,
+        title: postTitle(parsed.matched),
+      });
+      return;
+    }
+    setValue(next);
+  }
+
+  function formatAttachment(a: ComposerAttachment): string {
+    if (a.kind === "post") return `@${a.title}`;
+    if (a.kind === "file") return `Прикрепил файл: ${a.name}`;
+    return `Прикрепил медиа из поста «${a.postTitle}»: ${a.media}`;
+  }
 
   function submit() {
     const text = value.trim();
-    if (!text) return;
-    const ok = onSubmit(text);
-    if (ok) setValue("");
+    const lines: string[] = [];
+    if (text) lines.push(text);
+    for (const a of attachments) lines.push(formatAttachment(a));
+    if (lines.length === 0) return;
+    const ok = onSubmit(lines.join("\n"));
+    if (ok) {
+      setValue("");
+      setAttachments([]);
+    }
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -52,62 +115,34 @@ export default function Composer({ scope, placeholder, onSubmit, showPin = false
       e.preventDefault();
       submit();
     }
-  }
-
-  function applyAttachment(text: string) {
-    if (scope === "gchat" || scope === "post") {
-      onSubmit(text);
-    } else {
-      setValue((v) => (v.trim() ? `${v}\n${text}` : text));
+    if (e.key === "Backspace" && value === "" && attachments.length > 0) {
+      e.preventDefault();
+      setAttachments((prev) => prev.slice(0, -1));
     }
-    setAttachOpen(false);
-  }
-
-  function onFilePicked(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    applyAttachment(`Прикрепил файл: ${file.name}`);
-    e.target.value = "";
   }
 
   return (
     <div className="input-wrap">
       <div className="input-box">
+        {attachments.length > 0 ? (
+          <div className="attach-chips">
+            {attachments.map((a) => (
+              <Chip key={a.id} att={a} onRemove={() => removeAttachment(a.id)} />
+            ))}
+          </div>
+        ) : null}
         <textarea
           ref={taRef}
           id={`${scope}-input`}
           placeholder={placeholder || "Написать сообщение..."}
           rows={1}
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={onChange}
           onKeyDown={onKeyDown}
         />
         <div className="input-bottom">
           <div className="input-tools">
-            {showPin ? (
-              <button className="icon-btn" title="Закрепить посты в контексте" type="button">
-                📌
-              </button>
-            ) : null}
-            <div className="ctx-wrap" ref={wrapRef}>
-              <button
-                className="icon-btn"
-                title="Прикрепить"
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setAttachOpen((v) => !v);
-                }}
-              >
-                📎
-              </button>
-              <AttachDropdown
-                open={attachOpen}
-                scope={scope}
-                onPickPostMedia={applyAttachment}
-                onTriggerFile={() => fileInputRef.current?.click()}
-              />
-            </div>
+            <AttachMenu scope={scope} onAttach={addAttachment} />
           </div>
           <div className="composer-mode">
             {!isMulti ? (
@@ -159,76 +194,30 @@ export default function Composer({ scope, placeholder, onSubmit, showPin = false
           </button>
         </div>
       </div>
-      <input
-        type="file"
-        ref={fileInputRef}
-        style={{ display: "none" }}
-        onChange={onFilePicked}
-      />
     </div>
   );
 }
 
-function AttachDropdown({
-  open,
-  scope,
-  onPickPostMedia,
-  onTriggerFile,
-}: {
-  open: boolean;
-  scope: ComposerScope;
-  onPickPostMedia: (text: string) => void;
-  onTriggerFile: () => void;
-}) {
-  const { state } = useApp();
-  const post = scope === "post" ? postById(state, state.currentPostId) : null;
-  const localMedia = scope === "post" && post ? getPostMediaItems(post) : [];
-  const pinnedMedia = scope !== "post" ? collectPinnedMedia(state.posts, state.pinnedPostIds) : [];
-
+function Chip({ att, onRemove }: { att: ComposerAttachment; onRemove: () => void }) {
+  const icon = att.kind === "post" ? "📝" : att.kind === "file" ? "📎" : "🖼";
+  const label =
+    att.kind === "post"
+      ? `@${att.title}`
+      : att.kind === "file"
+        ? att.name
+        : `${att.postTitle} · ${att.media}`;
   return (
-    <div className={`ctx-dropdown attach-dropdown${open ? " open" : ""}`}>
-      {scope === "post" ? (
-        localMedia.length > 0 ? (
-          localMedia.map((m, i) => (
-            <div
-              key={i}
-              className="ctx-item"
-              onClick={() => onPickPostMedia(`Прикрепил медиа из поста: ${m}`)}
-            >
-              🖼 Медиа из поста: {truncate(String(m), 28)}
-            </div>
-          ))
-        ) : (
-          <div className="ctx-item disabled">🖼 В посте нет медиа</div>
-        )
-      ) : pinnedMedia.length > 0 ? (
-        pinnedMedia.map((item, i) => (
-          <div
-            key={i}
-            className="ctx-item"
-            onClick={() => onPickPostMedia(`Прикрепил медиа из поста «${item.postTitle}»: ${item.media}`)}
-          >
-            🖼 {truncate(item.postTitle, 16)}: {truncate(String(item.media), 20)}
-          </div>
-        ))
-      ) : (
-        <div className="ctx-item disabled">🖼 В запиненных постах нет медиа</div>
-      )}
-      <div className="ctx-item" onClick={onTriggerFile}>
-        📎 Прикрепить файл с компьютера
-      </div>
-    </div>
+    <span className="attach-chip" title={label}>
+      <span className="attach-chip-icon">{icon}</span>
+      <span className="attach-chip-label">{truncate(label, 32)}</span>
+      <button
+        type="button"
+        className="attach-chip-remove"
+        onClick={onRemove}
+        aria-label="Удалить вложение"
+      >
+        ×
+      </button>
+    </span>
   );
-}
-
-function collectPinnedMedia(posts: Post[], pinned: number[]) {
-  return posts
-    .filter((p) => pinned.includes(p.id))
-    .flatMap((p) => {
-      if (Array.isArray(p.media)) return p.media.map((m) => ({ postId: p.id, media: m, postTitle: postTitle(p) }));
-      if (typeof p.media === "string" && p.media.trim()) {
-        return [{ postId: p.id, media: p.media.trim(), postTitle: postTitle(p) }];
-      }
-      return [];
-    });
 }

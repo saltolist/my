@@ -120,3 +120,8 @@ export type NoteFromScreen = "notes" | "post";
 export type ActiveNote =
   | (GlobalNote & { isGlobal: true; files: NoteFile[] })
   | (LocalNote & { isGlobal: false; postId: number; files: NoteFile[] });
+
+export type ComposerAttachment =
+  | { id: string; kind: "post"; postId: number; title: string }
+  | { id: string; kind: "file"; name: string }
+  | { id: string; kind: "media"; postId: number; postTitle: string; media: string };

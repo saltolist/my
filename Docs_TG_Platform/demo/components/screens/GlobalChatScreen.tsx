@@ -50,7 +50,7 @@ export default function GlobalChatScreen() {
             <ChatMessage key={i} message={m} ctx={{ scope: "gchat", entityId: chat.id, index: i }} />
           ))}
         </div>
-        <Composer scope="gchat" onSubmit={sendGChat} showPin />
+        <Composer scope="gchat" onSubmit={sendGChat} />
       </div>
     </>
   );

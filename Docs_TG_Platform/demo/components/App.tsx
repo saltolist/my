@@ -35,31 +35,31 @@ function AppShell() {
       <div className="mobile-sidebar-backdrop" onClick={() => setMobileSidebarOpen(false)} />
       <Sidebar />
       <div id="main">
-        <Screen active={state.screen === "home"}>
+        <Screen id="screen-home" active={state.screen === "home"}>
           <HomeScreen />
         </Screen>
-        <Screen active={state.screen === "gchat"}>
+        <Screen id="screen-gchat" active={state.screen === "gchat"}>
           <GlobalChatScreen />
         </Screen>
-        <Screen active={state.screen === "feed"}>
+        <Screen id="screen-feed" active={state.screen === "feed"}>
           <FeedScreen />
         </Screen>
-        <Screen active={state.screen === "post"}>
+        <Screen id="screen-post" active={state.screen === "post"}>
           <PostScreen />
         </Screen>
-        <Screen active={state.screen === "note"}>
+        <Screen id="screen-note" active={state.screen === "note"}>
           <NoteScreen />
         </Screen>
-        <Screen active={state.screen === "chats"}>
+        <Screen id="screen-chats" active={state.screen === "chats"}>
           <ChatsScreen />
         </Screen>
-        <Screen active={state.screen === "notes"}>
+        <Screen id="screen-notes" active={state.screen === "notes"}>
           <NotesScreen />
         </Screen>
-        <Screen active={state.screen === "analytics"}>
+        <Screen id="screen-analytics" active={state.screen === "analytics"}>
           <AnalyticsScreen />
         </Screen>
-        <Screen active={state.screen === "profile"}>
+        <Screen id="screen-profile" active={state.screen === "profile"}>
           <ProfileScreen />
         </Screen>
       </div>
@@ -67,8 +67,8 @@ function AppShell() {
   );
 }
 
-function Screen({ active, children }: { active: boolean; children: React.ReactNode }) {
-  return <div className={`screen${active ? " active" : ""}`}>{children}</div>;
+function Screen({ id, active, children }: { id: string; active: boolean; children: React.ReactNode }) {
+  return <div id={id} className={`screen${active ? " active" : ""}`}>{children}</div>;
 }
 
 export default function App() {

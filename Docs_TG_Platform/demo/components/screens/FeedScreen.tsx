@@ -5,6 +5,7 @@ import { useApp } from "@/state/AppContext";
 import PostCard from "../feed/PostCard";
 import DraftsSection from "../feed/DraftsSection";
 import { autoResize } from "@/lib/helpers";
+import AttachMenu from "../composer/AttachMenu";
 
 export default function FeedScreen() {
   const { state, dispatch, openPost } = useApp();
@@ -80,9 +81,18 @@ export default function FeedScreen() {
             />
             <div className="input-bottom">
               <div className="input-tools">
-                <button className="icon-btn" title="Добавить медиа" type="button">
-                  📎
-                </button>
+                <AttachMenu
+                  scope="feed"
+                  onAttach={(att) => {
+                    const text =
+                      att.kind === "file"
+                        ? `Прикрепил файл: ${att.name}`
+                        : att.kind === "post"
+                          ? `@${att.title}`
+                          : `Прикрепил медиа из поста «${att.postTitle}»: ${att.media}`;
+                    setDraft((v) => (v.trim() ? `${v}\n${text}` : text));
+                  }}
+                />
               </div>
               <button className="send-btn" onClick={submitDraft} type="button">
                 ↑

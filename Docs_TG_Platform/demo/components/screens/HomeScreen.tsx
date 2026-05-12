@@ -11,7 +11,7 @@ export default function HomeScreen() {
         <div className="home-logo">✦</div>
         <h3>Чем помочь сегодня?</h3>
       </div>
-      <Composer scope="home" onSubmit={sendHome} showPin />
+      <Composer scope="home" onSubmit={sendHome} />
     </div>
   );
 }
