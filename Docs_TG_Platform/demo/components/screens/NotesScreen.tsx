@@ -1,0 +1,206 @@
+"use client";
+
+import { useState } from "react";
+import { useApp } from "@/state/AppContext";
+import { postTitle } from "@/lib/helpers";
+import type { GlobalNote, LocalNote, NoteFile } from "@/lib/types";
+
+type AnyNote =
+  | (GlobalNote & { isGlobal: true })
+  | (LocalNote & { isGlobal: false; postId: number; postTitle: string });
+
+export default function NotesScreen() {
+  const { state, dispatch, navigate, openPost } = useApp();
+  const [search, setSearch] = useState("");
+  const scope = state.noteScope;
+  const filter = state.noteFilter;
+
+  const items: AnyNote[] =
+    scope === "global"
+      ? state.globalNotes.map((n) => ({ ...n, isGlobal: true }))
+      : state.posts.flatMap((p) =>
+          p.notes.map((n) => ({
+            ...n,
+            isGlobal: false as const,
+            postId: p.id,
+            postTitle: postTitle(p),
+          })),
+        );
+
+  const q = search.toLowerCase();
+  const filtered = items.filter((n) => {
+    if (filter === "ai" && !n.ai) return false;
+    if (filter === "noai" && n.ai) return false;
+    if (q && !n.title.toLowerCase().includes(q) && !n.body.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const openNote = (n: AnyNote) => {
+    if (n.isGlobal) {
+      const files: NoteFile[] = Array.isArray(n.files) ? n.files : [];
+      dispatch({
+        type: "SET_STATE",
+        patch: {
+          currentNote: { ...n, files },
+          noteFrom: "notes",
+          noteMode: "view",
+          noteSavedSnapshot: JSON.stringify({ title: n.title, body: n.body, ai: n.ai, files }),
+        },
+      });
+    } else {
+      const files: NoteFile[] = Array.isArray(n.files) ? n.files : [];
+      dispatch({
+        type: "SET_STATE",
+        patch: {
+          currentNote: { ...n, isGlobal: false, postId: n.postId, files },
+          noteFrom: "notes",
+          noteMode: "view",
+          noteSavedSnapshot: JSON.stringify({ title: n.title, body: n.body, ai: n.ai, files }),
+        },
+      });
+    }
+    navigate("note");
+  };
+
+  const toggleAi = (n: AnyNote) => {
+    if (n.isGlobal) {
+      dispatch({ type: "UPSERT_GLOBAL_NOTE", note: { ...n, ai: !n.ai } });
+    } else {
+      dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: n.postId, noteId: n.id });
+    }
+  };
+
+  const deleteNote = (n: AnyNote) => {
+    if (!confirm("Удалить заметку?")) return;
+    if (n.isGlobal) dispatch({ type: "DELETE_GLOBAL_NOTE", noteId: n.id });
+    else dispatch({ type: "DELETE_POST_NOTE", postId: n.postId, noteId: n.id });
+  };
+
+  const newGlobal = () => {
+    const title = prompt("Название заметки:");
+    if (!title) return;
+    const note: GlobalNote = {
+      id: "gn" + Date.now(),
+      title,
+      ai: false,
+      date: "сейчас",
+      body: "",
+    };
+    dispatch({ type: "UPSERT_GLOBAL_NOTE", note });
+    dispatch({
+      type: "SET_STATE",
+      patch: {
+        currentNote: { ...note, isGlobal: true, files: [] },
+        noteFrom: "notes",
+        noteMode: "edit",
+        noteSavedSnapshot: JSON.stringify({ title: note.title, body: "", ai: false, files: [] }),
+      },
+    });
+    navigate("note");
+  };
+
+  return (
+    <>
+      <div className="page-header">
+        <h2>Заметки</h2>
+        <button className="btn btn-primary btn-sm" style={{ marginLeft: "auto" }} onClick={newGlobal} type="button">
+          + Новая глобальная
+        </button>
+      </div>
+      <div className="notes-page">
+        <div className="notes-toolbar">
+          <input
+            className="notes-search"
+            placeholder="🔍  Поиск по заметкам..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="notes-scope-tabs">
+          <div
+            className={`notes-scope-tab${scope === "global" ? " active" : ""}`}
+            onClick={() => dispatch({ type: "SET_STATE", patch: { noteScope: "global" } })}
+          >
+            Глобальные
+          </div>
+          <div
+            className={`notes-scope-tab${scope === "local" ? " active" : ""}`}
+            onClick={() => dispatch({ type: "SET_STATE", patch: { noteScope: "local" } })}
+          >
+            Локальные
+          </div>
+        </div>
+        <div className="notes-filter-row">
+          {(["all", "ai", "noai"] as const).map((k) => (
+            <div
+              key={k}
+              className={`filter-tab${filter === k ? " active" : ""}`}
+              onClick={() => dispatch({ type: "SET_STATE", patch: { noteFilter: k } })}
+            >
+              {k === "all" ? "Все" : k === "ai" ? "В контексте ИИ" : "Не в контексте"}
+            </div>
+          ))}
+        </div>
+        <div className="notes-grid-page">
+          <div className="notes-grid-layout">
+            {filtered.length === 0 ? (
+              <div className="empty" style={{ gridColumn: "1/-1" }}>
+                <div className="eico">📝</div>
+                <p>{scope === "global" ? "Нет глобальных заметок" : "Нет локальных заметок"}</p>
+              </div>
+            ) : (
+              filtered.map((n) => (
+                <div
+                  key={`${n.isGlobal ? "g" : `l-${n.postId}`}-${n.id}`}
+                  className="note-card-page"
+                  onClick={() => openNote(n)}
+                >
+                  <div className="note-card-name">{n.title}</div>
+                  <div className="note-card-preview">{n.body}</div>
+                  {!n.isGlobal ? (
+                    <div className="note-local-info">
+                      📌 Локальная •{" "}
+                      <a
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openPost(n.postId);
+                        }}
+                      >
+                        к посту
+                      </a>
+                    </div>
+                  ) : null}
+                  <div className="note-card-footer-pg">
+                    <span className="note-card-date-pg">{n.date}</span>
+                    <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                      <button
+                        className={`note-ai-toggle${n.ai ? " on" : ""}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleAi(n);
+                        }}
+                        type="button"
+                      >
+                        {n.ai ? "● ИИ" : "○ ИИ"}
+                      </button>
+                      <button
+                        className="note-del"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteNote(n);
+                        }}
+                        type="button"
+                      >
+                        🗑
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

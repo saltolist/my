@@ -160,7 +160,27 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   bottom: 0;
   z-index: 20;
   margin-top: -84px;
-  backdrop-filter: blur(4px);
+  isolation: isolate;
+}
+.input-wrap::before,
+.input-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.input-wrap::before {
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 70%, transparent 100%);
+          mask-image: linear-gradient(to top, #000 0%, #000 70%, transparent 100%);
+}
+.input-wrap::after {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 35%, transparent 75%);
+          mask-image: linear-gradient(to top, #000 0%, #000 35%, transparent 75%);
 }
 .input-box {
   display: flex; flex-direction: column; gap: 8px;
@@ -362,6 +382,8 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   position: static;
   backdrop-filter: none;
 }
+#screen-home .input-wrap::before,
+#screen-home .input-wrap::after { content: none; }
 #screen-home .input-box textarea {
   height: 44px;
   min-height: 44px;

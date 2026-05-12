@@ -1,0 +1,122 @@
+export type ScreenId =
+  | "home"
+  | "gchat"
+  | "feed"
+  | "post"
+  | "note"
+  | "chats"
+  | "notes"
+  | "analytics"
+  | "profile";
+
+export type ComposerScope = "home" | "gchat" | "post";
+
+export type PostStatus = "published" | "scheduled" | "draft";
+
+export type AiVariant = { key: string; label: string; text: string };
+
+export type ChatRole = "user" | "ai";
+
+export type ChatMessage = {
+  role: ChatRole;
+  text?: string;
+  variants?: AiVariant[];
+  selectedVariant?: number;
+  mode?: "single" | "multi";
+  targetLabel?: string;
+  llmLabel?: string;
+  webLabel?: string;
+};
+
+export type NoteFile = { id?: string; name: string; type: string; url?: string };
+
+export type LocalNote = {
+  id: number;
+  title: string;
+  date: string;
+  ai: boolean;
+  body: string;
+  files?: NoteFile[];
+};
+
+export type GlobalNote = {
+  id: string;
+  title: string;
+  ai: boolean;
+  date: string;
+  body: string;
+  files?: NoteFile[];
+};
+
+export type PostMetrics = { views: string; reactions: number; reposts: number };
+
+export type Post = {
+  id: number;
+  status: PostStatus;
+  date?: string;
+  created?: string;
+  rubric: string | null;
+  metrics?: PostMetrics;
+  text: string;
+  media?: string | string[];
+  notes: LocalNote[];
+  chatHistory: ChatMessage[];
+};
+
+export type GlobalChat = {
+  id: string;
+  title: string;
+  preview: string;
+  date: string;
+  history: ChatMessage[];
+};
+
+export type LlmModel = {
+  id: string;
+  provider: string;
+  model: string;
+  apiKey: string;
+  active: boolean;
+  includeInMulti: boolean;
+};
+
+export type WebSearchModel = LlmModel;
+
+export type AiProfileConfig = {
+  llmModels: LlmModel[];
+  webSearchModels: WebSearchModel[];
+  multiResponseEnabled: boolean;
+  systemPrompt: string;
+};
+
+export type TelegramAuthStatus = "idle" | "code-sent" | "authorized" | "connected";
+export type TelegramChannelStatus = "idle" | "pending" | "connected";
+export type TelegramSyncMode = "live-only" | "history-and-live" | "publish-only";
+
+export type TelegramProfileConfig = {
+  authStatus: TelegramAuthStatus;
+  authStep: string;
+  apiId: string;
+  apiHash: string;
+  phone: string;
+  sessionName: string;
+  channel: string;
+  channelTitle: string;
+  channelStatus: TelegramChannelStatus;
+  syncMode: TelegramSyncMode;
+  lastSync: string;
+  importedPosts: number;
+};
+
+export type ComposerTarget = { llmId: string; webId: string };
+
+export type ChatsTab = "global" | "local";
+export type NoteScope = "global" | "local";
+export type NoteListFilter = "all" | "ai" | "noai";
+export type PostMode = "chat" | "notes";
+export type NoteMode = "view" | "edit";
+export type NoteFromScreen = "notes" | "post";
+
+export type ActiveNote =
+  | (GlobalNote & { isGlobal: true; files: NoteFile[] })
+  | (LocalNote & { isGlobal: false; postId: number; files: NoteFile[] });

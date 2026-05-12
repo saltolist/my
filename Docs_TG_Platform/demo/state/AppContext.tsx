@@ -1,0 +1,676 @@
+"use client";
+
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useState,
+  type ReactNode,
+} from "react";
+import {
+  initialAiProfileConfig,
+  initialGlobalChats,
+  initialGlobalNotes,
+  initialPinnedPostIds,
+  initialPosts,
+  initialTelegramProfileConfig,
+} from "@/lib/data";
+import { VARIANT_TAILS } from "@/lib/composer-config";
+import { getGlobalReply, getPostReply } from "@/lib/replies";
+import { postTitle, truncate } from "@/lib/helpers";
+import type {
+  ActiveNote,
+  AiProfileConfig,
+  AiVariant,
+  ChatMessage,
+  ChatsTab,
+  ComposerScope,
+  ComposerTarget,
+  GlobalChat,
+  GlobalNote,
+  LocalNote,
+  NoteFile,
+  NoteFromScreen,
+  NoteListFilter,
+  NoteMode,
+  NoteScope,
+  Post,
+  PostMode,
+  ScreenId,
+  TelegramProfileConfig,
+} from "@/lib/types";
+
+type ComposerTargets = Record<ComposerScope, ComposerTarget>;
+
+type State = {
+  posts: Post[];
+  globalChats: GlobalChat[];
+  globalNotes: GlobalNote[];
+  aiProfileConfig: AiProfileConfig;
+  telegramProfileConfig: TelegramProfileConfig;
+  pinnedPostIds: number[];
+
+  screen: ScreenId;
+  currentPostId: number | null;
+  postMode: PostMode;
+  isEditing: boolean;
+  currentGChatId: string | null;
+  currentNote: ActiveNote | null;
+  noteMode: NoteMode;
+  noteFrom: NoteFromScreen;
+  noteSavedSnapshot: string;
+
+  chatsTab: ChatsTab;
+  noteScope: NoteScope;
+  noteFilter: NoteListFilter;
+
+  composerTargets: ComposerTargets;
+
+  systemPromptSavedSnapshot: string;
+  modelSettingsSavedSnapshot: string;
+  telegramSettingsSavedSnapshot: string;
+};
+
+type Action =
+  | { type: "SET_SCREEN"; screen: ScreenId }
+  | { type: "SET_STATE"; patch: Partial<State> }
+  | { type: "UPDATE_POSTS"; posts: Post[] }
+  | { type: "UPDATE_POST"; postId: number; patch: Partial<Post> }
+  | { type: "PUSH_POST_CHAT"; postId: number; message: ChatMessage }
+  | { type: "ADD_POST_NOTE"; postId: number; note: LocalNote }
+  | { type: "DELETE_POST_NOTE"; postId: number; noteId: number }
+  | { type: "TOGGLE_POST_NOTE_AI"; postId: number; noteId: number }
+  | { type: "UPDATE_POST_NOTE"; postId: number; noteId: number; patch: Partial<LocalNote> }
+  | { type: "DELETE_POST"; postId: number }
+  | { type: "REORDER_POSTS"; posts: Post[] }
+  | { type: "ADD_GLOBAL_CHAT"; chat: GlobalChat }
+  | { type: "PUSH_GLOBAL_CHAT"; chatId: string; message: ChatMessage }
+  | { type: "DELETE_GLOBAL_CHAT"; chatId: string }
+  | { type: "UPDATE_GLOBAL_NOTES"; notes: GlobalNote[] }
+  | { type: "UPSERT_GLOBAL_NOTE"; note: GlobalNote }
+  | { type: "DELETE_GLOBAL_NOTE"; noteId: string }
+  | { type: "SET_AI_VARIANT"; scope: "gchat" | "post"; entityId: string | number; index: number; variantIdx: number }
+  | { type: "UPDATE_AI_CONFIG"; config: AiProfileConfig }
+  | { type: "UPDATE_TELEGRAM_CONFIG"; config: TelegramProfileConfig };
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case "SET_SCREEN":
+      return { ...state, screen: action.screen };
+    case "SET_STATE":
+      return { ...state, ...action.patch };
+    case "UPDATE_POSTS":
+      return { ...state, posts: action.posts };
+    case "UPDATE_POST":
+      return {
+        ...state,
+        posts: state.posts.map((p) => (p.id === action.postId ? { ...p, ...action.patch } : p)),
+      };
+    case "PUSH_POST_CHAT":
+      return {
+        ...state,
+        posts: state.posts.map((p) =>
+          p.id === action.postId ? { ...p, chatHistory: [...p.chatHistory, action.message] } : p,
+        ),
+      };
+    case "ADD_POST_NOTE":
+      return {
+        ...state,
+        posts: state.posts.map((p) =>
+          p.id === action.postId ? { ...p, notes: [...p.notes, action.note] } : p,
+        ),
+      };
+    case "DELETE_POST_NOTE":
+      return {
+        ...state,
+        posts: state.posts.map((p) =>
+          p.id === action.postId
+            ? { ...p, notes: p.notes.filter((n) => n.id !== action.noteId) }
+            : p,
+        ),
+      };
+    case "TOGGLE_POST_NOTE_AI":
+      return {
+        ...state,
+        posts: state.posts.map((p) =>
+          p.id === action.postId
+            ? {
+                ...p,
+                notes: p.notes.map((n) =>
+                  n.id === action.noteId ? { ...n, ai: !n.ai } : n,
+                ),
+              }
+            : p,
+        ),
+      };
+    case "UPDATE_POST_NOTE":
+      return {
+        ...state,
+        posts: state.posts.map((p) =>
+          p.id === action.postId
+            ? {
+                ...p,
+                notes: p.notes.map((n) =>
+                  n.id === action.noteId ? { ...n, ...action.patch } : n,
+                ),
+              }
+            : p,
+        ),
+      };
+    case "DELETE_POST": {
+      const filtered = state.posts.filter((p) => p.id !== action.postId);
+      return { ...state, posts: filtered, currentPostId: null };
+    }
+    case "REORDER_POSTS":
+      return { ...state, posts: action.posts };
+    case "ADD_GLOBAL_CHAT":
+      return { ...state, globalChats: [action.chat, ...state.globalChats] };
+    case "PUSH_GLOBAL_CHAT":
+      return {
+        ...state,
+        globalChats: state.globalChats.map((c) =>
+          c.id === action.chatId ? { ...c, history: [...c.history, action.message] } : c,
+        ),
+      };
+    case "DELETE_GLOBAL_CHAT":
+      return {
+        ...state,
+        globalChats: state.globalChats.filter((c) => c.id !== action.chatId),
+        currentGChatId:
+          state.currentGChatId === action.chatId ? null : state.currentGChatId,
+      };
+    case "UPDATE_GLOBAL_NOTES":
+      return { ...state, globalNotes: action.notes };
+    case "UPSERT_GLOBAL_NOTE": {
+      const exists = state.globalNotes.find((n) => n.id === action.note.id);
+      const notes = exists
+        ? state.globalNotes.map((n) => (n.id === action.note.id ? action.note : n))
+        : [action.note, ...state.globalNotes];
+      return { ...state, globalNotes: notes };
+    }
+    case "DELETE_GLOBAL_NOTE":
+      return {
+        ...state,
+        globalNotes: state.globalNotes.filter((n) => n.id !== action.noteId),
+      };
+    case "SET_AI_VARIANT": {
+      if (action.scope === "gchat") {
+        return {
+          ...state,
+          globalChats: state.globalChats.map((c) =>
+            c.id === action.entityId
+              ? {
+                  ...c,
+                  history: c.history.map((m, i) =>
+                    i === action.index ? { ...m, selectedVariant: action.variantIdx } : m,
+                  ),
+                }
+              : c,
+          ),
+        };
+      }
+      return {
+        ...state,
+        posts: state.posts.map((p) =>
+          p.id === action.entityId
+            ? {
+                ...p,
+                chatHistory: p.chatHistory.map((m, i) =>
+                  i === action.index ? { ...m, selectedVariant: action.variantIdx } : m,
+                ),
+              }
+            : p,
+        ),
+      };
+    }
+    case "UPDATE_AI_CONFIG":
+      return { ...state, aiProfileConfig: action.config };
+    case "UPDATE_TELEGRAM_CONFIG":
+      return { ...state, telegramProfileConfig: action.config };
+    default:
+      return state;
+  }
+}
+
+function buildInitialAiSnapshot() {
+  return JSON.stringify({
+    llmModels: initialAiProfileConfig.llmModels.map((m) => ({
+      provider: m.provider || "",
+      model: m.model || "",
+      apiKey: m.apiKey || "",
+      active: !!m.active,
+      includeInMulti: !!m.includeInMulti,
+    })),
+    webSearchModels: initialAiProfileConfig.webSearchModels.map((m) => ({
+      provider: m.provider || "",
+      model: m.model || "",
+      apiKey: m.apiKey || "",
+      active: !!m.active,
+      includeInMulti: !!m.includeInMulti,
+    })),
+    multiResponseEnabled: !!initialAiProfileConfig.multiResponseEnabled,
+  });
+}
+
+function buildInitialTelegramSnapshot() {
+  const cfg = initialTelegramProfileConfig;
+  return JSON.stringify({
+    apiId: cfg.apiId || "",
+    apiHash: cfg.apiHash || "",
+    phone: cfg.phone || "",
+    sessionName: cfg.sessionName || "",
+    channel: cfg.channel || "",
+    syncMode: cfg.syncMode || "",
+  });
+}
+
+const initialState: State = {
+  posts: initialPosts,
+  globalChats: initialGlobalChats,
+  globalNotes: initialGlobalNotes,
+  aiProfileConfig: initialAiProfileConfig,
+  telegramProfileConfig: initialTelegramProfileConfig,
+  pinnedPostIds: initialPinnedPostIds,
+
+  screen: "home",
+  currentPostId: null,
+  postMode: "chat",
+  isEditing: false,
+  currentGChatId: null,
+  currentNote: null,
+  noteMode: "view",
+  noteFrom: "notes",
+  noteSavedSnapshot: "",
+
+  chatsTab: "global",
+  noteScope: "global",
+  noteFilter: "all",
+
+  composerTargets: {
+    home: { llmId: "llm-1", webId: "web-1" },
+    gchat: { llmId: "llm-1", webId: "web-1" },
+    post: { llmId: "llm-1", webId: "web-1" },
+  },
+
+  systemPromptSavedSnapshot: initialAiProfileConfig.systemPrompt,
+  modelSettingsSavedSnapshot: buildInitialAiSnapshot(),
+  telegramSettingsSavedSnapshot: buildInitialTelegramSnapshot(),
+};
+
+export type DirtyKey = "note" | "profile-ai" | "profile-prompt" | "profile-telegram";
+
+type AppContextValue = {
+  state: State;
+  dispatch: React.Dispatch<Action>;
+  mobileSidebarOpen: boolean;
+  setMobileSidebarOpen: (open: boolean) => void;
+
+  navigate: (screen: ScreenId) => void;
+  goHome: () => void;
+  openPost: (id: number | "new") => void;
+  openGChat: (id: string) => void;
+  sendHome: (text: string) => boolean;
+  sendGChat: (text: string) => boolean;
+  sendPost: (text: string) => boolean;
+  hasLlmForSend: (scope: ComposerScope) => boolean;
+  setComposerLlm: (scope: ComposerScope, llmId: string) => void;
+  setComposerWeb: (scope: ComposerScope, webId: string) => void;
+  multiResponsePairs: () => { id: string; llmId: string; webId: string; label: string }[];
+  llmLabel: (id: string) => string;
+  webLabel: (id: string) => string;
+
+  setDirty: (key: DirtyKey, dirty: boolean) => void;
+  noteDirty: boolean;
+  profileSettingsDirty: boolean;
+  canLeaveCurrentScreen: (next: ScreenId) => boolean;
+};
+
+const AppContext = createContext<AppContextValue | null>(null);
+
+export function AppProvider({ children }: { children: ReactNode }) {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [dirtyMap, setDirtyMap] = useState<Record<DirtyKey, boolean>>({
+    note: false,
+    "profile-ai": false,
+    "profile-prompt": false,
+    "profile-telegram": false,
+  });
+
+  const setDirty = useCallback((key: DirtyKey, dirty: boolean) => {
+    setDirtyMap((prev) => (prev[key] === dirty ? prev : { ...prev, [key]: dirty }));
+  }, []);
+
+  const noteDirty = dirtyMap.note;
+  const profileSettingsDirty =
+    dirtyMap["profile-ai"] || dirtyMap["profile-prompt"] || dirtyMap["profile-telegram"];
+
+  const canLeaveCurrentScreen = useCallback(
+    (next: ScreenId): boolean => {
+      if (state.screen === "note" && next !== "note" && noteDirty) {
+        return window.confirm(
+          "У вас есть несохранённые изменения в заметке. Покинуть страницу без сохранения?",
+        );
+      }
+      if (state.screen === "profile" && next !== "profile" && profileSettingsDirty) {
+        return window.confirm(
+          "Есть несохранённые изменения в настройках профиля. Уйти без сохранения?",
+        );
+      }
+      return true;
+    },
+    [state.screen, noteDirty, profileSettingsDirty],
+  );
+
+  const navigate = useCallback(
+    (screen: ScreenId) => {
+      if (!canLeaveCurrentScreen(screen)) return;
+      setMobileSidebarOpen(false);
+      dispatch({ type: "SET_SCREEN", screen });
+    },
+    [canLeaveCurrentScreen],
+  );
+
+  useEffect(() => {
+    function onBeforeUnload(e: BeforeUnloadEvent) {
+      if (!noteDirty && !profileSettingsDirty) return;
+      e.preventDefault();
+      e.returnValue = "";
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [noteDirty, profileSettingsDirty]);
+
+  const goHome = useCallback(() => navigate("home"), [navigate]);
+
+  const openPost = useCallback(
+    (id: number | "new") => {
+      if (!canLeaveCurrentScreen("post")) return;
+      if (id === "new") {
+        const newPost: Post = {
+          id: Date.now(),
+          status: "draft",
+          created: "только что",
+          rubric: null,
+          text: "",
+          notes: [],
+          chatHistory: [],
+        };
+        dispatch({ type: "UPDATE_POSTS", posts: [...state.posts, newPost] });
+        dispatch({
+          type: "SET_STATE",
+          patch: { currentPostId: newPost.id, postMode: "chat", isEditing: false, screen: "post" },
+        });
+        return;
+      }
+      dispatch({
+        type: "SET_STATE",
+        patch: { currentPostId: id, postMode: "chat", isEditing: false, screen: "post" },
+      });
+    },
+    [state.posts, canLeaveCurrentScreen],
+  );
+
+  const openGChat = useCallback(
+    (id: string) => {
+      if (!canLeaveCurrentScreen("gchat")) return;
+      dispatch({ type: "SET_STATE", patch: { currentGChatId: id, screen: "gchat" } });
+    },
+    [canLeaveCurrentScreen],
+  );
+
+  const llmLabel = useCallback(
+    (id: string) => {
+      const model = state.aiProfileConfig.llmModels.find((m) => m.id === id);
+      return model ? `${model.provider} / ${model.model || "модель"}` : "LLM не выбрана";
+    },
+    [state.aiProfileConfig.llmModels],
+  );
+
+  const webLabel = useCallback(
+    (id: string) => {
+      if (!id) return "Нет";
+      const model = state.aiProfileConfig.webSearchModels.find((m) => m.id === id);
+      return model ? `${model.provider} / ${model.model || "модель"}` : "Нет";
+    },
+    [state.aiProfileConfig.webSearchModels],
+  );
+
+  const multiResponsePairs = useCallback(() => {
+    const cfg = state.aiProfileConfig;
+    const llmSelected = cfg.llmModels.filter(
+      (m) => m.provider && m.model && m.active && m.includeInMulti,
+    );
+    const webSelected = cfg.webSearchModels.filter(
+      (m) => m.provider && m.model && m.active && m.includeInMulti,
+    );
+    const pairs: { id: string; llmId: string; webId: string; label: string }[] = [];
+    if (webSelected.length === 0) {
+      llmSelected.forEach((llm) => {
+        pairs.push({
+          id: `${llm.id}|none`,
+          llmId: llm.id,
+          webId: "",
+          label: `${llm.provider}/${llm.model}`,
+        });
+      });
+      return pairs;
+    }
+    llmSelected.forEach((llm) => {
+      webSelected.forEach((web) => {
+        pairs.push({
+          id: `${llm.id}|${web.id}`,
+          llmId: llm.id,
+          webId: web.id,
+          label: `${llm.provider}/${llm.model} + ${web.provider}/${web.model}`,
+        });
+      });
+    });
+    return pairs;
+  }, [state.aiProfileConfig]);
+
+  const hasLlmForSend = useCallback(
+    (scope: ComposerScope) => {
+      const cfg = state.aiProfileConfig;
+      if (cfg.multiResponseEnabled) {
+        return cfg.llmModels.some(
+          (m) => m.provider && m.model && m.active && m.includeInMulti,
+        );
+      }
+      const target = state.composerTargets[scope];
+      if (!target?.llmId) return false;
+      return cfg.llmModels.some(
+        (m) => m.id === target.llmId && m.provider && m.model && m.active,
+      );
+    },
+    [state.aiProfileConfig, state.composerTargets],
+  );
+
+  const setComposerLlm = useCallback((scope: ComposerScope, llmId: string) => {
+    dispatch({
+      type: "SET_STATE",
+      patch: {
+        composerTargets: {
+          ...state.composerTargets,
+          [scope]: { ...state.composerTargets[scope], llmId },
+        },
+      },
+    });
+  }, [state.composerTargets]);
+
+  const setComposerWeb = useCallback((scope: ComposerScope, webId: string) => {
+    dispatch({
+      type: "SET_STATE",
+      patch: {
+        composerTargets: {
+          ...state.composerTargets,
+          [scope]: { ...state.composerTargets[scope], webId },
+        },
+      },
+    });
+  }, [state.composerTargets]);
+
+  const buildAiMessage = useCallback(
+    (baseReply: string, scope: ComposerScope): ChatMessage => {
+      const cfg = state.aiProfileConfig;
+      if (cfg.multiResponseEnabled) {
+        const pairs = multiResponsePairs();
+        if (pairs.length > 0) {
+          const variants: AiVariant[] = pairs.map((pair, idx) => ({
+            key: pair.id,
+            label: pair.label,
+            text: `${baseReply}\n\n— ${pair.label}\n${VARIANT_TAILS[idx % VARIANT_TAILS.length]}`,
+          }));
+          return { role: "ai", variants, selectedVariant: 0, mode: "multi" };
+        }
+      }
+      const target = state.composerTargets[scope];
+      const llm = llmLabel(target?.llmId || "");
+      const web = webLabel(target?.webId || "");
+      const label = target?.webId ? `${llm} + ${web}` : llm;
+      return {
+        role: "ai",
+        text: `${baseReply}\n\n— ${label}\n${VARIANT_TAILS[0]}`,
+        mode: "single",
+        targetLabel: label,
+        llmLabel: llm,
+        webLabel: web,
+      };
+    },
+    [state.aiProfileConfig, state.composerTargets, multiResponsePairs, llmLabel, webLabel],
+  );
+
+  const assertLlm = useCallback(
+    (scope: ComposerScope) => {
+      if (hasLlmForSend(scope)) return true;
+      if (typeof window !== "undefined") window.alert("Активируйте LLM модель.");
+      return false;
+    },
+    [hasLlmForSend],
+  );
+
+  const sendHome = useCallback(
+    (text: string) => {
+      if (!text.trim()) return false;
+      if (!assertLlm("home")) return false;
+      const id = "gc" + Date.now();
+      const newChat: GlobalChat = {
+        id,
+        title: truncate(text, 40),
+        preview: text,
+        date: "сейчас",
+        history: [{ role: "user", text }],
+      };
+      dispatch({ type: "ADD_GLOBAL_CHAT", chat: newChat });
+      dispatch({ type: "SET_STATE", patch: { currentGChatId: id, screen: "gchat" } });
+      setTimeout(() => {
+        const reply = buildAiMessage(getGlobalReply(text), "home");
+        dispatch({ type: "PUSH_GLOBAL_CHAT", chatId: id, message: reply });
+      }, 900);
+      return true;
+    },
+    [assertLlm, buildAiMessage],
+  );
+
+  const sendGChat = useCallback(
+    (text: string) => {
+      if (!text.trim() || !state.currentGChatId) return false;
+      if (!assertLlm("gchat")) return false;
+      const chatId = state.currentGChatId;
+      dispatch({ type: "PUSH_GLOBAL_CHAT", chatId, message: { role: "user", text } });
+      setTimeout(() => {
+        const reply = buildAiMessage(getGlobalReply(text), "gchat");
+        dispatch({ type: "PUSH_GLOBAL_CHAT", chatId, message: reply });
+      }, 900);
+      return true;
+    },
+    [state.currentGChatId, assertLlm, buildAiMessage],
+  );
+
+  const sendPost = useCallback(
+    (text: string) => {
+      if (!text.trim() || !state.currentPostId) return false;
+      if (!assertLlm("post")) return false;
+      const postId = state.currentPostId;
+      dispatch({ type: "PUSH_POST_CHAT", postId, message: { role: "user", text } });
+      setTimeout(() => {
+        const reply = buildAiMessage(getPostReply(text), "post");
+        dispatch({ type: "PUSH_POST_CHAT", postId, message: reply });
+      }, 800);
+      return true;
+    },
+    [state.currentPostId, assertLlm, buildAiMessage],
+  );
+
+  const value = useMemo<AppContextValue>(
+    () => ({
+      state,
+      dispatch,
+      mobileSidebarOpen,
+      setMobileSidebarOpen,
+      navigate,
+      goHome,
+      openPost,
+      openGChat,
+      sendHome,
+      sendGChat,
+      sendPost,
+      hasLlmForSend,
+      setComposerLlm,
+      setComposerWeb,
+      multiResponsePairs,
+      llmLabel,
+      webLabel,
+      setDirty,
+      noteDirty,
+      profileSettingsDirty,
+      canLeaveCurrentScreen,
+    }),
+    [
+      state,
+      mobileSidebarOpen,
+      navigate,
+      goHome,
+      openPost,
+      openGChat,
+      sendHome,
+      sendGChat,
+      sendPost,
+      hasLlmForSend,
+      setComposerLlm,
+      setComposerWeb,
+      multiResponsePairs,
+      llmLabel,
+      webLabel,
+      setDirty,
+      noteDirty,
+      profileSettingsDirty,
+      canLeaveCurrentScreen,
+    ],
+  );
+
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+}
+
+export function useApp(): AppContextValue {
+  const ctx = useContext(AppContext);
+  if (!ctx) throw new Error("useApp must be used inside <AppProvider>");
+  return ctx;
+}
+
+export type { State as AppState, Action as AppAction };
+
+export function postById(state: State, id: number | null): Post | null {
+  if (id == null) return null;
+  return state.posts.find((p) => p.id === id) || null;
+}
+
+export function globalChatById(state: State, id: string | null): GlobalChat | null {
+  if (id == null) return null;
+  return state.globalChats.find((c) => c.id === id) || null;
+}
+
+export type { NoteFile };
