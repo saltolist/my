@@ -5,6 +5,15 @@ import { useApp } from "@/state/AppContext";
 import { postTitle, truncate } from "@/lib/helpers";
 import PageHeader from "../PageHeader";
 
+type LocalChatRow = {
+  postId: number;
+  postTitle: string;
+  chatId: number;
+  title: string;
+  preview: string;
+  date: string;
+};
+
 export default function ChatsScreen() {
   const { state, dispatch, openGChat, openPost } = useApp();
   const tab = state.chatsTab;
@@ -16,9 +25,22 @@ export default function ChatsScreen() {
   const globalChats = state.globalChats.filter((c) =>
     !q || c.title.toLowerCase().includes(q) || (c.preview || "").toLowerCase().includes(q),
   );
-  const localPosts = state.posts
-    .filter((p) => p.chatHistory.length > 0)
-    .filter((p) => !q || postTitle(p).toLowerCase().includes(q));
+  const localChats: LocalChatRow[] = state.posts.flatMap((p) =>
+    p.chats.map<LocalChatRow>((c) => ({
+      postId: p.id,
+      postTitle: postTitle(p),
+      chatId: c.id,
+      title: c.title || "Без названия",
+      preview: c.preview || "",
+      date: c.date || "",
+    })),
+  ).filter(
+    (row) =>
+      !q ||
+      row.title.toLowerCase().includes(q) ||
+      row.postTitle.toLowerCase().includes(q) ||
+      row.preview.toLowerCase().includes(q),
+  );
 
   return (
     <>
@@ -78,37 +100,53 @@ export default function ChatsScreen() {
             )}
           </div>
           <div style={{ display: tab === "local" ? "" : "none" }}>
-            {localPosts.length === 0 ? (
+            {localChats.length === 0 ? (
               <div className="empty">
                 <div className="eico">📄</div>
                 <p>Нет локальных чатов</p>
               </div>
             ) : (
-              localPosts.map((p) => {
-                const last = p.chatHistory[p.chatHistory.length - 1];
-                return (
-                  <div key={p.id} className="chat-card" onClick={() => openPost(p.id)}>
-                    <div className="chat-card-icon">📄</div>
-                    <div className="chat-card-body">
-                      <div className="chat-card-title">{postTitle(p)}</div>
-                      <div className="chat-card-preview">&quot;{truncate(last.text || "", 55)}&quot;</div>
-                    </div>
-                    <div className="chat-card-right">
-                      <div className="chat-card-date">{p.date || p.created || ""}</div>
-                      <button
-                        className="to-post-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openPost(p.id);
-                        }}
-                        type="button"
-                      >
-                        → пост
-                      </button>
+              localChats.map((row) => (
+                <div
+                  key={`${row.postId}-${row.chatId}`}
+                  className="chat-card"
+                  onClick={() =>
+                    dispatch({
+                      type: "SET_STATE",
+                      patch: {
+                        currentPostId: row.postId,
+                        currentPostChatId: row.chatId,
+                        postMode: "chat",
+                        postViewStack: [],
+                        isEditing: false,
+                        screen: "post",
+                      },
+                    })
+                  }
+                >
+                  <div className="chat-card-icon">💬</div>
+                  <div className="chat-card-body">
+                    <div className="chat-card-title">{row.title}</div>
+                    <div className="chat-card-preview">
+                      <span className="chat-card-post">{row.postTitle}</span> · &quot;
+                      {truncate(row.preview, 50)}&quot;
                     </div>
                   </div>
-                );
-              })
+                  <div className="chat-card-right">
+                    <div className="chat-card-date">{row.date}</div>
+                    <button
+                      className="to-post-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openPost(row.postId);
+                      }}
+                      type="button"
+                    >
+                      → пост
+                    </button>
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </div>

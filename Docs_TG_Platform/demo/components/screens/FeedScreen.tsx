@@ -40,7 +40,7 @@ export default function FeedScreen() {
       rubric: null,
       text,
       notes: [],
-      chatHistory: [],
+      chats: [],
       ...(pendingMedia.length > 0 ? { media: [...pendingMedia] } : {}),
     };
     dispatch({ type: "UPDATE_POSTS", posts: [...state.posts, newPost] });

@@ -56,6 +56,14 @@ export type PostMedia = {
   type: string;
 };
 
+export type LocalChat = {
+  id: number;
+  title: string;
+  preview: string;
+  date: string;
+  history: ChatMessage[];
+};
+
 export type Post = {
   id: number;
   status: PostStatus;
@@ -66,7 +74,7 @@ export type Post = {
   text: string;
   media?: PostMedia[];
   notes: LocalNote[];
-  chatHistory: ChatMessage[];
+  chats: LocalChat[];
 };
 
 export type GlobalChat = {
@@ -119,7 +127,7 @@ export type ComposerTarget = { llmId: string; webId: string };
 export type ChatsTab = "global" | "local";
 export type NoteScope = "global" | "local";
 export type NoteListFilter = "all" | "ai" | "noai";
-export type PostMode = "chat" | "notes";
+export type PostMode = "chat" | "chats" | "notes";
 export type NoteMode = "view" | "edit";
 export type NoteFromScreen = "notes" | "post";
 

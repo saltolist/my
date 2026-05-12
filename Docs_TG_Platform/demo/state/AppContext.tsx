@@ -31,6 +31,7 @@ import type {
   ComposerTarget,
   GlobalChat,
   GlobalNote,
+  LocalChat,
   LocalNote,
   NoteFile,
   NoteFromScreen,
@@ -56,7 +57,9 @@ type State = {
 
   screen: ScreenId;
   currentPostId: number | null;
+  currentPostChatId: number | null;
   postMode: PostMode;
+  postViewStack: { mode: PostMode; chatId: number | null }[];
   isEditing: boolean;
   currentGChatId: string | null;
   currentNote: ActiveNote | null;
@@ -82,7 +85,9 @@ type Action =
   | { type: "SET_STATE"; patch: Partial<State> }
   | { type: "UPDATE_POSTS"; posts: Post[] }
   | { type: "UPDATE_POST"; postId: number; patch: Partial<Post> }
-  | { type: "PUSH_POST_CHAT"; postId: number; message: ChatMessage }
+  | { type: "ADD_LOCAL_CHAT"; postId: number; chat: LocalChat }
+  | { type: "PUSH_LOCAL_CHAT_MSG"; postId: number; chatId: number; message: ChatMessage }
+  | { type: "DELETE_LOCAL_CHAT"; postId: number; chatId: number }
   | { type: "ADD_POST_NOTE"; postId: number; note: LocalNote }
   | { type: "DELETE_POST_NOTE"; postId: number; noteId: number }
   | { type: "TOGGLE_POST_NOTE_AI"; postId: number; noteId: number }
@@ -112,12 +117,47 @@ function reducer(state: State, action: Action): State {
         ...state,
         posts: state.posts.map((p) => (p.id === action.postId ? { ...p, ...action.patch } : p)),
       };
-    case "PUSH_POST_CHAT":
+    case "ADD_LOCAL_CHAT":
       return {
         ...state,
         posts: state.posts.map((p) =>
-          p.id === action.postId ? { ...p, chatHistory: [...p.chatHistory, action.message] } : p,
+          p.id === action.postId ? { ...p, chats: [action.chat, ...p.chats] } : p,
         ),
+      };
+    case "PUSH_LOCAL_CHAT_MSG":
+      return {
+        ...state,
+        posts: state.posts.map((p) =>
+          p.id === action.postId
+            ? {
+                ...p,
+                chats: p.chats.map((c) =>
+                  c.id === action.chatId
+                    ? {
+                        ...c,
+                        history: [...c.history, action.message],
+                        preview:
+                          action.message.role === "user" && action.message.text
+                            ? action.message.text
+                            : c.preview,
+                        date: "сейчас",
+                      }
+                    : c,
+                ),
+              }
+            : p,
+        ),
+      };
+    case "DELETE_LOCAL_CHAT":
+      return {
+        ...state,
+        posts: state.posts.map((p) =>
+          p.id === action.postId
+            ? { ...p, chats: p.chats.filter((c) => c.id !== action.chatId) }
+            : p,
+        ),
+        currentPostChatId:
+          state.currentPostChatId === action.chatId ? null : state.currentPostChatId,
       };
     case "ADD_POST_NOTE":
       return {
@@ -217,16 +257,19 @@ function reducer(state: State, action: Action): State {
       }
       return {
         ...state,
-        posts: state.posts.map((p) =>
-          p.id === action.entityId
-            ? {
-                ...p,
-                chatHistory: p.chatHistory.map((m, i) =>
-                  i === action.index ? { ...m, selectedVariant: action.variantIdx } : m,
-                ),
-              }
-            : p,
-        ),
+        posts: state.posts.map((p) => ({
+          ...p,
+          chats: p.chats.map((c) =>
+            c.id === action.entityId
+              ? {
+                  ...c,
+                  history: c.history.map((m, i) =>
+                    i === action.index ? { ...m, selectedVariant: action.variantIdx } : m,
+                  ),
+                }
+              : c,
+          ),
+        })),
       };
     }
     case "UPDATE_AI_CONFIG":
@@ -280,7 +323,9 @@ const initialState: State = {
 
   screen: "home",
   currentPostId: null,
+  currentPostChatId: null,
   postMode: "chat",
+  postViewStack: [],
   isEditing: false,
   currentGChatId: null,
   currentNote: null,
@@ -422,18 +467,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
           rubric: null,
           text: "",
           notes: [],
-          chatHistory: [],
+          chats: [],
         };
         dispatch({ type: "UPDATE_POSTS", posts: [...state.posts, newPost] });
         dispatch({
           type: "SET_STATE",
-          patch: { currentPostId: newPost.id, postMode: "chat", isEditing: false, screen: "post" },
+          patch: {
+            currentPostId: newPost.id,
+            currentPostChatId: null,
+            postMode: "chat",
+            postViewStack: [],
+            isEditing: false,
+            screen: "post",
+          },
         });
         return;
       }
       dispatch({
         type: "SET_STATE",
-        patch: { currentPostId: id, postMode: "chat", isEditing: false, screen: "post" },
+        patch: {
+          currentPostId: id,
+          currentPostChatId: null,
+          postMode: "chat",
+          postViewStack: [],
+          isEditing: false,
+          screen: "post",
+        },
       });
     },
     [state.posts, canLeaveCurrentScreen],
@@ -620,14 +679,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!text.trim() || !state.currentPostId) return false;
       if (!assertLlm("post")) return false;
       const postId = state.currentPostId;
-      dispatch({ type: "PUSH_POST_CHAT", postId, message: { role: "user", text } });
+      let chatId = state.currentPostChatId;
+      if (chatId == null) {
+        chatId = Date.now();
+        const newChat: LocalChat = {
+          id: chatId,
+          title: truncate(text, 40),
+          preview: text,
+          date: "сейчас",
+          history: [{ role: "user", text }],
+        };
+        dispatch({ type: "ADD_LOCAL_CHAT", postId, chat: newChat });
+        dispatch({ type: "SET_STATE", patch: { currentPostChatId: chatId } });
+      } else {
+        dispatch({
+          type: "PUSH_LOCAL_CHAT_MSG",
+          postId,
+          chatId,
+          message: { role: "user", text },
+        });
+      }
+      const replyChatId = chatId;
       setTimeout(() => {
         const reply = buildAiMessage(getPostReply(text), "post");
-        dispatch({ type: "PUSH_POST_CHAT", postId, message: reply });
+        dispatch({
+          type: "PUSH_LOCAL_CHAT_MSG",
+          postId,
+          chatId: replyChatId,
+          message: reply,
+        });
       }, 800);
       return true;
     },
-    [state.currentPostId, assertLlm, buildAiMessage],
+    [state.currentPostId, state.currentPostChatId, assertLlm, buildAiMessage],
   );
 
   const value = useMemo<AppContextValue>(

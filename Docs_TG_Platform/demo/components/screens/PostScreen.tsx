@@ -7,7 +7,7 @@ import Composer from "../composer/Composer";
 import ChatMessage from "../chat/ChatMessage";
 import PostMediaBlock from "../post/PostMediaBlock";
 import { ContextMenu, type CtxMenuItem } from "../ContextMenu";
-import type { LocalNote, NoteFile, PostMedia } from "@/lib/types";
+import type { LocalNote, NoteFile, PostMedia, PostMode } from "@/lib/types";
 
 export default function PostScreen() {
   const { state, dispatch, navigate, sendPost } = useApp();
@@ -16,12 +16,14 @@ export default function PostScreen() {
   const postCardRef = useRef<HTMLDivElement>(null);
   const [showJump, setShowJump] = useState(false);
   const mediaItems: PostMedia[] = post?.media ?? [];
+  const activeChat = post?.chats.find((c) => c.id === state.currentPostChatId) || null;
+  const history = activeChat?.history ?? [];
 
   useEffect(() => {
     if (state.postMode === "chat" && chatScrollRef.current) {
       chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
     }
-  }, [post?.chatHistory.length, state.postMode]);
+  }, [history.length, state.postMode]);
 
   useEffect(() => {
     if (state.postMode !== "chat") {
@@ -42,7 +44,47 @@ export default function PostScreen() {
     const el = chatScrollRef.current;
     el?.addEventListener("scroll", sync);
     return () => el?.removeEventListener("scroll", sync);
-  }, [state.postMode, state.isEditing, post?.id]);
+  }, [state.postMode, state.isEditing, post?.id, activeChat?.id]);
+
+  const pushPostView = (nextMode: PostMode, nextChatId: number | null) => {
+    if (nextMode === state.postMode && nextChatId === state.currentPostChatId) return;
+    const stack = [
+      ...state.postViewStack,
+      { mode: state.postMode, chatId: state.currentPostChatId },
+    ];
+    dispatch({
+      type: "SET_STATE",
+      patch: {
+        postViewStack: stack,
+        postMode: nextMode,
+        currentPostChatId: nextChatId,
+        isEditing: false,
+      },
+    });
+  };
+  const toggleMode = (target: "chats" | "notes") => {
+    const next = state.postMode === target ? "chat" : target;
+    pushPostView(next, state.currentPostChatId);
+  };
+  const openLocalChat = (chatId: number) => pushPostView("chat", chatId);
+  const startNewChat = () => pushPostView("chat", null);
+  const handleBack = () => {
+    if (state.postViewStack.length > 0) {
+      const stack = state.postViewStack.slice(0, -1);
+      const prev = state.postViewStack[state.postViewStack.length - 1];
+      dispatch({
+        type: "SET_STATE",
+        patch: {
+          postViewStack: stack,
+          postMode: prev.mode,
+          currentPostChatId: prev.chatId,
+          isEditing: false,
+        },
+      });
+      return;
+    }
+    navigate("feed");
+  };
 
   if (!post) {
     return (
@@ -58,15 +100,11 @@ export default function PostScreen() {
     );
   }
 
-  const togglePostMode = () =>
-    dispatch({ type: "SET_STATE", patch: { postMode: state.postMode === "chat" ? "notes" : "chat" } });
-
   const ctxItems: CtxMenuItem[] = [
     {
-      label: state.postMode === "chat" ? "Заметки" : "Чат",
-      icon: state.postMode === "chat" ? "📋" : "💬",
-      active: state.postMode === "notes",
-      onClick: togglePostMode,
+      label: "Новый чат",
+      icon: "✦",
+      onClick: startNewChat,
     },
   ];
   if (post.status === "draft") {
@@ -131,6 +169,13 @@ export default function PostScreen() {
           </div>
           <div className="page-header-right">
             <button
+              className="btn btn-ghost btn-sm post-back-btn"
+              onClick={handleBack}
+              type="button"
+            >
+              ← Назад
+            </button>
+            <button
               className={`jump-post-btn${showJump ? " visible" : ""}`}
               onClick={() => chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
               type="button"
@@ -138,11 +183,18 @@ export default function PostScreen() {
               ↑ К посту
             </button>
             <button
-              className="btn btn-ghost btn-sm post-back-btn"
-              onClick={() => navigate("feed")}
+              className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "notes" ? " active" : ""}`}
+              onClick={() => toggleMode("notes")}
               type="button"
             >
-              ← Назад
+              Заметки
+            </button>
+            <button
+              className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "chats" ? " active" : ""}`}
+              onClick={() => toggleMode("chats")}
+              type="button"
+            >
+              Чаты
             </button>
             <ContextMenu items={ctxItems} />
           </div>
@@ -173,13 +225,19 @@ export default function PostScreen() {
                   ? `👁 ${post.metrics.views} · ❤ ${post.metrics.reactions} · ↗ ${post.metrics.reposts}`
                   : ""}
               />
-              {post.chatHistory.map((m, i) => (
-                <ChatMessage key={i} message={m} ctx={{ scope: "post", entityId: post.id, index: i }} />
+              {history.map((m, i) => (
+                <ChatMessage
+                  key={i}
+                  message={m}
+                  ctx={{ scope: "post", entityId: activeChat?.id ?? 0, index: i }}
+                />
               ))}
             </div>
           </div>
           <Composer scope="post" onSubmit={sendPost} />
         </>
+      ) : state.postMode === "chats" ? (
+        <PostChats onOpenChat={openLocalChat} onNewChat={startNewChat} />
       ) : (
         <PostNotes />
       )}
@@ -407,6 +465,62 @@ function PostNotes() {
           <span style={{ fontSize: 22 }}>＋</span>
           <span style={{ fontSize: 12 }}>Новая заметка</span>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function PostChats({
+  onOpenChat,
+  onNewChat,
+}: {
+  onOpenChat: (chatId: number) => void;
+  onNewChat: () => void;
+}) {
+  const { state, dispatch } = useApp();
+  const post = postById(state, state.currentPostId);
+  if (!post) return null;
+
+  return (
+    <div id="post-chats" className="post-chats visible">
+      <div className="post-chats-inner">
+        <div className="post-chats-actions">
+          <button className="btn btn-primary btn-sm" onClick={onNewChat} type="button">
+            + Новый чат
+          </button>
+        </div>
+        {post.chats.length === 0 ? (
+          <div className="empty">
+            <div className="eico">💬</div>
+            <p>Пока нет локальных чатов</p>
+          </div>
+        ) : (
+          post.chats.map((c) => (
+            <div key={c.id} className="chat-card" onClick={() => onOpenChat(c.id)}>
+              <div className="chat-card-icon">💬</div>
+              <div className="chat-card-body">
+                <div className="chat-card-title">{c.title || "Без названия"}</div>
+                <div className="chat-card-preview">
+                  &quot;{truncate(c.preview || "", 55)}&quot;
+                </div>
+              </div>
+              <div className="chat-card-right">
+                <div className="chat-card-date">{c.date}</div>
+                <button
+                  className="chat-del-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!confirm("Удалить чат?")) return;
+                    dispatch({ type: "DELETE_LOCAL_CHAT", postId: post.id, chatId: c.id });
+                  }}
+                  type="button"
+                >
+                  🗑
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

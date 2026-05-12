@@ -5,7 +5,7 @@ import type { ChatMessage as ChatMessageType } from "@/lib/types";
 
 type Ctx =
   | { scope: "gchat"; entityId: string; index: number }
-  | { scope: "post"; entityId: number; index: number };
+  | { scope: "post"; entityId: number; index: number }; // entityId = local chat id
 
 export default function ChatMessage({ message, ctx }: { message: ChatMessageType; ctx?: Ctx }) {
   const { dispatch } = useApp();
