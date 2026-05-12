@@ -396,7 +396,15 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   width: 500px; max-width: 100%;
 }
 .post-card:hover { border-color: var(--border2); background: var(--bg3); }
+.post-card.is-dragging { opacity: .35; cursor: grabbing; }
 .drag-handle { color: var(--text3); font-size: 16px; cursor: grab; flex-shrink: 0; line-height: 1.4; user-select: none; padding-top: 2px; }
+.drag-handle:active { cursor: grabbing; }
+.drop-indicator {
+  width: 500px; max-width: 100%;
+  height: 3px; border-radius: 2px;
+  background: var(--accent); box-shadow: 0 0 0 2px var(--adim);
+  pointer-events: none;
+}
 .post-card-body { flex: 1; min-width: 0; }
 .post-card-text {
   font-size: 14px; line-height: 1.7; color: var(--text);

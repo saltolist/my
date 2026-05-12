@@ -68,6 +68,7 @@ TG Platform
 - `concept/09-user-scenario.md` - сквозной пользовательский сценарий
 - `concept/10-pages.md` - функциональная спецификация страниц
 - `concept/11-reusable-modules-integration.md` - как TG Platform собирается на базе reusable-modules
+- `concept/12-demo.md` - демо-версия на GitHub Pages: назначение, сценарии, ограничения
 
 ### Wireframes
 
@@ -83,7 +84,7 @@ TG Platform
 
 ### Прочее
 
-- `demo/index.html` - ранний HTML-демо-макет интерфейса
+- `demo/` - публичная статическая демо-версия для GitHub Pages (концепт описан в `concept/12-demo.md`)
 
 ## Статус проекта
 
