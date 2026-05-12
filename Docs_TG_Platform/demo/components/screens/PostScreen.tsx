@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { postById, useApp } from "@/state/AppContext";
-import { postTitle, truncate } from "@/lib/helpers";
+import { postTitle, readFileAsMedia, truncate } from "@/lib/helpers";
 import Composer from "../composer/Composer";
 import ChatMessage from "../chat/ChatMessage";
+import PostMediaBlock from "../post/PostMediaBlock";
 import { ContextMenu, type CtxMenuItem } from "../ContextMenu";
-import type { LocalNote, NoteFile } from "@/lib/types";
+import type { LocalNote, NoteFile, PostMedia } from "@/lib/types";
 
 export default function PostScreen() {
   const { state, dispatch, navigate, sendPost } = useApp();
@@ -14,6 +15,7 @@ export default function PostScreen() {
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const postCardRef = useRef<HTMLDivElement>(null);
   const [showJump, setShowJump] = useState(false);
+  const mediaItems: PostMedia[] = post?.media ?? [];
 
   useEffect(() => {
     if (state.postMode === "chat" && chatScrollRef.current) {
@@ -145,10 +147,15 @@ export default function PostScreen() {
                 ref={postCardRef}
                 isEditing={state.isEditing}
                 text={post.text}
+                media={mediaItems}
                 onStartEdit={() => dispatch({ type: "SET_STATE", patch: { isEditing: true } })}
                 onCancel={() => dispatch({ type: "SET_STATE", patch: { isEditing: false } })}
-                onSave={(t) => {
-                  dispatch({ type: "UPDATE_POST", postId: post.id, patch: { text: t } });
+                onSave={(t, m) => {
+                  dispatch({
+                    type: "UPDATE_POST",
+                    postId: post.id,
+                    patch: { text: t, media: m.length > 0 ? [...m] : undefined },
+                  });
                   dispatch({ type: "SET_STATE", patch: { isEditing: false } });
                 }}
                 badge={badgeForPost(post)}
@@ -186,6 +193,7 @@ const PostMessageCard = ({
   ref,
   isEditing,
   text,
+  media,
   onStartEdit,
   onCancel,
   onSave,
@@ -195,16 +203,22 @@ const PostMessageCard = ({
   ref: React.RefObject<HTMLDivElement | null>;
   isEditing: boolean;
   text: string;
+  media: PostMedia[];
   onStartEdit: () => void;
   onCancel: () => void;
-  onSave: (t: string) => void;
+  onSave: (t: string, media: PostMedia[]) => void;
   badge: React.ReactNode;
   metrics: string;
 }) => {
   const [draft, setDraft] = useState(text);
+  const [mediaDraft, setMediaDraft] = useState<PostMedia[]>(media);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => setDraft(text), [text, isEditing]);
+  useEffect(() => {
+    setDraft(text);
+    setMediaDraft(media);
+  }, [text, media, isEditing]);
 
   useEffect(() => {
     if (!isEditing) return;
@@ -219,6 +233,19 @@ const PostMessageCard = ({
     return () => window.clearTimeout(id);
   }, [isEditing, ref]);
 
+  async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const m = await readFileAsMedia(file);
+        setMediaDraft((arr) => [...arr, m]);
+      } catch {
+        /* ignore read errors in demo */
+      }
+    }
+    e.target.value = "";
+  }
+
   return (
     <div className="post-msg-card" id="post-msg-card" ref={ref}>
       <div className="post-msg-label">Вы</div>
@@ -230,17 +257,50 @@ const PostMessageCard = ({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
           />
+          {mediaDraft.length > 0 ? (
+            <div className="post-msg-media-edit">
+              <PostMediaBlock
+                media={mediaDraft}
+                onRemove={(i) => setMediaDraft((arr) => arr.filter((_, j) => j !== i))}
+              />
+            </div>
+          ) : null}
+          <input
+            type="file"
+            ref={fileRef}
+            style={{ display: "none" }}
+            accept="image/*,video/*"
+            onChange={onPickFile}
+          />
           <div className="post-edit-actions">
-            <button className="btn btn-ghost btn-sm" onClick={onCancel} type="button">
-              Отмена
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={() => fileRef.current?.click()}
+              type="button"
+            >
+              🖼 Добавить медиа
             </button>
-            <button className="btn btn-primary btn-sm" onClick={() => onSave(draft)} type="button">
-              Сохранить
-            </button>
+            <div className="post-edit-actions-right">
+              <button className="btn btn-ghost btn-sm" onClick={onCancel} type="button">
+                Отмена
+              </button>
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => onSave(draft, mediaDraft)}
+                type="button"
+              >
+                Сохранить
+              </button>
+            </div>
           </div>
         </>
       ) : (
         <>
+          {media.length > 0 ? (
+            <div className="post-msg-media">
+              <PostMediaBlock media={media} />
+            </div>
+          ) : null}
           <div className="post-msg-text">
             {text || <span style={{ color: "var(--text3)" }}>Пост пустой — начни писать...</span>}
           </div>

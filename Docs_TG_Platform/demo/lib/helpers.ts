@@ -1,4 +1,4 @@
-import type { Post } from "./types";
+import type { Post, PostMedia } from "./types";
 
 export function truncate(value: string | undefined | null, max: number): string {
   if (!value) return "";
@@ -27,9 +27,31 @@ export function autoResize(el: HTMLTextAreaElement): void {
   el.style.height = Math.min(el.scrollHeight, 120) + "px";
 }
 
-export function getPostMediaItems(post: Post | null | undefined): string[] {
+export function getPostMediaItems(post: Post | null | undefined): PostMedia[] {
   if (!post) return [];
   if (Array.isArray(post.media)) return post.media;
-  if (typeof post.media === "string" && post.media.trim()) return [post.media.trim()];
   return [];
+}
+
+export function isImageMedia(m: PostMedia): boolean {
+  return m.type.startsWith("image/") || /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(m.name);
+}
+
+export function isVideoMedia(m: PostMedia): boolean {
+  return m.type.startsWith("video/") || /\.(mp4|webm|mov|m4v)$/i.test(m.name);
+}
+
+export function readFileAsMedia(file: File): Promise<PostMedia> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve({
+        name: file.name,
+        url: typeof reader.result === "string" ? reader.result : "",
+        type: file.type || "",
+      });
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
 }

@@ -1,6 +1,8 @@
 "use client";
 
+import { getPostMediaItems } from "@/lib/helpers";
 import type { Post } from "@/lib/types";
+import PostMediaBlock from "../post/PostMediaBlock";
 
 export default function PostCard({
   post,
@@ -44,6 +46,8 @@ export default function PostCard({
       </div>
     ) : null;
 
+  const mediaItems = getPostMediaItems(post);
+
   return (
     <div className="post-card" onClick={onOpen}>
       {post.status === "draft" && draftHandleProps ? (
@@ -57,12 +61,16 @@ export default function PostCard({
         </div>
       ) : null}
       <div className="post-card-body">
+        {mediaItems.length > 0 ? (
+          <div className="post-card-media">
+            <PostMediaBlock media={mediaItems} />
+          </div>
+        ) : null}
         {post.text ? (
           <div className="post-card-text">{post.text}</div>
         ) : (
           <div className="post-card-text empty">Пост пустой — нажми чтобы начать писать</div>
         )}
-        {post.media ? <div className="post-card-media">🖼 {String(post.media)}</div> : null}
         <div className="post-card-footer">
           <div className="post-meta">
             {statusEl}

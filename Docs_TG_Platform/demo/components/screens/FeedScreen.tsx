@@ -4,12 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import { useApp } from "@/state/AppContext";
 import PostCard from "../feed/PostCard";
 import DraftsSection from "../feed/DraftsSection";
-import { autoResize } from "@/lib/helpers";
+import { autoResize, readFileAsMedia } from "@/lib/helpers";
 import AttachMenu from "../composer/AttachMenu";
+import PostMediaBlock from "../post/PostMediaBlock";
+import type { Post, PostMedia } from "@/lib/types";
 
 export default function FeedScreen() {
   const { state, dispatch, openPost } = useApp();
   const [draft, setDraft] = useState("");
+  const [pendingMedia, setPendingMedia] = useState<PostMedia[]>([]);
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -22,18 +25,24 @@ export default function FeedScreen() {
 
   function submitDraft() {
     const text = draft.trim();
-    if (!text) return;
-    const newPost = {
+    if (!text && pendingMedia.length === 0) return;
+    const newPost: Post = {
       id: Date.now(),
-      status: "draft" as const,
+      status: "draft",
       created: "только что",
       rubric: null,
       text,
       notes: [],
       chatHistory: [],
+      ...(pendingMedia.length > 0 ? { media: [...pendingMedia] } : {}),
     };
     dispatch({ type: "UPDATE_POSTS", posts: [...state.posts, newPost] });
     setDraft("");
+    setPendingMedia([]);
+  }
+
+  function removePendingMedia(index: number) {
+    setPendingMedia((arr) => arr.filter((_, i) => i !== index));
   }
 
   return (
@@ -65,6 +74,9 @@ export default function FeedScreen() {
         </div>
         <div className="input-wrap">
           <div className="input-box">
+            {pendingMedia.length > 0 ? (
+              <PostMediaBlock media={pendingMedia} onRemove={removePendingMedia} />
+            ) : null}
             <textarea
               ref={taRef}
               id="feed-input"
@@ -77,20 +89,25 @@ export default function FeedScreen() {
                   e.preventDefault();
                   submitDraft();
                 }
+                if (e.key === "Backspace" && draft === "" && pendingMedia.length > 0) {
+                  e.preventDefault();
+                  setPendingMedia((arr) => arr.slice(0, -1));
+                }
               }}
             />
             <div className="input-bottom">
               <div className="input-tools">
                 <AttachMenu
                   scope="feed"
-                  onAttach={(att) => {
-                    const text =
-                      att.kind === "file"
-                        ? `Прикрепил файл: ${att.name}`
-                        : att.kind === "post"
-                          ? `@${att.title}`
-                          : `Прикрепил медиа из поста «${att.postTitle}»: ${att.media}`;
-                    setDraft((v) => (v.trim() ? `${v}\n${text}` : text));
+                  onAttach={async (att) => {
+                    if (att.kind === "file" && att.file) {
+                      try {
+                        const media = await readFileAsMedia(att.file);
+                        setPendingMedia((arr) => [...arr, media]);
+                      } catch {
+                        /* ignore read errors in demo */
+                      }
+                    }
                   }}
                 />
               </div>

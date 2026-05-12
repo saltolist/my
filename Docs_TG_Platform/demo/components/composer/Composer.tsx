@@ -5,6 +5,7 @@ import { useApp } from "@/state/AppContext";
 import { autoResize, postTitle, shortComposerLabel, truncate } from "@/lib/helpers";
 import type { ComposerAttachment, ComposerScope, Post } from "@/lib/types";
 import AttachMenu from "./AttachMenu";
+import ModelPicker, { BrainIcon, SearchIcon } from "./ModelPicker";
 
 type Props = {
   scope: ComposerScope;
@@ -17,6 +18,7 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
   const [value, setValue] = useState("");
   const [attachments, setAttachments] = useState<ComposerAttachment[]>([]);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const placement: "up" | "down" = scope === "home" ? "down" : "up";
 
   const cfg = state.aiProfileConfig;
   const target = state.composerTargets[scope];
@@ -142,50 +144,45 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
         />
         <div className="input-bottom">
           <div className="input-tools">
-            <AttachMenu scope={scope} onAttach={addAttachment} />
+            <AttachMenu scope={scope} onAttach={addAttachment} placement={placement} />
           </div>
           <div className="composer-mode">
             {!isMulti ? (
               <>
-                <select
-                  id={`composer-llm-${scope}`}
-                  className="composer-select"
+                <ModelPicker
+                  ariaLabel="LLM модель"
+                  icon={<BrainIcon />}
                   value={target?.llmId || ""}
-                  onChange={(e) => setComposerLlm(scope, e.target.value)}
+                  options={llmOptions.map((m) => ({
+                    id: m.id,
+                    label: shortComposerLabel(`${m.provider} / ${m.model}`),
+                  }))}
+                  onChange={(id) => setComposerLlm(scope, id)}
                   disabled={llmOptions.length === 0}
-                >
-                  {llmOptions.length > 0 ? (
-                    llmOptions.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {shortComposerLabel(`${m.provider} / ${m.model}`)}
-                      </option>
-                    ))
-                  ) : (
-                    <option value="">Нет LLM моделей</option>
-                  )}
-                </select>
-                <select
-                  id={`composer-web-${scope}`}
-                  className="composer-select"
+                  placeholderLabel="Нет LLM моделей"
+                  placement={placement}
+                />
+                <ModelPicker
+                  ariaLabel="Web Search модель"
+                  icon={<SearchIcon />}
                   value={target?.webId || ""}
-                  onChange={(e) => setComposerWeb(scope, e.target.value)}
-                >
-                  <option value="">Нет</option>
-                  {webOptions.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {shortComposerLabel(`${m.provider} / ${m.model}`)}
-                    </option>
-                  ))}
-                </select>
+                  options={webOptions.map((m) => ({
+                    id: m.id,
+                    label: shortComposerLabel(`${m.provider} / ${m.model}`),
+                  }))}
+                  onChange={(id) => setComposerWeb(scope, id)}
+                  emptyValue=""
+                  emptyLabel="Нет"
+                  placement={placement}
+                />
               </>
             ) : (
-              <input
-                id={`composer-multi-${scope}`}
-                className="composer-select composer-multi-input"
-                value="Мультиответ"
-                disabled
-                readOnly
-              />
+              <div className="model-picker is-static is-disabled">
+                <div className="model-picker-btn" aria-disabled="true">
+                  <span className="model-picker-icon"><BrainIcon /></span>
+                  <span className="model-picker-label">Мультиответ</span>
+                </div>
+              </div>
             )}
           </div>
           <div style={{ flex: 1 }} />

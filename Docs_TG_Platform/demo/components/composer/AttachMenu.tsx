@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useApp, postById } from "@/state/AppContext";
 import { getPostMediaItems, postTitle, truncate } from "@/lib/helpers";
 import type { ComposerAttachment, Post } from "@/lib/types";
@@ -10,7 +11,12 @@ export type AttachScope = "home" | "gchat" | "post" | "feed";
 type Props = {
   scope: AttachScope;
   onAttach: (att: ComposerAttachment) => void;
+  placement?: "up" | "down";
 };
+
+type Pos =
+  | { mode: "up"; bottom: number; left: number }
+  | { mode: "down"; top: number; left: number };
 
 type SubmenuKey = "posts" | "pinnedMedia" | null;
 
@@ -20,20 +26,38 @@ function nextAttachId(): string {
   return `att-${Date.now()}-${attachIdCounter}`;
 }
 
-export default function AttachMenu({ scope, onAttach }: Props) {
+export default function AttachMenu({ scope, onAttach, placement = "up" }: Props) {
   const { state } = useApp();
   const [open, setOpen] = useState(false);
   const [submenu, setSubmenu] = useState<SubmenuKey>(null);
+  const [pos, setPos] = useState<Pos | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const updatePos = () => {
+    const btn = btnRef.current;
+    if (!btn) return;
+    const r = btn.getBoundingClientRect();
+    if (placement === "down") {
+      setPos({ mode: "down", top: r.bottom + 6, left: r.left });
+    } else {
+      setPos({ mode: "up", bottom: window.innerHeight - r.top + 6, left: r.left });
+    }
+  };
+
+  useLayoutEffect(() => {
+    if (open) updatePos();
+  }, [open]);
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
-      if (!wrapRef.current) return;
-      if (!wrapRef.current.contains(e.target as Node)) {
-        setOpen(false);
-        setSubmenu(null);
-      }
+      const target = e.target as Node;
+      if (btnRef.current?.contains(target)) return;
+      if (dropdownRef.current?.contains(target)) return;
+      setOpen(false);
+      setSubmenu(null);
     }
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
@@ -41,11 +65,18 @@ export default function AttachMenu({ scope, onAttach }: Props) {
         setSubmenu(null);
       }
     }
-    document.addEventListener("click", onDocClick);
+    function onScroll() {
+      updatePos();
+    }
+    document.addEventListener("mousedown", onDocClick);
     document.addEventListener("keydown", onKey);
+    window.addEventListener("resize", onScroll);
+    window.addEventListener("scroll", onScroll, true);
     return () => {
-      document.removeEventListener("click", onDocClick);
+      document.removeEventListener("mousedown", onDocClick);
       document.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("scroll", onScroll, true);
     };
   }, []);
 
@@ -56,7 +87,7 @@ export default function AttachMenu({ scope, onAttach }: Props) {
   function onFilePicked(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
-      onAttach({ id: nextAttachId(), kind: "file", name: file.name });
+      onAttach({ id: nextAttachId(), kind: "file", name: file.name, file });
       setOpen(false);
       setSubmenu(null);
     }
@@ -79,20 +110,95 @@ export default function AttachMenu({ scope, onAttach }: Props) {
   }
 
   const currentPost = scope === "post" ? postById(state, state.currentPostId) : null;
-  const postMedia = currentPost ? getPostMediaItems(currentPost) : [];
+  const postMedia = currentPost ? getPostMediaItems(currentPost).map((m) => m.name) : [];
   const pinnedMedia = collectPinnedMedia(state.posts, state.pinnedPostIds);
   const feedPosts = state.posts;
+
+  const dropdownContent =
+    open && scope !== "feed" && pos ? (
+      <div
+        ref={dropdownRef}
+        className="ctx-dropdown attach-dropdown open"
+        style={
+          pos.mode === "down"
+            ? { top: pos.top, left: pos.left }
+            : { bottom: pos.bottom, left: pos.left }
+        }
+      >
+        {scope === "post" ? (
+          <PostScopeMenu
+            submenu={submenu}
+            setSubmenu={setSubmenu}
+            posts={feedPosts.filter((p) => p.id !== currentPost?.id)}
+            media={postMedia}
+            onPickPost={(p) => {
+              onAttach({ id: nextAttachId(), kind: "post", postId: p.id, title: postTitle(p) });
+              close();
+            }}
+            onPickMedia={(label) => {
+              if (currentPost) {
+                onAttach({
+                  id: nextAttachId(),
+                  kind: "media",
+                  postId: currentPost.id,
+                  postTitle: postTitle(currentPost),
+                  media: label,
+                });
+              }
+              close();
+            }}
+            onPickFile={() => {
+              pickFile();
+            }}
+          />
+        ) : (
+          <HomeScopeMenu
+            submenu={submenu}
+            setSubmenu={setSubmenu}
+            posts={feedPosts}
+            pinnedMedia={pinnedMedia}
+            onPickPost={(p) => {
+              onAttach({ id: nextAttachId(), kind: "post", postId: p.id, title: postTitle(p) });
+              close();
+            }}
+            onPickPinnedMedia={(item) => {
+              onAttach({
+                id: nextAttachId(),
+                kind: "media",
+                postId: item.postId,
+                postTitle: item.postTitle,
+                media: item.media,
+              });
+              close();
+            }}
+            onPickFile={pickFile}
+          />
+        )}
+      </div>
+    ) : null;
 
   return (
     <div className="ctx-wrap attach-wrap" ref={wrapRef}>
       <button
+        ref={btnRef}
         className="icon-btn attach-btn"
         title="Добавить"
         type="button"
         onClick={onTriggerClick}
         aria-label="Добавить"
       >
-        +
+        <svg
+          className="attach-btn-icon"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2.5}
+          strokeLinecap="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
       </button>
       <input
         type="file"
@@ -100,59 +206,9 @@ export default function AttachMenu({ scope, onAttach }: Props) {
         style={{ display: "none" }}
         onChange={onFilePicked}
       />
-      {open && scope !== "feed" ? (
-        <div className="ctx-dropdown attach-dropdown open">
-          {scope === "post" ? (
-            <PostScopeMenu
-              submenu={submenu}
-              setSubmenu={setSubmenu}
-              posts={feedPosts.filter((p) => p.id !== currentPost?.id)}
-              media={postMedia}
-              onPickPost={(p) => {
-                onAttach({ id: nextAttachId(), kind: "post", postId: p.id, title: postTitle(p) });
-                close();
-              }}
-              onPickMedia={(label) => {
-                if (currentPost) {
-                  onAttach({
-                    id: nextAttachId(),
-                    kind: "media",
-                    postId: currentPost.id,
-                    postTitle: postTitle(currentPost),
-                    media: label,
-                  });
-                }
-                close();
-              }}
-              onPickFile={() => {
-                pickFile();
-              }}
-            />
-          ) : (
-            <HomeScopeMenu
-              submenu={submenu}
-              setSubmenu={setSubmenu}
-              posts={feedPosts}
-              pinnedMedia={pinnedMedia}
-              onPickPost={(p) => {
-                onAttach({ id: nextAttachId(), kind: "post", postId: p.id, title: postTitle(p) });
-                close();
-              }}
-              onPickPinnedMedia={(item) => {
-                onAttach({
-                  id: nextAttachId(),
-                  kind: "media",
-                  postId: item.postId,
-                  postTitle: item.postTitle,
-                  media: item.media,
-                });
-                close();
-              }}
-              onPickFile={pickFile}
-            />
-          )}
-        </div>
-      ) : null}
+      {dropdownContent && typeof document !== "undefined"
+        ? createPortal(dropdownContent, document.body)
+        : null}
     </div>
   );
 }
@@ -356,11 +412,7 @@ type PinnedMediaItem = { postId: number; media: string; postTitle: string };
 function collectPinnedMedia(posts: Post[], pinned: number[]): PinnedMediaItem[] {
   return posts
     .filter((p) => pinned.includes(p.id))
-    .flatMap((p) => {
-      if (Array.isArray(p.media)) return p.media.map((m) => ({ postId: p.id, media: m, postTitle: postTitle(p) }));
-      if (typeof p.media === "string" && p.media.trim()) {
-        return [{ postId: p.id, media: p.media.trim(), postTitle: postTitle(p) }];
-      }
-      return [];
-    });
+    .flatMap((p) =>
+      (p.media ?? []).map((m) => ({ postId: p.id, media: m.name, postTitle: postTitle(p) })),
+    );
 }

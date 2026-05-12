@@ -50,6 +50,12 @@ export type GlobalNote = {
 
 export type PostMetrics = { views: string; reactions: number; reposts: number };
 
+export type PostMedia = {
+  name: string;
+  url: string;
+  type: string;
+};
+
 export type Post = {
   id: number;
   status: PostStatus;
@@ -58,7 +64,7 @@ export type Post = {
   rubric: string | null;
   metrics?: PostMetrics;
   text: string;
-  media?: string | string[];
+  media?: PostMedia[];
   notes: LocalNote[];
   chatHistory: ChatMessage[];
 };
@@ -123,5 +129,5 @@ export type ActiveNote =
 
 export type ComposerAttachment =
   | { id: string; kind: "post"; postId: number; title: string }
-  | { id: string; kind: "file"; name: string }
+  | { id: string; kind: "file"; name: string; file?: File }
   | { id: string; kind: "media"; postId: number; postTitle: string; media: string };
