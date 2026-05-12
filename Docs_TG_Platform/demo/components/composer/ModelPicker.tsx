@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 export type ModelOption = { id: string; label: string };
 
 type Props = {
-  icon: ReactNode;
+  icon?: ReactNode;
   value: string;
   options: ModelOption[];
   onChange: (id: string) => void;
@@ -16,6 +16,7 @@ type Props = {
   disabled?: boolean;
   ariaLabel?: string;
   placement?: "up" | "down";
+  className?: string;
 };
 
 type Pos =
@@ -33,6 +34,7 @@ export default function ModelPicker({
   disabled,
   ariaLabel,
   placement = "up",
+  className,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<Pos | null>(null);
@@ -88,7 +90,7 @@ export default function ModelPicker({
   const isDisabled = disabled || (options.length === 0 && emptyValue === undefined);
 
   return (
-    <div className={`model-picker${open ? " is-open" : ""}${isDisabled ? " is-disabled" : ""}`}>
+    <div className={`model-picker${open ? " is-open" : ""}${isDisabled ? " is-disabled" : ""}${className ? ` ${className}` : ""}`}>
       <button
         ref={btnRef}
         type="button"
@@ -102,7 +104,7 @@ export default function ModelPicker({
           if (!isDisabled) setOpen((v) => !v);
         }}
       >
-        <span className="model-picker-icon">{icon}</span>
+        {icon ? <span className="model-picker-icon">{icon}</span> : null}
         <span className="model-picker-label">{label}</span>
         <svg
           className="model-picker-chevron"

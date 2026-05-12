@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useApp } from "@/state/AppContext";
 import type { TelegramProfileConfig, TelegramSyncMode } from "@/lib/types";
+import ModelPicker from "@/components/composer/ModelPicker";
 
 export default function TelegramBlock() {
   const { state, dispatch, setDirty } = useApp();
@@ -151,7 +152,7 @@ export default function TelegramBlock() {
         </button>
         <div className={`telegram-code-row${codeHidden ? " hidden" : ""}`}>
           <input
-            className="profile-input telegram-code-input"
+            className="profile-input profile-input-explicit telegram-code-input"
             placeholder="Код из Telegram"
             maxLength={8}
             value={code}
@@ -173,15 +174,18 @@ export default function TelegramBlock() {
           />
           <div className="profile-row">
             <div className="profile-label">Режим синхронизации</div>
-            <select
-              className="profile-input telegram-input"
+            <ModelPicker
+              ariaLabel="Режим синхронизации"
+              className="profile-model-picker telegram-input"
               value={cfg.syncMode}
-              onChange={(e) => update({ syncMode: e.target.value as TelegramSyncMode })}
-            >
-              <option value="live-only">Только новые посты</option>
-              <option value="history-and-live">История + новые посты</option>
-              <option value="publish-only">Только публикация</option>
-            </select>
+              options={[
+                { id: "live-only", label: "Только новые посты" },
+                { id: "history-and-live", label: "История + новые посты" },
+                { id: "publish-only", label: "Только публикация" },
+              ]}
+              placement="down"
+              onChange={(v) => update({ syncMode: v as TelegramSyncMode })}
+            />
           </div>
         </div>
         <div className="telegram-action-row">
@@ -239,7 +243,7 @@ function Field({
     <div className="profile-row">
       <div className="profile-label">{label}</div>
       <input
-        className="profile-input telegram-input"
+        className="profile-input profile-input-explicit telegram-input"
         type={type}
         value={value}
         placeholder={placeholder}

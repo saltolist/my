@@ -16,7 +16,7 @@ export default function FeedScreen() {
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (taRef.current) autoResize(taRef.current);
+    if (taRef.current) autoResize(taRef.current, 16);
   }, [draft]);
 
   const published = state.posts.filter((p) => p.status === "published");

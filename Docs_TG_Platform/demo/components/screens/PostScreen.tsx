@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { postById, useApp } from "@/state/AppContext";
 import { postTitle, readFileAsMedia, truncate } from "@/lib/helpers";
 import Composer from "../composer/Composer";
@@ -233,6 +233,14 @@ const PostMessageCard = ({
     return () => window.clearTimeout(id);
   }, [isEditing, ref]);
 
+  useLayoutEffect(() => {
+    if (!isEditing) return;
+    const ta = taRef.current;
+    if (!ta) return;
+    ta.style.height = "auto";
+    ta.style.height = ta.scrollHeight + "px";
+  }, [isEditing, draft]);
+
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
@@ -251,12 +259,6 @@ const PostMessageCard = ({
       <div className="post-msg-label">Вы</div>
       {isEditing ? (
         <>
-          <textarea
-            ref={taRef}
-            className="post-msg-textarea"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-          />
           {mediaDraft.length > 0 ? (
             <div className="post-msg-media-edit">
               <PostMediaBlock
@@ -265,6 +267,12 @@ const PostMessageCard = ({
               />
             </div>
           ) : null}
+          <textarea
+            ref={taRef}
+            className="post-msg-textarea"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+          />
           <input
             type="file"
             ref={fileRef}

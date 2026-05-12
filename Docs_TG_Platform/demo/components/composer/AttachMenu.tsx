@@ -3,8 +3,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useApp, postById } from "@/state/AppContext";
-import { getPostMediaItems, postTitle, truncate } from "@/lib/helpers";
-import type { ComposerAttachment, Post } from "@/lib/types";
+import { getPostMediaItems, isImageMedia, isVideoMedia, postTitle, truncate } from "@/lib/helpers";
+import type { ComposerAttachment, Post, PostMedia } from "@/lib/types";
 
 export type AttachScope = "home" | "gchat" | "post" | "feed";
 
@@ -12,13 +12,14 @@ type Props = {
   scope: AttachScope;
   onAttach: (att: ComposerAttachment) => void;
   placement?: "up" | "down";
+  attachments?: ComposerAttachment[];
 };
 
 type Pos =
   | { mode: "up"; bottom: number; left: number }
   | { mode: "down"; top: number; left: number };
 
-type SubmenuKey = "posts" | "pinnedMedia" | null;
+type SubmenuKey = "posts" | "pinnedMedia" | "postMedia" | null;
 
 let attachIdCounter = 0;
 function nextAttachId(): string {
@@ -26,7 +27,12 @@ function nextAttachId(): string {
   return `att-${Date.now()}-${attachIdCounter}`;
 }
 
-export default function AttachMenu({ scope, onAttach, placement = "up" }: Props) {
+export default function AttachMenu({
+  scope,
+  onAttach,
+  placement = "up",
+  attachments = [],
+}: Props) {
   const { state } = useApp();
   const [open, setOpen] = useState(false);
   const [submenu, setSubmenu] = useState<SubmenuKey>(null);
@@ -110,15 +116,18 @@ export default function AttachMenu({ scope, onAttach, placement = "up" }: Props)
   }
 
   const currentPost = scope === "post" ? postById(state, state.currentPostId) : null;
-  const postMedia = currentPost ? getPostMediaItems(currentPost).map((m) => m.name) : [];
-  const pinnedMedia = collectPinnedMedia(state.posts, state.pinnedPostIds);
-  const feedPosts = state.posts;
+  const postMedia: PostMedia[] = currentPost ? getPostMediaItems(currentPost) : [];
+  const attachedPostIds = attachments
+    .filter((a): a is Extract<ComposerAttachment, { kind: "post" }> => a.kind === "post")
+    .map((a) => a.postId);
+  const attachedPostsMedia = collectAttachedMedia(state.posts, attachedPostIds);
+  const feedPosts = state.posts.filter((p) => !attachedPostIds.includes(p.id));
 
   const dropdownContent =
     open && scope !== "feed" && pos ? (
       <div
         ref={dropdownRef}
-        className="ctx-dropdown attach-dropdown open"
+        className={`ctx-dropdown attach-dropdown open attach-dropdown-${pos.mode}`}
         style={
           pos.mode === "down"
             ? { top: pos.top, left: pos.left }
@@ -131,20 +140,33 @@ export default function AttachMenu({ scope, onAttach, placement = "up" }: Props)
             setSubmenu={setSubmenu}
             posts={feedPosts.filter((p) => p.id !== currentPost?.id)}
             media={postMedia}
+            postTitleText={currentPost ? postTitle(currentPost) : ""}
+            attachedMedia={attachedPostsMedia}
+            hasAttachedPosts={attachedPostIds.length > 0}
             onPickPost={(p) => {
               onAttach({ id: nextAttachId(), kind: "post", postId: p.id, title: postTitle(p) });
               close();
             }}
-            onPickMedia={(label) => {
+            onPickMedia={(media) => {
               if (currentPost) {
                 onAttach({
                   id: nextAttachId(),
                   kind: "media",
                   postId: currentPost.id,
                   postTitle: postTitle(currentPost),
-                  media: label,
+                  media: media.name,
                 });
               }
+              close();
+            }}
+            onPickAttachedMedia={(item) => {
+              onAttach({
+                id: nextAttachId(),
+                kind: "media",
+                postId: item.postId,
+                postTitle: item.postTitle,
+                media: item.media.name,
+              });
               close();
             }}
             onPickFile={() => {
@@ -156,18 +178,19 @@ export default function AttachMenu({ scope, onAttach, placement = "up" }: Props)
             submenu={submenu}
             setSubmenu={setSubmenu}
             posts={feedPosts}
-            pinnedMedia={pinnedMedia}
+            attachedMedia={attachedPostsMedia}
+            hasAttachedPosts={attachedPostIds.length > 0}
             onPickPost={(p) => {
               onAttach({ id: nextAttachId(), kind: "post", postId: p.id, title: postTitle(p) });
               close();
             }}
-            onPickPinnedMedia={(item) => {
+            onPickAttachedMedia={(item) => {
               onAttach({
                 id: nextAttachId(),
                 kind: "media",
                 postId: item.postId,
                 postTitle: item.postTitle,
-                media: item.media,
+                media: item.media.name,
               });
               close();
             }}
@@ -217,20 +240,22 @@ function HomeScopeMenu({
   submenu,
   setSubmenu,
   posts,
-  pinnedMedia,
+  attachedMedia,
+  hasAttachedPosts,
   onPickPost,
-  onPickPinnedMedia,
+  onPickAttachedMedia,
   onPickFile,
 }: {
   submenu: SubmenuKey;
   setSubmenu: (k: SubmenuKey) => void;
   posts: Post[];
-  pinnedMedia: PinnedMediaItem[];
+  attachedMedia: AttachedMediaItem[];
+  hasAttachedPosts: boolean;
   onPickPost: (p: Post) => void;
-  onPickPinnedMedia: (item: PinnedMediaItem) => void;
+  onPickAttachedMedia: (item: AttachedMediaItem) => void;
   onPickFile: () => void;
 }) {
-  const hasPinnedMedia = pinnedMedia.length > 0;
+  const hasAttachedMedia = attachedMedia.length > 0;
   return (
     <>
       <div
@@ -278,7 +303,7 @@ function HomeScopeMenu({
         </span>
       </div>
 
-      {hasPinnedMedia ? (
+      {hasAttachedPosts ? (
         <div
           className={`ctx-item attach-parent${submenu === "pinnedMedia" ? " active" : ""}`}
           onClick={(e) => {
@@ -288,29 +313,25 @@ function HomeScopeMenu({
         >
           <span className="attach-item-label">
             <span className="attach-item-icon">🖼</span>
-            Медиа из закреплённых постов
+            Медиа из прикреплённых постов
           </span>
           <span className="attach-chevron">›</span>
           {submenu === "pinnedMedia" ? (
             <div
-              className="ctx-dropdown attach-submenu open"
+              className="ctx-dropdown attach-submenu attach-media-submenu open"
               onClick={(e) => e.stopPropagation()}
             >
-              {pinnedMedia.map((item, i) => (
-                <div
-                  key={i}
-                  className="ctx-item"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onPickPinnedMedia(item);
-                  }}
-                >
-                  <span className="attach-item-icon">🖼</span>
-                  <span className="attach-pinned-label">
-                    <b>{truncate(item.postTitle, 18)}</b>: {truncate(String(item.media), 24)}
-                  </span>
-                </div>
-              ))}
+              {hasAttachedMedia ? (
+                <MediaGrid
+                  items={attachedMedia.map((item) => ({
+                    media: item.media,
+                    title: `${item.postTitle}: ${item.media.name}`,
+                    onPick: () => onPickAttachedMedia(item),
+                  }))}
+                />
+              ) : (
+                <div className="ctx-item disabled">У прикреплённых постов нет медиа</div>
+              )}
             </div>
           ) : null}
         </div>
@@ -324,18 +345,28 @@ function PostScopeMenu({
   setSubmenu,
   posts,
   media,
+  postTitleText,
+  attachedMedia,
+  hasAttachedPosts,
   onPickPost,
   onPickMedia,
+  onPickAttachedMedia,
   onPickFile,
 }: {
   submenu: SubmenuKey;
   setSubmenu: (k: SubmenuKey) => void;
   posts: Post[];
-  media: string[];
+  media: PostMedia[];
+  postTitleText: string;
+  attachedMedia: AttachedMediaItem[];
+  hasAttachedPosts: boolean;
   onPickPost: (p: Post) => void;
-  onPickMedia: (label: string) => void;
+  onPickMedia: (media: PostMedia) => void;
+  onPickAttachedMedia: (item: AttachedMediaItem) => void;
   onPickFile: () => void;
 }) {
+  const hasMedia = media.length > 0;
+  const hasAttachedMedia = attachedMedia.length > 0;
   return (
     <>
       <div
@@ -376,23 +407,70 @@ function PostScopeMenu({
         ) : null}
       </div>
 
-      {media.length > 0 ? (
-        media.map((m, i) => (
-          <div
-            key={i}
-            className="ctx-item"
-            onClick={(e) => {
-              e.stopPropagation();
-              onPickMedia(m);
-            }}
-          >
+      {hasMedia ? (
+        <div
+          className={`ctx-item attach-parent${submenu === "postMedia" ? " active" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            setSubmenu(submenu === "postMedia" ? null : "postMedia");
+          }}
+        >
+          <span className="attach-item-label">
             <span className="attach-item-icon">🖼</span>
-            Медиа из поста: {truncate(String(m), 28)}
-          </div>
-        ))
+            Медиа из поста
+          </span>
+          <span className="attach-chevron">›</span>
+          {submenu === "postMedia" ? (
+            <div
+              className="ctx-dropdown attach-submenu attach-media-submenu open"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MediaGrid
+                items={media.map((m) => ({
+                  media: m,
+                  title: `${postTitleText}: ${m.name}`,
+                  onPick: () => onPickMedia(m),
+                }))}
+              />
+            </div>
+          ) : null}
+        </div>
       ) : (
         <div className="ctx-item disabled">🖼 В посте нет медиа</div>
       )}
+      {hasAttachedPosts ? (
+        <div
+          className={`ctx-item attach-parent${submenu === "pinnedMedia" ? " active" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            setSubmenu(submenu === "pinnedMedia" ? null : "pinnedMedia");
+          }}
+        >
+          <span className="attach-item-label">
+            <span className="attach-item-icon">🖼</span>
+            Медиа из прикреплённых постов
+          </span>
+          <span className="attach-chevron">›</span>
+          {submenu === "pinnedMedia" ? (
+            <div
+              className="ctx-dropdown attach-submenu attach-media-submenu open"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {hasAttachedMedia ? (
+                <MediaGrid
+                  items={attachedMedia.map((item) => ({
+                    media: item.media,
+                    title: `${item.postTitle}: ${item.media.name}`,
+                    onPick: () => onPickAttachedMedia(item),
+                  }))}
+                />
+              ) : (
+                <div className="ctx-item disabled">У прикреплённых постов нет медиа</div>
+              )}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
       <div className="ctx-item" onClick={onPickFile}>
         <span className="attach-item-icon">📎</span>
         Загрузить с компьютера
@@ -401,18 +479,61 @@ function PostScopeMenu({
   );
 }
 
+function MediaGrid({
+  items,
+}: {
+  items: Array<{ media: PostMedia; title: string; onPick: () => void }>;
+}) {
+  if (items.length === 0) return <div className="ctx-item disabled">Нет медиа</div>;
+  const n = items.length;
+  const cols = n === 1 ? 1 : n === 2 ? 2 : n === 4 ? 2 : 3;
+  return (
+    <div
+      className="attach-media-grid"
+      data-count={n}
+      style={{ gridTemplateColumns: `repeat(${cols}, 72px)` }}
+    >
+      {items.map((it, i) => (
+        <button
+          key={`${it.media.name}-${i}`}
+          type="button"
+          className="attach-media-thumb"
+          title={it.title}
+          onClick={(e) => {
+            e.stopPropagation();
+            it.onPick();
+          }}
+        >
+          <MediaThumbInner media={it.media} />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function MediaThumbInner({ media }: { media: PostMedia }) {
+  if (isImageMedia(media) && media.url) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img className="attach-media-thumb-img" src={media.url} alt={media.name} />;
+  }
+  if (isVideoMedia(media) && media.url) {
+    return <video className="attach-media-thumb-img" src={media.url} muted playsInline preload="metadata" />;
+  }
+  return <span className="attach-media-thumb-doc" aria-hidden="true">📎</span>;
+}
+
 function statusIcon(p: Post): string {
   if (p.status === "published") return "📢";
   if (p.status === "scheduled") return "🕐";
   return "📝";
 }
 
-type PinnedMediaItem = { postId: number; media: string; postTitle: string };
+type AttachedMediaItem = { postId: number; media: PostMedia; postTitle: string };
 
-function collectPinnedMedia(posts: Post[], pinned: number[]): PinnedMediaItem[] {
+function collectAttachedMedia(posts: Post[], attachedIds: number[]): AttachedMediaItem[] {
   return posts
-    .filter((p) => pinned.includes(p.id))
+    .filter((p) => attachedIds.includes(p.id))
     .flatMap((p) =>
-      (p.media ?? []).map((m) => ({ postId: p.id, media: m.name, postTitle: postTitle(p) })),
+      (p.media ?? []).map((m) => ({ postId: p.id, media: m, postTitle: postTitle(p) })),
     );
 }

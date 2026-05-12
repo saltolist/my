@@ -22,9 +22,26 @@ export function shortComposerLabel(value: string, maxLen = 22): string {
   return text.slice(0, Math.max(0, maxLen - 2)) + "..";
 }
 
-export function autoResize(el: HTMLTextAreaElement): void {
+export function autoResize(el: HTMLTextAreaElement, maxLines: number = 5): void {
+  const cs = window.getComputedStyle(el);
+  let lineHeight = parseFloat(cs.lineHeight);
+  if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
+    lineHeight = parseFloat(cs.fontSize) * 1.4;
+  }
+  const paddingTop = parseFloat(cs.paddingTop) || 0;
+  const paddingBottom = parseFloat(cs.paddingBottom) || 0;
+  const borderTop = parseFloat(cs.borderTopWidth) || 0;
+  const borderBottom = parseFloat(cs.borderBottomWidth) || 0;
+  const maxHeight = lineHeight * maxLines + paddingTop + paddingBottom + borderTop + borderBottom;
   el.style.height = "auto";
-  el.style.height = Math.min(el.scrollHeight, 120) + "px";
+  const desired = el.scrollHeight;
+  if (desired > maxHeight) {
+    el.style.height = maxHeight + "px";
+    el.style.overflowY = "auto";
+  } else {
+    el.style.height = desired + "px";
+    el.style.overflowY = "hidden";
+  }
 }
 
 export function getPostMediaItems(post: Post | null | undefined): PostMedia[] {

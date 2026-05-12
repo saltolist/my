@@ -30,7 +30,7 @@ export default function SystemPromptBlock() {
       <div className="profile-section-title">Системный промпт</div>
       <div className="profile-row">
         <textarea
-          className="profile-input profile-textarea"
+          className="profile-input profile-input-explicit profile-textarea"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
         />

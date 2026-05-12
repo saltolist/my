@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useApp } from "@/state/AppContext";
 import { LLM_PROVIDER_MODELS, WEB_SEARCH_PROVIDER_MODELS } from "@/lib/composer-config";
 import type { AiProfileConfig, LlmModel } from "@/lib/types";
+import ModelPicker from "@/components/composer/ModelPicker";
 
 export default function AiModelsBlock() {
   const { state, dispatch, multiResponsePairs, setDirty } = useApp();
@@ -134,40 +135,34 @@ function ModelRow({
   providerMap: Record<string, string[]>;
   onChange: (patch: Partial<LlmModel>) => void;
 }) {
-  const models = providerMap[model.provider] || [];
+  const providerOptions = Object.keys(providerMap).map((p) => ({ id: p, label: p }));
+  const modelOptions = (providerMap[model.provider] || []).map((m) => ({ id: m, label: m }));
   return (
     <div className="profile-model-row">
-      <select
-        className="profile-input profile-model-provider"
+      <ModelPicker
+        ariaLabel="Провайдер"
+        className="profile-model-picker profile-model-provider"
         value={model.provider}
-        onChange={(e) => {
-          const provider = e.target.value;
+        options={providerOptions}
+        placeholderLabel="Выберите провайдера"
+        placement="down"
+        onChange={(provider) => {
           const next = provider ? providerMap[provider]?.[0] || "" : "";
           onChange({ provider, model: next, apiKey: provider ? model.apiKey : "" });
         }}
-      >
-        <option value="">Выберите провайдера</option>
-        {Object.keys(providerMap).map((p) => (
-          <option key={p} value={p}>
-            {p}
-          </option>
-        ))}
-      </select>
-      <select
-        className="profile-input profile-model-name"
+      />
+      <ModelPicker
+        ariaLabel="Модель"
+        className="profile-model-picker profile-model-name"
         value={model.model}
-        onChange={(e) => onChange({ model: e.target.value })}
+        options={modelOptions}
         disabled={!model.provider}
-      >
-        <option value="">Выберите модель</option>
-        {models.map((n) => (
-          <option key={n} value={n}>
-            {n}
-          </option>
-        ))}
-      </select>
+        placeholderLabel="Выберите модель"
+        placement="down"
+        onChange={(value) => onChange({ model: value })}
+      />
       <input
-        className="profile-input profile-model-key"
+        className="profile-input profile-input-explicit profile-model-key"
         type="password"
         value={model.apiKey}
         placeholder="API key"

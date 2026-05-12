@@ -26,9 +26,11 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
   const webOptions = cfg.webSearchModels.filter((m) => m.provider && m.model && m.active);
   const isMulti = cfg.multiResponseEnabled;
 
+  const maxLines = scope === "home" ? 10 : 16;
+
   useEffect(() => {
-    if (taRef.current) autoResize(taRef.current);
-  }, [value]);
+    if (taRef.current) autoResize(taRef.current, maxLines);
+  }, [value, maxLines]);
 
   function addAttachment(att: ComposerAttachment) {
     setAttachments((prev) => {
@@ -144,7 +146,12 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
         />
         <div className="input-bottom">
           <div className="input-tools">
-            <AttachMenu scope={scope} onAttach={addAttachment} placement={placement} />
+            <AttachMenu
+              scope={scope}
+              onAttach={addAttachment}
+              placement={placement}
+              attachments={attachments}
+            />
           </div>
           <div className="composer-mode">
             {!isMulti ? (
