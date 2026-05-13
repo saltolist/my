@@ -14,6 +14,7 @@ export default function DraftsSection({ drafts }: { drafts: Post[] }) {
   const [indicator, setIndicator] = useState<{ beforeId: number | null } | null>(null);
 
   const dragGhostRef = useRef<HTMLElement | null>(null);
+  const committedSlotRef = useRef<number | null>(null);
 
   const setIndicatorBoth = useCallback((next: { beforeId: number | null } | null) => {
     indicatorRef.current = next;
@@ -22,6 +23,7 @@ export default function DraftsSection({ drafts }: { drafts: Post[] }) {
 
   const onDragStart = (id: number) => (e: React.DragEvent) => {
     draggingIdRef.current = id;
+    committedSlotRef.current = null;
     e.dataTransfer.effectAllowed = "move";
     try {
       e.dataTransfer.setData("text/plain", String(id));
@@ -84,38 +86,95 @@ export default function DraftsSection({ drafts }: { drafts: Post[] }) {
     const el = cardRefs.current.get(id);
     if (el) el.classList.remove("is-dragging");
     setIndicatorBoth(null);
+    committedSlotRef.current = null;
   };
 
-  const onDragOverCard = (id: number) => (e: React.DragEvent) => {
+  const slotToBeforeId = (slot: number, orderedIds: number[]): number | null => {
+    if (slot >= orderedIds.length) return null;
+    return orderedIds[slot];
+  };
+
+  /** Гистерезис: слот сдвигается по границам mids только после HY px «перетяга» */
+  const stabilizeSlot = (y: number, rawSlot: number, mids: number[], n: number): number => {
+    const HY = 12;
+    if (n <= 1) {
+      committedSlotRef.current = rawSlot;
+      return rawSlot;
+    }
+    let slot = committedSlotRef.current ?? rawSlot;
+    if (rawSlot > slot) {
+      while (slot < rawSlot) {
+        if (y >= mids[slot] + HY) slot++;
+        else break;
+      }
+    } else if (rawSlot < slot) {
+      while (slot > rawSlot) {
+        if (y <= mids[slot - 1] - HY) slot--;
+        else break;
+      }
+    }
+    committedSlotRef.current = slot;
+    return slot;
+  };
+
+  const yToRawSlot = (y: number, items: { id: number; r: DOMRect }[]): number => {
+    const n = items.length;
+    if (n === 0) return 0;
+    if (n === 1) return y < items[0].r.bottom ? 0 : 1;
+    const mids: number[] = [];
+    for (let i = 0; i < n - 1; i++) {
+      mids.push((items[i].r.bottom + items[i + 1].r.top) / 2);
+    }
+    if (y < mids[0]) return 0;
+    for (let i = 1; i < mids.length; i++) {
+      if (y < mids[i]) return i;
+    }
+    if (y < items[n - 1].r.bottom) return n - 1;
+    return n;
+  };
+
+  const onDraftsDragOver = (e: React.DragEvent) => {
     const dragId = draggingIdRef.current;
     if (dragId == null) return;
     e.preventDefault();
     e.stopPropagation();
     e.dataTransfer.dropEffect = "move";
-    if (id === dragId) {
+
+    const items = drafts
+      .map((d) => {
+        const el = cardRefs.current.get(d.id);
+        const r = el?.getBoundingClientRect();
+        return r && r.height > 0 ? { id: d.id, r } : null;
+      })
+      .filter((x): x is { id: number; r: DOMRect } => x != null);
+
+    if (items.length === 0) {
       setIndicatorBoth(null);
       return;
     }
-    const el = cardRefs.current.get(id);
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const before = e.clientY - rect.top < rect.height / 2;
-    if (before) {
-      setIndicatorBoth({ beforeId: id });
-    } else {
-      const idx = drafts.findIndex((d) => d.id === id);
-      const next = drafts[idx + 1];
-      setIndicatorBoth({ beforeId: next ? next.id : null });
-    }
-  };
 
-  const onContainerDragOver = (e: React.DragEvent) => {
-    if (draggingIdRef.current == null) return;
-    e.preventDefault();
-    const overDraft = (e.target as HTMLElement).closest("[data-draft-id]");
-    if (overDraft) return;
-    e.stopPropagation();
-    setIndicatorBoth({ beforeId: null });
+    const y = e.clientY;
+    const n = items.length;
+    const mids: number[] = [];
+    for (let i = 0; i < n - 1; i++) {
+      mids.push((items[i].r.bottom + items[i + 1].r.top) / 2);
+    }
+
+    const raw = yToRawSlot(y, items);
+    const slot = stabilizeSlot(y, raw, mids, n);
+    const orderedIds = items.map((x) => x.id);
+    let beforeId = slotToBeforeId(slot, orderedIds);
+
+    if (beforeId === dragId) {
+      const idx = orderedIds.indexOf(dragId);
+      const nextId = idx >= 0 ? orderedIds[idx + 1] : null;
+      beforeId = nextId ?? null;
+    }
+
+    const next = { beforeId };
+    const cur = indicatorRef.current;
+    if (cur?.beforeId === next.beforeId) return;
+    setIndicatorBoth(next);
   };
 
   const onDrop = (e: React.DragEvent) => {
@@ -126,6 +185,7 @@ export default function DraftsSection({ drafts }: { drafts: Post[] }) {
     reorder(dragId, indicatorRef.current?.beforeId ?? null);
     draggingIdRef.current = null;
     setIndicatorBoth(null);
+    committedSlotRef.current = null;
   };
 
   const reorder = (sourceId: number, beforeId: number | null) => {
@@ -153,9 +213,9 @@ export default function DraftsSection({ drafts }: { drafts: Post[] }) {
     <div className="feed-section">
       <div className="section-label">Черновики</div>
       <div
-        className="feed-section-cards"
+        className="feed-section-cards draft-cards-stack"
         ref={containerRef}
-        onDragOver={onContainerDragOver}
+        onDragOver={onDraftsDragOver}
         onDrop={onDrop}
       >
         {drafts.map((p) => (
@@ -167,8 +227,6 @@ export default function DraftsSection({ drafts }: { drafts: Post[] }) {
                 else cardRefs.current.delete(p.id);
               }}
               data-draft-id={p.id}
-              onDragOver={onDragOverCard(p.id)}
-              onDrop={onDrop}
             >
               <PostCard
                 post={p}

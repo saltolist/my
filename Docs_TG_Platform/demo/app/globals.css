@@ -920,6 +920,12 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   margin: 28px 0 16px;
 }
 .feed-section-cards { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.draft-cards-stack {
+  gap: 0;
+}
+.draft-cards-stack .draft-card-wrap:not(:last-child) {
+  margin-bottom: 10px;
+}
 .draft-card-wrap {
   width: 500px;
   max-width: 100%;
