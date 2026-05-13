@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useApp } from "@/state/AppContext";
 import type { Post } from "@/lib/types";
 import PostCard from "./PostCard";
@@ -15,6 +15,34 @@ export default function DraftsSection({ drafts }: { drafts: Post[] }) {
 
   const dragGhostRef = useRef<HTMLElement | null>(null);
   const committedSlotRef = useRef<number | null>(null);
+
+  /** Прокрутка ленты у верха/низа экрана и у краёв блока ленты во время drag */
+  const onDocumentDragOverForFeedScroll = useCallback((e: DragEvent) => {
+    if (draggingIdRef.current == null) return;
+    const feed = document.getElementById("feed-scroll") as HTMLElement | null;
+    if (!feed) return;
+    const y = e.clientY;
+    const vh = window.innerHeight;
+    const fr = feed.getBoundingClientRect();
+    const EDGE_VIEW = 80;
+    const INNER = 56;
+    const MAX_STEP = 26;
+    let delta = 0;
+    if (y < EDGE_VIEW) {
+      delta = -Math.ceil((MAX_STEP * (EDGE_VIEW - y)) / EDGE_VIEW);
+    } else if (y < fr.top + INNER) {
+      const span = Math.max(1, fr.top + INNER);
+      delta = -Math.ceil((MAX_STEP * (span - y)) / INNER);
+    } else if (y > vh - EDGE_VIEW) {
+      delta = Math.ceil((MAX_STEP * (y - (vh - EDGE_VIEW))) / EDGE_VIEW);
+    } else if (y > fr.bottom - INNER) {
+      const span = Math.max(1, INNER);
+      delta = Math.ceil((MAX_STEP * (y - (fr.bottom - INNER))) / span);
+    }
+    if (delta !== 0) {
+      feed.scrollTop += delta;
+    }
+  }, []);
 
   const setIndicatorBoth = useCallback((next: { beforeId: number | null } | null) => {
     indicatorRef.current = next;
@@ -77,9 +105,12 @@ export default function DraftsSection({ drafts }: { drafts: Post[] }) {
       const el = cardRefs.current.get(id);
       if (el) el.classList.add("is-dragging");
     });
+
+    document.addEventListener("dragover", onDocumentDragOverForFeedScroll, true);
   };
 
   const onDragEnd = (id: number) => () => {
+    document.removeEventListener("dragover", onDocumentDragOverForFeedScroll, true);
     draggingIdRef.current = null;
     dragGhostRef.current?.remove();
     dragGhostRef.current = null;
@@ -182,6 +213,7 @@ export default function DraftsSection({ drafts }: { drafts: Post[] }) {
     if (dragId == null) return;
     e.preventDefault();
     e.stopPropagation();
+    document.removeEventListener("dragover", onDocumentDragOverForFeedScroll, true);
     reorder(dragId, indicatorRef.current?.beforeId ?? null);
     draggingIdRef.current = null;
     setIndicatorBoth(null);
@@ -208,6 +240,12 @@ export default function DraftsSection({ drafts }: { drafts: Post[] }) {
     posts.splice(insertAt, 0, item);
     dispatch({ type: "REORDER_POSTS", posts });
   };
+
+  useEffect(() => {
+    return () => {
+      document.removeEventListener("dragover", onDocumentDragOverForFeedScroll, true);
+    };
+  }, [onDocumentDragOverForFeedScroll]);
 
   return (
     <div className="feed-section">

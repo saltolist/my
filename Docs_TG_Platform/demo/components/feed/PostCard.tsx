@@ -49,21 +49,33 @@ export default function PostCard({
     ) : null;
 
   const mediaItems = getPostMediaItems(post);
+  const isDraftDnD = post.status === "draft" && !!draftHandleProps;
+
+  const draftDragHandle = isDraftDnD && draftHandleProps && (
+    <div
+      className="drag-handle"
+      title="Перетащить"
+      draggable
+      onClick={draftHandleProps.onClickStop}
+      onMouseDown={draftHandleProps.onMouseDown}
+      onDragStart={draftHandleProps.onDragStart}
+      onDragEnd={draftHandleProps.onDragEnd}
+    >
+      <span className="drag-handle-dots" aria-hidden>
+        {Array.from({ length: 6 }, (_, i) => (
+          <span key={i} className="drag-handle-dot" />
+        ))}
+      </span>
+    </div>
+  );
 
   return (
-    <div className="post-card" onClick={onOpen}>
-      {post.status === "draft" && draftHandleProps ? (
-        <div
-          className="drag-handle"
-          title="Перетащить"
-          draggable
-          onClick={draftHandleProps.onClickStop}
-          onMouseDown={draftHandleProps.onMouseDown}
-          onDragStart={draftHandleProps.onDragStart}
-          onDragEnd={draftHandleProps.onDragEnd}
-        >
-          ⠿
-        </div>
+    <div
+      className={isDraftDnD ? "post-card post-card--draft-dnd" : "post-card"}
+      onClick={onOpen}
+    >
+      {isDraftDnD ? (
+        <div className="draft-drag-handle-rail">{draftDragHandle}</div>
       ) : null}
       <div className="post-card-body">
         {mediaItems.length > 0 ? (
