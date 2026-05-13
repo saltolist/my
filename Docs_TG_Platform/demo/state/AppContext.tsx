@@ -141,6 +141,8 @@ type Action =
   | { type: "ADD_GLOBAL_CHAT"; chat: GlobalChat }
   | { type: "PUSH_GLOBAL_CHAT"; chatId: string; message: ChatMessage }
   | { type: "DELETE_GLOBAL_CHAT"; chatId: string }
+  | { type: "RENAME_GLOBAL_CHAT"; chatId: string; title: string }
+  | { type: "RENAME_LOCAL_CHAT"; postId: number; chatId: number; title: string }
   | { type: "UPDATE_GLOBAL_NOTES"; notes: GlobalNote[] }
   | { type: "UPSERT_GLOBAL_NOTE"; note: GlobalNote }
   | { type: "DELETE_GLOBAL_NOTE"; noteId: string }
@@ -268,6 +270,27 @@ function reducer(state: State, action: Action): State {
         globalChats: state.globalChats.filter((c) => c.id !== action.chatId),
         currentGChatId:
           state.currentGChatId === action.chatId ? null : state.currentGChatId,
+      };
+    case "RENAME_GLOBAL_CHAT":
+      return {
+        ...state,
+        globalChats: state.globalChats.map((c) =>
+          c.id === action.chatId ? { ...c, title: action.title } : c,
+        ),
+      };
+    case "RENAME_LOCAL_CHAT":
+      return {
+        ...state,
+        posts: state.posts.map((p) =>
+          p.id === action.postId
+            ? {
+                ...p,
+                chats: p.chats.map((c) =>
+                  c.id === action.chatId ? { ...c, title: action.title } : c,
+                ),
+              }
+            : p,
+        ),
       };
     case "UPDATE_GLOBAL_NOTES":
       return { ...state, globalNotes: action.notes };
