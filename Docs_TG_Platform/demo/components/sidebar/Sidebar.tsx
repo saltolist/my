@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import { ContextMenu } from "@/components/ContextMenu";
 import { useApp } from "@/state/AppContext";
 import type { ScreenId, NoteFile } from "@/lib/types";
@@ -8,11 +8,28 @@ import {
   NavIconAnalytics,
   NavIconChats,
   NavIconFeed,
-  NavIconLogo,
   NavIconNotes,
   NavIconPlus,
   NavIconProfile,
 } from "@/components/sidebar/NavIcons";
+
+/** Градиентный знак ✦: размер и сдвиг по вертикали задаются в CSS (`.sidebar-brand-star-svg`). */
+function BrandStarIcon() {
+  const gid = useId().replace(/:/g, "");
+  const gradId = `sb-brand-grad-${gid}`;
+  return (
+    <svg className="sidebar-brand-star-svg" viewBox="0 0 24 24" aria-hidden="true">
+      <defs>
+        <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="var(--accent)" />
+          <stop offset="100%" stopColor="var(--purple)" />
+        </linearGradient>
+      </defs>
+      {/* Ромб по центру (12,12); без текста — нет сдвига по baseline шрифта */}
+      <path fill={`url(#${gradId})`} d="M12 3.25L19.25 12L12 20.75L4.75 12Z" />
+    </svg>
+  );
+}
 
 const NAV_MAP: Record<string, ScreenId> = {
   home: "home",
@@ -531,7 +548,7 @@ export default function Sidebar() {
             >
               <span className="sidebar-brand-mark-layer sidebar-brand-mark-layer--logo">
                 <span className="sidebar-brand-mark" aria-hidden>
-                  <NavIconLogo width={18} height={18} strokeWidth={2} />
+                  <BrandStarIcon />
                 </span>
               </span>
               <span className="sidebar-brand-mark-layer sidebar-brand-mark-layer--toggle" aria-hidden>
@@ -542,7 +559,7 @@ export default function Sidebar() {
             <div className="sidebar-brand-split">
               <button type="button" className="sidebar-brand" onClick={goHome} title="TG Platform" aria-label="TG Platform — на главную">
                 <span className="sidebar-brand-mark" aria-hidden>
-                  <NavIconLogo width={18} height={18} strokeWidth={2} />
+                  <BrandStarIcon />
                 </span>
                 <span className="sidebar-brand-name">TG Platform</span>
               </button>
@@ -562,7 +579,7 @@ export default function Sidebar() {
         ) : (
           <button type="button" className="sidebar-brand" onClick={goHome} title="TG Platform" aria-label="TG Platform — на главную">
             <span className="sidebar-brand-mark" aria-hidden>
-              <NavIconLogo width={18} height={18} strokeWidth={2} />
+              <BrandStarIcon />
             </span>
             <span className="sidebar-brand-name">TG Platform</span>
           </button>
