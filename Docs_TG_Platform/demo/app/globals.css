@@ -20,7 +20,6 @@
   --purple:  #9b7cdb;
   --nav-w:   220px;
   --nav-w-rail: 86px;
-  --sidebar-bg: #0f0f12;
   --content-w: 1160px;
   --composer-w: 720px;
   --hdr:     56px;
@@ -44,6 +43,12 @@
   --glass-shine:  rgba(255, 255, 255, 0.06);
   --glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.45), 0 14px 36px rgba(0, 0, 0, 0.22);
   --glass-filter: blur(22px) saturate(180%);
+
+  /* Sidebar: нейтральный тёмный тон без синевы */
+  --sidebar-glass-overlay:  rgba(17, 17, 18, 0.56);
+  --sidebar-glass-border: rgba(255, 255, 255, 0.055);
+  --sidebar-glass-shine:  rgba(255, 255, 255, 0.032);
+  --sidebar-glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.58), 0 16px 42px rgba(0, 0, 0, 0.4);
 
   --page-bg-grad:
     radial-gradient(130% 100% at 90% -20%, rgba(91, 143, 249, 0.28) 0%, rgba(91, 143, 249, 0.07) 36%, transparent 58%),
@@ -76,8 +81,6 @@ html.sidebar-collapsed {
   --red:     #dc2626;
   --purple:  #7c3aed;
 
-  --sidebar-bg: var(--bg2);
-
   --shadow-strong:    0 8px 24px rgba(0,0,0,.10);
   --shadow-focus:     0 10px 28px rgba(0,0,0,.14);
   --inset-edge:       inset 0 0 0 1px rgba(0,0,0,.04);
@@ -90,6 +93,12 @@ html.sidebar-collapsed {
   --glass-border: rgba(0, 0, 0, 0.06);
   --glass-shine:  rgba(255, 255, 255, 0.85);
   --glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 14px 36px rgba(0, 0, 0, 0.08);
+
+  /* Sidebar: светлое стекло, не холодный серый */
+  --sidebar-glass-overlay:  rgba(252, 252, 253, 0.52);
+  --sidebar-glass-border: rgba(0, 0, 0, 0.07);
+  --sidebar-glass-shine:  rgba(255, 255, 255, 0.55);
+  --sidebar-glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.08);
 
   --page-bg-grad:
     radial-gradient(100% 82% at 94% 0%, rgba(37, 99, 235, 0.075) 0%, transparent 50%),
@@ -118,8 +127,6 @@ html.sidebar-collapsed {
     --red:     #dc2626;
     --purple:  #7c3aed;
 
-    --sidebar-bg: var(--bg2);
-
     --shadow-strong:    0 8px 24px rgba(0,0,0,.10);
     --shadow-focus:     0 10px 28px rgba(0,0,0,.14);
     --inset-edge:       inset 0 0 0 1px rgba(0,0,0,.04);
@@ -132,6 +139,11 @@ html.sidebar-collapsed {
     --glass-border: rgba(0, 0, 0, 0.06);
     --glass-shine:  rgba(255, 255, 255, 0.85);
     --glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 14px 36px rgba(0, 0, 0, 0.08);
+
+    --sidebar-glass-overlay:  rgba(252, 252, 253, 0.52);
+    --sidebar-glass-border: rgba(0, 0, 0, 0.07);
+    --sidebar-glass-shine:  rgba(255, 255, 255, 0.55);
+    --sidebar-glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.08);
 
     --page-bg-grad:
       radial-gradient(100% 82% at 94% 0%, rgba(37, 99, 235, 0.075) 0%, transparent 50%),
@@ -192,12 +204,38 @@ html, body {
    SIDEBAR
 ════════════════════════════════ */
 #sidebar {
-  width: var(--nav-w); min-width: var(--nav-w);
-  background: var(--sidebar-bg); border-right: 1px solid var(--border);
-  display: flex; flex-direction: column; overflow: hidden;
+  position: relative;
+  z-index: 2;
+  width: var(--nav-w);
+  min-width: var(--nav-w);
+  background: transparent;
+  border-right: 1px solid var(--sidebar-glass-border);
+  box-shadow:
+    inset 0 1px 0 var(--sidebar-glass-shine),
+    var(--sidebar-glass-shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   align-items: stretch;
   --sidebar-brand-mark-size: 32px;
   transition: width 0.2s ease, min-width 0.2s ease;
+}
+
+/* Размытие на отдельном слое: плотный background на #sidebar гасит видимость backdrop */
+#sidebar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--sidebar-glass-overlay);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+  pointer-events: none;
+}
+
+#sidebar > * {
+  position: relative;
+  z-index: 1;
 }
 
 .sidebar-header {
@@ -2413,7 +2451,10 @@ a.note-file-item:hover {
     min-width: 0;
     height: auto;
     min-height: 0;
-    border-right: 1px solid var(--border);
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-right: 1px solid var(--sidebar-glass-border);
     border-top: none;
     flex-direction: column;
     align-items: stretch;
@@ -2421,8 +2462,11 @@ a.note-file-item:hover {
     overflow-x: hidden;
     overflow-y: auto;
     transform: translateX(-102%);
-    transition: transform .2s ease;
-    box-shadow: 18px 0 34px rgba(0,0,0,.36);
+    transition: transform 0.2s ease;
+    box-shadow:
+      inset 0 1px 0 var(--sidebar-glass-shine),
+      var(--sidebar-glass-shadow),
+      18px 0 34px rgba(0, 0, 0, 0.36);
   }
 
   body.mobile-sidebar-open #sidebar {
