@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useApp } from "@/state/AppContext";
 import type { Post } from "@/lib/types";
 import PostCard from "./PostCard";
@@ -9,25 +9,68 @@ export default function DraftsSection({ drafts }: { drafts: Post[] }) {
   const { state, dispatch, openPost } = useApp();
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
-  const [draggingId, setDraggingId] = useState<number | null>(null);
+  const draggingIdRef = useRef<number | null>(null);
+  const indicatorRef = useRef<{ beforeId: number | null } | null>(null);
   const [indicator, setIndicator] = useState<{ beforeId: number | null } | null>(null);
 
-  const enableDrag = (id: number) => {
-    const el = cardRefs.current.get(id);
-    if (el) el.setAttribute("draggable", "true");
-  };
+  const dragGhostRef = useRef<HTMLElement | null>(null);
 
-  const disableDrag = (id: number) => {
-    const el = cardRefs.current.get(id);
-    if (el) el.setAttribute("draggable", "false");
-  };
+  const setIndicatorBoth = useCallback((next: { beforeId: number | null } | null) => {
+    indicatorRef.current = next;
+    setIndicator(next);
+  }, []);
 
   const onDragStart = (id: number) => (e: React.DragEvent) => {
-    setDraggingId(id);
+    draggingIdRef.current = id;
     e.dataTransfer.effectAllowed = "move";
     try {
       e.dataTransfer.setData("text/plain", String(id));
-    } catch {}
+    } catch {
+      /* ignore */
+    }
+
+    const wrap = cardRefs.current.get(id);
+    if (wrap) {
+      dragGhostRef.current?.remove();
+      const ghost = wrap.cloneNode(true) as HTMLElement;
+      ghost.classList.remove("is-dragging");
+      ghost.classList.add("draft-drag-preview");
+      ghost.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+      ghost.querySelectorAll("[draggable]").forEach((el) => el.removeAttribute("draggable"));
+
+      const rect = wrap.getBoundingClientRect();
+      ghost.style.boxSizing = "border-box";
+      ghost.style.position = "fixed";
+      ghost.style.left = `${rect.left}px`;
+      ghost.style.top = `${rect.top}px`;
+      ghost.style.width = `${rect.width}px`;
+      ghost.style.pointerEvents = "none";
+      ghost.style.margin = "0";
+      ghost.style.zIndex = "2147483647";
+      document.body.appendChild(ghost);
+      void ghost.offsetHeight;
+      const gr = ghost.getBoundingClientRect();
+      let hx = e.clientX - gr.left;
+      let hy = e.clientY - gr.top;
+      const w = Math.max(1, gr.width);
+      const h = Math.max(1, gr.height);
+      hx = Math.max(0, Math.min(hx, w - 1));
+      hy = Math.max(0, Math.min(hy, h - 1));
+      try {
+        e.dataTransfer.setDragImage(ghost, hx, hy);
+        dragGhostRef.current = ghost;
+        requestAnimationFrame(() => {
+          ghost.style.opacity = "0";
+          ghost.style.visibility = "hidden";
+          ghost.style.left = "-9999px";
+          ghost.style.top = "0";
+        });
+      } catch {
+        ghost.remove();
+        dragGhostRef.current = null;
+      }
+    }
+
     requestAnimationFrame(() => {
       const el = cardRefs.current.get(id);
       if (el) el.classList.add("is-dragging");
@@ -35,21 +78,22 @@ export default function DraftsSection({ drafts }: { drafts: Post[] }) {
   };
 
   const onDragEnd = (id: number) => () => {
+    draggingIdRef.current = null;
+    dragGhostRef.current?.remove();
+    dragGhostRef.current = null;
     const el = cardRefs.current.get(id);
-    if (el) {
-      el.classList.remove("is-dragging");
-      el.setAttribute("draggable", "false");
-    }
-    setIndicator(null);
-    setDraggingId(null);
+    if (el) el.classList.remove("is-dragging");
+    setIndicatorBoth(null);
   };
 
   const onDragOverCard = (id: number) => (e: React.DragEvent) => {
-    if (draggingId == null) return;
+    const dragId = draggingIdRef.current;
+    if (dragId == null) return;
     e.preventDefault();
+    e.stopPropagation();
     e.dataTransfer.dropEffect = "move";
-    if (id === draggingId) {
-      setIndicator(null);
+    if (id === dragId) {
+      setIndicatorBoth(null);
       return;
     }
     const el = cardRefs.current.get(id);
@@ -57,29 +101,31 @@ export default function DraftsSection({ drafts }: { drafts: Post[] }) {
     const rect = el.getBoundingClientRect();
     const before = e.clientY - rect.top < rect.height / 2;
     if (before) {
-      setIndicator({ beforeId: id });
+      setIndicatorBoth({ beforeId: id });
     } else {
       const idx = drafts.findIndex((d) => d.id === id);
       const next = drafts[idx + 1];
-      setIndicator({ beforeId: next ? next.id : null });
+      setIndicatorBoth({ beforeId: next ? next.id : null });
     }
   };
 
   const onContainerDragOver = (e: React.DragEvent) => {
-    if (draggingId == null) return;
-    const target = e.target as HTMLElement;
-    if (!target.closest(".post-card[data-draft-id]")) {
-      e.preventDefault();
-      setIndicator({ beforeId: null });
-    }
+    if (draggingIdRef.current == null) return;
+    e.preventDefault();
+    const overDraft = (e.target as HTMLElement).closest("[data-draft-id]");
+    if (overDraft) return;
+    e.stopPropagation();
+    setIndicatorBoth({ beforeId: null });
   };
 
   const onDrop = (e: React.DragEvent) => {
-    if (draggingId == null) return;
+    const dragId = draggingIdRef.current;
+    if (dragId == null) return;
     e.preventDefault();
-    reorder(draggingId, indicator?.beforeId ?? null);
-    setIndicator(null);
-    setDraggingId(null);
+    e.stopPropagation();
+    reorder(dragId, indicatorRef.current?.beforeId ?? null);
+    draggingIdRef.current = null;
+    setIndicatorBoth(null);
   };
 
   const reorder = (sourceId: number, beforeId: number | null) => {
@@ -113,27 +159,24 @@ export default function DraftsSection({ drafts }: { drafts: Post[] }) {
         onDrop={onDrop}
       >
         {drafts.map((p) => (
-          <DraftCardSlot
-            key={p.id}
-            indicatorBefore={indicator?.beforeId === p.id}
-          >
+          <DraftCardSlot key={p.id} indicatorBefore={indicator?.beforeId === p.id}>
             <div
+              className="draft-card-wrap"
               ref={(el) => {
                 if (el) cardRefs.current.set(p.id, el);
                 else cardRefs.current.delete(p.id);
               }}
               data-draft-id={p.id}
-              onDragStart={onDragStart(p.id)}
-              onDragEnd={onDragEnd(p.id)}
               onDragOver={onDragOverCard(p.id)}
-              onMouseUp={() => disableDrag(p.id)}
+              onDrop={onDrop}
             >
               <PostCard
                 post={p}
                 onOpen={() => openPost(p.id)}
                 draftHandleProps={{
-                  onMouseDown: () => enableDrag(p.id),
-                  onClickStop: (e) => e.stopPropagation(),
+                  onClickStop: (ev) => ev.stopPropagation(),
+                  onDragStart: onDragStart(p.id),
+                  onDragEnd: onDragEnd(p.id),
                 }}
               />
             </div>

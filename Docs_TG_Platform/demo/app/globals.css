@@ -920,6 +920,23 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   margin: 28px 0 16px;
 }
 .feed-section-cards { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.draft-card-wrap {
+  width: 500px;
+  max-width: 100%;
+}
+.draft-card-wrap.is-dragging {
+  opacity: 0.94;
+  outline: none;
+  box-shadow: 0 0 0 1px var(--border2), 0 10px 32px rgba(0, 0, 0, 0.22);
+}
+.draft-drag-preview {
+  opacity: 1 !important;
+  visibility: visible !important;
+  background: var(--bg2) !important;
+  border: 1px solid var(--accent) !important;
+  border-radius: var(--r);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.38);
+}
 .post-card {
   background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
   padding: 14px 16px; cursor: pointer;
@@ -928,7 +945,6 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   width: 500px; max-width: 100%;
 }
 .post-card:hover { border-color: var(--border2); background: var(--bg3); }
-.post-card.is-dragging { opacity: .35; cursor: grabbing; }
 .drag-handle { color: var(--text3); font-size: 16px; cursor: grab; flex-shrink: 0; line-height: 1.4; user-select: none; padding-top: 2px; }
 .drag-handle:active { cursor: grabbing; }
 .drop-indicator {

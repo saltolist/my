@@ -12,8 +12,10 @@ export default function PostCard({
   post: Post;
   onOpen: () => void;
   draftHandleProps?: {
-    onMouseDown: () => void;
+    onMouseDown?: () => void;
     onClickStop: (e: React.MouseEvent) => void;
+    onDragStart?: (e: React.DragEvent) => void;
+    onDragEnd?: (e: React.DragEvent) => void;
   };
 }) {
   let statusEl: React.ReactNode;
@@ -54,8 +56,11 @@ export default function PostCard({
         <div
           className="drag-handle"
           title="Перетащить"
+          draggable
           onClick={draftHandleProps.onClickStop}
           onMouseDown={draftHandleProps.onMouseDown}
+          onDragStart={draftHandleProps.onDragStart}
+          onDragEnd={draftHandleProps.onDragEnd}
         >
           ⠿
         </div>
