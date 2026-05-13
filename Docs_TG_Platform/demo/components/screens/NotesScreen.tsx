@@ -11,7 +11,7 @@ type AnyNote =
   | (LocalNote & { isGlobal: false; postId: number; postTitle: string });
 
 export default function NotesScreen() {
-  const { state, dispatch, navigate, openPost } = useApp();
+  const { state, dispatch, navigateWithState, openPost, pushRouteSnapshot, canLeaveCurrentScreen } = useApp();
   const [search, setSearch] = useState("");
   const scope = state.noteScope;
   const filter = state.noteFilter;
@@ -39,28 +39,23 @@ export default function NotesScreen() {
   const openNote = (n: AnyNote) => {
     if (n.isGlobal) {
       const files: NoteFile[] = Array.isArray(n.files) ? n.files : [];
-      dispatch({
-        type: "SET_STATE",
-        patch: {
-          currentNote: { ...n, files },
-          noteFrom: "notes",
-          noteMode: "view",
-          noteSavedSnapshot: JSON.stringify({ title: n.title, body: n.body, ai: n.ai, files }),
-        },
+      navigateWithState({
+        screen: "note",
+        currentNote: { ...n, files },
+        noteFrom: "notes",
+        noteMode: "view",
+        noteSavedSnapshot: JSON.stringify({ title: n.title, body: n.body, ai: n.ai, files }),
       });
     } else {
       const files: NoteFile[] = Array.isArray(n.files) ? n.files : [];
-      dispatch({
-        type: "SET_STATE",
-        patch: {
-          currentNote: { ...n, isGlobal: false, postId: n.postId, files },
-          noteFrom: "notes",
-          noteMode: "view",
-          noteSavedSnapshot: JSON.stringify({ title: n.title, body: n.body, ai: n.ai, files }),
-        },
+      navigateWithState({
+        screen: "note",
+        currentNote: { ...n, isGlobal: false, postId: n.postId, files },
+        noteFrom: "notes",
+        noteMode: "view",
+        noteSavedSnapshot: JSON.stringify({ title: n.title, body: n.body, ai: n.ai, files }),
       });
     }
-    navigate("note");
   };
 
   const toggleAi = (n: AnyNote) => {
@@ -80,6 +75,7 @@ export default function NotesScreen() {
   const newGlobal = () => {
     const title = prompt("Название заметки:");
     if (!title) return;
+    if (!canLeaveCurrentScreen("note")) return;
     const note: GlobalNote = {
       id: "gn" + Date.now(),
       title,
@@ -87,17 +83,18 @@ export default function NotesScreen() {
       date: "сейчас",
       body: "",
     };
+    pushRouteSnapshot();
     dispatch({ type: "UPSERT_GLOBAL_NOTE", note });
     dispatch({
       type: "SET_STATE",
       patch: {
+        screen: "note",
         currentNote: { ...note, isGlobal: true, files: [] },
         noteFrom: "notes",
         noteMode: "edit",
         noteSavedSnapshot: JSON.stringify({ title: note.title, body: "", ai: false, files: [] }),
       },
     });
-    navigate("note");
   };
 
   return (

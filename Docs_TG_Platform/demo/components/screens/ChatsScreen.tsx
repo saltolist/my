@@ -15,7 +15,7 @@ type LocalChatRow = {
 };
 
 export default function ChatsScreen() {
-  const { state, dispatch, openGChat, openPost } = useApp();
+  const { state, dispatch, openGChat, openPost, navigateWithState } = useApp();
   const tab = state.chatsTab;
   const [search, setSearch] = useState("");
 
@@ -111,16 +111,13 @@ export default function ChatsScreen() {
                   key={`${row.postId}-${row.chatId}`}
                   className="chat-card"
                   onClick={() =>
-                    dispatch({
-                      type: "SET_STATE",
-                      patch: {
-                        currentPostId: row.postId,
-                        currentPostChatId: row.chatId,
-                        postMode: "chat",
-                        postViewStack: [],
-                        isEditing: false,
-                        screen: "post",
-                      },
+                    navigateWithState({
+                      currentPostId: row.postId,
+                      currentPostChatId: row.chatId,
+                      postMode: "chat",
+                      postViewStack: [],
+                      isEditing: false,
+                      screen: "post",
                     })
                   }
                 >

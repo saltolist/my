@@ -23,8 +23,8 @@ export default function PageHeader({
   search,
   actions,
 }: Props) {
-  const { navigate } = useApp();
-  const handleBack = onBack ?? (backTo ? () => navigate(backTo) : undefined);
+  const { navigateBack } = useApp();
+  const handleBack = onBack ?? (backTo ? () => navigateBack(backTo) : undefined);
   const hasRight = !!(handleBack || actions);
   return (
     <div className="page-header">

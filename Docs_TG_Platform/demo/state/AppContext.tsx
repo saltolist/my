@@ -7,6 +7,7 @@ import {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -79,6 +80,49 @@ type State = {
 
   theme: ThemeMode;
 };
+
+/** Subset of app state restored when the user goes «back» through the nav stack. */
+type RouteSnapshot = Pick<
+  State,
+  | "screen"
+  | "currentPostId"
+  | "currentPostChatId"
+  | "postMode"
+  | "postViewStack"
+  | "isEditing"
+  | "currentGChatId"
+  | "currentNote"
+  | "noteMode"
+  | "noteFrom"
+  | "noteSavedSnapshot"
+  | "chatsTab"
+  | "noteScope"
+  | "noteFilter"
+>;
+
+function captureRouteState(s: State): RouteSnapshot {
+  return {
+    screen: s.screen,
+    currentPostId: s.currentPostId,
+    currentPostChatId: s.currentPostChatId,
+    postMode: s.postMode,
+    postViewStack: s.postViewStack.map((x) => ({ ...x })),
+    isEditing: s.isEditing,
+    currentGChatId: s.currentGChatId,
+    currentNote: s.currentNote
+      ? {
+          ...s.currentNote,
+          files: s.currentNote.files ? s.currentNote.files.map((f) => ({ ...f })) : [],
+        }
+      : null,
+    noteMode: s.noteMode,
+    noteFrom: s.noteFrom,
+    noteSavedSnapshot: s.noteSavedSnapshot,
+    chatsTab: s.chatsTab,
+    noteScope: s.noteScope,
+    noteFilter: s.noteFilter,
+  };
+}
 
 type Action =
   | { type: "SET_SCREEN"; screen: ScreenId }
@@ -358,7 +402,11 @@ type AppContextValue = {
   mobileSidebarOpen: boolean;
   setMobileSidebarOpen: (open: boolean) => void;
 
-  navigate: (screen: ScreenId) => void;
+  navigate: (screen: ScreenId, opts?: { skipHistory?: boolean; clearHistory?: boolean }) => void;
+  navigateBack: (fallback?: ScreenId) => void;
+  navigateWithState: (patch: Partial<State>) => void;
+  /** Записать текущий маршрут в стек без смены экрана (например, перед несколькими dispatch подряд). */
+  pushRouteSnapshot: () => void;
   goHome: () => void;
   openPost: (id: number | "new") => void;
   openGChat: (id: string) => void;
@@ -382,6 +430,9 @@ const AppContext = createContext<AppContextValue | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const navStackRef = useRef<RouteSnapshot[]>([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [dirtyMap, setDirtyMap] = useState<Record<DirtyKey, boolean>>({
     note: false,
@@ -416,13 +467,55 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const navigate = useCallback(
-    (screen: ScreenId) => {
+    (screen: ScreenId, opts?: { skipHistory?: boolean; clearHistory?: boolean }) => {
       if (!canLeaveCurrentScreen(screen)) return;
+      if (screen === stateRef.current.screen) return;
       setMobileSidebarOpen(false);
+      if (opts?.clearHistory) {
+        navStackRef.current = [];
+      }
+      if (!opts?.skipHistory) {
+        navStackRef.current.push(captureRouteState(stateRef.current));
+      }
       dispatch({ type: "SET_SCREEN", screen });
     },
     [canLeaveCurrentScreen],
   );
+
+  const navigateBack = useCallback(
+    (fallback?: ScreenId) => {
+      const snap = navStackRef.current.pop();
+      if (!snap) {
+        const to = fallback ?? "home";
+        if (!canLeaveCurrentScreen(to)) return;
+        setMobileSidebarOpen(false);
+        dispatch({ type: "SET_SCREEN", screen: to });
+        return;
+      }
+      if (!canLeaveCurrentScreen(snap.screen)) {
+        navStackRef.current.push(snap);
+        return;
+      }
+      setMobileSidebarOpen(false);
+      dispatch({ type: "SET_STATE", patch: snap });
+    },
+    [canLeaveCurrentScreen],
+  );
+
+  const navigateWithState = useCallback(
+    (patch: Partial<State>) => {
+      const nextScreen = patch.screen ?? stateRef.current.screen;
+      if (!canLeaveCurrentScreen(nextScreen)) return;
+      setMobileSidebarOpen(false);
+      navStackRef.current.push(captureRouteState(stateRef.current));
+      dispatch({ type: "SET_STATE", patch });
+    },
+    [canLeaveCurrentScreen],
+  );
+
+  const pushRouteSnapshot = useCallback(() => {
+    navStackRef.current.push(captureRouteState(stateRef.current));
+  }, []);
 
   useEffect(() => {
     function onBeforeUnload(e: BeforeUnloadEvent) {
@@ -459,6 +552,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const openPost = useCallback(
     (id: number | "new") => {
       if (!canLeaveCurrentScreen("post")) return;
+      setMobileSidebarOpen(false);
+      navStackRef.current.push(captureRouteState(stateRef.current));
       if (id === "new") {
         const newPost: Post = {
           id: Date.now(),
@@ -469,7 +564,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           notes: [],
           chats: [],
         };
-        dispatch({ type: "UPDATE_POSTS", posts: [...state.posts, newPost] });
+        dispatch({ type: "UPDATE_POSTS", posts: [...stateRef.current.posts, newPost] });
         dispatch({
           type: "SET_STATE",
           patch: {
@@ -495,12 +590,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
       });
     },
-    [state.posts, canLeaveCurrentScreen],
+    [canLeaveCurrentScreen],
   );
 
   const openGChat = useCallback(
     (id: string) => {
       if (!canLeaveCurrentScreen("gchat")) return;
+      setMobileSidebarOpen(false);
+      navStackRef.current.push(captureRouteState(stateRef.current));
       dispatch({ type: "SET_STATE", patch: { currentGChatId: id, screen: "gchat" } });
     },
     [canLeaveCurrentScreen],
@@ -640,6 +737,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (text: string) => {
       if (!text.trim()) return false;
       if (!assertLlm("home")) return false;
+      if (!canLeaveCurrentScreen("gchat")) return false;
+      setMobileSidebarOpen(false);
+      navStackRef.current.push(captureRouteState(stateRef.current));
       const id = "gc" + Date.now();
       const newChat: GlobalChat = {
         id,
@@ -656,7 +756,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }, 900);
       return true;
     },
-    [assertLlm, buildAiMessage],
+    [assertLlm, buildAiMessage, canLeaveCurrentScreen],
   );
 
   const sendGChat = useCallback(
@@ -721,6 +821,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       mobileSidebarOpen,
       setMobileSidebarOpen,
       navigate,
+      navigateBack,
+      navigateWithState,
+      pushRouteSnapshot,
       goHome,
       openPost,
       openGChat,
@@ -742,6 +845,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       state,
       mobileSidebarOpen,
       navigate,
+      navigateBack,
+      navigateWithState,
+      pushRouteSnapshot,
       goHome,
       openPost,
       openGChat,

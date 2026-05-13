@@ -4,44 +4,36 @@ import { useEffect, useRef, useState } from "react";
 import { useApp } from "@/state/AppContext";
 import { truncate } from "@/lib/helpers";
 import { ContextMenu } from "../ContextMenu";
+import PageHeader from "../PageHeader";
 import type { ActiveNote, NoteFile } from "@/lib/types";
 import { useFitTitleSize } from "@/lib/use-fit-title";
 
 export default function NoteScreen() {
-  const { state, dispatch, navigate, openPost } = useApp();
+  const { state, dispatch, navigate, navigateBack, openPost } = useApp();
   const note = state.currentNote;
 
   if (!note) {
-    return (
-      <div className="page-header">
-        <div className="page-header-left">
-          <button className="btn btn-ghost btn-sm" onClick={() => navigate("notes")} type="button">
-            ← Назад
-          </button>
-        </div>
-      </div>
-    );
+    return <PageHeader title="Заметка" backTo="notes" />;
   }
 
   const backLabel = note.isGlobal ? "Заметки" : "Лента / Пост";
-  const goBack = () => navigate(state.noteFrom === "post" ? "post" : "notes");
+  const backFallback = state.noteFrom === "post" ? "post" : "notes";
+  const goBack = () => navigateBack(backFallback);
 
   return (
     <>
-      <div className="page-header" id="note-hdr-row">
-        <div className="page-header-left">
+      <PageHeader
+        backTo={backFallback}
+        left={
           <div className="breadcrumb">
             <span className="bc-link" onClick={goBack}>
               {backLabel}
             </span>
             <span>/</span>
-            <b>{truncate(note.title, 30)}</b>
+            <b>{truncate(note.title, 38)}</b>
           </div>
-        </div>
-        <div className="page-header-right">
-          <button className="btn btn-ghost btn-sm" onClick={goBack} type="button">
-            ← Назад
-          </button>
+        }
+        actions={
           <ContextMenu
             items={[
               {
@@ -52,17 +44,17 @@ export default function NoteScreen() {
                   if (!confirm(`Удалить заметку «${note.title}»?`)) return;
                   if (note.isGlobal) {
                     dispatch({ type: "DELETE_GLOBAL_NOTE", noteId: note.id });
-                    navigate("notes");
+                    navigate("notes", { skipHistory: true });
                   } else {
                     dispatch({ type: "DELETE_POST_NOTE", postId: note.postId, noteId: note.id });
-                    navigate("post");
+                    navigate("post", { skipHistory: true });
                   }
                 },
               },
             ]}
           />
-        </div>
-      </div>
+        }
+      />
       <div className="note-page" id="note-page-body">
         {state.noteMode === "view" ? <NoteView note={note} onOpenPost={openPost} /> : <NoteEdit note={note} />}
       </div>

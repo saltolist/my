@@ -10,7 +10,7 @@ import { ContextMenu, type CtxMenuItem } from "../ContextMenu";
 import type { LocalNote, NoteFile, PostMedia, PostMode } from "@/lib/types";
 
 export default function PostScreen() {
-  const { state, dispatch, navigate, sendPost } = useApp();
+  const { state, dispatch, navigate, navigateBack, sendPost } = useApp();
   const post = postById(state, state.currentPostId);
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const postCardRef = useRef<HTMLDivElement>(null);
@@ -83,7 +83,7 @@ export default function PostScreen() {
       });
       return;
     }
-    navigate("feed");
+    navigateBack("feed");
   };
 
   if (!post) {
@@ -91,7 +91,7 @@ export default function PostScreen() {
       <div className="post-hdr">
         <div className="post-hdr-top">
           <div className="page-header-left">
-            <button className="btn btn-ghost btn-sm" onClick={() => navigate("feed")} type="button">
+            <button className="btn btn-ghost btn-sm" onClick={() => navigateBack("feed")} type="button">
               ← Назад
             </button>
           </div>
@@ -150,7 +150,7 @@ export default function PostScreen() {
     onClick: () => {
       if (!confirm(`Удалить пост «${postTitle(post)}»?`)) return;
       dispatch({ type: "DELETE_POST", postId: post.id });
-      navigate("feed");
+      navigate("feed", { skipHistory: true, clearHistory: true });
     },
   });
 
@@ -394,7 +394,7 @@ const PostMessageCard = ({
 };
 
 function PostNotes() {
-  const { state, dispatch, navigate } = useApp();
+  const { state, dispatch, navigateWithState } = useApp();
   const post = postById(state, state.currentPostId);
   if (!post) return null;
 
@@ -407,16 +407,13 @@ function PostNotes() {
 
   const openNote = (n: LocalNote) => {
     const files: NoteFile[] = Array.isArray(n.files) ? n.files : [];
-    dispatch({
-      type: "SET_STATE",
-      patch: {
-        currentNote: { ...n, isGlobal: false, postId: post.id, files },
-        noteFrom: "post",
-        noteMode: "view",
-        noteSavedSnapshot: JSON.stringify({ title: n.title, body: n.body, ai: n.ai, files }),
-      },
+    navigateWithState({
+      screen: "note",
+      currentNote: { ...n, isGlobal: false, postId: post.id, files },
+      noteFrom: "post",
+      noteMode: "view",
+      noteSavedSnapshot: JSON.stringify({ title: n.title, body: n.body, ai: n.ai, files }),
     });
-    navigate("note");
   };
 
   return (

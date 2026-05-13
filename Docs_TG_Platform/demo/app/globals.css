@@ -1188,18 +1188,8 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
    SCREEN: NOTE PAGE
 ════════════════════════════════ */
 #screen-note { background: var(--bg); }
-#note-hdr-row {
-  background: transparent;
-  border-bottom: none;
-  max-width: 1220px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 16px 24px 0;
-  height: auto;
-  min-height: unset;
-}
 .note-page {
-  flex: 1; overflow-y: auto; padding: calc(14px + var(--hdr)) 24px 28px;
+  flex: 1; overflow-y: auto; padding: calc(20px + var(--hdr)) 24px 28px;
   display: flex; justify-content: center;
 }
 .note-layout {
@@ -2145,12 +2135,8 @@ a.note-file-item:hover {
     padding-right: 12px;
   }
 
-  #note-hdr-row {
-    padding: 12px 12px 0;
-  }
-
   .note-page {
-    padding: calc(12px + var(--hdr)) 12px 18px;
+    padding: calc(16px + var(--hdr)) 12px 18px;
   }
 
   .note-shell {

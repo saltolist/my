@@ -7,7 +7,7 @@ import ChatMessage from "../chat/ChatMessage";
 import { ContextMenu } from "../ContextMenu";
 
 export default function GlobalChatScreen() {
-  const { state, navigate, dispatch, sendGChat } = useApp();
+  const { state, navigate, navigateBack, dispatch, sendGChat } = useApp();
   const chat = globalChatById(state, state.currentGChatId);
   const messagesRef = useRef<HTMLDivElement>(null);
 
@@ -20,7 +20,7 @@ export default function GlobalChatScreen() {
       <div className="page-header">
         <div className="page-header-left">
           <div className="breadcrumb">
-            <span className="bc-link" onClick={() => navigate("chats")}>
+            <span className="bc-link" onClick={() => navigateBack("chats")}>
               Чаты
             </span>
             <span>/</span>
@@ -28,7 +28,7 @@ export default function GlobalChatScreen() {
           </div>
         </div>
         <div className="page-header-right">
-          <button className="btn btn-ghost btn-sm" onClick={() => navigate("chats")} type="button">
+          <button className="btn btn-ghost btn-sm" onClick={() => navigateBack("chats")} type="button">
             ← Назад
           </button>
           <ContextMenu
@@ -41,7 +41,7 @@ export default function GlobalChatScreen() {
                   if (!chat) return;
                   if (!confirm(`Удалить чат «${chat.title}»?`)) return;
                   dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: chat.id });
-                  navigate("chats");
+                  navigate("chats", { skipHistory: true });
                 },
               },
             ]}
