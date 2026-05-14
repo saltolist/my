@@ -400,8 +400,8 @@ const initialState: State = {
   noteFrom: "notes",
   noteSavedSnapshot: "",
 
-  chatsTab: "global",
-  noteScope: "global",
+  chatsTab: "all",
+  noteScope: "all",
   noteFilter: "all",
 
   composerTargets: {

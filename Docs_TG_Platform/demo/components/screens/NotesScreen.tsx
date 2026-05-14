@@ -16,17 +16,17 @@ export default function NotesScreen() {
   const scope = state.noteScope;
   const filter = state.noteFilter;
 
+  const globalItems: AnyNote[] = state.globalNotes.map((n) => ({ ...n, isGlobal: true }));
+  const localItems: AnyNote[] = state.posts.flatMap((p) =>
+    p.notes.map((n) => ({
+      ...n,
+      isGlobal: false as const,
+      postId: p.id,
+      postTitle: postTitle(p),
+    })),
+  );
   const items: AnyNote[] =
-    scope === "global"
-      ? state.globalNotes.map((n) => ({ ...n, isGlobal: true }))
-      : state.posts.flatMap((p) =>
-          p.notes.map((n) => ({
-            ...n,
-            isGlobal: false as const,
-            postId: p.id,
-            postTitle: postTitle(p),
-          })),
-        );
+    scope === "global" ? globalItems : scope === "local" ? localItems : [...globalItems, ...localItems];
 
   const q = search.toLowerCase();
   const filtered = items.filter((n) => {
@@ -103,30 +103,44 @@ export default function NotesScreen() {
         title="Заметки"
         backTo="home"
         search={
-          <input
-            type="text"
-            className="page-header-search"
-            placeholder="Поиск по заметкам..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <div className="page-header-search-tools-row">
+            <input
+              type="text"
+              className="page-header-search"
+              placeholder="Поиск по заметкам..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <div className="notes-scope-tabs" role="tablist" aria-label="Область заметок">
+              <div
+                role="tab"
+                aria-selected={scope === "all"}
+                className={`notes-scope-tab${scope === "all" ? " active" : ""}`}
+                onClick={() => dispatch({ type: "SET_STATE", patch: { noteScope: "all" } })}
+              >
+                Все
+              </div>
+              <div
+                role="tab"
+                aria-selected={scope === "global"}
+                className={`notes-scope-tab${scope === "global" ? " active" : ""}`}
+                onClick={() => dispatch({ type: "SET_STATE", patch: { noteScope: "global" } })}
+              >
+                Глобальные
+              </div>
+              <div
+                role="tab"
+                aria-selected={scope === "local"}
+                className={`notes-scope-tab${scope === "local" ? " active" : ""}`}
+                onClick={() => dispatch({ type: "SET_STATE", patch: { noteScope: "local" } })}
+              >
+                Локальные
+              </div>
+            </div>
+          </div>
         }
       />
       <div className="notes-page">
-        <div className="notes-scope-tabs">
-          <div
-            className={`notes-scope-tab${scope === "global" ? " active" : ""}`}
-            onClick={() => dispatch({ type: "SET_STATE", patch: { noteScope: "global" } })}
-          >
-            Глобальные
-          </div>
-          <div
-            className={`notes-scope-tab${scope === "local" ? " active" : ""}`}
-            onClick={() => dispatch({ type: "SET_STATE", patch: { noteScope: "local" } })}
-          >
-            Локальные
-          </div>
-        </div>
         <div className="notes-filter-row">
           {(["all", "ai", "noai"] as const).map((k) => (
             <div
@@ -137,7 +151,7 @@ export default function NotesScreen() {
               {k === "all" ? "Все" : k === "ai" ? "В контексте ИИ" : "Не в контексте"}
             </div>
           ))}
-          {scope === "global" ? (
+          {scope === "global" || scope === "all" ? (
             <button
               className="btn btn-primary btn-sm notes-new-global-btn"
               onClick={newGlobal}
@@ -152,7 +166,13 @@ export default function NotesScreen() {
             {filtered.length === 0 ? (
               <div className="empty" style={{ gridColumn: "1/-1" }}>
                 <div className="eico">📝</div>
-                <p>{scope === "global" ? "Нет глобальных заметок" : "Нет локальных заметок"}</p>
+                <p>
+                  {scope === "global"
+                    ? "Нет глобальных заметок"
+                    : scope === "local"
+                      ? "Нет локальных заметок"
+                      : "Нет заметок"}
+                </p>
               </div>
             ) : (
               filtered.map((n) => (

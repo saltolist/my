@@ -65,7 +65,7 @@ export default function FeedScreen() {
         title="Лента"
         backTo="home"
         search={
-          <div className="page-header-search-cluster">
+          <div className="page-header-feed-search-row">
             <input
               type="text"
               className="page-header-search"
@@ -87,14 +87,14 @@ export default function FeedScreen() {
                   className={`feed-post-width-btn${feedPostWidth === w ? " active" : ""}`}
                   title={
                     w === 500
-                      ? "Десктоп, как сейчас"
+                      ? "Компьютер, как сейчас"
                       : w === 390
                         ? "Планшет"
                         : "Телефон"
                   }
                   onClick={() => setFeedPostWidth(w)}
                 >
-                  {w === 500 ? "ПК" : w === 390 ? "Планшет" : "Телефон"}
+                  {w === 500 ? "Компьютер" : w === 390 ? "Планшет" : "Телефон"}
                 </button>
               ))}
             </div>

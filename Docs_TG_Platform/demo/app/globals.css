@@ -769,25 +769,85 @@ button.nav-item {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 320px;
+  width: 450px;
   max-width: 38%;
   z-index: 1;
 }
 #screen-feed .page-header-center {
   left: calc(50% - var(--composer-w) / 2 + 212px + var(--nav-w) / 2);
-  width: min(430px, calc(100vw - var(--nav-w) - 140px));
-  max-width: 52%;
+  /* Ширина поля поиска как у чатов/заметок (центр 450px = только input): + тумблеры ширины карточки + gap */
+  --feed-header-search-toggles: 280px;
+  width: min(
+    calc(450px + var(--feed-header-search-toggles)),
+    calc(100vw - var(--nav-w) - 24px)
+  );
+  max-width: min(
+    calc(450px + var(--feed-header-search-toggles)),
+    calc(100vw - var(--nav-w) - 180px)
+  );
 }
-.page-header-search-cluster {
+#screen-chats .page-header-center,
+#screen-notes .page-header-center {
+  --header-scope-tabs-w: 312px;
+  width: min(
+    calc(450px + var(--header-scope-tabs-w)),
+    calc(100vw - var(--nav-w) - 24px)
+  );
+  max-width: min(
+    calc(450px + var(--header-scope-tabs-w)),
+    calc(100vw - var(--nav-w) - 180px)
+  );
+}
+.page-header-feed-search-row,
+.page-header-search-tools-row {
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
   min-width: 0;
 }
-.page-header-search-cluster .page-header-search {
+#screen-feed .page-header-feed-search-row .page-header-search,
+#screen-chats .page-header-search-tools-row .page-header-search,
+#screen-notes .page-header-search-tools-row .page-header-search {
   flex: 1;
   min-width: 0;
+}
+.page-header-search-tools-row .chats-tabs,
+.page-header-search-tools-row .notes-scope-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.page-header-search-tools-row .chats-tab,
+.page-header-search-tools-row .notes-scope-tab {
+  height: 32px;
+  min-width: 40px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--text2);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+  user-select: none;
+}
+.page-header-search-tools-row .chats-tab:hover,
+.page-header-search-tools-row .notes-scope-tab:hover {
+  background: var(--bg4);
+  color: var(--text);
+}
+.page-header-search-tools-row .chats-tab.active,
+.page-header-search-tools-row .notes-scope-tab.active {
+  background: var(--adim);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 .feed-post-width-toggles {
   display: flex;
@@ -819,7 +879,7 @@ button.nav-item {
   border-color: var(--accent);
 }
 
-/* Кнопки в шапках (как «ПК / Планшет / Телефон» в ленте); .ctx-btn (•••) не трогаем */
+/* Кнопки в шапках (в т.ч. «← Назад»); переключатели ширины карточки ленты — в центре, справа от поля поиска; .ctx-btn (•••) не трогаем */
 .page-header .btn.btn-ghost.btn-sm,
 .post-hdr .btn.btn-ghost.btn-sm {
   height: 32px;
@@ -2257,13 +2317,7 @@ a.note-file-item:hover {
   display: flex; justify-content: center;
 }
 .chats-scroll-inner { width: min(var(--content-w), 100%); }
-.chats-tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
-.chats-tab {
-  padding: 8px 16px; font-size: 13px; color: var(--text3); cursor: pointer;
-  border-bottom: 2px solid transparent; transition: all .15s; margin-bottom: -1px;
-}
-.chats-tab:hover { color: var(--text2); }
-.chats-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+/* Глобальные / локальные чаты — переключатель в шапке (.page-header-search-tools-row) */
 .chat-card {
   background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
   padding: 12px 14px; margin-bottom: 8px; cursor: pointer;
@@ -2300,16 +2354,7 @@ a.note-file-item:hover {
   width: min(var(--content-w), 100%);
   padding: 12px 0 0; flex-shrink: 0;
 }
-.notes-scope-tabs {
-  width: min(var(--content-w), 100%);
-  display: flex; gap: 0; margin: 8px 0 0; border-bottom: 1px solid var(--border);
-}
-.notes-scope-tab {
-  padding: 8px 16px; font-size: 13px; color: var(--text3); cursor: pointer;
-  border-bottom: 2px solid transparent; transition: all .15s; margin-bottom: -1px;
-}
-.notes-scope-tab:hover { color: var(--text2); }
-.notes-scope-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+/* Глобальные / локальные заметки — переключатель в шапке (.page-header-search-tools-row) */
 .notes-search {
   width: 100%; background: transparent; border: none;
   border-radius: var(--r); color: var(--text); font-family: var(--font);
@@ -2317,7 +2362,7 @@ a.note-file-item:hover {
 }
 .notes-filter-row {
   width: min(var(--content-w), 100%);
-  display: flex; align-items: center; gap: 8px; padding: 10px 0 0;
+  display: flex; align-items: center; gap: 8px; padding: 14px 0 0;
 }
 .notes-new-global-btn { margin-left: auto; }
 .filter-tab {
@@ -3113,26 +3158,24 @@ a.note-file-item:hover {
     padding: calc(14px + var(--hdr)) 12px 18px;
   }
 
-  .chats-tabs,
+  .page-header-search-tools-row,
   .profile-tabs,
-  .notes-scope-tabs,
   .notes-filter-row,
   .period-tabs {
     overflow-x: auto;
     scrollbar-width: none;
   }
 
-  .chats-tabs::-webkit-scrollbar,
+  .page-header-search-tools-row::-webkit-scrollbar,
   .profile-tabs::-webkit-scrollbar,
-  .notes-scope-tabs::-webkit-scrollbar,
   .notes-filter-row::-webkit-scrollbar,
   .period-tabs::-webkit-scrollbar {
     display: none;
   }
 
   .profile-tab,
-  .chats-tab,
-  .notes-scope-tab,
+  .page-header-search-tools-row .chats-tab,
+  .page-header-search-tools-row .notes-scope-tab,
   .filter-tab,
   .period-tab {
     white-space: nowrap;
@@ -3205,7 +3248,6 @@ a.note-file-item:hover {
   }
 
   .notes-toolbar,
-  .notes-scope-tabs,
   .notes-filter-row,
   .notes-grid-page {
     width: 100%;

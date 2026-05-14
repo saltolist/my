@@ -126,8 +126,8 @@ export type TelegramProfileConfig = {
 
 export type ComposerTarget = { llmId: string; webId: string };
 
-export type ChatsTab = "global" | "local";
-export type NoteScope = "global" | "local";
+export type ChatsTab = "all" | "global" | "local";
+export type NoteScope = "all" | "global" | "local";
 export type NoteListFilter = "all" | "ai" | "noai";
 export type PostMode = "chat" | "chats" | "notes";
 export type NoteMode = "view" | "edit";
