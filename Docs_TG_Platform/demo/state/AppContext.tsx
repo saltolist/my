@@ -131,6 +131,7 @@ type Action =
   | { type: "UPDATE_POST"; postId: number; patch: Partial<Post> }
   | { type: "ADD_LOCAL_CHAT"; postId: number; chat: LocalChat }
   | { type: "PUSH_LOCAL_CHAT_MSG"; postId: number; chatId: number; message: ChatMessage }
+  | { type: "UPDATE_LOCAL_CHAT_MESSAGE"; postId: number; chatId: number; index: number; text: string }
   | { type: "DELETE_LOCAL_CHAT"; postId: number; chatId: number }
   | { type: "ADD_POST_NOTE"; postId: number; note: LocalNote }
   | { type: "DELETE_POST_NOTE"; postId: number; noteId: number }
@@ -140,6 +141,7 @@ type Action =
   | { type: "REORDER_POSTS"; posts: Post[] }
   | { type: "ADD_GLOBAL_CHAT"; chat: GlobalChat }
   | { type: "PUSH_GLOBAL_CHAT"; chatId: string; message: ChatMessage }
+  | { type: "UPDATE_GLOBAL_CHAT_MESSAGE"; chatId: string; index: number; text: string }
   | { type: "DELETE_GLOBAL_CHAT"; chatId: string }
   | { type: "RENAME_GLOBAL_CHAT"; chatId: string; title: string }
   | { type: "RENAME_LOCAL_CHAT"; postId: number; chatId: number; title: string }
@@ -193,6 +195,26 @@ function reducer(state: State, action: Action): State {
               }
             : p,
         ),
+      };
+    case "UPDATE_LOCAL_CHAT_MESSAGE":
+      return {
+        ...state,
+        posts: state.posts.map((p) => {
+          if (p.id !== action.postId) return p;
+          return {
+            ...p,
+            chats: p.chats.map((c) =>
+              c.id === action.chatId
+                ? {
+                    ...c,
+                    history: c.history.map((m, i) =>
+                      i === action.index ? { ...m, text: action.text } : m,
+                    ),
+                  }
+                : c,
+            ),
+          };
+        }),
       };
     case "DELETE_LOCAL_CHAT":
       return {
@@ -262,6 +284,20 @@ function reducer(state: State, action: Action): State {
         ...state,
         globalChats: state.globalChats.map((c) =>
           c.id === action.chatId ? { ...c, history: [...c.history, action.message] } : c,
+        ),
+      };
+    case "UPDATE_GLOBAL_CHAT_MESSAGE":
+      return {
+        ...state,
+        globalChats: state.globalChats.map((c) =>
+          c.id === action.chatId
+            ? {
+                ...c,
+                history: c.history.map((m, i) =>
+                  i === action.index ? { ...m, text: action.text } : m,
+                ),
+              }
+            : c,
         ),
       };
     case "DELETE_GLOBAL_CHAT":
@@ -723,11 +759,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (cfg.multiResponseEnabled) {
         const pairs = multiResponsePairs();
         if (pairs.length > 0) {
-          const variants: AiVariant[] = pairs.map((pair, idx) => ({
-            key: pair.id,
-            label: pair.label,
-            text: `${baseReply}\n\n— ${pair.label}\n${VARIANT_TAILS[idx % VARIANT_TAILS.length]}`,
-          }));
+          const variants: AiVariant[] = pairs.map((pair, idx) => {
+            const llmModel = cfg.llmModels.find((m) => m.id === pair.llmId);
+            const webModel = pair.webId ? cfg.webSearchModels.find((m) => m.id === pair.webId) : undefined;
+            const llmCap = llmModel ? `${llmModel.provider}/${llmModel.model}` : "";
+            const webCap = webModel ? `${webModel.provider}/${webModel.model}` : "";
+            const label = webCap ? `${llmCap} + ${webCap}` : llmCap;
+            return {
+              key: pair.id,
+              label,
+              llmCaption: llmCap,
+              webCaption: webCap || undefined,
+              text: `${baseReply}\n\n— ${label}\n${VARIANT_TAILS[idx % VARIANT_TAILS.length]}`,
+            };
+          });
           return { role: "ai", variants, selectedVariant: 0, mode: "multi" };
         }
       }

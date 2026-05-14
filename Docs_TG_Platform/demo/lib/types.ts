@@ -13,7 +13,15 @@ export type ComposerScope = "home" | "gchat" | "post";
 
 export type PostStatus = "published" | "scheduled" | "draft";
 
-export type AiVariant = { key: string; label: string; text: string };
+export type AiVariant = {
+  key: string;
+  label: string;
+  text: string;
+  /** Подпись LLM в футере (иконка мозга) */
+  llmCaption?: string;
+  /** Подпись Web Search в футере (иконка лупы) */
+  webCaption?: string;
+};
 
 export type ChatRole = "user" | "ai";
 

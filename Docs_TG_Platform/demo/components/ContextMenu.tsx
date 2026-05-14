@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 
 export type CtxMenuItem = {
   label: string;
-  icon?: string;
+  icon?: ReactNode;
   onClick?: () => void;
   danger?: boolean;
   active?: boolean;
@@ -86,8 +86,8 @@ export function ContextMenu({
             it.onClick?.();
           }}
         >
-          {it.icon ? `${it.icon} ` : ""}
-          {it.label}
+          {it.icon != null ? <span className="ctx-item-icon">{it.icon}</span> : null}
+          <span className="ctx-item-label">{it.label}</span>
         </div>
       ))}
     </>

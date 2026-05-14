@@ -251,7 +251,12 @@ export default function PostScreen() {
                 <ChatMessage
                   key={i}
                   message={m}
-                  ctx={{ scope: "post", entityId: activeChat?.id ?? 0, index: i }}
+                  ctx={{
+                    scope: "post",
+                    postId: post.id,
+                    entityId: activeChat?.id ?? 0,
+                    index: i,
+                  }}
                 />
               ))}
             </div>
