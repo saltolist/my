@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useApp } from "@/state/AppContext";
 import PostCard from "../feed/PostCard";
 import DraftsSection from "../feed/DraftsSection";
@@ -10,11 +10,15 @@ import PostMediaBlock from "../post/PostMediaBlock";
 import PageHeader from "../PageHeader";
 import type { Post, PostMedia } from "@/lib/types";
 
+const FEED_POST_WIDTHS = [500, 390, 270] as const;
+type FeedPostWidth = (typeof FEED_POST_WIDTHS)[number];
+
 export default function FeedScreen() {
   const { state, dispatch, openPost } = useApp();
   const [draft, setDraft] = useState("");
   const [pendingMedia, setPendingMedia] = useState<PostMedia[]>([]);
   const [search, setSearch] = useState("");
+  const [feedPostWidth, setFeedPostWidth] = useState<FeedPostWidth>(500);
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -53,18 +57,48 @@ export default function FeedScreen() {
   }
 
   return (
-    <>
+    <div
+      className="feed-screen-wrap"
+      style={{ "--feed-post-w": `${feedPostWidth}px` } as CSSProperties}
+    >
       <PageHeader
         title="Лента"
         backTo="home"
         search={
-          <input
-            type="text"
-            className="page-header-search"
-            placeholder="Поиск по постам..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <div className="page-header-search-cluster">
+            <input
+              type="text"
+              className="page-header-search"
+              placeholder="Поиск по постам..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <div
+              className="feed-post-width-toggles"
+              role="radiogroup"
+              aria-label="Ширина карточки поста в ленте"
+            >
+              {FEED_POST_WIDTHS.map((w) => (
+                <button
+                  key={w}
+                  type="button"
+                  role="radio"
+                  aria-checked={feedPostWidth === w}
+                  className={`feed-post-width-btn${feedPostWidth === w ? " active" : ""}`}
+                  title={
+                    w === 500
+                      ? "Десктоп, как сейчас"
+                      : w === 390
+                        ? "Планшет"
+                        : "Телефон"
+                  }
+                  onClick={() => setFeedPostWidth(w)}
+                >
+                  {w === 500 ? "ПК" : w === 390 ? "Планшет" : "Телефон"}
+                </button>
+              ))}
+            </div>
+          </div>
         }
       />
       <div className="feed-layout">
@@ -135,6 +169,6 @@ export default function FeedScreen() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
