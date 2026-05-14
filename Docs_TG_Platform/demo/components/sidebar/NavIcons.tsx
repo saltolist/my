@@ -30,16 +30,16 @@ export function NavIconLogo(props: IconProps) {
   );
 }
 
-/** Лента — дуга | прямая по наружу | дуга */
+/** Лента — карточка между двумя вертикалями и три строки (как в референсе) */
 export function NavIconFeed(props: IconProps) {
-  const lineX = 8.5;
   return (
     <BaseIcon {...props}>
-      <path d="M4 5.5C6 5.8 7 7.5 4 8.5V15.5C4 16.2 6.5 17.5 4 18.5" />
-      <path d="M20 5.5C18 5.8 17 7.5 20 8.5V15.5C20 16.2 17.5 17.5 20 18.5" />
-      <line x1={lineX} y1="9.5" x2="15.25" y2="9.5" />
-      <line x1={lineX} y1="12" x2="12.5" y2="12" />
-      <line x1={lineX} y1="14.5" x2="15.25" y2="14.5" />
+      <line x1="4" y1="3.5" x2="4" y2="20.5" />
+      <line x1="20" y1="3.5" x2="20" y2="20.5" />
+      <rect x="7" y="6" width="10" height="12" rx="2.5" ry="2.5" />
+      <line x1="8.5" y1="9.25" x2="14.25" y2="9.25" />
+      <line x1="8.5" y1="12" x2="12.35" y2="12" />
+      <line x1="8.5" y1="14.75" x2="13.85" y2="14.75" />
     </BaseIcon>
   );
 }
