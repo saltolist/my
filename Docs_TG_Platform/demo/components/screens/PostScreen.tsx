@@ -346,7 +346,6 @@ const PostMessageCard = ({
 
   return (
     <div className="post-msg-card" id="post-msg-card" ref={ref}>
-      <div className="post-msg-label">Вы</div>
       {isEditing ? (
         <>
           {mediaDraft.length > 0 ? (
