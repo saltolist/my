@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useApp } from "@/state/AppContext";
 import { postTitle, chatListUserLine, chatListAssistantLine } from "@/lib/helpers";
 import PageHeader from "../PageHeader";
+import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import ChatListCardMenu from "../chat/ChatListCardMenu";
 import { NavIconChats, NavIconFeed } from "@/components/sidebar/NavIcons";
 import type { ChatMessage, ChatsTab } from "@/lib/types";
@@ -124,9 +125,7 @@ export default function ChatsScreen() {
         backTo="home"
         search={
           <div className="page-header-search-tools-row">
-            <input
-              type="text"
-              className="page-header-search"
+            <PageHeaderSearchInput
               placeholder="Поиск по чатам..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}

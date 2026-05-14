@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useApp } from "@/state/AppContext";
+import PageHeader from "../PageHeader";
+import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import PostCard from "../feed/PostCard";
 import DraftsSection from "../feed/DraftsSection";
 import { autoResize, postTitle, readFileAsMedia } from "@/lib/helpers";
 import AttachMenu from "../composer/AttachMenu";
 import PostMediaBlock from "../post/PostMediaBlock";
-import PageHeader from "../PageHeader";
 import type { Post, PostMedia } from "@/lib/types";
 
 const FEED_POST_WIDTHS = [500, 390, 270] as const;
@@ -66,9 +67,7 @@ export default function FeedScreen() {
         backTo="home"
         search={
           <div className="page-header-feed-search-row">
-            <input
-              type="text"
-              className="page-header-search"
+            <PageHeaderSearchInput
               placeholder="Поиск по постам..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}

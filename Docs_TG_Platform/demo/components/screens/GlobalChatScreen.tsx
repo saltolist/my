@@ -31,6 +31,7 @@ export default function GlobalChatScreen() {
             <span className="crumb-current">{chat?.title || "—"}</span>
           </div>
         </div>
+        <div className="page-header-center" aria-hidden="true" />
         <div className="page-header-right">
           <button className="btn btn-ghost btn-sm" onClick={() => navigateBack("chats")} type="button">
             ← Назад

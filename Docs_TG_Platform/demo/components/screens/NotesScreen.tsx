@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useApp } from "@/state/AppContext";
 import { postTitle } from "@/lib/helpers";
 import PageHeader from "../PageHeader";
+import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import type { GlobalNote, LocalNote, NoteFile } from "@/lib/types";
 
 type AnyNote =
@@ -104,9 +105,7 @@ export default function NotesScreen() {
         backTo="home"
         search={
           <div className="page-header-search-tools-row">
-            <input
-              type="text"
-              className="page-header-search"
+            <PageHeaderSearchInput
               placeholder="Поиск по заметкам..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
