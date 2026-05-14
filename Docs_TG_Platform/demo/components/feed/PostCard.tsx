@@ -3,6 +3,7 @@
 import { getPostMediaItems } from "@/lib/helpers";
 import type { Post } from "@/lib/types";
 import PostMediaBlock from "../post/PostMediaBlock";
+import { PostReactionPills, PostViewsReposts } from "./PostEngagement";
 
 export default function PostCard({
   post,
@@ -38,15 +39,6 @@ export default function PostCard({
       </span>
     );
   }
-
-  const metrics =
-    post.status === "published" && post.metrics ? (
-      <div className="post-metrics">
-        <span>👁 {post.metrics.views}</span>
-        <span>❤ {post.metrics.reactions}</span>
-        <span>↗ {post.metrics.reposts}</span>
-      </div>
-    ) : null;
 
   const mediaItems = getPostMediaItems(post);
   const isDraftDnD = post.status === "draft" && !!draftHandleProps;
@@ -88,6 +80,9 @@ export default function PostCard({
         ) : (
           <div className="post-card-text empty">Пост пустой — нажми чтобы начать писать</div>
         )}
+        {post.status === "published" && post.metrics ? (
+          <PostReactionPills reactions={post.metrics.reactions} />
+        ) : null}
         <div className="post-card-footer">
           <div className="post-meta">
             {statusEl}
@@ -100,11 +95,13 @@ export default function PostCard({
             {post.rubric ? (
               <>
                 <span>·</span>
-                <span className="tag-pill">{post.rubric}</span>
+                <span>{post.rubric}</span>
               </>
             ) : null}
           </div>
-          {metrics}
+          {post.status === "published" && post.metrics ? (
+            <PostViewsReposts views={post.metrics.views} reposts={post.metrics.reposts} />
+          ) : null}
         </div>
       </div>
     </div>

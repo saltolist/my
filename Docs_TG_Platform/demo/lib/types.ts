@@ -48,7 +48,9 @@ export type GlobalNote = {
   files?: NoteFile[];
 };
 
-export type PostMetrics = { views: string; reactions: number; reposts: number };
+export type PostReaction = { emoji: string; count: number };
+
+export type PostMetrics = { views: string; reposts: number; reactions: PostReaction[] };
 
 export type PostMedia = {
   name: string;

@@ -6,8 +6,9 @@ import { postTitle, readFileAsMedia, truncate } from "@/lib/helpers";
 import Composer from "../composer/Composer";
 import ChatMessage from "../chat/ChatMessage";
 import PostMediaBlock from "../post/PostMediaBlock";
+import { PostReactionPills, PostViewsReposts } from "../feed/PostEngagement";
 import { ContextMenu, type CtxMenuItem } from "../ContextMenu";
-import type { LocalNote, NoteFile, PostMedia, PostMode } from "@/lib/types";
+import type { LocalNote, NoteFile, PostMedia, PostMetrics, PostMode } from "@/lib/types";
 
 export default function PostScreen() {
   const { state, dispatch, navigate, navigateBack, sendPost } = useApp();
@@ -115,7 +116,7 @@ export default function PostScreen() {
         dispatch({
           type: "UPDATE_POST",
           postId: post.id,
-          patch: { status: "published", date: "сегодня", metrics: { views: "0", reactions: 0, reposts: 0 } },
+          patch: { status: "published", date: "сегодня", metrics: { views: "0", reposts: 0, reactions: [] } },
         }),
     });
     ctxItems.push({
@@ -133,7 +134,7 @@ export default function PostScreen() {
         dispatch({
           type: "UPDATE_POST",
           postId: post.id,
-          patch: { status: "published", date: "сегодня", metrics: { views: "0", reactions: 0, reposts: 0 } },
+          patch: { status: "published", date: "сегодня", metrics: { views: "0", reposts: 0, reactions: [] } },
         }),
     });
     ctxItems.push({
@@ -221,9 +222,7 @@ export default function PostScreen() {
                   dispatch({ type: "SET_STATE", patch: { isEditing: false } });
                 }}
                 badge={badgeForPost(post)}
-                metrics={post.status === "published" && post.metrics
-                  ? `👁 ${post.metrics.views} · ❤ ${post.metrics.reactions} · ↗ ${post.metrics.reposts}`
-                  : ""}
+                metrics={post.status === "published" && post.metrics ? post.metrics : null}
               />
               {history.map((m, i) => (
                 <ChatMessage
@@ -276,7 +275,7 @@ const PostMessageCard = ({
   onCancel: () => void;
   onSave: (t: string, media: PostMedia[]) => void;
   badge: React.ReactNode;
-  metrics: string;
+  metrics: PostMetrics | null;
 }) => {
   const [draft, setDraft] = useState(text);
   const [mediaDraft, setMediaDraft] = useState<PostMedia[]>(media);
@@ -380,12 +379,15 @@ const PostMessageCard = ({
           <div className="post-msg-text">
             {text || <span style={{ color: "var(--text3)" }}>Пост пустой — начни писать...</span>}
           </div>
+          {metrics ? <PostReactionPills reactions={metrics.reactions} /> : null}
           <div className="post-status-row">
             {badge}
-            {metrics ? <span className="post-card-metrics">{metrics}</span> : null}
-            <button className="edit-trigger-btn" onClick={onStartEdit} type="button">
-              ✏ Редактировать
-            </button>
+            <div className="post-status-row-right">
+              {metrics ? <PostViewsReposts views={metrics.views} reposts={metrics.reposts} /> : null}
+              <button className="edit-trigger-btn" onClick={onStartEdit} type="button">
+                ✏ Редактировать
+              </button>
+            </div>
           </div>
         </>
       )}

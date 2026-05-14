@@ -89,7 +89,17 @@ export const initialPosts: Post[] = [
     status: "published",
     date: "28 апр",
     rubric: "Психология денег",
-    metrics: { views: "5 100", reactions: 87, reposts: 23 },
+    metrics: {
+      views: "5 100",
+      reposts: 23,
+      reactions: [
+        { emoji: "🔥", count: 412 },
+        { emoji: "❤", count: 89 },
+        { emoji: "👍", count: 56 },
+        { emoji: "🤔", count: 34 },
+        { emoji: "👏", count: 21 },
+      ],
+    },
     text: `Два года я не мог нажать кнопку "Открыть счёт". Не потому что не было денег. Просто мозг не пускал.
 
 Это называется "паралич анализа" — когда знаешь что делать, понимаешь зачем, но всё равно откладываешь.
@@ -145,7 +155,16 @@ export const initialPosts: Post[] = [
     status: "published",
     date: "25 апр",
     rubric: "Разбор",
-    metrics: { views: "4 200", reactions: 61, reposts: 18 },
+    metrics: {
+      views: "4 200",
+      reposts: 18,
+      reactions: [
+        { emoji: "👍", count: 142 },
+        { emoji: "❤", count: 38 },
+        { emoji: "📌", count: 15 },
+        { emoji: "🎯", count: 9 },
+      ],
+    },
     text: `ИИС пугает людей аббревиатурой. Расшифруем: индивидуальный инвестиционный счёт.
 
 Две причины открыть прямо сейчас:

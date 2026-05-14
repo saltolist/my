@@ -1605,6 +1605,10 @@ button.nav-item {
   margin-bottom: 10px;
 }
 .post-card-text.empty { color: var(--text3); font-style: italic; }
+.post-card-body:has(.post-reactions-row) .post-card-text,
+.post-card-body:has(.post-reactions-row) .post-card-text.empty {
+  margin-bottom: 15px;
+}
 /* Медиа: 2px от внутреннего края padding; клип с радиусом концентрично карточке (иначе вылезает за скругление и режется «по прямой») */
 .post-card-media {
   margin-left: -14px;
@@ -1627,12 +1631,82 @@ button.nav-item {
   gap: 0;
   background: transparent;
 }
-.post-meta { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text3); flex-wrap: wrap; }
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text3);
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
 .post-status { display: flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 500; }
 .dot-g { color: var(--green); } .dot-o { color: var(--orange); } .dot-gr { color: var(--text3); }
-.post-metrics { display: flex; gap: 10px; font-size: 12px; color: var(--text2); }
-.tag-pill { padding: 2px 7px; background: var(--bg4); border-radius: 4px; font-size: 11px; color: var(--text3); }
-.post-card-footer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.post-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 12px;
+  flex-wrap: wrap;
+}
+.post-reactions-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0;
+}
+.post-reactions-row + .post-card-footer {
+  padding-top: 17px;
+}
+.post-reaction-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  background: color-mix(
+    in srgb,
+    color-mix(in srgb, var(--accent) 14%, #8ae8fc) 36%,
+    transparent
+  );
+  border: none;
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--accent2) 42%, var(--text2));
+  user-select: none;
+}
+.post-reaction-emoji {
+  font-size: 15px;
+  line-height: 1;
+}
+.post-reaction-count {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--accent2) 58%, var(--text));
+}
+.post-metrics-views-reposts {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--text2);
+  flex-shrink: 0;
+}
+.post-metric-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.post-metric-ico {
+  font-size: 13px;
+  line-height: 1;
+  opacity: 0.85;
+}
 
 /* ════════════════════════════════
    SCREEN: POST SPACE
@@ -1686,12 +1760,28 @@ button.nav-item {
 .badge-dft { background: rgba(152,152,152,.1); color: var(--text2); }
 .badge-sch { background: rgba(232,149,74,.12); color: var(--orange); }
 .post-status-row {
-  display: flex; align-items: center; gap: 10px;
-  margin-top: 10px; flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.post-msg-card:has(.post-reactions-row) .post-msg-text {
+  margin-bottom: 15px;
+}
+.post-msg-card .post-reactions-row + .post-status-row {
+  margin-top: 17px;
+}
+.post-status-row-right {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 .post-card-metrics { font-size: 12px; color: var(--text3); }
 .edit-trigger-btn {
-  margin-left: auto; padding: 3px 10px; border-radius: var(--rs);
+  padding: 3px 10px; border-radius: var(--rs);
   background: var(--bg4); border: 1px solid var(--border2);
   color: var(--text2); font-size: 12px; cursor: pointer; transition: all .15s;
   white-space: nowrap;
@@ -1721,7 +1811,7 @@ button.nav-item {
 .post-msg-card:has(.post-msg-media-edit) .post-msg-label {
   margin-bottom: 1px;
 }
-.post-msg-text { font-size: 14px; line-height: 1.7; color: var(--text); white-space: pre-wrap; }
+.post-msg-text { font-size: 14px; line-height: 1.7; color: var(--text); white-space: pre-wrap; margin-bottom: 10px; }
 .post-msg-textarea {
   width: 100%;
   background: transparent;
