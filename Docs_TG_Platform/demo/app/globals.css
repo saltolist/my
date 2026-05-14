@@ -1520,6 +1520,10 @@ button.nav-item {
 }
 .chat-messages:empty { display: none; }
 .msg-row { display: flex; padding: 6px 0; animation: fadeUp .2s; }
+/* Больше воздуха между ответом ассистента и следующим сообщением пользователя */
+.msg-row.ai + .msg-row.user {
+  margin-top: 14px;
+}
 @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 .msg-body { flex: 1; min-width: 0; max-width: 100%; }
 .msg-text {
@@ -1645,6 +1649,53 @@ button.nav-item {
   width: 400px;
   max-width: min(400px, 100%);
   flex: 0 0 auto;
+}
+.msg-user-branch-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  margin-top: 8px;
+  padding-right: 2px;
+}
+.msg-user-branch-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+  min-width: 2.2em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+.msg-user-branch-arrow {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  padding: 2px 0;
+  margin: 0;
+  line-height: 0;
+  color: var(--text3);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: none;
+  border-radius: 0;
+  min-width: 0;
+  width: auto;
+  height: auto;
+  transition: color 0.12s ease;
+}
+.msg-user-branch-chevron-svg {
+  display: block;
+  flex-shrink: 0;
+}
+.msg-user-branch-arrow:hover,
+.msg-user-branch-arrow:focus-visible {
+  outline: none;
+  color: var(--text);
 }
 .ai-target-chip {
   display: inline-flex;

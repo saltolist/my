@@ -22,6 +22,14 @@ import {
 import { VARIANT_TAILS } from "@/lib/composer-config";
 import { getGlobalReply, getPostReply } from "@/lib/replies";
 import { postTitle, truncate } from "@/lib/helpers";
+import {
+  appendToActiveHistory,
+  applyUserMessageSave,
+  lastUserPreviewFromVisibleHistory,
+  mapMessageAtPath,
+  removeMessageAtPath,
+  setActiveUserBranch,
+} from "@/lib/chatPaths";
 import type {
   ActiveNote,
   AiProfileConfig,
@@ -131,7 +139,8 @@ type Action =
   | { type: "UPDATE_POST"; postId: number; patch: Partial<Post> }
   | { type: "ADD_LOCAL_CHAT"; postId: number; chat: LocalChat }
   | { type: "PUSH_LOCAL_CHAT_MSG"; postId: number; chatId: number; message: ChatMessage }
-  | { type: "UPDATE_LOCAL_CHAT_MESSAGE"; postId: number; chatId: number; index: number; text: string }
+  | { type: "UPDATE_LOCAL_CHAT_MESSAGE"; postId: number; chatId: number; path: number[]; text: string }
+  | { type: "DELETE_LOCAL_CHAT_MESSAGE"; postId: number; chatId: number; path: number[] }
   | { type: "DELETE_LOCAL_CHAT"; postId: number; chatId: number }
   | { type: "ADD_POST_NOTE"; postId: number; note: LocalNote }
   | { type: "DELETE_POST_NOTE"; postId: number; noteId: number }
@@ -141,14 +150,16 @@ type Action =
   | { type: "REORDER_POSTS"; posts: Post[] }
   | { type: "ADD_GLOBAL_CHAT"; chat: GlobalChat }
   | { type: "PUSH_GLOBAL_CHAT"; chatId: string; message: ChatMessage }
-  | { type: "UPDATE_GLOBAL_CHAT_MESSAGE"; chatId: string; index: number; text: string }
+  | { type: "UPDATE_GLOBAL_CHAT_MESSAGE"; chatId: string; path: number[]; text: string }
+  | { type: "DELETE_GLOBAL_CHAT_MESSAGE"; chatId: string; path: number[] }
   | { type: "DELETE_GLOBAL_CHAT"; chatId: string }
   | { type: "RENAME_GLOBAL_CHAT"; chatId: string; title: string }
   | { type: "RENAME_LOCAL_CHAT"; postId: number; chatId: number; title: string }
   | { type: "UPDATE_GLOBAL_NOTES"; notes: GlobalNote[] }
   | { type: "UPSERT_GLOBAL_NOTE"; note: GlobalNote }
   | { type: "DELETE_GLOBAL_NOTE"; noteId: string }
-  | { type: "SET_AI_VARIANT"; scope: "gchat" | "post"; entityId: string | number; index: number; variantIdx: number }
+  | { type: "SET_AI_VARIANT"; scope: "gchat" | "post"; entityId: string | number; path: number[]; variantIdx: number }
+  | { type: "SET_USER_BRANCH"; scope: "gchat" | "post"; postId?: number; entityId: string | number; path: number[]; branchIdx: number }
   | { type: "UPDATE_AI_CONFIG"; config: AiProfileConfig }
   | { type: "UPDATE_TELEGRAM_CONFIG"; config: TelegramProfileConfig };
 
@@ -179,19 +190,19 @@ function reducer(state: State, action: Action): State {
           p.id === action.postId
             ? {
                 ...p,
-                chats: p.chats.map((c) =>
-                  c.id === action.chatId
-                    ? {
-                        ...c,
-                        history: [...c.history, action.message],
-                        preview:
-                          action.message.role === "user" && action.message.text
-                            ? action.message.text
-                            : c.preview,
-                        date: "сейчас",
-                      }
-                    : c,
-                ),
+                chats: p.chats.map((c) => {
+                  if (c.id !== action.chatId) return c;
+                  const history = appendToActiveHistory(c.history, action.message);
+                  return {
+                    ...c,
+                    history,
+                    preview:
+                      action.message.role === "user" && action.message.text
+                        ? action.message.text
+                        : lastUserPreviewFromVisibleHistory(history),
+                    date: "сейчас",
+                  };
+                }),
               }
             : p,
         ),
@@ -203,16 +214,36 @@ function reducer(state: State, action: Action): State {
           if (p.id !== action.postId) return p;
           return {
             ...p,
-            chats: p.chats.map((c) =>
-              c.id === action.chatId
-                ? {
-                    ...c,
-                    history: c.history.map((m, i) =>
-                      i === action.index ? { ...m, text: action.text } : m,
-                    ),
-                  }
-                : c,
-            ),
+            chats: p.chats.map((c) => {
+              if (c.id !== action.chatId) return c;
+              const history = applyUserMessageSave(c.history, action.path, action.text);
+              return {
+                ...c,
+                history,
+                preview: lastUserPreviewFromVisibleHistory(history),
+                date: "сейчас",
+              };
+            }),
+          };
+        }),
+      };
+    case "DELETE_LOCAL_CHAT_MESSAGE":
+      return {
+        ...state,
+        posts: state.posts.map((p) => {
+          if (p.id !== action.postId) return p;
+          return {
+            ...p,
+            chats: p.chats.map((c) => {
+              if (c.id !== action.chatId) return c;
+              const history = removeMessageAtPath(c.history, action.path);
+              return {
+                ...c,
+                history,
+                preview: lastUserPreviewFromVisibleHistory(history),
+                date: "сейчас",
+              };
+            }),
           };
         }),
       };
@@ -282,23 +313,47 @@ function reducer(state: State, action: Action): State {
     case "PUSH_GLOBAL_CHAT":
       return {
         ...state,
-        globalChats: state.globalChats.map((c) =>
-          c.id === action.chatId ? { ...c, history: [...c.history, action.message] } : c,
-        ),
+        globalChats: state.globalChats.map((c) => {
+          if (c.id !== action.chatId) return c;
+          const history = appendToActiveHistory(c.history, action.message);
+          return {
+            ...c,
+            history,
+            preview:
+              action.message.role === "user" && action.message.text
+                ? action.message.text
+                : lastUserPreviewFromVisibleHistory(history),
+            date: "сейчас",
+          };
+        }),
       };
     case "UPDATE_GLOBAL_CHAT_MESSAGE":
       return {
         ...state,
-        globalChats: state.globalChats.map((c) =>
-          c.id === action.chatId
-            ? {
-                ...c,
-                history: c.history.map((m, i) =>
-                  i === action.index ? { ...m, text: action.text } : m,
-                ),
-              }
-            : c,
-        ),
+        globalChats: state.globalChats.map((c) => {
+          if (c.id !== action.chatId) return c;
+          const history = applyUserMessageSave(c.history, action.path, action.text);
+          return {
+            ...c,
+            history,
+            preview: lastUserPreviewFromVisibleHistory(history),
+            date: "сейчас",
+          };
+        }),
+      };
+    case "DELETE_GLOBAL_CHAT_MESSAGE":
+      return {
+        ...state,
+        globalChats: state.globalChats.map((c) => {
+          if (c.id !== action.chatId) return c;
+          const history = removeMessageAtPath(c.history, action.path);
+          return {
+            ...c,
+            history,
+            preview: lastUserPreviewFromVisibleHistory(history),
+            date: "сейчас",
+          };
+        }),
       };
     case "DELETE_GLOBAL_CHAT":
       return {
@@ -343,18 +398,13 @@ function reducer(state: State, action: Action): State {
         globalNotes: state.globalNotes.filter((n) => n.id !== action.noteId),
       };
     case "SET_AI_VARIANT": {
+      const applyVariant = (hist: ChatMessage[]) =>
+        mapMessageAtPath(hist, action.path, (m) => ({ ...m, selectedVariant: action.variantIdx }));
       if (action.scope === "gchat") {
         return {
           ...state,
           globalChats: state.globalChats.map((c) =>
-            c.id === action.entityId
-              ? {
-                  ...c,
-                  history: c.history.map((m, i) =>
-                    i === action.index ? { ...m, selectedVariant: action.variantIdx } : m,
-                  ),
-                }
-              : c,
+            c.id === action.entityId ? { ...c, history: applyVariant(c.history) } : c,
           ),
         };
       }
@@ -363,16 +413,49 @@ function reducer(state: State, action: Action): State {
         posts: state.posts.map((p) => ({
           ...p,
           chats: p.chats.map((c) =>
-            c.id === action.entityId
-              ? {
-                  ...c,
-                  history: c.history.map((m, i) =>
-                    i === action.index ? { ...m, selectedVariant: action.variantIdx } : m,
-                  ),
-                }
-              : c,
+            c.id === action.entityId ? { ...c, history: applyVariant(c.history) } : c,
           ),
         })),
+      };
+    }
+    case "SET_USER_BRANCH": {
+      const applyBranch = (hist: ChatMessage[]) =>
+        setActiveUserBranch(hist, action.path, action.branchIdx);
+      if (action.scope === "gchat") {
+        return {
+          ...state,
+          globalChats: state.globalChats.map((c) => {
+            if (c.id !== action.entityId) return c;
+            const history = applyBranch(c.history);
+            return {
+              ...c,
+              history,
+              preview: lastUserPreviewFromVisibleHistory(history),
+              date: "сейчас",
+            };
+          }),
+        };
+      }
+      const postId = action.postId ?? 0;
+      return {
+        ...state,
+        posts: state.posts.map((p) =>
+          p.id !== postId
+            ? p
+            : {
+                ...p,
+                chats: p.chats.map((c) => {
+                  if (c.id !== action.entityId) return c;
+                  const history = applyBranch(c.history);
+                  return {
+                    ...c,
+                    history,
+                    preview: lastUserPreviewFromVisibleHistory(history),
+                    date: "сейчас",
+                  };
+                }),
+              },
+        ),
       };
     }
     case "UPDATE_AI_CONFIG":

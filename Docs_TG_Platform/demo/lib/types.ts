@@ -25,9 +25,18 @@ export type AiVariant = {
 
 export type ChatRole = "user" | "ai";
 
+/** Версия пользовательского сообщения (ветка после редактирования, как в ChatGPT). */
+export type UserMessageBranch = {
+  text: string;
+  continuation: ChatMessage[];
+};
+
 export type ChatMessage = {
   role: ChatRole;
   text?: string;
+  /** Если задано — несколько версий текста с отдельными продолжениями; `text` игнорируется для отображения. */
+  userBranches?: UserMessageBranch[];
+  activeUserBranch?: number;
   variants?: AiVariant[];
   selectedVariant?: number;
   mode?: "single" | "multi";

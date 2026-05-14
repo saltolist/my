@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { postById, useApp } from "@/state/AppContext";
 import { postTitle, readFileAsMedia, truncate } from "@/lib/helpers";
+import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/lib/chatPaths";
 import Composer from "../composer/Composer";
 import ChatMessage from "../chat/ChatMessage";
 import PostMediaBlock from "../post/PostMediaBlock";
@@ -18,13 +19,15 @@ export default function PostScreen() {
   const [showJump, setShowJump] = useState(false);
   const mediaItems: PostMedia[] = post?.media ?? [];
   const activeChat = post?.chats.find((c) => c.id === state.currentPostChatId) || null;
-  const history = activeChat?.history ?? [];
+  const chatHistory = activeChat?.history;
+  const flatMessages = useMemo(() => flattenVisibleWithPaths(chatHistory ?? []), [chatHistory]);
+  const lastAssistantFlat = useMemo(() => lastAssistantFlatIndex(flatMessages), [flatMessages]);
 
   useEffect(() => {
     if (state.postMode === "chat" && chatScrollRef.current) {
       chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
     }
-  }, [history.length, state.postMode]);
+  }, [flatMessages.length, state.postMode]);
 
   useEffect(() => {
     if (state.postMode !== "chat") {
@@ -247,16 +250,17 @@ export default function PostScreen() {
                 badge={badgeForPost(post)}
                 metrics={post.status === "published" && post.metrics ? post.metrics : null}
               />
-              {history.map((m, i) => (
+              {flatMessages.map(({ message: m, path }, i) => (
                 <ChatMessage
-                  key={i}
+                  key={path.join("-")}
                   message={m}
                   ctx={{
                     scope: "post",
                     postId: post.id,
                     entityId: activeChat?.id ?? 0,
-                    index: i,
+                    path,
                   }}
+                  isLastAssistantMessage={m.role === "ai" && i === lastAssistantFlat}
                 />
               ))}
             </div>

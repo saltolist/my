@@ -4,11 +4,12 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useApp } from "@/state/AppContext";
 import type { ChatMessage as ChatMessageType } from "@/lib/types";
+import { clampActiveBranchIndex, displayUserText } from "@/lib/chatPaths";
 import AiMessageToolbar from "./AiMessageToolbar";
 
 type Ctx =
-  | { scope: "gchat"; entityId: string; index: number }
-  | { scope: "post"; postId: number; entityId: number; index: number }; // entityId = local chat id
+  | { scope: "gchat"; entityId: string; path: number[] }
+  | { scope: "post"; postId: number; entityId: number; path: number[] };
 
 function assistantPlainText(message: ChatMessageType): string {
   if (message.role !== "ai") return "";
@@ -73,18 +74,45 @@ function IcUserCopy() {
   );
 }
 
-export default function ChatMessage({ message, ctx }: { message: ChatMessageType; ctx?: Ctx }) {
+/** Шеврон как у раскрытия списков в сайдбаре; `dir` — влево / вправо. */
+function BranchChevronIcon({ dir }: { dir: "left" | "right" }) {
+  const points = dir === "left" ? "15 6 9 12 15 18" : "9 6 15 12 9 18";
+  return (
+    <svg className="msg-user-branch-chevron-svg" viewBox="0 0 24 24" width={12} height={12} aria-hidden>
+      <polyline
+        points={points}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2.4}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export default function ChatMessage({
+  message,
+  ctx,
+  isLastAssistantMessage = false,
+}: {
+  message: ChatMessageType;
+  ctx?: Ctx;
+  /** Показывать «Удалить» в меню только у последнего ответа ассистента в треде. */
+  isLastAssistantMessage?: boolean;
+}) {
   const { dispatch } = useApp();
   const isUser = message.role === "user";
+  const userShown = displayUserText(message);
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(message.text ?? "");
+  const [draft, setDraft] = useState(userShown);
   const [copied, setCopied] = useState(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (!editing) setDraft(message.text ?? "");
-  }, [message.text, editing]);
+    if (!editing) setDraft(userShown);
+  }, [userShown, editing]);
 
   useEffect(() => {
     return () => {
@@ -111,7 +139,7 @@ export default function ChatMessage({ message, ctx }: { message: ChatMessageType
     ta.style.overflowY = sh > cap ? "auto" : "hidden";
   }, [draft, editing]);
 
-  let textHtml = (message.text || "").replace(/\n/g, "<br>");
+  let textHtml = (isUser ? userShown : message.text ?? "").replace(/\n/g, "<br>");
   let aiFooterLeft: ReactNode = null;
 
   if (!isUser && Array.isArray(message.variants) && message.variants.length > 0) {
@@ -150,7 +178,7 @@ export default function ChatMessage({ message, ctx }: { message: ChatMessageType
   const modelTitle = modelTooltipText(message);
 
   const onCopyUser = useCallback(async () => {
-    const t = message.text ?? "";
+    const t = userShown;
     const ok = await copyPlainText(t);
     if (!ok) return;
     if (copyTimer.current) clearTimeout(copyTimer.current);
@@ -159,36 +187,65 @@ export default function ChatMessage({ message, ctx }: { message: ChatMessageType
       setCopied(false);
       copyTimer.current = null;
     }, 2000);
-  }, [message.text]);
+  }, [userShown]);
 
   const startEdit = useCallback(() => {
     if (!ctx) return;
-    setDraft(message.text ?? "");
+    setDraft(userShown);
     setEditing(true);
-  }, [ctx, message.text]);
+  }, [ctx, userShown]);
 
   const cancelEdit = useCallback(() => {
     setEditing(false);
-    setDraft(message.text ?? "");
-  }, [message.text]);
+    setDraft(userShown);
+  }, [userShown]);
 
   const saveEdit = useCallback(() => {
     if (!ctx) return;
     const text = draft.trim();
     if (text === "") return;
     if (ctx.scope === "gchat") {
-      dispatch({ type: "UPDATE_GLOBAL_CHAT_MESSAGE", chatId: ctx.entityId, index: ctx.index, text });
+      dispatch({ type: "UPDATE_GLOBAL_CHAT_MESSAGE", chatId: ctx.entityId, path: ctx.path, text });
     } else {
       dispatch({
         type: "UPDATE_LOCAL_CHAT_MESSAGE",
         postId: ctx.postId,
         chatId: ctx.entityId,
-        index: ctx.index,
+        path: ctx.path,
         text,
       });
     }
     setEditing(false);
   }, [ctx, draft, dispatch]);
+
+  const userBranchCount = message.userBranches?.length ?? 0;
+  const userBranchIdx = isUser && userBranchCount > 0 ? clampActiveBranchIndex(message) : 0;
+
+  const bumpUserBranch = useCallback(
+    (delta: number) => {
+      if (!ctx || userBranchCount < 2) return;
+      const next = (userBranchIdx + delta + userBranchCount) % userBranchCount;
+      if (ctx.scope === "gchat") {
+        dispatch({
+          type: "SET_USER_BRANCH",
+          scope: "gchat",
+          entityId: ctx.entityId,
+          path: ctx.path,
+          branchIdx: next,
+        });
+      } else {
+        dispatch({
+          type: "SET_USER_BRANCH",
+          scope: "post",
+          postId: ctx.postId,
+          entityId: ctx.entityId,
+          path: ctx.path,
+          branchIdx: next,
+        });
+      }
+    },
+    [ctx, dispatch, userBranchCount, userBranchIdx],
+  );
 
   if (isUser) {
     return (
@@ -256,6 +313,31 @@ export default function ChatMessage({ message, ctx }: { message: ChatMessageType
             ) : (
               <div className="msg-text" dangerouslySetInnerHTML={{ __html: textHtml }} />
             )}
+            {ctx && userBranchCount > 1 && !editing ? (
+              <div className="msg-user-branch-row">
+                <button
+                  type="button"
+                  className="msg-user-branch-arrow"
+                  aria-label="Предыдущая версия"
+                  title="Предыдущая версия"
+                  onClick={() => bumpUserBranch(-1)}
+                >
+                  <BranchChevronIcon dir="left" />
+                </button>
+                <span className="msg-user-branch-count">
+                  {userBranchIdx + 1}/{userBranchCount}
+                </span>
+                <button
+                  type="button"
+                  className="msg-user-branch-arrow"
+                  aria-label="Следующая версия"
+                  title="Следующая версия"
+                  onClick={() => bumpUserBranch(1)}
+                >
+                  <BranchChevronIcon dir="right" />
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
@@ -269,7 +351,30 @@ export default function ChatMessage({ message, ctx }: { message: ChatMessageType
         {!isUser && (
           <div className="ai-msg-footer">
             <div className="ai-msg-footer-left">{aiFooterLeft}</div>
-            <AiMessageToolbar plainText={plainAi} modelTitle={modelTitle} />
+            <AiMessageToolbar
+              plainText={plainAi}
+              modelTitle={modelTitle}
+              onDelete={
+                ctx && isLastAssistantMessage
+                  ? () => {
+                      if (ctx.scope === "gchat") {
+                        dispatch({
+                          type: "DELETE_GLOBAL_CHAT_MESSAGE",
+                          chatId: ctx.entityId,
+                          path: ctx.path,
+                        });
+                      } else {
+                        dispatch({
+                          type: "DELETE_LOCAL_CHAT_MESSAGE",
+                          postId: ctx.postId,
+                          chatId: ctx.entityId,
+                          path: ctx.path,
+                        });
+                      }
+                    }
+                  : undefined
+              }
+            />
           </div>
         )}
       </div>
@@ -290,7 +395,7 @@ function cycle(
     type: "SET_AI_VARIANT",
     scope: ctx.scope,
     entityId: ctx.entityId,
-    index: ctx.index,
+    path: ctx.path,
     variantIdx: next,
   });
 }

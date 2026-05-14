@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/lib/chatPaths";
 import { globalChatById, useApp } from "@/state/AppContext";
 import Composer from "../composer/Composer";
 import ChatMessage from "../chat/ChatMessage";
@@ -10,10 +11,13 @@ export default function GlobalChatScreen() {
   const { state, navigate, navigateBack, dispatch, sendGChat } = useApp();
   const chat = globalChatById(state, state.currentGChatId);
   const messagesRef = useRef<HTMLDivElement>(null);
+  const chatHistory = chat?.history;
+  const flatMessages = useMemo(() => flattenVisibleWithPaths(chatHistory ?? []), [chatHistory]);
+  const lastAssistantFlat = useMemo(() => lastAssistantFlatIndex(flatMessages), [flatMessages]);
 
   useEffect(() => {
     if (messagesRef.current) messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
-  }, [chat?.history.length]);
+  }, [flatMessages.length]);
 
   return (
     <>
@@ -50,9 +54,16 @@ export default function GlobalChatScreen() {
       </div>
       <div className="gchat-layout">
         <div className="gchat-messages" ref={messagesRef}>
-          {chat?.history.map((m, i) => (
-            <ChatMessage key={i} message={m} ctx={{ scope: "gchat", entityId: chat.id, index: i }} />
-          ))}
+          {chat
+            ? flatMessages.map(({ message: m, path }, i) => (
+                <ChatMessage
+                  key={path.join("-")}
+                  message={m}
+                  ctx={{ scope: "gchat", entityId: chat.id, path }}
+                  isLastAssistantMessage={m.role === "ai" && i === lastAssistantFlat}
+                />
+              ))
+            : null}
         </div>
         <Composer scope="gchat" onSubmit={sendGChat} />
       </div>
