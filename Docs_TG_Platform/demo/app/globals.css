@@ -22,6 +22,15 @@
   --nav-w-rail: 86px;
   --content-w: 1160px;
   --composer-w: 720px;
+  /* Базовая ширина только поля поиска в шапке (лента / чаты / заметки); рядом — тумблеры */
+  --page-header-search-w: 400px;
+  /* Полупрозрачные контролы шапки (тот же серый тон, что у --bg3 / --border2) */
+  --page-header-control-bg: color-mix(in srgb, var(--bg3) 62%, transparent);
+  --page-header-control-bg-hover: color-mix(in srgb, var(--bg4) 66%, transparent);
+  --page-header-control-bg-focus: color-mix(in srgb, var(--bg4) 72%, transparent);
+  --page-header-control-border: color-mix(in srgb, var(--border2) 58%, transparent);
+  /* Активный контур: чуть темнее обычного (solid, от --border2) */
+  --control-border-active: color-mix(in srgb, var(--border2) 72%, #000 28%);
   /* Ширина карточки поста в ленте (переопределяется с экрана ленты) */
   --feed-post-w: 500px;
   --hdr:     56px;
@@ -769,20 +778,22 @@ button.nav-item {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 450px;
+  width: var(--page-header-search-w);
   max-width: 38%;
   z-index: 1;
 }
-#screen-feed .page-header-center {
-  left: calc(50% - var(--composer-w) / 2 + 212px + var(--nav-w) / 2);
-  /* Ширина поля поиска как у чатов/заметок (центр 450px = только input): + тумблеры ширины карточки + gap */
+/* Ширина центра ленты: поиск + тумблеры ширины карточки (позиция — как у остальных экранов, left: 50% + translate из .page-header-center) */
+#screen-feed {
   --feed-header-search-toggles: 280px;
+}
+#screen-feed .page-header-center {
+  /* Поле поиска (--page-header-search-w) + тумблеры ширины карточки + gap */
   width: min(
-    calc(450px + var(--feed-header-search-toggles)),
+    calc(var(--page-header-search-w) + var(--feed-header-search-toggles)),
     calc(100vw - var(--nav-w) - 24px)
   );
   max-width: min(
-    calc(450px + var(--feed-header-search-toggles)),
+    calc(var(--page-header-search-w) + var(--feed-header-search-toggles)),
     calc(100vw - var(--nav-w) - 180px)
   );
 }
@@ -790,11 +801,11 @@ button.nav-item {
 #screen-notes .page-header-center {
   --header-scope-tabs-w: 312px;
   width: min(
-    calc(450px + var(--header-scope-tabs-w)),
+    calc(var(--page-header-search-w) + var(--header-scope-tabs-w)),
     calc(100vw - var(--nav-w) - 24px)
   );
   max-width: min(
-    calc(450px + var(--header-scope-tabs-w)),
+    calc(var(--page-header-search-w) + var(--header-scope-tabs-w)),
     calc(100vw - var(--nav-w) - 180px)
   );
 }
@@ -825,8 +836,8 @@ button.nav-item {
   min-width: 40px;
   padding: 0 10px;
   border-radius: 999px;
-  border: 1px solid var(--border2);
-  background: var(--bg3);
+  border: 1px solid var(--page-header-control-border);
+  background: var(--page-header-control-bg);
   color: var(--text2);
   font-family: var(--font);
   font-size: 12px;
@@ -840,14 +851,19 @@ button.nav-item {
 }
 .page-header-search-tools-row .chats-tab:hover,
 .page-header-search-tools-row .notes-scope-tab:hover {
-  background: var(--bg4);
+  background: var(--page-header-control-bg-hover);
   color: var(--text);
 }
 .page-header-search-tools-row .chats-tab.active,
 .page-header-search-tools-row .notes-scope-tab.active {
-  background: var(--adim);
-  color: var(--accent);
-  border-color: var(--accent);
+  background: var(--page-header-control-bg);
+  color: var(--text);
+  border-color: var(--control-border-active);
+}
+.page-header-search-tools-row .chats-tab.active:hover,
+.page-header-search-tools-row .notes-scope-tab.active:hover {
+  background: var(--page-header-control-bg);
+  color: var(--text);
 }
 .feed-post-width-toggles {
   display: flex;
@@ -860,8 +876,8 @@ button.nav-item {
   min-width: 40px;
   padding: 0 10px;
   border-radius: 999px;
-  border: 1px solid var(--border2);
-  background: var(--bg3);
+  border: 1px solid var(--page-header-control-border);
+  background: var(--page-header-control-bg);
   color: var(--text2);
   font-family: var(--font);
   font-size: 12px;
@@ -870,13 +886,17 @@ button.nav-item {
   transition: border-color 0.12s, background 0.12s, color 0.12s;
 }
 .feed-post-width-btn:hover {
-  background: var(--bg4);
+  background: var(--page-header-control-bg-hover);
   color: var(--text);
 }
 .feed-post-width-btn.active {
-  background: var(--adim);
-  color: var(--accent);
-  border-color: var(--accent);
+  background: var(--page-header-control-bg);
+  color: var(--text);
+  border-color: var(--control-border-active);
+}
+.feed-post-width-btn.active:hover {
+  background: var(--page-header-control-bg);
+  color: var(--text);
 }
 
 /* Кнопки в шапках (в т.ч. «← Назад»); переключатели ширины карточки ленты — в центре, справа от поля поиска; .ctx-btn (•••) не трогаем */
@@ -886,8 +906,8 @@ button.nav-item {
   min-width: 40px;
   padding: 0 10px;
   border-radius: 999px;
-  border: 1px solid var(--border2);
-  background: var(--bg3);
+  border: 1px solid var(--page-header-control-border);
+  background: var(--page-header-control-bg);
   color: var(--text2);
   font-family: var(--font);
   font-size: 12px;
@@ -898,14 +918,19 @@ button.nav-item {
 .page-header .btn.btn-ghost.btn-sm:hover,
 .post-hdr .btn.btn-ghost.btn-sm:hover {
   opacity: 1;
-  background: var(--bg4);
+  background: var(--page-header-control-bg-hover);
   color: var(--text);
 }
 .page-header .btn.btn-ghost.btn-sm.active,
 .post-hdr .btn.btn-ghost.btn-sm.active {
-  background: var(--adim);
-  color: var(--accent);
-  border-color: var(--accent);
+  background: var(--page-header-control-bg);
+  color: var(--text);
+  border-color: var(--control-border-active);
+}
+.page-header .btn.btn-ghost.btn-sm.active:hover,
+.post-hdr .btn.btn-ghost.btn-sm.active:hover {
+  background: var(--page-header-control-bg);
+  color: var(--text);
 }
 
 .page-header-right {
@@ -943,8 +968,8 @@ button.nav-item {
   height: 32px;
   padding: 0 12px;
   border-radius: 999px;
-  background: var(--bg3);
-  border: 1px solid var(--border2);
+  background: var(--page-header-control-bg);
+  border: 1px solid var(--page-header-control-border);
   color: var(--text);
   font-family: var(--font);
   font-size: 13px;
@@ -952,8 +977,8 @@ button.nav-item {
   transition: border-color .12s, background .12s;
 }
 .page-header-search::placeholder { color: var(--text3); }
-.page-header-search:hover { background: var(--bg4); }
-.page-header-search:focus { border-color: var(--accent); background: var(--bg4); }
+.page-header-search:hover { background: var(--page-header-control-bg-hover); }
+.page-header-search:focus { border-color: var(--control-border-active); background: var(--page-header-control-bg-focus); }
 
 /* ── Buttons ── */
 .btn {
@@ -966,7 +991,8 @@ button.nav-item {
 .btn:disabled:hover { opacity: .45; }
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-ghost { background: var(--bg4); color: var(--text2); border: 1px solid var(--border2); }
-.btn-ghost.active { background: var(--adim); color: var(--accent); border-color: var(--accent); }
+.btn-ghost.active { background: var(--bg4); color: var(--text); border-color: var(--control-border-active); }
+.btn-ghost.active:hover { opacity: 1; }
 .btn-sm { padding: 4px 10px; font-size: 12px; }
 .btn-danger { background: rgba(232,90,90,.1); color: var(--red); border: 1px solid rgba(232,90,90,.3); }
 
@@ -1634,7 +1660,7 @@ button.nav-item {
   min-height: 0;
   min-width: 0;
   overflow-y: auto;
-  padding: calc(24px + var(--hdr)) 20px 90px 20px;
+  padding: calc(24px + var(--hdr) - 30px) 20px 90px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1645,9 +1671,13 @@ button.nav-item {
 .feed-inner {
   width: var(--composer-w);
   max-width: 100%;
-  padding-left: 10px;
 }
-.feed-section { margin-top: 0; }
+.feed-section {
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .feed-section + .feed-section { margin-top: 0; }
 .section-label {
   font-size: 11px; font-weight: 600; letter-spacing: .08em;
@@ -1656,7 +1686,7 @@ button.nav-item {
   width: var(--feed-post-w); max-width: 100%;
   margin: 28px 0 16px;
 }
-.feed-section-cards { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.feed-section-cards { display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%; }
 .draft-cards-stack {
   gap: 0;
 }
@@ -1891,8 +1921,8 @@ button.nav-item {
   height: 32px;
   padding: 0 10px;
   border-radius: 999px;
-  border: 1px solid var(--border2);
-  background: var(--bg3);
+  border: 1px solid var(--page-header-control-border);
+  background: var(--page-header-control-bg);
   color: var(--text2);
   font-family: var(--font);
   font-size: 12px;
@@ -1930,7 +1960,7 @@ button.nav-item {
   pointer-events: auto;
 }
 .jump-post-btn:hover {
-  background: var(--bg4);
+  background: var(--page-header-control-bg-hover);
   color: var(--text);
 }
 .status-badge {
@@ -1991,7 +2021,11 @@ button.nav-item {
   flex-direction: column;
   gap: 12px;
 }
-.post-body-inner .post-msg-card { width: 500px; max-width: 100%; }
+.post-body-inner .post-msg-card {
+  width: 500px;
+  max-width: 100%;
+  align-self: center;
+}
 .post-body-inner .msg-row { padding: 6px 0; }
 .post-body.hidden { display: none; }
 .post-msg-card {
@@ -2357,7 +2391,7 @@ a.note-file-item:hover {
   transition: all .15s;
 }
 .filter-tab:hover { border-color: var(--border2); color: var(--text2); }
-.filter-tab.active { background: var(--adim); border-color: var(--accent); color: var(--accent); }
+.filter-tab.active { background: var(--bg4); border-color: var(--control-border-active); color: var(--text); }
 .filter-spacer { flex: 1; }
 .notes-grid-page {
   width: min(var(--content-w), 100%);
@@ -2383,7 +2417,7 @@ a.note-file-item:hover {
   font-size: 11px; padding: 2px 7px; border-radius: 20px; cursor: pointer;
   border: 1px solid var(--border2); background: var(--bg4); color: var(--text3); transition: all .15s;
 }
-.note-ai-toggle.on { background: var(--adim); border-color: var(--accent); color: var(--accent); }
+.note-ai-toggle.on { background: var(--bg4); border-color: var(--control-border-active); color: var(--text); }
 @media (max-width: 1100px) {
   .notes-grid-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -2400,7 +2434,7 @@ a.note-file-item:hover {
   padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer;
   border: 1px solid var(--border2); background: var(--bg4); color: var(--text3); transition: all .15s;
 }
-.period-tab.active { background: var(--adim); border-color: var(--accent); color: var(--accent); }
+.period-tab.active { background: var(--bg4); border-color: var(--control-border-active); color: var(--text); }
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 12px; margin-bottom: 24px; }
 .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
 .stat-label { font-size: 12px; color: var(--text3); margin-bottom: 6px; }
