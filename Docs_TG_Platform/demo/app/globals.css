@@ -758,7 +758,7 @@ button.nav-item {
   border-bottom: 1px solid var(--glass-border);
   /* Три колонки: левый блок и правый занимают поровну оставшегося места — центр визуально по середине шапки */
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   column-gap: 10px;
   padding: 0 20px;
@@ -791,36 +791,33 @@ button.nav-item {
 .page-header-center {
   position: static;
   justify-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-width: 0;
   width: auto;
   max-width: 100%;
   z-index: 1;
 }
-/* Ширина центра ленты: поиск + тумблеры ширины карточки (позиция — как у остальных экранов, left: 50% + translate из .page-header-center) */
+/* Лента: лимит ширины центра шапки; сам блок по ширине содержимого (поиск + gap + тумблеры) */
 #screen-feed {
   --feed-header-search-toggles: 280px;
 }
 #screen-feed .page-header-center {
-  /* Поле поиска (--page-header-search-w) + тумблеры ширины карточки + gap */
-  width: min(
-    calc(var(--page-header-search-w) + var(--feed-header-search-toggles)),
-    calc(100vw - var(--nav-w) - 24px)
-  );
+  /* Ширина по содержимому (поиск + gap + тумблеры), верхняя граница — сумма блоков */
+  width: fit-content;
   max-width: min(
-    calc(var(--page-header-search-w) + var(--feed-header-search-toggles)),
-    calc(100vw - var(--nav-w) - 180px)
+    calc(var(--page-header-search-w) + 10px + var(--feed-header-search-toggles)),
+    calc(100vw - var(--nav-w) - 48px)
   );
 }
 #screen-chats .page-header-center,
 #screen-notes .page-header-center {
   --header-scope-tabs-w: 312px;
-  width: min(
-    calc(var(--page-header-search-w) + var(--header-scope-tabs-w)),
-    calc(100vw - var(--nav-w) - 24px)
-  );
+  width: fit-content;
   max-width: min(
-    calc(var(--page-header-search-w) + var(--header-scope-tabs-w)),
-    calc(100vw - var(--nav-w) - 180px)
+    calc(var(--page-header-search-w) + 10px + var(--header-scope-tabs-w)),
+    calc(100vw - var(--nav-w) - 48px)
   );
 }
 /* Аналитика / профиль: табы в центре шапки */
@@ -877,7 +874,8 @@ button.nav-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   min-width: 0;
 }
 .page-header-search-tools-row .chats-tabs,
