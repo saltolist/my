@@ -2312,6 +2312,14 @@ button.nav-item {
   z-index: 5;
 }
 .post-hdr-top { display: flex; align-items: center; gap: 8px; height: 100%; }
+.post-hdr-top .page-header-left {
+  flex: 1;
+  min-width: 0;
+}
+.post-hdr-top .page-header-right {
+  margin-left: auto;
+  flex-shrink: 0;
+}
 .post-hdr-top .breadcrumb { flex: 1; }
 .post-hdr-actions {
   display: flex; align-items: center; justify-content: flex-end; gap: 8px;
