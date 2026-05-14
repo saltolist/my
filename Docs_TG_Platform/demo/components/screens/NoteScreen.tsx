@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useApp } from "@/state/AppContext";
-import { truncate } from "@/lib/helpers";
+import { useApp, postById } from "@/state/AppContext";
+import { truncate, postTitle } from "@/lib/helpers";
 import { ContextMenu } from "../ContextMenu";
 import PageHeader from "../PageHeader";
 import type { ActiveNote, NoteFile } from "@/lib/types";
@@ -16,23 +16,41 @@ export default function NoteScreen() {
     return <PageHeader title="Заметка" backTo="notes" />;
   }
 
-  const backLabel = note.isGlobal ? "Заметки" : "Лента / Пост";
   const backFallback = state.noteFrom === "post" ? "post" : "notes";
-  const goBack = () => navigateBack(backFallback);
+  const parentPost = !note.isGlobal ? postById(state, note.postId) : null;
+
+  const breadcrumb =
+    note.isGlobal ? (
+      <div className="breadcrumb">
+        <span className="bc-link" onClick={() => navigateBack("notes")}>
+          Заметки
+        </span>
+        <span className="bc-sep">/</span>
+        <span className="crumb-current">{truncate(note.title, 38)}</span>
+      </div>
+    ) : (
+      <div className="breadcrumb">
+        <span className="bc-link" onClick={() => navigate("feed")}>
+          Лента
+        </span>
+        <span className="bc-sep">/</span>
+        {parentPost ? (
+          <>
+            <span className="bc-link" onClick={() => openPost(note.postId)}>
+              {truncate(postTitle(parentPost), 32)}
+            </span>
+            <span className="bc-sep">/</span>
+          </>
+        ) : null}
+        <span className="crumb-current">{truncate(note.title, 38)}</span>
+      </div>
+    );
 
   return (
     <>
       <PageHeader
         backTo={backFallback}
-        left={
-          <div className="breadcrumb">
-            <span className="bc-link" onClick={goBack}>
-              {backLabel}
-            </span>
-            <span>/</span>
-            <b>{truncate(note.title, 38)}</b>
-          </div>
-        }
+        left={breadcrumb}
         actions={
           <ContextMenu
             items={[

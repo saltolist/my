@@ -23,8 +23,8 @@ export default function GlobalChatScreen() {
             <span className="bc-link" onClick={() => navigateBack("chats")}>
               Чаты
             </span>
-            <span>/</span>
-            <b>{chat?.title || "—"}</b>
+            <span className="bc-sep">/</span>
+            <span className="crumb-current">{chat?.title || "—"}</span>
           </div>
         </div>
         <div className="page-header-right">

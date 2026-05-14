@@ -164,8 +164,31 @@ export default function PostScreen() {
               <span className="bc-link" onClick={() => navigate("feed")}>
                 Лента
               </span>
-              <span>/</span>
-              <b>{truncate(postTitle(post), 38)}</b>
+              <span className="bc-sep">/</span>
+              {state.postMode === "chat" && state.currentPostChatId != null && activeChat ? (
+                <>
+                  <span
+                    className="bc-link"
+                    onClick={() =>
+                      dispatch({
+                        type: "SET_STATE",
+                        patch: {
+                          postMode: "chat",
+                          currentPostChatId: null,
+                          postViewStack: [],
+                          isEditing: false,
+                        },
+                      })
+                    }
+                  >
+                    {truncate(postTitle(post), 32)}
+                  </span>
+                  <span className="bc-sep">/</span>
+                  <span className="crumb-current">{truncate(activeChat.title, 32)}</span>
+                </>
+              ) : (
+                <span className="crumb-current">{truncate(postTitle(post), 38)}</span>
+              )}
             </div>
           </div>
           <div className="page-header-right">
