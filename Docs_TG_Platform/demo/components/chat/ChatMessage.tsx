@@ -221,6 +221,9 @@ export default function ChatMessage({
   const userBranchCount = message.userBranches?.length ?? 0;
   const userBranchIdx = isUser && userBranchCount > 0 ? clampActiveBranchIndex(message) : 0;
 
+  const canGoBranchPrev = userBranchIdx > 0;
+  const canGoBranchNext = userBranchIdx < userBranchCount - 1;
+
   const bumpUserBranch = useCallback(
     (delta: number) => {
       if (!ctx || userBranchCount < 2) return;
@@ -253,73 +256,78 @@ export default function ChatMessage({
         <div
           className={`msg-user-hover-zone${editing ? " msg-user-hover-zone--editing" : ""}`}
         >
-          {ctx && !editing ? (
-            <div className="msg-user-side-actions">
-              <button
-                type="button"
-                className="ai-msg-action-btn"
-                aria-label="Редактировать"
-                title="Редактировать"
-                onClick={startEdit}
-              >
-                <IcUserEdit />
-              </button>
-              <button
-                type="button"
-                className={`ai-msg-action-btn${copied ? " on" : ""}`}
-                aria-label={copied ? "Скопировано" : "Скопировать"}
-                title={copied ? "Скопировано" : "Скопировать"}
-                onClick={() => void onCopyUser()}
-              >
-                {copied ? (
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    aria-hidden
+          <div className="msg-user-stack">
+            <div className="msg-user-bubble-row">
+              {ctx && !editing ? (
+                <div className="msg-user-side-actions">
+                  <button
+                    type="button"
+                    className="ai-msg-action-btn"
+                    aria-label="Редактировать"
+                    title="Редактировать"
+                    onClick={startEdit}
                   >
-                    <path d="M20 6 9 17l-5-5" />
-                  </svg>
-                ) : (
-                  <IcUserCopy />
-                )}
-              </button>
-            </div>
-          ) : null}
-          <div className="msg-body">
-            {editing ? (
-              <div className="msg-user-edit-wrap">
-                <textarea
-                  ref={taRef}
-                  className="msg-user-edit"
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  rows={1}
-                  spellCheck={false}
-                  aria-label="Текст сообщения"
-                />
-                <div className="msg-user-edit-bar">
-                  <button type="button" className="btn btn-ghost btn-sm" onClick={cancelEdit}>
-                    Отмена
+                    <IcUserEdit />
                   </button>
-                  <button type="button" className="btn btn-sm btn-user-edit-done" onClick={saveEdit}>
-                    Готово
+                  <button
+                    type="button"
+                    className={`ai-msg-action-btn${copied ? " on" : ""}`}
+                    aria-label={copied ? "Скопировано" : "Скопировать"}
+                    title={copied ? "Скопировано" : "Скопировать"}
+                    onClick={() => void onCopyUser()}
+                  >
+                    {copied ? (
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        aria-hidden
+                      >
+                        <path d="M20 6 9 17l-5-5" />
+                      </svg>
+                    ) : (
+                      <IcUserCopy />
+                    )}
                   </button>
                 </div>
+              ) : null}
+              <div className="msg-body">
+                {editing ? (
+                  <div className="msg-user-edit-wrap">
+                    <textarea
+                      ref={taRef}
+                      className="msg-user-edit"
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value)}
+                      rows={1}
+                      spellCheck={false}
+                      aria-label="Текст сообщения"
+                    />
+                    <div className="msg-user-edit-bar">
+                      <button type="button" className="btn btn-ghost btn-sm" onClick={cancelEdit}>
+                        Отмена
+                      </button>
+                      <button type="button" className="btn btn-sm btn-user-edit-done" onClick={saveEdit}>
+                        Готово
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="msg-text" dangerouslySetInnerHTML={{ __html: textHtml }} />
+                )}
               </div>
-            ) : (
-              <div className="msg-text" dangerouslySetInnerHTML={{ __html: textHtml }} />
-            )}
+            </div>
             {ctx && userBranchCount > 1 && !editing ? (
               <div className="msg-user-branch-row">
                 <button
                   type="button"
                   className="msg-user-branch-arrow"
-                  aria-label="Предыдущая версия"
-                  title="Предыдущая версия"
+                  aria-label={canGoBranchPrev ? "Предыдущая версия" : "Предыдущей версии нет"}
+                  title={canGoBranchPrev ? "Предыдущая версия" : "Предыдущей версии нет"}
+                  disabled={!canGoBranchPrev}
                   onClick={() => bumpUserBranch(-1)}
                 >
                   <BranchChevronIcon dir="left" />
@@ -330,8 +338,9 @@ export default function ChatMessage({
                 <button
                   type="button"
                   className="msg-user-branch-arrow"
-                  aria-label="Следующая версия"
-                  title="Следующая версия"
+                  aria-label={canGoBranchNext ? "Следующая версия" : "Следующей версии нет"}
+                  title={canGoBranchNext ? "Следующая версия" : "Следующей версии нет"}
+                  disabled={!canGoBranchNext}
                   onClick={() => bumpUserBranch(1)}
                 >
                   <BranchChevronIcon dir="right" />
