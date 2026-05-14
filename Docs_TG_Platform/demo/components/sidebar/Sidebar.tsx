@@ -586,20 +586,19 @@ export default function Sidebar() {
         )}
       </div>
 
-      <button
-        type="button"
-        className={`nav-item${activeNav === "home" ? " active" : ""}`}
-        onClick={goHome}
-        title="Глобальный чат"
-        aria-label="Глобальный чат"
-      >
-        <span className="nav-icon">
-          <NavIconPlus />
-        </span>
-        <span className="nav-label">Глобальный чат</span>
-      </button>
-
       <div className="nav-items">
+        <button
+          type="button"
+          className={`nav-item${activeNav === "home" ? " active" : ""}`}
+          onClick={goHome}
+          title="Глобальный чат"
+          aria-label="Глобальный чат"
+        >
+          <span className="nav-icon">
+            <NavIconPlus />
+          </span>
+          <span className="nav-label">Глобальный чат</span>
+        </button>
         <NavItem id="feed" label="Лента" icon={<NavIconFeed />} active={activeNav === "feed"} onClick={() => navigate("feed")} />
         <NavItem
           id="analytics"
@@ -647,9 +646,17 @@ export default function Sidebar() {
             ) : (
               <>
                 <div className="nav-recent-chats-section-label">Этот пост</div>
-                {recentNotesModel.thisPost.map((row) => renderRecentNoteRow(row))}
+                {recentNotesModel.thisPost.length === 0 ? (
+                  <div className="nav-recent-empty">Заметок нет</div>
+                ) : (
+                  recentNotesModel.thisPost.map((row) => renderRecentNoteRow(row))
+                )}
                 <div className="nav-recent-chats-section-label">Остальные</div>
-                {recentNotesModel.others.map((row) => renderRecentNoteRow(row))}
+                {recentNotesModel.others.length === 0 ? (
+                  <div className="nav-recent-empty">Заметок нет</div>
+                ) : (
+                  recentNotesModel.others.map((row) => renderRecentNoteRow(row))
+                )}
               </>
             )}
           </div>
@@ -694,9 +701,17 @@ export default function Sidebar() {
             ) : (
               <>
                 <div className="nav-recent-chats-section-label">Этот пост</div>
-                {recentChatsModel.thisPost.map((row) => renderRecentChatRow(row))}
+                {recentChatsModel.thisPost.length === 0 ? (
+                  <div className="nav-recent-empty">Чатов нет</div>
+                ) : (
+                  recentChatsModel.thisPost.map((row) => renderRecentChatRow(row))
+                )}
                 <div className="nav-recent-chats-section-label">Остальные</div>
-                {recentChatsModel.others.map((row) => renderRecentChatRow(row))}
+                {recentChatsModel.others.length === 0 ? (
+                  <div className="nav-recent-empty">Чатов нет</div>
+                ) : (
+                  recentChatsModel.others.map((row) => renderRecentChatRow(row))
+                )}
               </>
             )}
           </div>
