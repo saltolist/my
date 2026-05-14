@@ -2,10 +2,11 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { postById, useApp } from "@/state/AppContext";
-import { postTitle, readFileAsMedia, truncate } from "@/lib/helpers";
+import { postTitle, readFileAsMedia, truncate, chatListUserLine, chatListAssistantLine } from "@/lib/helpers";
 import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/lib/chatPaths";
 import Composer from "../composer/Composer";
 import ChatMessage from "../chat/ChatMessage";
+import ChatListCardMenu from "../chat/ChatListCardMenu";
 import PostMediaBlock from "../post/PostMediaBlock";
 import { PostReactionPills, PostViewsReposts } from "../feed/PostEngagement";
 import { ContextMenu, type CtxMenuItem } from "../ContextMenu";
@@ -507,7 +508,7 @@ function PostChats({
   onOpenChat: (chatId: number) => void;
   onNewChat: () => void;
 }) {
-  const { state, dispatch } = useApp();
+  const { state } = useApp();
   const post = postById(state, state.currentPostId);
   if (!post) return null;
 
@@ -525,31 +526,33 @@ function PostChats({
             <p>Пока нет локальных чатов</p>
           </div>
         ) : (
-          post.chats.map((c) => (
-            <div key={c.id} className="chat-card" onClick={() => onOpenChat(c.id)}>
-              <div className="chat-card-icon">💬</div>
-              <div className="chat-card-body">
-                <div className="chat-card-title">{c.title || "Без названия"}</div>
-                <div className="chat-card-preview">
-                  &quot;{truncate(c.preview || "", 55)}&quot;
+          post.chats.map((c) => {
+            const userLine = chatListUserLine(c.history, c.title || "Без названия");
+            const assistantLine = chatListAssistantLine(c.history, c.preview || "");
+            return (
+              <div key={c.id} className="chat-card" onClick={() => onOpenChat(c.id)}>
+                <div className="chat-card-body-row">
+                  <div className="chat-card-main">
+                    <div className="chat-card-row1">
+                      <div className="chat-card-title">{userLine}</div>
+                      <div className="chat-card-menu-slot" onClick={(e) => e.stopPropagation()}>
+                        <ChatListCardMenu
+                          scope="local"
+                          postId={post.id}
+                          chatId={c.id}
+                          title={c.title || "Без названия"}
+                        />
+                      </div>
+                    </div>
+                    <div className="chat-card-row2">
+                      <div className="chat-card-preview">{assistantLine || "—"}</div>
+                      <div className="chat-card-date">{c.date}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="chat-card-right">
-                <div className="chat-card-date">{c.date}</div>
-                <button
-                  className="chat-del-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!confirm("Удалить чат?")) return;
-                    dispatch({ type: "DELETE_LOCAL_CHAT", postId: post.id, chatId: c.id });
-                  }}
-                  type="button"
-                >
-                  🗑
-                </button>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

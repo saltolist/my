@@ -1,4 +1,4 @@
-import type { Post, PostMedia } from "./types";
+import type { ChatMessage, Post, PostMedia } from "./types";
 
 export function truncate(value: string | undefined | null, max: number): string {
   if (!value) return "";
@@ -99,6 +99,46 @@ export function isImageMedia(m: PostMedia): boolean {
 
 export function isVideoMedia(m: PostMedia): boolean {
   return m.type.startsWith("video/") || /\.(mp4|webm|mov|m4v)$/i.test(m.name);
+}
+
+function userMessagePlainText(m: ChatMessage): string {
+  if (m.role !== "user") return "";
+  if (m.userBranches?.length) {
+    const i = Math.min(m.activeUserBranch ?? 0, m.userBranches.length - 1);
+    return (m.userBranches[i]?.text || m.userBranches[0]?.text || "").trim();
+  }
+  return (m.text || "").trim();
+}
+
+function aiMessagePlainText(m: ChatMessage): string {
+  if (m.role !== "ai") return "";
+  if (m.variants?.length) {
+    const i = Math.min(m.selectedVariant ?? 0, m.variants.length - 1);
+    return (m.variants[i]?.text || m.variants[0]?.text || "").trim();
+  }
+  return (m.text || "").trim();
+}
+
+function chatLineOneLine(s: string): string {
+  return s.replace(/\s+/g, " ").trim();
+}
+
+/** Первая реплика пользователя для списка чатов (fallback — заголовок чата). */
+export function chatListUserLine(history: ChatMessage[], fallbackTitle: string): string {
+  for (const msg of history) {
+    const t = userMessagePlainText(msg);
+    if (t) return chatLineOneLine(t);
+  }
+  return chatLineOneLine(fallbackTitle || "Без названия");
+}
+
+/** Первый ответ ассистента для списка чатов (fallback — превью). */
+export function chatListAssistantLine(history: ChatMessage[], fallbackPreview: string): string {
+  for (const msg of history) {
+    const t = aiMessagePlainText(msg);
+    if (t) return chatLineOneLine(t);
+  }
+  return chatLineOneLine(fallbackPreview || "");
 }
 
 export function readFileAsMedia(file: File): Promise<PostMedia> {

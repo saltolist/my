@@ -123,10 +123,12 @@ html.sidebar-collapsed {
 
 /* Карточки поста в ленте и в пространстве поста — чисто белые (светлая тема) */
 :root[data-theme="light"] .post-card,
-:root[data-theme="light"] .post-msg-card {
+:root[data-theme="light"] .post-msg-card,
+:root[data-theme="light"] .chat-card {
   background: #ffffff;
 }
-:root[data-theme="light"] .post-card:hover {
+:root[data-theme="light"] .post-card:hover,
+:root[data-theme="light"] .chat-card:hover {
   background: #ffffff;
 }
 
@@ -176,10 +178,12 @@ html.sidebar-collapsed {
   }
 
   :root[data-theme="system"] .post-card,
-  :root[data-theme="system"] .post-msg-card {
+  :root[data-theme="system"] .post-msg-card,
+  :root[data-theme="system"] .chat-card {
     background: #ffffff;
   }
-  :root[data-theme="system"] .post-card:hover {
+  :root[data-theme="system"] .post-card:hover,
+  :root[data-theme="system"] .chat-card:hover {
     background: #ffffff;
   }
 }
@@ -2551,7 +2555,6 @@ button.nav-item {
 }
 .post-chats-actions { display: flex; justify-content: flex-end; padding-bottom: 4px; }
 .post-chats-inner > .empty { width: 100%; }
-.chat-card-post { color: var(--text2); font-weight: 500; }
 
 /* ════════════════════════════════
    SCREEN: NOTE PAGE
@@ -2713,33 +2716,119 @@ a.note-file-item:hover {
 .chats-scroll-inner { width: min(var(--content-w), 100%); }
 /* Глобальные / локальные чаты — переключатель в шапке (.page-header-search-tools-row) */
 .chat-card {
-  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
-  padding: 12px 14px; margin-bottom: 8px; cursor: pointer;
-  transition: border-color .15s; display: flex; align-items: flex-start; gap: 10px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--post-card-r);
+  padding: 8px 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s;
 }
-.chat-card:hover { border-color: var(--border2); }
-.chat-card-icon {
-  width: 34px; height: 34px; border-radius: 9px; background: var(--bg4);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px; flex-shrink: 0;
+.chat-card-menu-slot {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  line-height: 0;
 }
-.chat-card-body { flex: 1; min-width: 0; }
-.chat-card-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
-.chat-card-preview { font-size: 12px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.chat-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
-.chat-card-date { font-size: 11px; color: var(--text3); }
-.chat-del-btn {
-  font-size: 14px; color: var(--text3); background: none; border: none; cursor: pointer;
-  transition: color .15s; padding: 0; line-height: 1;
+.chat-card-body-row {
+  min-width: 0;
 }
-.chat-del-btn:hover { color: var(--red); }
-.to-post-btn {
-  padding: 3px 8px; font-size: 11px; border-radius: var(--rs);
-  background: var(--bg4); border: 1px solid var(--border2);
-  color: var(--text3); cursor: pointer; transition: all .15s;
+.chat-card:hover {
+  border-color: var(--border2);
 }
-.to-post-btn:hover { border-color: var(--accent); color: var(--accent); }
-
+.chat-card-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 1fr 1fr;
+  gap: 0;
+  min-width: 0;
+  /* две равные по высоте строки; при росте контента обе тянутся одинаково */
+  min-height: 4.25rem;
+}
+.chat-card-row1,
+.chat-card-row2 {
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.chat-card-row1 {
+  justify-content: flex-start;
+  gap: 10px;
+}
+.chat-card-row2 {
+  justify-content: space-between;
+  gap: 12px;
+}
+.chat-card-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-card-preview {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--text3);
+  opacity: 0.88;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-card-date {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--text3);
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.chat-card-ctx {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+}
+.chat-card-ctx .ctx-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  box-sizing: border-box;
+  width: 25px;
+  height: 25px;
+  min-width: 25px;
+  min-height: 25px;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+  color: var(--text3);
+  opacity: 0.9;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  transition: color 0.12s ease, opacity 0.12s ease;
+}
+.chat-card-ctx .ctx-btn:hover,
+.chat-card-ctx .ctx-btn:focus,
+.chat-card-ctx .ctx-btn:focus-visible {
+  background: transparent;
+  color: var(--text2);
+  opacity: 1;
+  outline: none;
+}
+.chat-card-ctx .ctx-btn svg {
+  display: block;
+}
 /* ════════════════════════════════
    SCREEN: NOTES LIST
 ════════════════════════════════ */
@@ -3666,7 +3755,6 @@ a.note-file-item:hover {
   }
 
   .rubric-item,
-  .chat-card,
   .note-file-item {
     align-items: flex-start;
   }
@@ -3677,10 +3765,6 @@ a.note-file-item:hover {
 
   .rubric-freq {
     margin-left: 18px;
-  }
-
-  .chat-card-right {
-    align-items: flex-end;
   }
 
   .notes-page {
@@ -3767,14 +3851,5 @@ a.note-file-item:hover {
 
   .bar-val {
     width: auto;
-  }
-
-  .chat-card {
-    gap: 8px;
-  }
-
-  .chat-card-icon {
-    width: 30px;
-    height: 30px;
   }
 }

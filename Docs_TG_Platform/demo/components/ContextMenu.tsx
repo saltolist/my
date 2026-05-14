@@ -21,6 +21,7 @@ export function ContextMenu({
   align = "right",
   portal = false,
   onOpenChange,
+  triggerAriaLabel,
 }: {
   items: CtxMenuItem[];
   trigger?: ReactNode;
@@ -30,6 +31,8 @@ export function ContextMenu({
   /** Рендер выпадающего списка в `document.body` (чтобы не обрезался `overflow` родителя). */
   portal?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Подпись кнопки-триггера (экранные читалки). */
+  triggerAriaLabel?: string;
 }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -99,6 +102,7 @@ export function ContextMenu({
         ref={btnRef}
         className="ctx-btn"
         type="button"
+        aria-label={triggerAriaLabel}
         onClick={(e) => {
           e.stopPropagation();
           setOpen((v) => !v);
