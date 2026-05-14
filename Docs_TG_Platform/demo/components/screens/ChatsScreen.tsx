@@ -57,7 +57,7 @@ export default function ChatsScreen() {
     return (
       <div key={c.id} className="chat-card" onClick={() => openGChat(c.id)}>
         <div className="chat-card-icon-rail" aria-hidden>
-          <NavIconChats />
+          <NavIconChats strokeWidth={1.5} />
         </div>
         <div className="chat-card-body-row">
           <div className="chat-card-main">
@@ -97,7 +97,7 @@ export default function ChatsScreen() {
         }
       >
         <div className="chat-card-icon-rail" aria-hidden>
-          <NavIconFeed />
+          <NavIconFeed strokeWidth={1.5} />
         </div>
         <div className="chat-card-body-row">
           <div className="chat-card-main">

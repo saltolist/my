@@ -2721,8 +2721,9 @@ a.note-file-item:hover {
   align-items: stretch;
   --chat-card-pad-x: 14px;
   --chat-card-icon-size: 35px;
-  /* слева: иконка + тот же отступ до текста, что был между слотом нави и строками */
-  --chat-card-icon-lead: calc(var(--chat-card-icon-size) + var(--chat-card-pad-x));
+  /* зазор слева от края и справа от иконки до текста (иконка по центру полосы) */
+  --chat-card-icon-side: 14px;
+  --chat-card-icon-lead: calc(var(--chat-card-icon-size) + 2 * var(--chat-card-icon-side));
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: var(--post-card-r);
@@ -2733,7 +2734,7 @@ a.note-file-item:hover {
   overflow: hidden;
   min-width: 0;
 }
-/* Иконка по центру зоны от левого края до начала текста; ширина зоны под увеличенную иконку */
+/* Иконка по центру полосы; ширина полосы = 35px + боковые --chat-card-icon-side */
 .chat-card-icon-rail {
   flex: 0 0 var(--chat-card-icon-lead);
   width: var(--chat-card-icon-lead);
@@ -2796,6 +2797,7 @@ a.note-file-item:hover {
 .chat-card-row2 {
   justify-content: space-between;
   gap: 12px;
+  margin-top: -5px;
 }
 .chat-card-title {
   flex: 1;
