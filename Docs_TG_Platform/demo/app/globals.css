@@ -27,6 +27,10 @@
   --hdr:     56px;
   --r:       10px;
   --rs:      6px;
+  /* Карточки поста (лента + пространство поста) и превью DnD — скругление в 2× от базового --r */
+  --post-card-r: calc(var(--r) * 2);
+  /* Клип медиа: дуга концентрична обводке поста (~1px border + 2px поля) */
+  --post-media-clip-r: calc(var(--post-card-r) - 3px);
   --sb-w:    8px;
   --font:    -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
@@ -108,6 +112,15 @@ html.sidebar-collapsed {
     linear-gradient(178deg, #f7f8fc 0%, var(--bg) 38%, #f3f4f8 100%);
 }
 
+/* Карточки поста в ленте и в пространстве поста — чисто белые (светлая тема) */
+:root[data-theme="light"] .post-card,
+:root[data-theme="light"] .post-msg-card {
+  background: #ffffff;
+}
+:root[data-theme="light"] .post-card:hover {
+  background: #ffffff;
+}
+
 /* "system" → follow OS preference */
 @media (prefers-color-scheme: light) {
   :root[data-theme="system"] {
@@ -151,6 +164,14 @@ html.sidebar-collapsed {
       radial-gradient(100% 82% at 94% 0%, rgba(37, 99, 235, 0.075) 0%, transparent 50%),
       radial-gradient(88% 72% at 0% 100%, rgba(124, 58, 237, 0.05) 0%, transparent 52%),
       linear-gradient(178deg, #f7f8fc 0%, var(--bg) 38%, #f3f4f8 100%);
+  }
+
+  :root[data-theme="system"] .post-card,
+  :root[data-theme="system"] .post-msg-card {
+    background: #ffffff;
+  }
+  :root[data-theme="system"] .post-card:hover {
+    background: #ffffff;
   }
 }
 html, body {
@@ -1515,15 +1536,16 @@ button.nav-item {
   visibility: visible !important;
   background: var(--bg2) !important;
   border: 1px solid var(--accent) !important;
-  border-radius: var(--r);
+  border-radius: var(--post-card-r);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.38);
 }
 .post-card {
-  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
-  padding: 14px 16px; cursor: pointer;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--post-card-r);
+  padding: 3px 16px 14px; cursor: pointer;
   transition: border-color .15s, background .15s;
   display: flex; align-items: flex-start; gap: 10px;
   width: var(--feed-post-w); max-width: 100%;
+  overflow: hidden;
 }
 .post-card.post-card--draft-dnd {
   flex-direction: column;
@@ -1583,7 +1605,28 @@ button.nav-item {
   margin-bottom: 10px;
 }
 .post-card-text.empty { color: var(--text3); font-style: italic; }
-.post-card-media { margin-bottom: 10px; }
+/* Медиа: 2px от внутреннего края padding; клип с радиусом концентрично карточке (иначе вылезает за скругление и режется «по прямой») */
+.post-card-media {
+  margin-left: -14px;
+  margin-right: -14px;
+  width: calc(100% + 28px);
+  max-width: none;
+  margin-top: 1px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  border-radius: var(--post-media-clip-r) var(--post-media-clip-r) 0 0;
+}
+.post-card:not(.post-card--draft-dnd) .post-card-media {
+  margin-top: -1px;
+}
+.post-card-media .tg-media,
+.post-msg-media .tg-media,
+.post-msg-media-edit .tg-media {
+  border-radius: 0;
+  overflow: visible;
+  gap: 0;
+  background: transparent;
+}
 .post-meta { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text3); flex-wrap: wrap; }
 .post-status { display: flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 500; }
 .dot-g { color: var(--green); } .dot-o { color: var(--orange); } .dot-gr { color: var(--text3); }
@@ -1669,10 +1712,15 @@ button.nav-item {
 .post-body-inner .msg-row { padding: 6px 0; }
 .post-body.hidden { display: none; }
 .post-msg-card {
-  background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--r);
-  padding: 14px 16px;
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--post-card-r);
+  padding: 3px 16px 14px;
+  overflow: hidden;
 }
 .post-msg-label { font-size: 10px; font-weight: 600; letter-spacing: .07em; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; }
+.post-msg-card:has(.post-msg-media) .post-msg-label,
+.post-msg-card:has(.post-msg-media-edit) .post-msg-label {
+  margin-bottom: 1px;
+}
 .post-msg-text { font-size: 14px; line-height: 1.7; color: var(--text); white-space: pre-wrap; }
 .post-msg-textarea {
   width: 100%;
@@ -1694,8 +1742,20 @@ button.nav-item {
   align-items: center; flex-wrap: wrap;
 }
 .post-edit-actions-right { margin-left: auto; display: flex; gap: 8px; }
-.post-msg-media-edit { margin-bottom: 10px; }
-.post-msg-media { margin-top: 10px; }
+.post-msg-media-edit {
+  margin: 0 -14px 10px -14px;
+  width: calc(100% + 28px);
+  max-width: none;
+  overflow: hidden;
+  border-radius: var(--post-media-clip-r) var(--post-media-clip-r) 0 0;
+}
+.post-msg-media {
+  margin: 0 -14px 10px -14px;
+  width: calc(100% + 28px);
+  max-width: none;
+  overflow: hidden;
+  border-radius: var(--post-media-clip-r) var(--post-media-clip-r) 0 0;
+}
 
 /* ════════════════════════════════
    TG-style media block
@@ -2738,7 +2798,19 @@ a.note-file-item:hover {
   }
 
   .post-card {
-    padding: 12px;
+    padding: 3px 12px 12px;
+  }
+
+  /* padding карточки 12px → медиа 2px по бокам; сверху как у десктопа при padding-top 3px */
+  .post-card-media {
+    margin-left: -10px;
+    margin-right: -10px;
+    width: calc(100% + 20px);
+    margin-top: 1px;
+    margin-bottom: 10px;
+  }
+  .post-card:not(.post-card--draft-dnd) .post-card-media {
+    margin-top: -1px;
   }
 
   .post-meta,
