@@ -5,6 +5,7 @@ import { useApp } from "@/state/AppContext";
 import { postTitle, chatListUserLine, chatListAssistantLine } from "@/lib/helpers";
 import PageHeader from "../PageHeader";
 import ChatListCardMenu from "../chat/ChatListCardMenu";
+import { NavIconChats, NavIconFeed } from "@/components/sidebar/NavIcons";
 import type { ChatMessage, ChatsTab } from "@/lib/types";
 
 type LocalChatRow = {
@@ -55,6 +56,9 @@ export default function ChatsScreen() {
     const assistantLine = chatListAssistantLine(c.history, c.preview);
     return (
       <div key={c.id} className="chat-card" onClick={() => openGChat(c.id)}>
+        <div className="chat-card-icon-rail" aria-hidden>
+          <NavIconChats />
+        </div>
         <div className="chat-card-body-row">
           <div className="chat-card-main">
             <div className="chat-card-row1">
@@ -92,6 +96,9 @@ export default function ChatsScreen() {
           })
         }
       >
+        <div className="chat-card-icon-rail" aria-hidden>
+          <NavIconFeed />
+        </div>
         <div className="chat-card-body-row">
           <div className="chat-card-main">
             <div className="chat-card-row1">

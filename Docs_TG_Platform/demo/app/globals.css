@@ -20,6 +20,9 @@
   --purple:  #9b7cdb;
   --nav-w:   220px;
   --nav-w-rail: 86px;
+  /* Ячейка иконки в сайдбаре и те же отступы слева у списка чатов */
+  --nav-icon-slot: 28px;
+  --nav-icon-art: 18px;
   --content-w: 1160px;
   --composer-w: 720px;
   /* Базовая ширина только поля поиска в шапке (лента / чаты / заметки); рядом — тумблеры */
@@ -258,9 +261,6 @@ html, body {
   --nav-pill-radius: var(--r);
   --nav-content-inset: 14px;
   --nav-pad-left: calc(var(--nav-content-inset) - var(--nav-pill-gutter));
-  /* Левый край 18px SVG в ячейке .nav-icon 28px — подписи недавних совпадают с рисунком иконок */
-  --nav-icon-slot: 28px;
-  --nav-icon-art: 18px;
   --nav-recent-pad-left: calc(var(--nav-pad-left) + (var(--nav-icon-slot) - var(--nav-icon-art)) / 2);
   transition: width 0.2s ease, min-width 0.2s ease;
 }
@@ -2716,13 +2716,44 @@ a.note-file-item:hover {
 .chats-scroll-inner { width: min(var(--content-w), 100%); }
 /* Глобальные / локальные чаты — переключатель в шапке (.page-header-search-tools-row) */
 .chat-card {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  --chat-card-pad-x: 14px;
+  --chat-card-icon-size: 35px;
+  /* слева: иконка + тот же отступ до текста, что был между слотом нави и строками */
+  --chat-card-icon-lead: calc(var(--chat-card-icon-size) + var(--chat-card-pad-x));
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: var(--post-card-r);
-  padding: 8px 14px;
+  padding: 0;
   margin-bottom: 8px;
   cursor: pointer;
   transition: border-color 0.15s;
+  overflow: hidden;
+  min-width: 0;
+}
+/* Иконка по центру зоны от левого края до начала текста; ширина зоны под увеличенную иконку */
+.chat-card-icon-rail {
+  flex: 0 0 var(--chat-card-icon-lead);
+  width: var(--chat-card-icon-lead);
+  min-width: var(--chat-card-icon-lead);
+  align-self: stretch;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  background: transparent;
+  color: var(--text2);
+  transition: color 0.12s ease;
+}
+.chat-card:hover .chat-card-icon-rail {
+  color: var(--text);
+}
+.chat-card-icon-rail svg {
+  display: block;
+  width: var(--chat-card-icon-size) !important;
+  height: var(--chat-card-icon-size) !important;
 }
 .chat-card-menu-slot {
   flex-shrink: 0;
@@ -2733,7 +2764,9 @@ a.note-file-item:hover {
   line-height: 0;
 }
 .chat-card-body-row {
+  flex: 1;
   min-width: 0;
+  padding: 8px var(--chat-card-pad-x) 8px 0;
 }
 .chat-card:hover {
   border-color: var(--border2);
