@@ -3,15 +3,18 @@
 import { getPostMediaItems } from "@/lib/helpers";
 import type { Post } from "@/lib/types";
 import PostMediaBlock from "../post/PostMediaBlock";
+import PostCommentsRow from "../post/PostCommentsRow";
 import { PostReactionPills, PostViewsReposts } from "./PostEngagement";
 
 export default function PostCard({
   post,
   onOpen,
+  onOpenComments,
   draftHandleProps,
 }: {
   post: Post;
   onOpen: () => void;
+  onOpenComments?: () => void;
   draftHandleProps?: {
     onMouseDown?: () => void;
     onClickStop: (e: React.MouseEvent) => void;
@@ -103,6 +106,15 @@ export default function PostCard({
             <PostViewsReposts views={post.metrics.views} reposts={post.metrics.reposts} />
           ) : null}
         </div>
+        {post.status === "published" && post.metrics ? (
+          <PostCommentsRow
+            count={post.comments?.length ?? 0}
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenComments?.();
+            }}
+          />
+        ) : null}
       </div>
     </div>
   );

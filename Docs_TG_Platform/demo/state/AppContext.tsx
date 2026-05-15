@@ -48,6 +48,7 @@ import type {
   NoteMode,
   NoteScope,
   Post,
+  PostComment,
   PostMode,
   ScreenId,
   TelegramProfileConfig,
@@ -147,6 +148,7 @@ type Action =
   | { type: "TOGGLE_POST_NOTE_AI"; postId: number; noteId: number }
   | { type: "UPDATE_POST_NOTE"; postId: number; noteId: number; patch: Partial<LocalNote> }
   | { type: "DELETE_POST"; postId: number }
+  | { type: "ADD_POST_COMMENT"; postId: number; comment: PostComment }
   | { type: "REORDER_POSTS"; posts: Post[] }
   | { type: "ADD_GLOBAL_CHAT"; chat: GlobalChat }
   | { type: "PUSH_GLOBAL_CHAT"; chatId: string; message: ChatMessage }
@@ -306,6 +308,15 @@ function reducer(state: State, action: Action): State {
       const filtered = state.posts.filter((p) => p.id !== action.postId);
       return { ...state, posts: filtered, currentPostId: null };
     }
+    case "ADD_POST_COMMENT":
+      return {
+        ...state,
+        posts: state.posts.map((p) =>
+          p.id === action.postId
+            ? { ...p, comments: [...(p.comments ?? []), action.comment] }
+            : p,
+        ),
+      };
     case "REORDER_POSTS":
       return { ...state, posts: action.posts };
     case "ADD_GLOBAL_CHAT":
@@ -551,6 +562,7 @@ type AppContextValue = {
   pushRouteSnapshot: () => void;
   goHome: () => void;
   openPost: (id: number | "new") => void;
+  openPostComments: (id: number) => void;
   openGChat: (id: string) => void;
   sendHome: (text: string) => boolean;
   sendGChat: (text: string) => boolean;
@@ -738,6 +750,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
           currentPostId: id,
           currentPostChatId: null,
           postMode: "chat",
+          postViewStack: [],
+          isEditing: false,
+          screen: "post",
+        },
+      });
+    },
+    [canLeaveCurrentScreen],
+  );
+
+  const openPostComments = useCallback(
+    (id: number) => {
+      if (!canLeaveCurrentScreen("post")) return;
+      setMobileSidebarOpen(false);
+      navStackRef.current.push(captureRouteState(stateRef.current));
+      dispatch({
+        type: "SET_STATE",
+        patch: {
+          currentPostId: id,
+          currentPostChatId: null,
+          postMode: "comments",
           postViewStack: [],
           isEditing: false,
           screen: "post",
@@ -989,6 +1021,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       pushRouteSnapshot,
       goHome,
       openPost,
+      openPostComments,
       openGChat,
       sendHome,
       sendGChat,
@@ -1014,6 +1047,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       pushRouteSnapshot,
       goHome,
       openPost,
+      openPostComments,
       openGChat,
       sendHome,
       sendGChat,

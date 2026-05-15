@@ -10,9 +10,12 @@ import ChatListCardMenu from "../chat/ChatListCardMenu";
 import NoteListCardMenu from "../note/NoteListCardMenu";
 import PostMediaBlock from "../post/PostMediaBlock";
 import { PostReactionPills, PostViewsReposts } from "../feed/PostEngagement";
+import PageHeaderSearchInput from "../PageHeaderSearchInput";
+import PostCommentsPanel from "../post/PostCommentsPanel";
+import PostCommentsRow from "../post/PostCommentsRow";
 import { ContextMenu, type CtxMenuItem } from "../ContextMenu";
 import { buildNoteSnapshot, createNewPostNote, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
-import type { LocalNote, NoteFile, PostMedia, PostMetrics, PostMode } from "@/lib/types";
+import type { LocalNote, NoteFile, PostComment, PostMedia, PostMetrics, PostMode } from "@/lib/types";
 
 export default function PostScreen() {
   const { state, dispatch, navigate, navigateBack, navigateWithState, canLeaveCurrentScreen, sendPost } =
@@ -21,6 +24,7 @@ export default function PostScreen() {
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const postCardRef = useRef<HTMLDivElement>(null);
   const [showJump, setShowJump] = useState(false);
+  const [commentsSearch, setCommentsSearch] = useState("");
   const mediaItems: PostMedia[] = post?.media ?? [];
   const activeChat = post?.chats.find((c) => c.id === state.currentPostChatId) || null;
   const chatHistory = activeChat?.history;
@@ -70,9 +74,14 @@ export default function PostScreen() {
       },
     });
   };
-  const toggleMode = (target: "chats" | "notes") => {
+  const toggleMode = (target: "chats" | "notes" | "comments") => {
     const next = state.postMode === target ? "chat" : target;
+    if (target === "comments" && next === "comments") setCommentsSearch("");
     pushPostView(next, state.currentPostChatId);
+  };
+  const openPostView = () => {
+    if (state.postMode === "chat") return;
+    pushPostView("chat", state.currentPostChatId);
   };
   const openLocalChat = (chatId: number) => pushPostView("chat", chatId);
   const startNewChat = () => pushPostView("chat", null);
@@ -180,7 +189,7 @@ export default function PostScreen() {
 
   return (
     <>
-      <div className="post-hdr">
+      <div className={`post-hdr${state.postMode === "comments" ? " post-hdr--comments" : ""}`}>
         <div className="post-hdr-top">
           <div className="page-header-left">
             <div className="breadcrumb">
@@ -188,7 +197,15 @@ export default function PostScreen() {
                 Лента
               </span>
               <span className="bc-sep">/</span>
-              {state.postMode === "chat" && state.currentPostChatId != null && activeChat ? (
+              {state.postMode === "comments" ? (
+                <>
+                  <span className="bc-link" onClick={openPostView}>
+                    {truncate(postTitle(post), 32)}
+                  </span>
+                  <span className="bc-sep">/</span>
+                  <span className="crumb-current">Комментарии</span>
+                </>
+              ) : state.postMode === "chat" && state.currentPostChatId != null && activeChat ? (
                 <>
                   <span
                     className="bc-link"
@@ -214,6 +231,15 @@ export default function PostScreen() {
               )}
             </div>
           </div>
+          {state.postMode === "comments" ? (
+            <div className="page-header-center">
+              <PageHeaderSearchInput
+                placeholder="Поиск по комментариям..."
+                value={commentsSearch}
+                onChange={(e) => setCommentsSearch(e.target.value)}
+              />
+            </div>
+          ) : null}
           <div
             className={`page-header-right${showJump ? " post-hdr-has-reveal" : ""}`}
           >
@@ -285,6 +311,8 @@ export default function PostScreen() {
                 }}
                 badge={badgeForPost(post)}
                 metrics={post.status === "published" && post.metrics ? post.metrics : null}
+                comments={post.status === "published" ? (post.comments ?? []) : undefined}
+                onOpenComments={() => pushPostView("comments", state.currentPostChatId)}
               />
               {flatMessages.map(({ message: m, path }, i) => (
                 <ChatMessage
@@ -305,6 +333,15 @@ export default function PostScreen() {
         </>
       ) : state.postMode === "chats" ? (
         <PostChats onOpenChat={openLocalChat} />
+      ) : state.postMode === "comments" ? (
+        <PostCommentsPanel
+          post={post}
+          search={commentsSearch}
+          postCardRef={postCardRef}
+          badge={badgeForPost(post)}
+          metrics={post.status === "published" && post.metrics ? post.metrics : null}
+          media={mediaItems}
+        />
       ) : (
         <PostNotes />
       )}
@@ -334,6 +371,8 @@ const PostMessageCard = ({
   onSave,
   badge,
   metrics,
+  comments,
+  onOpenComments,
 }: {
   ref: React.RefObject<HTMLDivElement | null>;
   isEditing: boolean;
@@ -344,7 +383,10 @@ const PostMessageCard = ({
   onSave: (t: string, media: PostMedia[]) => void;
   badge: React.ReactNode;
   metrics: PostMetrics | null;
+  comments?: PostComment[];
+  onOpenComments?: () => void;
 }) => {
+  const showComments = !!metrics && comments !== undefined;
   const [draft, setDraft] = useState(text);
   const [mediaDraft, setMediaDraft] = useState<PostMedia[]>(media);
   const taRef = useRef<HTMLTextAreaElement>(null);
@@ -390,7 +432,11 @@ const PostMessageCard = ({
   }
 
   return (
-    <div className="post-msg-card" id="post-msg-card" ref={ref}>
+    <div
+      className={`post-msg-card${showComments ? " post-msg-card--with-comments" : ""}`}
+      id="post-msg-card"
+      ref={ref}
+    >
       {isEditing ? (
         <>
           {mediaDraft.length > 0 ? (
@@ -447,14 +493,29 @@ const PostMessageCard = ({
             {text || <span style={{ color: "var(--text3)" }}>Пост пустой — начни писать...</span>}
           </div>
           {metrics ? <PostReactionPills reactions={metrics.reactions} /> : null}
-          <div className="post-status-row">
-            {badge}
-            <div className="post-status-row-right">
-              {metrics ? <PostViewsReposts views={metrics.views} reposts={metrics.reposts} /> : null}
-              <button className="edit-trigger-btn" onClick={onStartEdit} type="button">
-                ✏ Редактировать
-              </button>
+          <div className="post-msg-card-tail">
+            <div className="post-status-row">
+              {badge}
+              <div className="post-status-row-right">
+                {metrics ? <PostViewsReposts views={metrics.views} reposts={metrics.reposts} /> : null}
+                <button className="edit-trigger-btn" onClick={onStartEdit} type="button">
+                  ✏ Редактировать
+                </button>
+              </div>
             </div>
+            {showComments ? (
+              <PostCommentsRow
+                count={comments?.length ?? 0}
+                onClick={
+                  onOpenComments
+                    ? (e) => {
+                        e.stopPropagation();
+                        onOpenComments();
+                      }
+                    : undefined
+                }
+              />
+            ) : null}
           </div>
         </>
       )}

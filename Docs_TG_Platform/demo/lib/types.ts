@@ -69,6 +69,14 @@ export type PostReaction = { emoji: string; count: number };
 
 export type PostMetrics = { views: string; reposts: number; reactions: PostReaction[] };
 
+export type PostComment = {
+  id: number;
+  author: string;
+  text: string;
+  date: string;
+  replyToId?: number;
+};
+
 export type PostMedia = {
   name: string;
   url: string;
@@ -94,6 +102,7 @@ export type Post = {
   media?: PostMedia[];
   notes: LocalNote[];
   chats: LocalChat[];
+  comments?: PostComment[];
 };
 
 export type GlobalChat = {
@@ -146,7 +155,7 @@ export type ComposerTarget = { llmId: string; webId: string };
 export type ChatsTab = "all" | "global" | "local";
 export type NoteScope = "all" | "global" | "local";
 export type NoteListFilter = "all" | "ai" | "noai";
-export type PostMode = "chat" | "chats" | "notes";
+export type PostMode = "chat" | "chats" | "notes" | "comments";
 export type NoteMode = "view" | "edit";
 export type NoteFromScreen = "notes" | "post";
 

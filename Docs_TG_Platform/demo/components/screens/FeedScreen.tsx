@@ -15,7 +15,7 @@ const FEED_POST_WIDTHS = [500, 390, 270] as const;
 type FeedPostWidth = (typeof FEED_POST_WIDTHS)[number];
 
 export default function FeedScreen() {
-  const { state, dispatch, openPost } = useApp();
+  const { state, dispatch, openPost, openPostComments } = useApp();
   const [draft, setDraft] = useState("");
   const [pendingMedia, setPendingMedia] = useState<PostMedia[]>([]);
   const [search, setSearch] = useState("");
@@ -107,7 +107,12 @@ export default function FeedScreen() {
               <div className="section-label">Опубликованные</div>
               <div className="feed-section-cards">
                 {published.map((p) => (
-                  <PostCard key={p.id} post={p} onOpen={() => openPost(p.id)} />
+                  <PostCard
+                    key={p.id}
+                    post={p}
+                    onOpen={() => openPost(p.id)}
+                    onOpenComments={() => openPostComments(p.id)}
+                  />
                 ))}
               </div>
             </div>

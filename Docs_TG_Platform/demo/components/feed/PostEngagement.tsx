@@ -18,7 +18,15 @@ export function PostReactionPills({ reactions }: { reactions: PostMetrics["react
   );
 }
 
-export function PostViewsReposts({ views, reposts }: Pick<PostMetrics, "views" | "reposts">) {
+export function PostViewsReposts({
+  views,
+  reposts,
+  comments,
+  onOpenComments,
+}: Pick<PostMetrics, "views" | "reposts"> & {
+  comments?: number;
+  onOpenComments?: () => void;
+}) {
   return (
     <div className="post-metrics-views-reposts">
       <span className="post-metric-item" title="Просмотры">
@@ -33,6 +41,22 @@ export function PostViewsReposts({ views, reposts }: Pick<PostMetrics, "views" |
         </span>
         {reposts}
       </span>
+      {comments != null && comments > 0 && onOpenComments ? (
+        <button
+          className="post-metric-item post-metric-comments"
+          title="Комментарии"
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenComments();
+          }}
+        >
+          <span className="post-metric-ico" aria-hidden>
+            💬
+          </span>
+          {comments}
+        </button>
+      ) : null}
     </div>
   );
 }
