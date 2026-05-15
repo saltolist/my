@@ -7,6 +7,7 @@ import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/lib/chatPaths
 import Composer from "../composer/Composer";
 import ChatMessage from "../chat/ChatMessage";
 import ChatListCardMenu from "../chat/ChatListCardMenu";
+import NoteListCardMenu from "../note/NoteListCardMenu";
 import PostMediaBlock from "../post/PostMediaBlock";
 import { PostReactionPills, PostViewsReposts } from "../feed/PostEngagement";
 import { ContextMenu, type CtxMenuItem } from "../ContextMenu";
@@ -469,33 +470,26 @@ function PostNotes() {
         {post.notes.map((n) => (
           <div key={n.id} className="note-card" onClick={() => openNote(n)}>
             <div className="note-card-body">
-              <div className="note-card-title">{n.title}</div>
+              <div className="note-card-page-head">
+                <div className="note-card-title">{n.title}</div>
+                <div className="chat-card-menu-slot" onClick={(e) => e.stopPropagation()}>
+                  <NoteListCardMenu isGlobal={false} postId={post.id} noteId={n.id} title={n.title} />
+                </div>
+              </div>
               <div className="note-card-preview-post">{n.body || "Пустая заметка"}</div>
             </div>
             <div className="note-card-footer">
-              <span className="note-date">{n.date}</span>
-              <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                <button
-                  className={`note-ai-toggle${n.ai ? " on" : ""}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: post.id, noteId: n.id });
-                  }}
-                  type="button"
-                >
-                  {n.ai ? "● ИИ" : "○ ИИ"}
-                </button>
-                <span
-                  className="note-del"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!confirm("Удалить заметку?")) return;
-                    dispatch({ type: "DELETE_POST_NOTE", postId: post.id, noteId: n.id });
-                  }}
-                >
-                  🗑
-                </span>
-              </div>
+              <span className="note-date">{n.date} · Локальная</span>
+              <button
+                className={`note-ai-toggle${n.ai ? " on" : ""}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: post.id, noteId: n.id });
+                }}
+                type="button"
+              >
+                {n.ai ? "● ИИ" : "○ ИИ"}
+              </button>
             </div>
           </div>
         ))}

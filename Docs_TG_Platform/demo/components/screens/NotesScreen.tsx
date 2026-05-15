@@ -5,6 +5,7 @@ import { useApp } from "@/state/AppContext";
 import { postTitle } from "@/lib/helpers";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
+import NoteListCardMenu from "../note/NoteListCardMenu";
 import type { GlobalNote, LocalNote, NoteFile } from "@/lib/types";
 
 type AnyNote =
@@ -65,12 +66,6 @@ export default function NotesScreen() {
     } else {
       dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: n.postId, noteId: n.id });
     }
-  };
-
-  const deleteNote = (n: AnyNote) => {
-    if (!confirm("Удалить заметку?")) return;
-    if (n.isGlobal) dispatch({ type: "DELETE_GLOBAL_NOTE", noteId: n.id });
-    else dispatch({ type: "DELETE_POST_NOTE", postId: n.postId, noteId: n.id });
   };
 
   const newGlobal = () => {
@@ -151,12 +146,8 @@ export default function NotesScreen() {
             </div>
           ))}
           {scope === "global" || scope === "all" ? (
-            <button
-              className="btn btn-primary btn-sm notes-new-global-btn"
-              onClick={newGlobal}
-              type="button"
-            >
-              + Новая глобальная
+            <button type="button" className="filter-tab notes-new-note-btn" onClick={newGlobal}>
+              + Новая заметка
             </button>
           ) : null}
         </div>
@@ -180,25 +171,40 @@ export default function NotesScreen() {
                   className="note-card-page"
                   onClick={() => openNote(n)}
                 >
-                  <div className="note-card-name">{n.title}</div>
-                  <div className="note-card-preview">{n.body}</div>
-                  {!n.isGlobal ? (
-                    <div className="note-local-info">
-                      📌 Локальная •{" "}
-                      <a
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openPost(n.postId);
-                        }}
-                      >
-                        к посту
-                      </a>
+                  <div className="note-card-page-head">
+                    <div className="note-card-name">{n.title}</div>
+                    <div className="chat-card-menu-slot" onClick={(e) => e.stopPropagation()}>
+                      {n.isGlobal ? (
+                        <NoteListCardMenu isGlobal noteId={n.id} title={n.title} />
+                      ) : (
+                        <NoteListCardMenu
+                          isGlobal={false}
+                          postId={n.postId}
+                          noteId={n.id}
+                          title={n.title}
+                        />
+                      )}
                     </div>
-                  ) : null}
+                  </div>
+                  <div className="note-card-preview">{n.body}</div>
                   <div className="note-card-footer-pg">
-                    <span className="note-card-date-pg">{n.date}</span>
-                    <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                      <button
+                    <span className="note-card-date-pg">
+                      {n.date} · {n.isGlobal ? "Глобальная" : "Локальная"}
+                      {!n.isGlobal ? (
+                        <>
+                          {" · "}
+                          <a
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openPost(n.postId);
+                            }}
+                          >
+                            к посту
+                          </a>
+                        </>
+                      ) : null}
+                    </span>
+                    <button
                         className={`note-ai-toggle${n.ai ? " on" : ""}`}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -208,17 +214,6 @@ export default function NotesScreen() {
                       >
                         {n.ai ? "● ИИ" : "○ ИИ"}
                       </button>
-                      <button
-                        className="note-del"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteNote(n);
-                        }}
-                        type="button"
-                      >
-                        🗑
-                      </button>
-                    </div>
                   </div>
                 </div>
               ))
