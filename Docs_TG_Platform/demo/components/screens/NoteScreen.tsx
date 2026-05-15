@@ -6,11 +6,11 @@ import { truncate, postTitle } from "@/lib/helpers";
 import {
   buildNoteSnapshot,
   draftNoteTitle,
-  isNoteImageFile,
   noteIdentityKey,
 } from "@/lib/noteDraft";
-import { NoteIconImage } from "../note/NoteHeaderIcons";
 import { ContextMenu } from "../ContextMenu";
+import NoteBodyEditor from "../note/NoteBodyEditor";
+import NoteFilesPanel from "../note/NoteFilesPanel";
 import NoteHeaderToolbar from "../note/NoteHeaderToolbar";
 import PageHeader from "../PageHeader";
 import type { ActiveNote, NoteFile } from "@/lib/types";
@@ -160,7 +160,6 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
   );
 
   const titleRef = useRef<HTMLTextAreaElement>(null);
-  const bodyRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -182,10 +181,6 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
   }, [changed, setDirty]);
 
   useFitTitleSize(titleRef, title, true);
-
-  useEffect(() => {
-    if (!isView && bodyRef.current) autoGrow(bodyRef.current, 500);
-  }, [body, isView]);
 
   const setViewMode = () => dispatch({ type: "SET_STATE", patch: { noteMode: "view" } });
   const setEditMode = () => dispatch({ type: "SET_STATE", patch: { noteMode: "edit" } });
@@ -272,10 +267,20 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
     return () => registerNotePersist(null);
   }, [registerNotePersist, save]);
 
+  const addFile = useCallback((file: File) => {
+    const entry: NoteFile = {
+      name: file.name,
+      type: file.type || "file",
+      url: URL.createObjectURL(file),
+    };
+    setFiles((arr) => [...arr, entry]);
+    return entry;
+  }, []);
+
   const onFilePicked = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setFiles((arr) => [...arr, { name: file.name, type: file.type || "file", url: URL.createObjectURL(file) }]);
+    addFile(file);
     e.target.value = "";
   };
 
@@ -314,19 +319,14 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
               <a onClick={openPost}>→ пост</a>
             </div>
           ) : null}
-          {isView ? (
-            <div className="note-body-view">
-              {body || <span style={{ color: "var(--text3)" }}>Заметка пустая</span>}
-            </div>
-          ) : (
-            <textarea
-              ref={bodyRef}
-              className="note-body-edit"
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-            />
-          )}
-          <NoteFilesView files={files} />
+          <NoteBodyEditor
+            body={body}
+            files={files}
+            isView={isView}
+            onBodyChange={setBody}
+            onAddFile={addFile}
+          />
+          <NoteFilesPanel files={files} draggable />
         </div>
       </div>
       <div className="note-timestamps">
@@ -339,45 +339,3 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
   );
 }
 
-function NoteFileItemIcon({ file }: { file: NoteFile }) {
-  if (isNoteImageFile(file)) {
-    return (
-      <span className="note-file-item-icon">
-        <NoteIconImage />
-      </span>
-    );
-  }
-  return <span className="note-file-item-icon note-file-item-icon--attach">📎</span>;
-}
-
-function NoteFilesView({ files }: { files: NoteFile[] | undefined }) {
-  if (!files || files.length === 0) return null;
-  return (
-    <div className="note-files">
-      <div className="note-files-label">Вложения</div>
-      {files.map((f, i) => {
-        const label = (
-          <>
-            <NoteFileItemIcon file={f} />
-            <b>{f.name}</b>
-            <span>({f.type || "file"})</span>
-          </>
-        );
-        return f.url ? (
-          <a key={i} className="note-file-item" href={f.url} target="_blank" rel="noopener noreferrer">
-            {label}
-          </a>
-        ) : (
-          <div key={i} className="note-file-item">
-            {label}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function autoGrow(el: HTMLTextAreaElement, min: number) {
-  el.style.height = "auto";
-  el.style.height = Math.max(el.scrollHeight, min) + "px";
-}
