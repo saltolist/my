@@ -6,8 +6,10 @@ import { truncate, postTitle } from "@/lib/helpers";
 import {
   buildNoteSnapshot,
   draftNoteTitle,
+  isNoteImageFile,
   noteIdentityKey,
 } from "@/lib/noteDraft";
+import { NoteIconImage } from "../note/NoteHeaderIcons";
 import { ContextMenu } from "../ContextMenu";
 import NoteHeaderToolbar from "../note/NoteHeaderToolbar";
 import PageHeader from "../PageHeader";
@@ -274,7 +276,6 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
     const file = e.target.files?.[0];
     if (!file) return;
     setFiles((arr) => [...arr, { name: file.name, type: file.type || "file", url: URL.createObjectURL(file) }]);
-    setBody((b) => (b.trimEnd() + `\n[Файл: ${file.name}]`).trimStart());
     e.target.value = "";
   };
 
@@ -338,22 +339,40 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
   );
 }
 
+function NoteFileItemIcon({ file }: { file: NoteFile }) {
+  if (isNoteImageFile(file)) {
+    return (
+      <span className="note-file-item-icon">
+        <NoteIconImage />
+      </span>
+    );
+  }
+  return <span className="note-file-item-icon note-file-item-icon--attach">📎</span>;
+}
+
 function NoteFilesView({ files }: { files: NoteFile[] | undefined }) {
   if (!files || files.length === 0) return null;
   return (
     <div className="note-files">
       <div className="note-files-label">Вложения</div>
-      {files.map((f, i) =>
-        f.url ? (
+      {files.map((f, i) => {
+        const label = (
+          <>
+            <NoteFileItemIcon file={f} />
+            <b>{f.name}</b>
+            <span>({f.type || "file"})</span>
+          </>
+        );
+        return f.url ? (
           <a key={i} className="note-file-item" href={f.url} target="_blank" rel="noopener noreferrer">
-            📎 <b>{f.name}</b> <span>({f.type || "file"})</span>
+            {label}
           </a>
         ) : (
           <div key={i} className="note-file-item">
-            📎 <b>{f.name}</b> <span>({f.type || "file"})</span>
+            {label}
           </div>
-        ),
-      )}
+        );
+      })}
     </div>
   );
 }

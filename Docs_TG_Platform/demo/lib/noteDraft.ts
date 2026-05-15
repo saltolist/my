@@ -19,6 +19,11 @@ export function buildNoteSnapshot(title: string, body: string, ai: boolean, file
   return JSON.stringify({ title: title.trim(), body, ai, files });
 }
 
+export function isNoteImageFile(file: NoteFile): boolean {
+  if (file.type?.startsWith("image/")) return true;
+  return /\.(png|jpe?g|gif|webp|svg|bmp|avif|heic)$/i.test(file.name);
+}
+
 export function createNewGlobalNote(): ActiveNote {
   return {
     id: "gn-new",
