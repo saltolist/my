@@ -24,7 +24,7 @@ export default function PostScreen() {
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const postCardRef = useRef<HTMLDivElement>(null);
   const [showJump, setShowJump] = useState(false);
-  const [commentsSearch, setCommentsSearch] = useState("");
+  const [listSearch, setListSearch] = useState("");
   const mediaItems: PostMedia[] = post?.media ?? [];
   const activeChat = post?.chats.find((c) => c.id === state.currentPostChatId) || null;
   const chatHistory = activeChat?.history;
@@ -73,10 +73,10 @@ export default function PostScreen() {
         isEditing: false,
       },
     });
+    setListSearch("");
   };
   const toggleMode = (target: "chats" | "notes" | "comments") => {
     const next = state.postMode === target ? "chat" : target;
-    if (target === "comments" && next === "comments") setCommentsSearch("");
     pushPostView(next, state.currentPostChatId);
   };
   const openPostView = () => {
@@ -187,9 +187,25 @@ export default function PostScreen() {
     },
   });
 
+  const postSubPage =
+    state.postMode === "comments"
+      ? "Комментарии"
+      : state.postMode === "notes"
+        ? "Заметки"
+        : state.postMode === "chats"
+          ? "Чаты"
+          : null;
+  const showListHeaderSearch = postSubPage != null;
+  const listSearchPlaceholder =
+    state.postMode === "comments"
+      ? "Поиск по комментариям..."
+      : state.postMode === "notes"
+        ? "Поиск по заметкам..."
+        : "Поиск по чатам...";
+
   return (
     <>
-      <div className={`post-hdr${state.postMode === "comments" ? " post-hdr--comments" : ""}`}>
+      <div className={`post-hdr${showListHeaderSearch ? " post-hdr--with-search" : ""}`}>
         <div className="post-hdr-top">
           <div className="page-header-left">
             <div className="breadcrumb">
@@ -197,13 +213,13 @@ export default function PostScreen() {
                 Лента
               </span>
               <span className="bc-sep">/</span>
-              {state.postMode === "comments" ? (
+              {postSubPage ? (
                 <>
                   <span className="bc-link" onClick={openPostView}>
                     {truncate(postTitle(post), 32)}
                   </span>
                   <span className="bc-sep">/</span>
-                  <span className="crumb-current">Комментарии</span>
+                  <span className="crumb-current">{postSubPage}</span>
                 </>
               ) : state.postMode === "chat" && state.currentPostChatId != null && activeChat ? (
                 <>
@@ -231,12 +247,12 @@ export default function PostScreen() {
               )}
             </div>
           </div>
-          {state.postMode === "comments" ? (
+          {showListHeaderSearch ? (
             <div className="page-header-center">
               <PageHeaderSearchInput
-                placeholder="Поиск по комментариям..."
-                value={commentsSearch}
-                onChange={(e) => setCommentsSearch(e.target.value)}
+                placeholder={listSearchPlaceholder}
+                value={listSearch}
+                onChange={(e) => setListSearch(e.target.value)}
               />
             </div>
           ) : null}
@@ -332,18 +348,18 @@ export default function PostScreen() {
           <Composer scope="post" onSubmit={sendPost} />
         </>
       ) : state.postMode === "chats" ? (
-        <PostChats onOpenChat={openLocalChat} />
+        <PostChats search={listSearch} onOpenChat={openLocalChat} />
       ) : state.postMode === "comments" ? (
         <PostCommentsPanel
           post={post}
-          search={commentsSearch}
+          search={listSearch}
           postCardRef={postCardRef}
           badge={badgeForPost(post)}
           metrics={post.status === "published" && post.metrics ? post.metrics : null}
           media={mediaItems}
         />
       ) : (
-        <PostNotes />
+        <PostNotes search={listSearch} />
       )}
     </>
   );
@@ -386,7 +402,7 @@ const PostMessageCard = ({
   comments?: PostComment[];
   onOpenComments?: () => void;
 }) => {
-  const showComments = !!metrics && comments !== undefined;
+  const showComments = !!metrics;
   const [draft, setDraft] = useState(text);
   const [mediaDraft, setMediaDraft] = useState<PostMedia[]>(media);
   const taRef = useRef<HTMLTextAreaElement>(null);
@@ -523,10 +539,15 @@ const PostMessageCard = ({
   );
 };
 
-function PostNotes() {
+function PostNotes({ search }: { search: string }) {
   const { state, dispatch, navigateWithState } = useApp();
   const post = postById(state, state.currentPostId);
   if (!post) return null;
+
+  const q = search.trim().toLowerCase();
+  const notes = post.notes.filter(
+    (n) => !q || n.title.toLowerCase().includes(q) || n.body.toLowerCase().includes(q),
+  );
 
   const openNote = (n: LocalNote) => {
     const files: NoteFile[] = Array.isArray(n.files) ? n.files : [];
@@ -547,8 +568,13 @@ function PostNotes() {
             <div className="eico">📝</div>
             <p>Нет заметок для этого поста</p>
           </div>
+        ) : notes.length === 0 ? (
+          <div className="empty">
+            <div className="eico">📝</div>
+            <p>Ничего не найдено</p>
+          </div>
         ) : null}
-        {post.notes.map((n) => (
+        {notes.map((n) => (
           <div key={n.id} className="note-card" onClick={() => openNote(n)}>
             <div className="note-card-body">
               <div className="note-card-page-head">
@@ -579,10 +605,18 @@ function PostNotes() {
   );
 }
 
-function PostChats({ onOpenChat }: { onOpenChat: (chatId: number) => void }) {
+function PostChats({ search, onOpenChat }: { search: string; onOpenChat: (chatId: number) => void }) {
   const { state } = useApp();
   const post = postById(state, state.currentPostId);
   if (!post) return null;
+
+  const q = search.trim().toLowerCase();
+  const chats = post.chats.filter((c) => {
+    if (!q) return true;
+    const u = chatListUserLine(c.history, c.title || "Без названия");
+    const a = chatListAssistantLine(c.history, c.preview || "");
+    return `${u} ${a} ${c.title}`.toLowerCase().includes(q);
+  });
 
   return (
     <div id="post-chats" className="post-chats visible">
@@ -592,8 +626,13 @@ function PostChats({ onOpenChat }: { onOpenChat: (chatId: number) => void }) {
             <div className="eico">💬</div>
             <p>Пока нет локальных чатов</p>
           </div>
+        ) : chats.length === 0 ? (
+          <div className="empty">
+            <div className="eico">💬</div>
+            <p>Ничего не найдено</p>
+          </div>
         ) : (
-          post.chats.map((c) => {
+          chats.map((c) => {
             const userLine = chatListUserLine(c.history, c.title || "Без названия");
             const assistantLine = chatListAssistantLine(c.history, c.preview || "");
             return (

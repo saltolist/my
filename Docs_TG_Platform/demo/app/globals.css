@@ -2337,21 +2337,21 @@ button.nav-item {
   z-index: 5;
 }
 .post-hdr-top { display: flex; align-items: center; gap: 8px; height: 100%; }
-.post-hdr--comments .post-hdr-top {
+.post-hdr--with-search .post-hdr-top {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   column-gap: 10px;
   width: 100%;
 }
-.post-hdr--comments .page-header-left { justify-self: start; min-width: 0; }
-.post-hdr--comments .page-header-center {
+.post-hdr--with-search .page-header-left { justify-self: start; min-width: 0; }
+.post-hdr--with-search .page-header-center {
   justify-self: center;
   display: flex;
   align-items: center;
   min-width: 0;
   max-width: min(var(--page-header-search-w), calc(100vw - var(--nav-w) - 280px));
 }
-.post-hdr--comments .page-header-right {
+.post-hdr--with-search .page-header-right {
   justify-self: end;
   margin-left: 0;
 }
