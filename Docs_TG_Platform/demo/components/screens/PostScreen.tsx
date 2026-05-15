@@ -300,7 +300,7 @@ export default function PostScreen() {
       ) : state.postMode === "chats" ? (
         <PostChats onOpenChat={openLocalChat} />
       ) : (
-        <PostNotes onAddNote={startNewNote} />
+        <PostNotes />
       )}
     </>
   );
@@ -456,7 +456,7 @@ const PostMessageCard = ({
   );
 };
 
-function PostNotes({ onAddNote }: { onAddNote: () => void }) {
+function PostNotes() {
   const { state, dispatch, navigateWithState } = useApp();
   const post = postById(state, state.currentPostId);
   if (!post) return null;
@@ -507,10 +507,6 @@ function PostNotes({ onAddNote }: { onAddNote: () => void }) {
             </div>
           </div>
         ))}
-        <div className="note-card new-note" onClick={onAddNote}>
-          <span style={{ fontSize: 22 }}>＋</span>
-          <span style={{ fontSize: 12 }}>Новая заметка</span>
-        </div>
       </div>
     </div>
   );
