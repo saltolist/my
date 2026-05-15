@@ -185,7 +185,7 @@ export const initialPosts: Post[] = [
           {
             role: "ai",
             llmLabel: "OpenAI / gpt-4o",
-            webLabel: "Perplexity / sonar-pro",
+            webLabel: "Perplexity / search-api",
             text:
               "По паттернам канала — посты от первого лица с личной историей преодоления страха получают на 35% больше охватов. Здесь сработало три вещи: конкретный числовой заголовок, универсальная боль аудитории и практичные шаги в конце.",
           },
@@ -303,7 +303,7 @@ export const initialGlobalChats: GlobalChat[] = [
       {
         role: "ai",
         llmLabel: "OpenAI / gpt-4o",
-        webLabel: "Perplexity / sonar-pro",
+        webLabel: "Perplexity / search-api",
         text:
           'Три поста за неделю. Лучший — "Синдром чистого листа" (+34% к среднему). Рубрика "Психология денег" обогнала "Разбор" по охватам второй раз подряд.',
       },
@@ -319,7 +319,7 @@ export const initialGlobalChats: GlobalChat[] = [
       {
         role: "ai",
         llmLabel: "OpenAI / gpt-4o",
-        webLabel: "Perplexity / sonar-pro",
+        webLabel: "Perplexity / search-api",
         text:
           "📅 Пн — «Психология денег»: продолжение серии про барьеры\n📅 Ср — «Разбор»: ошибки начинающих инвесторов\n📅 Пт — «Личный опыт»: что купил в апреле",
       },
@@ -365,12 +365,28 @@ export const initialAiProfileConfig: AiProfileConfig = {
       active: true,
       includeInMulti: false,
     },
+    {
+      id: "llm-3",
+      provider: "Perplexity",
+      model: "sonar",
+      apiKey: "pk-perplexity-demo",
+      active: true,
+      includeInMulti: false,
+    },
+    {
+      id: "llm-4",
+      provider: "Perplexity",
+      model: "sonar-pro",
+      apiKey: "pk-perplexity-demo",
+      active: true,
+      includeInMulti: false,
+    },
   ],
   webSearchModels: [
     {
       id: "web-1",
       provider: "Perplexity",
-      model: "sonar-pro",
+      model: "search-api",
       apiKey: "pk-perplexity-demo",
       active: true,
       includeInMulti: true,
@@ -380,6 +396,14 @@ export const initialAiProfileConfig: AiProfileConfig = {
       provider: "Tavily",
       model: "search-v1",
       apiKey: "tvly-demo",
+      active: true,
+      includeInMulti: false,
+    },
+    {
+      id: "web-3",
+      provider: "OpenAI",
+      model: "responses-api-web-search",
+      apiKey: "sk-openai-demo",
       active: true,
       includeInMulti: false,
     },

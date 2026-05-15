@@ -49,7 +49,6 @@ export default function AiModelsBlock() {
       ...cfg.webSearchModels,
       { id: "web-" + Date.now(), provider: "", model: "", apiKey: "", active: true, includeInMulti: false },
     ]);
-
   return (
     <div className="profile-section">
       <div className="profile-section-title">ИИ-движок</div>
@@ -91,6 +90,7 @@ export default function AiModelsBlock() {
       <button className="btn btn-ghost btn-sm" onClick={addWeb} type="button">
         Добавить Web Search модель
       </button>
+
 
       <div className="profile-row" style={{ marginTop: 14 }}>
         <div className="profile-label">Мультиответ</div>

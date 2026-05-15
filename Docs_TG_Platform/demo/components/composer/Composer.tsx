@@ -21,6 +21,7 @@ import {
 import type { ComposerAttachment, ComposerScope, Post } from "@/lib/types";
 import AttachMenu from "./AttachMenu";
 import ModelPicker, { BrainIcon, SearchIcon } from "./ModelPicker";
+import { formatWebSearchComposerLabel, isWebSearchVisibleForLlm } from "@/lib/composer-config";
 
 type Props = {
   scope: ComposerScope;
@@ -86,7 +87,11 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
   const cfg = state.aiProfileConfig;
   const target = state.composerTargets[scope];
   const llmOptions = cfg.llmModels.filter((m) => m.provider && m.model && m.active);
-  const webOptions = cfg.webSearchModels.filter((m) => m.provider && m.model && m.active);
+  const webOptionsAll = cfg.webSearchModels.filter((m) => m.provider && m.model && m.active);
+  const selectedLlm = llmOptions.find((m) => m.id === target?.llmId);
+  const webOptions = webOptionsAll.filter((m) => isWebSearchVisibleForLlm(m, selectedLlm));
+  const webValue =
+    target?.webId && webOptions.some((m) => m.id === target.webId) ? target.webId : "";
   const isMulti = cfg.multiResponseEnabled;
 
   const effectivePlaceholder = placeholder || DEFAULT_PLACEHOLDER;
@@ -563,10 +568,10 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
                 <ModelPicker
                   ariaLabel="Web Search модель"
                   icon={<SearchIcon />}
-                  value={target?.webId || ""}
+                  value={webValue}
                   options={webOptions.map((m) => ({
                     id: m.id,
-                    label: shortComposerLabel(`${m.provider} / ${m.model}`),
+                    label: shortComposerLabel(formatWebSearchComposerLabel(m.provider, m.model)),
                   }))}
                   onChange={(id) => setComposerWeb(scope, id)}
                   emptyValue=""

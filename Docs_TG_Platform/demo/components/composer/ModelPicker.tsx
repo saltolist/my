@@ -4,11 +4,13 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "re
 import { createPortal } from "react-dom";
 
 export type ModelOption = { id: string; label: string };
+export type ModelPickerSection = { title: string; options: ModelOption[] };
 
 type Props = {
   icon?: ReactNode;
   value: string;
-  options: ModelOption[];
+  options?: ModelOption[];
+  sections?: ModelPickerSection[];
   onChange: (id: string) => void;
   emptyValue?: string;
   emptyLabel?: string;
@@ -26,7 +28,8 @@ type Pos =
 export default function ModelPicker({
   icon,
   value,
-  options,
+  options = [],
+  sections,
   onChange,
   emptyValue,
   emptyLabel,
@@ -82,12 +85,13 @@ export default function ModelPicker({
     };
   }, [open]);
 
+  const flatOptions = sections ? sections.flatMap((s) => s.options) : options;
   const isEmpty = emptyValue !== undefined && value === emptyValue;
-  const selected = !isEmpty ? options.find((o) => o.id === value) : null;
+  const selected = !isEmpty ? flatOptions.find((o) => o.id === value) : null;
   const label =
     selected?.label ??
     (isEmpty && emptyLabel ? emptyLabel : placeholderLabel ?? "Выбрать");
-  const isDisabled = disabled || (options.length === 0 && emptyValue === undefined);
+  const isDisabled = disabled || (flatOptions.length === 0 && emptyValue === undefined);
 
   return (
     <div className={`model-picker${open ? " is-open" : ""}${isDisabled ? " is-disabled" : ""}${className ? ` ${className}` : ""}`}>
@@ -144,7 +148,27 @@ export default function ModelPicker({
                   <span className="model-picker-item-label">{emptyLabel}</span>
                 </div>
               ) : null}
-              {options.map((opt) => (
+              {sections
+                ? sections.map((section) => (
+                    <div key={section.title}>
+                      <div className="model-picker-section-title">{section.title}</div>
+                      {section.options.map((opt) => (
+                        <div
+                          key={opt.id}
+                          role="option"
+                          aria-selected={value === opt.id}
+                          className={`model-picker-item${value === opt.id ? " active" : ""}`}
+                          onClick={() => {
+                            onChange(opt.id);
+                            setOpen(false);
+                          }}
+                        >
+                          <span className="model-picker-item-label">{opt.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ))
+                : options.map((opt) => (
                 <div
                   key={opt.id}
                   role="option"

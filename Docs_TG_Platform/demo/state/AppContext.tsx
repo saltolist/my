@@ -19,7 +19,12 @@ import {
   initialPosts,
   initialTelegramProfileConfig,
 } from "@/lib/data";
-import { VARIANT_TAILS } from "@/lib/composer-config";
+import {
+  formatWebSearchComposerLabel,
+  isOpenAiWebSearchModel,
+  isWebSearchVisibleForLlm,
+  VARIANT_TAILS,
+} from "@/lib/composer-config";
 import { getGlobalReply, getPostReply } from "@/lib/replies";
 import { postTitle, truncate } from "@/lib/helpers";
 import {
@@ -801,7 +806,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (id: string) => {
       if (!id) return "Нет";
       const model = state.aiProfileConfig.webSearchModels.find((m) => m.id === id);
-      return model ? `${model.provider} / ${model.model || "модель"}` : "Нет";
+      return model
+        ? formatWebSearchComposerLabel(model.provider, model.model || "модель")
+        : "Нет";
     },
     [state.aiProfileConfig.webSearchModels],
   );
@@ -828,11 +835,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     llmSelected.forEach((llm) => {
       webSelected.forEach((web) => {
+        if (!isWebSearchVisibleForLlm(web, llm)) return;
         pairs.push({
           id: `${llm.id}|${web.id}`,
           llmId: llm.id,
           webId: web.id,
-          label: `${llm.provider}/${llm.model} + ${web.provider}/${web.model}`,
+          label: `${llm.provider}/${llm.model} + ${formatWebSearchComposerLabel(web.provider, web.model)}`,
         });
       });
     });
@@ -856,17 +864,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [state.aiProfileConfig, state.composerTargets],
   );
 
-  const setComposerLlm = useCallback((scope: ComposerScope, llmId: string) => {
-    dispatch({
-      type: "SET_STATE",
-      patch: {
-        composerTargets: {
-          ...state.composerTargets,
-          [scope]: { ...state.composerTargets[scope], llmId },
+  const setComposerLlm = useCallback(
+    (scope: ComposerScope, llmId: string) => {
+      const prev = state.composerTargets[scope];
+      let webId = prev.webId;
+      const llm = state.aiProfileConfig.llmModels.find((m) => m.id === llmId);
+      const web = state.aiProfileConfig.webSearchModels.find((m) => m.id === webId);
+      if (web && isOpenAiWebSearchModel(web.provider, web.model) && !isWebSearchVisibleForLlm(web, llm)) {
+        webId = "";
+      }
+      dispatch({
+        type: "SET_STATE",
+        patch: {
+          composerTargets: {
+            ...state.composerTargets,
+            [scope]: { ...prev, llmId, webId },
+          },
         },
-      },
-    });
-  }, [state.composerTargets]);
+      });
+    },
+    [state.composerTargets, state.aiProfileConfig],
+  );
 
   const setComposerWeb = useCallback((scope: ComposerScope, webId: string) => {
     dispatch({
@@ -890,7 +908,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const llmModel = cfg.llmModels.find((m) => m.id === pair.llmId);
             const webModel = pair.webId ? cfg.webSearchModels.find((m) => m.id === pair.webId) : undefined;
             const llmCap = llmModel ? `${llmModel.provider}/${llmModel.model}` : "";
-            const webCap = webModel ? `${webModel.provider}/${webModel.model}` : "";
+            const webCap = webModel
+              ? formatWebSearchComposerLabel(webModel.provider, webModel.model)
+              : "";
             const label = webCap ? `${llmCap} + ${webCap}` : llmCap;
             return {
               key: pair.id,

@@ -1580,6 +1580,20 @@ button.nav-item {
   box-shadow: var(--dropdown-shadow);
   z-index: 1000;
 }
+.model-picker-section-title {
+  padding: 8px 10px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text3);
+  user-select: none;
+}
+.model-picker-section-title:not(:first-child) {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
 .model-picker-item {
   padding: 7px 10px;
   border-radius: 6px;
