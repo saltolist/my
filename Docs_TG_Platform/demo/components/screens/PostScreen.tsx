@@ -260,13 +260,6 @@ export default function PostScreen() {
             className={`page-header-right${showJump ? " post-hdr-has-reveal" : ""}`}
           >
             <button
-              className="btn btn-ghost btn-sm post-back-btn"
-              onClick={handleBack}
-              type="button"
-            >
-              ← Назад
-            </button>
-            <button
               className={`jump-post-btn${showJump ? " visible" : ""}`}
               onClick={() => chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
               type="button"
@@ -301,6 +294,13 @@ export default function PostScreen() {
                 </button>
               </div>
             </div>
+            <button
+              className="btn btn-ghost btn-sm post-back-btn"
+              onClick={handleBack}
+              type="button"
+            >
+              ← Назад
+            </button>
             <ContextMenu items={ctxItems} />
           </div>
         </div>

@@ -2371,10 +2371,6 @@ button.nav-item {
   transition: transform .2s;
 }
 .post-hdr-actions.has-jump .post-back-btn { transform: translateX(-6px); }
-.post-hdr-top .page-header-right.post-hdr-has-reveal .post-back-btn {
-  transform: translateX(-6px);
-  transition: transform 0.2s;
-}
 .jump-post-btn {
   display: inline-flex;
   align-items: center;
@@ -2399,7 +2395,7 @@ button.nav-item {
   transform: translateY(-4px);
   opacity: 0;
   pointer-events: none;
-  margin-left: -10px;
+  margin-left: 0;
   cursor: pointer;
   transition:
     width 0.2s,
