@@ -5,6 +5,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { useApp } from "@/state/AppContext";
 import type { ChatMessage as ChatMessageType } from "@/lib/types";
 import { clampActiveBranchIndex, displayUserText } from "@/lib/chatPaths";
+import { BrainIcon } from "@/components/composer/ModelPicker";
 import AiMessageToolbar from "./AiMessageToolbar";
 
 type Ctx =
@@ -140,7 +141,9 @@ export default function ChatMessage({
   }, [draft, editing]);
 
   let textHtml = (isUser ? userShown : message.text ?? "").replace(/\n/g, "<br>");
-  let aiFooterLeft: ReactNode = null;
+  let aiVariantNav: ReactNode = null;
+  let aiVariantCount = 0;
+  let aiVariantIdx = 0;
 
   if (!isUser && Array.isArray(message.variants) && message.variants.length > 0) {
     const selectedIdx = Math.min(
@@ -149,29 +152,8 @@ export default function ChatMessage({
     );
     const selected = message.variants[selectedIdx];
     textHtml = (selected?.text || "").replace(/\n/g, "<br>");
-    const showArrows = message.variants.length > 1;
-    if (showArrows && ctx) {
-      aiFooterLeft = (
-        <div className="ai-variant-footer ai-variant-footer--nav-only">
-          <div className="ai-variant-nav">
-            <button
-              className="ai-variant-arrow"
-              onClick={() => cycle(-1, message, ctx, dispatch)}
-              type="button"
-            >
-              ←
-            </button>
-            <button
-              className="ai-variant-arrow"
-              onClick={() => cycle(1, message, ctx, dispatch)}
-              type="button"
-            >
-              →
-            </button>
-          </div>
-        </div>
-      );
-    }
+    aiVariantCount = message.variants.length;
+    aiVariantIdx = selectedIdx;
   }
 
   const plainAi = assistantPlainText(message);
@@ -249,6 +231,64 @@ export default function ChatMessage({
     },
     [ctx, dispatch, userBranchCount, userBranchIdx],
   );
+
+  const canGoVariantPrev = aiVariantIdx > 0;
+  const canGoVariantNext = aiVariantIdx < aiVariantCount - 1;
+
+  const bumpAiVariant = useCallback(
+    (delta: number) => {
+      if (!ctx || aiVariantCount < 2) return;
+      const next = aiVariantIdx + delta;
+      if (next < 0 || next >= aiVariantCount) return;
+      dispatch({
+        type: "SET_AI_VARIANT",
+        scope: ctx.scope,
+        entityId: ctx.entityId,
+        path: ctx.path,
+        variantIdx: next,
+      });
+    },
+    [ctx, dispatch, aiVariantCount, aiVariantIdx],
+  );
+
+  if (!isUser && aiVariantCount > 1 && ctx) {
+    aiVariantNav = (
+      <div className="msg-user-branch-row msg-ai-variant-row">
+        <button
+          type="button"
+          className="msg-user-branch-arrow"
+          aria-label={canGoVariantPrev ? "Предыдущая модель" : "Предыдущей модели нет"}
+          title={canGoVariantPrev ? "Предыдущая модель" : "Предыдущей модели нет"}
+          disabled={!canGoVariantPrev}
+          onClick={() => bumpAiVariant(-1)}
+        >
+          <BranchChevronIcon dir="left" />
+        </button>
+        <span
+          className={`ai-msg-model-hint msg-ai-variant-model${modelTitle.trim() ? "" : " msg-ai-variant-model--empty"}`}
+          role="img"
+          tabIndex={modelTitle.trim() ? 0 : undefined}
+          aria-label={modelTitle.trim() ? `Модель: ${modelTitle}` : "Модель"}
+          title={modelTitle.trim() || undefined}
+          data-tooltip={modelTitle.trim() || undefined}
+        >
+          <span className="ai-msg-toolbar-model-ico" aria-hidden>
+            <BrainIcon />
+          </span>
+        </span>
+        <button
+          type="button"
+          className="msg-user-branch-arrow"
+          aria-label={canGoVariantNext ? "Следующая модель" : "Следующей модели нет"}
+          title={canGoVariantNext ? "Следующая модель" : "Следующей модели нет"}
+          disabled={!canGoVariantNext}
+          onClick={() => bumpAiVariant(1)}
+        >
+          <BranchChevronIcon dir="right" />
+        </button>
+      </div>
+    );
+  }
 
   if (isUser) {
     return (
@@ -359,10 +399,9 @@ export default function ChatMessage({
         <div className="msg-text" dangerouslySetInnerHTML={{ __html: textHtml }} />
         {!isUser && (
           <div className="ai-msg-footer">
-            <div className="ai-msg-footer-left">{aiFooterLeft}</div>
+            <div className="ai-msg-footer-left">{aiVariantNav}</div>
             <AiMessageToolbar
               plainText={plainAi}
-              modelTitle={modelTitle}
               onDelete={
                 ctx && isLastAssistantMessage
                   ? () => {
@@ -389,22 +428,4 @@ export default function ChatMessage({
       </div>
     </div>
   );
-}
-
-function cycle(
-  delta: number,
-  message: ChatMessageType,
-  ctx: Ctx,
-  dispatch: ReturnType<typeof useApp>["dispatch"],
-) {
-  if (!Array.isArray(message.variants) || message.variants.length === 0) return;
-  const current = Number(message.selectedVariant) || 0;
-  const next = (current + delta + message.variants.length) % message.variants.length;
-  dispatch({
-    type: "SET_AI_VARIANT",
-    scope: ctx.scope,
-    entityId: ctx.entityId,
-    path: ctx.path,
-    variantIdx: next,
-  });
 }

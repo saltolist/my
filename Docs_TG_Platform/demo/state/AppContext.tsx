@@ -20,6 +20,7 @@ import {
   initialTelegramProfileConfig,
 } from "@/lib/data";
 import {
+  buildMultiResponsePairs,
   formatWebSearchComposerLabel,
   isOpenAiWebSearchModel,
   isWebSearchVisibleForLlm,
@@ -813,39 +814,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [state.aiProfileConfig.webSearchModels],
   );
 
-  const multiResponsePairs = useCallback(() => {
-    const cfg = state.aiProfileConfig;
-    const llmSelected = cfg.llmModels.filter(
-      (m) => m.provider && m.model && m.active && m.includeInMulti,
-    );
-    const webSelected = cfg.webSearchModels.filter(
-      (m) => m.provider && m.model && m.active && m.includeInMulti,
-    );
-    const pairs: { id: string; llmId: string; webId: string; label: string }[] = [];
-    if (webSelected.length === 0) {
-      llmSelected.forEach((llm) => {
-        pairs.push({
-          id: `${llm.id}|none`,
-          llmId: llm.id,
-          webId: "",
-          label: `${llm.provider}/${llm.model}`,
-        });
-      });
-      return pairs;
-    }
-    llmSelected.forEach((llm) => {
-      webSelected.forEach((web) => {
-        if (!isWebSearchVisibleForLlm(web, llm)) return;
-        pairs.push({
-          id: `${llm.id}|${web.id}`,
-          llmId: llm.id,
-          webId: web.id,
-          label: `${llm.provider}/${llm.model} + ${formatWebSearchComposerLabel(web.provider, web.model)}`,
-        });
-      });
-    });
-    return pairs;
-  }, [state.aiProfileConfig]);
+  const multiResponsePairs = useCallback(
+    () =>
+      buildMultiResponsePairs(
+        state.aiProfileConfig.llmModels,
+        state.aiProfileConfig.webSearchModels,
+      ),
+    [state.aiProfileConfig],
+  );
 
   const hasLlmForSend = useCallback(
     (scope: ComposerScope) => {

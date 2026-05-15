@@ -40,6 +40,68 @@ export function isWebSearchVisibleForLlm(
   return llm?.provider === "OpenAI";
 }
 
+export type MultiResponsePair = {
+  id: string;
+  llmId: string;
+  webId: string;
+  label: string;
+};
+
+type MultiResponseModel = {
+  id: string;
+  provider: string;
+  model: string;
+  active: boolean;
+  includeInMulti: boolean;
+};
+
+/** Пары для мультиответа: OpenAI responses-api + web search только с LLM провайдера OpenAI. */
+export function buildMultiResponsePairs(
+  llmModels: MultiResponseModel[],
+  webSearchModels: MultiResponseModel[],
+): MultiResponsePair[] {
+  const llmSelected = llmModels.filter(
+    (m) => m.provider && m.model && m.active && m.includeInMulti,
+  );
+  const webSelected = webSearchModels.filter(
+    (m) => m.provider && m.model && m.active && m.includeInMulti,
+  );
+  const pairs: MultiResponsePair[] = [];
+
+  if (webSelected.length === 0) {
+    return llmSelected.map((llm) => ({
+      id: `${llm.id}|none`,
+      llmId: llm.id,
+      webId: "",
+      label: `${llm.provider}/${llm.model}`,
+    }));
+  }
+
+  for (const llm of llmSelected) {
+    let hasWebPair = false;
+    for (const web of webSelected) {
+      if (!isWebSearchVisibleForLlm(web, llm)) continue;
+      hasWebPair = true;
+      pairs.push({
+        id: `${llm.id}|${web.id}`,
+        llmId: llm.id,
+        webId: web.id,
+        label: `${llm.provider}/${llm.model} + ${formatWebSearchComposerLabel(web.provider, web.model)}`,
+      });
+    }
+    if (!hasWebPair) {
+      pairs.push({
+        id: `${llm.id}|none`,
+        llmId: llm.id,
+        webId: "",
+        label: `${llm.provider}/${llm.model}`,
+      });
+    }
+  }
+
+  return pairs;
+}
+
 export const VARIANT_TAILS = [
   "Фокус: структурно и практично.",
   "Фокус: более разговорный тон.",

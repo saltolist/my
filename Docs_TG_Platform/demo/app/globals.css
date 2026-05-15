@@ -1797,6 +1797,27 @@ button.nav-item {
   margin-top: 8px;
   padding-right: 2px;
 }
+.msg-ai-variant-row {
+  justify-content: flex-start;
+  margin-top: 0;
+  padding-right: 0;
+}
+.msg-ai-variant-model {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.2em;
+  color: var(--text3);
+  line-height: 0;
+  position: relative;
+  transition: color 0.12s ease;
+}
+.msg-ai-variant-model:hover {
+  color: var(--text2);
+}
+.msg-ai-variant-model--empty::after {
+  display: none;
+}
 .msg-user-branch-count {
   font-size: 12px;
   font-weight: 600;
@@ -1991,6 +2012,9 @@ button.nav-item {
 .ai-msg-model-hint:focus-visible::after {
   opacity: 1;
   visibility: visible;
+}
+.msg-ai-variant-model.ai-msg-model-hint:focus-visible {
+  outline: none;
 }
 
 .ai-msg-more-wrap.ctx-wrap .ctx-btn {

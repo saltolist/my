@@ -12,13 +12,8 @@ export default function AiModelsBlock() {
 
   const update = (next: AiProfileConfig) => dispatch({ type: "UPDATE_AI_CONFIG", config: next });
 
-  const llmEligible = cfg.llmModels.filter(
-    (m) => m.provider && m.model && m.active && m.includeInMulti,
-  ).length;
-  const webEligible = cfg.webSearchModels.filter(
-    (m) => m.provider && m.model && m.active && m.includeInMulti,
-  ).length;
-  const multiEligible = llmEligible >= 2 || (llmEligible >= 1 && webEligible >= 2);
+  const pairCount = multiResponsePairs().length;
+  const multiEligible = pairCount >= 2;
 
   const currentSnapshot = snapshotAiConfig(cfg);
   const dirty = currentSnapshot !== state.modelSettingsSavedSnapshot;

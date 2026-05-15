@@ -2,8 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ContextMenu, type CtxMenuItem } from "@/components/ContextMenu";
-import { BrainIcon } from "@/components/composer/ModelPicker";
-
 function IcCopy() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
@@ -102,12 +100,9 @@ function readAloud(text: string) {
 
 export default function AiMessageToolbar({
   plainText,
-  modelTitle,
   onDelete,
 }: {
   plainText: string;
-  /** Подсказка при наведении на иконку мозга (название LLM ± поиск). Пусто — кнопку не показываем. */
-  modelTitle: string;
   /** Удалить сообщение из истории чата (пункт меню «Удалить»). */
   onDelete?: () => void;
 }) {
@@ -181,19 +176,6 @@ export default function AiMessageToolbar({
       >
         <IcReload />
       </button>
-      {modelTitle.trim() ? (
-        <button
-          type="button"
-          className="ai-msg-action-btn ai-msg-model-hint"
-          aria-label={`Модель: ${modelTitle}`}
-          title={modelTitle}
-          data-tooltip={modelTitle}
-        >
-          <span className="ai-msg-toolbar-model-ico" aria-hidden>
-            <BrainIcon />
-          </span>
-        </button>
-      ) : null}
       <button
         type="button"
         className={`ai-msg-action-btn${vote === "up" ? " on" : ""}`}
