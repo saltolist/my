@@ -11,6 +11,14 @@ export function draftNoteTitle(title: string) {
   return title.trim() || "Без названия";
 }
 
+export function noteIdentityKey(note: ActiveNote): string {
+  return note.isGlobal ? `g-${note.id}` : `p${note.postId}-${note.id}`;
+}
+
+export function buildNoteSnapshot(title: string, body: string, ai: boolean, files: NoteFile[]) {
+  return JSON.stringify({ title: title.trim(), body, ai, files });
+}
+
 export function createNewGlobalNote(): ActiveNote {
   return {
     id: "gn-new",

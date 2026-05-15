@@ -1,12 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useApp, postById } from "@/state/AppContext";
 import { truncate, postTitle } from "@/lib/helpers";
+import {
+  buildNoteSnapshot,
+  draftNoteTitle,
+  noteIdentityKey,
+} from "@/lib/noteDraft";
 import { ContextMenu } from "../ContextMenu";
 import NoteHeaderToolbar from "../note/NoteHeaderToolbar";
 import PageHeader from "../PageHeader";
-import { draftNoteTitle } from "@/lib/noteDraft";
 import type { ActiveNote, NoteFile } from "@/lib/types";
 import { useFitTitleSize } from "@/lib/use-fit-title";
 
@@ -20,33 +24,6 @@ export default function NoteScreen() {
 
   const backFallback = state.noteFrom === "post" ? "post" : "notes";
   const parentPost = !note.isGlobal ? postById(state, note.postId) : null;
-
-  const breadcrumb =
-    note.isGlobal ? (
-      <div className="breadcrumb">
-        <span className="bc-link" onClick={() => navigateBack("notes")}>
-          Заметки
-        </span>
-        <span className="bc-sep">/</span>
-        <span className="crumb-current">{truncate(note.title || "Новая заметка", 38)}</span>
-      </div>
-    ) : (
-      <div className="breadcrumb">
-        <span className="bc-link" onClick={() => navigate("feed")}>
-          Лента
-        </span>
-        <span className="bc-sep">/</span>
-        {parentPost ? (
-          <>
-            <span className="bc-link" onClick={() => openPost(note.postId)}>
-              {truncate(postTitle(parentPost), 32)}
-            </span>
-            <span className="bc-sep">/</span>
-          </>
-        ) : null}
-        <span className="crumb-current">{truncate(note.title || "Новая заметка", 38)}</span>
-      </div>
-    );
 
   const discardNewNote = () => {
     setDirty("note", false);
@@ -73,7 +50,15 @@ export default function NoteScreen() {
     <>
       <PageHeader
         backTo={backFallback}
-        left={breadcrumb}
+        left={
+          <NoteBreadcrumb
+            note={note}
+            parentPost={parentPost}
+            onNavigateNotes={() => navigateBack("notes")}
+            onNavigateFeed={() => navigate("feed")}
+            onOpenPost={openPost}
+          />
+        }
         actions={
           <ContextMenu
             items={[
@@ -107,80 +92,101 @@ export default function NoteScreen() {
         }
       />
       <div className="note-page" id="note-page-body">
-        {state.noteMode === "view" && !note.isNew ? (
-          <NoteView note={note} onOpenPost={openPost} />
-        ) : (
-          <NoteEdit note={note} />
-        )}
+        <NoteWorkspace note={note} />
       </div>
     </>
   );
 }
 
-function NoteView({ note, onOpenPost }: { note: ActiveNote; onOpenPost: (id: number) => void }) {
-  const { dispatch } = useApp();
-  const titleRef = useRef<HTMLDivElement>(null);
-  useFitTitleSize(titleRef, note.title, false);
-  const setEdit = () => dispatch({ type: "SET_STATE", patch: { noteMode: "edit" } });
+function NoteBreadcrumb({
+  note,
+  parentPost,
+  onNavigateNotes,
+  onNavigateFeed,
+  onOpenPost,
+  titleLabel,
+}: {
+  note: ActiveNote;
+  parentPost: ReturnType<typeof postById>;
+  onNavigateNotes: () => void;
+  onNavigateFeed: () => void;
+  onOpenPost: (id: number) => void;
+  titleLabel?: string;
+}) {
+  const title = titleLabel ?? (note.title || "Новая заметка");
+  if (note.isGlobal) {
+    return (
+      <div className="breadcrumb">
+        <span className="bc-link" onClick={onNavigateNotes}>
+          Заметки
+        </span>
+        <span className="bc-sep">/</span>
+        <span className="crumb-current">{truncate(title, 38)}</span>
+      </div>
+    );
+  }
   return (
-    <div className="note-layout">
-      <div className="note-shell">
-        <div className="note-shell-header">
-          <div className="note-title-block">
-            <div className="note-title-row">
-              <div className="note-title-static" id="note-title-static-el" ref={titleRef}>
-                {note.title}
-              </div>
-            </div>
-          </div>
-          <NoteHeaderToolbar mode="view" onToggleMode={setEdit} saveDisabled />
-        </div>
-        <div className="note-shell-content">
-          {!note.isGlobal ? (
-            <div className="note-local-info">
-              📌 Локальная &nbsp;•&nbsp;{" "}
-              <a onClick={() => onOpenPost(note.postId)}>→ пост</a>
-            </div>
-          ) : null}
-          <div className="note-body-view">
-            {note.body || <span style={{ color: "var(--text3)" }}>Заметка пустая</span>}
-          </div>
-          <NoteFilesView files={note.files} />
-        </div>
-      </div>
-      <div className="note-timestamps">
-        Создана: {note.date} &nbsp;•&nbsp; Изменена: {note.date}
-      </div>
+    <div className="breadcrumb">
+      <span className="bc-link" onClick={onNavigateFeed}>
+        Лента
+      </span>
+      <span className="bc-sep">/</span>
+      {parentPost ? (
+        <>
+          <span className="bc-link" onClick={() => onOpenPost(note.postId)}>
+            {truncate(postTitle(parentPost), 32)}
+          </span>
+          <span className="bc-sep">/</span>
+        </>
+      ) : null}
+      <span className="crumb-current">{truncate(title, 38)}</span>
     </div>
   );
 }
 
-function NoteEdit({ note }: { note: ActiveNote }) {
-  const { dispatch, navigate, setDirty, registerNotePersist } = useApp();
+function NoteWorkspace({ note }: { note: ActiveNote }) {
+  const { state, dispatch, navigate, setDirty, registerNotePersist } = useApp();
+  const noteKey = noteIdentityKey(note);
+  const isView = state.noteMode === "view" && !note.isNew;
+
   const [title, setTitle] = useState(note.title);
   const [body, setBody] = useState(note.body);
-  const [files, setFiles] = useState<NoteFile[]>(Array.isArray(note.files) ? note.files : []);
+  const [files, setFiles] = useState<NoteFile[]>(Array.isArray(note.files) ? [...note.files] : []);
+  const initialSnapRef = useRef(
+    state.noteSavedSnapshot ||
+      buildNoteSnapshot(note.title, note.body, note.ai, Array.isArray(note.files) ? note.files : []),
+  );
+
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (bodyRef.current) autoGrow(bodyRef.current, 500);
-  }, [body]);
+    setTitle(note.title);
+    setBody(note.body);
+    setFiles(Array.isArray(note.files) ? [...note.files] : []);
+    initialSnapRef.current =
+      state.noteSavedSnapshot ||
+      buildNoteSnapshot(note.title, note.body, note.ai, Array.isArray(note.files) ? note.files : []);
+  }, [noteKey]); // eslint-disable-line react-hooks/exhaustive-deps -- сброс черновика только при смене заметки
 
-  useFitTitleSize(titleRef, title, true);
-
-  const initialSnap = JSON.stringify({ title: note.title, body: note.body, ai: note.ai, files: note.files || [] });
-  const currentSnap = JSON.stringify({ title: title.trim(), body, ai: note.ai, files });
-  const changed = currentSnap !== initialSnap;
+  const changed = useMemo(
+    () => buildNoteSnapshot(title, body, note.ai, files) !== initialSnapRef.current,
+    [title, body, note.ai, files],
+  );
 
   useEffect(() => {
     setDirty("note", changed);
   }, [changed, setDirty]);
 
+  useFitTitleSize(titleRef, title, true);
+
   useEffect(() => {
-    return () => setDirty("note", false);
-  }, [setDirty]);
+    if (!isView && bodyRef.current) autoGrow(bodyRef.current, 500);
+  }, [body, isView]);
+
+  const setViewMode = () => dispatch({ type: "SET_STATE", patch: { noteMode: "view" } });
+  const setEditMode = () => dispatch({ type: "SET_STATE", patch: { noteMode: "edit" } });
 
   const save = useCallback(() => {
     if (!changed) return;
@@ -201,6 +207,7 @@ function NoteEdit({ note }: { note: ActiveNote }) {
           patch: {
             currentNote: { ...saved, isGlobal: true, files },
             noteMode: "view",
+            noteSavedSnapshot: buildNoteSnapshot(finalTitle, body, note.ai, files),
           },
         });
       } else {
@@ -218,9 +225,11 @@ function NoteEdit({ note }: { note: ActiveNote }) {
           patch: {
             currentNote: { ...saved, isGlobal: false, postId: note.postId, files },
             noteMode: "view",
+            noteSavedSnapshot: buildNoteSnapshot(finalTitle, body, note.ai, files),
           },
         });
       }
+      initialSnapRef.current = buildNoteSnapshot(finalTitle, body, note.ai, files);
       setDirty("note", false);
       return;
     }
@@ -228,7 +237,14 @@ function NoteEdit({ note }: { note: ActiveNote }) {
     if (note.isGlobal) {
       const next = { ...note, title: finalTitle, body, files };
       dispatch({ type: "UPSERT_GLOBAL_NOTE", note: next });
-      dispatch({ type: "SET_STATE", patch: { currentNote: next, noteMode: "view" } });
+      dispatch({
+        type: "SET_STATE",
+        patch: {
+          currentNote: next,
+          noteMode: "view",
+          noteSavedSnapshot: buildNoteSnapshot(finalTitle, body, note.ai, files),
+        },
+      });
     } else {
       dispatch({
         type: "UPDATE_POST_NOTE",
@@ -241,9 +257,11 @@ function NoteEdit({ note }: { note: ActiveNote }) {
         patch: {
           currentNote: { ...note, title: finalTitle, body, files },
           noteMode: "view",
+          noteSavedSnapshot: buildNoteSnapshot(finalTitle, body, note.ai, files),
         },
       });
     }
+    initialSnapRef.current = buildNoteSnapshot(finalTitle, body, note.ai, files);
     setDirty("note", false);
   }, [body, changed, dispatch, files, note, setDirty, title]);
 
@@ -259,6 +277,8 @@ function NoteEdit({ note }: { note: ActiveNote }) {
     setBody((b) => (b.trimEnd() + `\n[Файл: ${file.name}]`).trimStart());
     e.target.value = "";
   };
+
+  const openPost = () => navigate("post");
 
   return (
     <div className="note-layout">
@@ -277,11 +297,11 @@ function NoteEdit({ note }: { note: ActiveNote }) {
             </div>
           </div>
           <NoteHeaderToolbar
-            mode="edit"
-            showAttach
+            mode={isView ? "view" : "edit"}
+            showAttach={!isView}
             onAttach={() => fileInputRef.current?.click()}
             showModeToggle={!note.isNew}
-            onToggleMode={() => dispatch({ type: "SET_STATE", patch: { noteMode: "view" } })}
+            onToggleMode={isView ? setEditMode : setViewMode}
             onSave={save}
             saveDisabled={!changed}
           />
@@ -290,28 +310,30 @@ function NoteEdit({ note }: { note: ActiveNote }) {
           {!note.isGlobal ? (
             <div className="note-local-info">
               📌 Локальная &nbsp;•&nbsp;{" "}
-              <a
-                onClick={() => {
-                  navigate("post");
-                }}
-              >
-                → пост
-              </a>
+              <a onClick={openPost}>→ пост</a>
             </div>
           ) : null}
-          <textarea
-            ref={bodyRef}
-            className="note-body-edit"
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-          />
+          {isView ? (
+            <div className="note-body-view">
+              {body || <span style={{ color: "var(--text3)" }}>Заметка пустая</span>}
+            </div>
+          ) : (
+            <textarea
+              ref={bodyRef}
+              className="note-body-edit"
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+            />
+          )}
           <NoteFilesView files={files} />
         </div>
       </div>
       <div className="note-timestamps">
-        Создана: {note.date} &nbsp;•&nbsp; Изменена: сейчас
+        Создана: {note.date} &nbsp;•&nbsp; Изменена: {changed ? "сейчас" : note.date}
       </div>
-      <input type="file" ref={fileInputRef} style={{ display: "none" }} onChange={onFilePicked} />
+      {!isView ? (
+        <input type="file" ref={fileInputRef} style={{ display: "none" }} onChange={onFilePicked} />
+      ) : null}
     </div>
   );
 }
