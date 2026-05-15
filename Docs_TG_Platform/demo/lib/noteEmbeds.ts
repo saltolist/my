@@ -5,9 +5,12 @@ export type NoteBodySegment =
   | { type: "text"; content: string }
   | { type: "embed"; name: string };
 
-export type BodyRow = { type: "text"; content: string } | { type: "embed"; name: string };
+export type LineCell = { type: "text"; content: string } | { type: "embed"; name: string };
+export type BodyLine = { cells: LineCell[] };
+export type CellPos = { line: number; cell: number };
 
 const EMBED_RE = /\[([^\]]+)\]/g;
+export const MAX_IMAGES_PER_EMBED_ROW = 3;
 
 export function embedToken(name: string) {
   return `[${name}]`;
@@ -35,49 +38,90 @@ export function serializeNoteBody(segments: NoteBodySegment[]): string {
   return segments.map((s) => (s.type === "text" ? s.content : embedToken(s.name))).join("");
 }
 
-export function segmentsToRows(segments: NoteBodySegment[]): BodyRow[] {
-  const rows: BodyRow[] = [];
-  for (const seg of segments) {
-    if (seg.type === "embed") {
-      rows.push({ type: "embed", name: seg.name });
-      continue;
-    }
-    if (!seg.content) {
-      rows.push({ type: "text", content: "" });
-      continue;
-    }
-    for (const line of seg.content.split("\n")) {
-      rows.push({ type: "text", content: line });
-    }
-  }
-  return rows.length > 0 ? rows : [{ type: "text", content: "" }];
+export function isTextLine(line: BodyLine): boolean {
+  return line.cells.length > 0 && line.cells.every((c) => c.type === "text");
 }
 
-export function rowsToSegments(rows: BodyRow[]): NoteBodySegment[] {
-  const segments: NoteBodySegment[] = [];
-  let textBuf: string[] = [];
+export function isEmbedLine(line: BodyLine): boolean {
+  return line.cells.length > 0 && line.cells.every((c) => c.type === "embed");
+}
 
-  const flush = () => {
-    if (textBuf.length > 0) {
-      segments.push({ type: "text", content: textBuf.join("\n") });
-      textBuf = [];
+/** Текстовые и embed-строки всегда разделены: в одной строке не смешиваются. */
+export function segmentsToLines(segments: NoteBodySegment[]): BodyLine[] {
+  const lines: BodyLine[] = [];
+  let embedBuf: LineCell[] = [];
+
+  const flushEmbeds = () => {
+    if (embedBuf.length > 0) {
+      lines.push({ cells: embedBuf });
+      embedBuf = [];
     }
   };
 
-  for (const row of rows) {
-    if (row.type === "embed") {
-      flush();
-      segments.push({ type: "embed", name: row.name });
-    } else {
-      textBuf.push(row.content);
+  for (const seg of segments) {
+    if (seg.type === "embed") {
+      embedBuf.push({ type: "embed", name: seg.name });
+      continue;
+    }
+    flushEmbeds();
+    if (!seg.content) {
+      lines.push({ cells: [{ type: "text", content: "" }] });
+      continue;
+    }
+    for (const part of seg.content.split("\n")) {
+      lines.push({ cells: [{ type: "text", content: part }] });
     }
   }
-  flush();
-  return segments.length > 0 ? segments : [{ type: "text", content: "" }];
+  flushEmbeds();
+  return lines.length > 0 ? lines : [{ cells: [{ type: "text", content: "" }] }];
 }
 
-export function rowsToBody(rows: BodyRow[]): string {
-  return serializeNoteBody(rowsToSegments(rows));
+export function linesToBody(lines: BodyLine[]): string {
+  if (!lines.length) return "";
+  return lines
+    .map((line) => line.cells.map((c) => (c.type === "text" ? c.content : embedToken(c.name))).join(""))
+    .join("\n");
+}
+
+/** Единый формат body для сравнения и сохранения (разделяет текст и вложения по строкам). */
+export function canonicalNoteBody(body: string): string {
+  return linesToBody(segmentsToLines(parseNoteBody(body)));
+}
+
+export function normalizeNoteBody(body: string, files: NoteFile[]): string {
+  return linesToBody(normalizeEmbedImageRows(segmentsToLines(parseNoteBody(body)), files));
+}
+
+export function countEmbedRowImages(cells: LineCell[], files: NoteFile[]): number {
+  return cells.filter((c) => c.type === "embed" && isImageEmbed(findNoteFile(files, c.name))).length;
+}
+
+function splitEmbedCellsToRows(cells: LineCell[], files: NoteFile[]): BodyLine[] {
+  const rows: BodyLine[] = [];
+  let buf: LineCell[] = [];
+  let imageCount = 0;
+
+  for (const cell of cells) {
+    if (cell.type !== "embed") {
+      buf.push(cell);
+      continue;
+    }
+    const isImg = isImageEmbed(findNoteFile(files, cell.name));
+    if (isImg && imageCount >= MAX_IMAGES_PER_EMBED_ROW) {
+      if (buf.length) rows.push({ cells: buf });
+      buf = [cell];
+      imageCount = 1;
+    } else {
+      buf.push(cell);
+      if (isImg) imageCount += 1;
+    }
+  }
+  if (buf.length) rows.push({ cells: buf });
+  return rows;
+}
+
+export function normalizeEmbedImageRows(lines: BodyLine[], files: NoteFile[]): BodyLine[] {
+  return lines.flatMap((line) => (isEmbedLine(line) ? splitEmbedCellsToRows(line.cells, files) : [line]));
 }
 
 export function findNoteFile(files: NoteFile[], name: string): NoteFile | undefined {
@@ -87,46 +131,128 @@ export function findNoteFile(files: NoteFile[], name: string): NoteFile | undefi
 export function insertEmbedInBody(body: string, offset: number, name: string): string {
   const token = embedToken(name);
   const pos = Math.max(0, Math.min(offset, body.length));
-  const before = body.slice(0, pos);
-  const after = body.slice(pos);
-  const padBefore = before.length > 0 && !before.endsWith("\n") && !before.endsWith(" ") ? "\n" : "";
-  const padAfter = after.length > 0 && !after.startsWith("\n") && !after.startsWith(" ") ? "\n" : "";
-  return `${before}${padBefore}${token}${padAfter}${after}`;
+  return body.slice(0, pos) + token + body.slice(pos);
 }
 
-export function moveEmbedAtRow(rows: BodyRow[], fromRow: number, beforeRow: number): BodyRow[] {
-  if (fromRow < 0 || fromRow >= rows.length || rows[fromRow]?.type !== "embed") return rows;
-  if (beforeRow < 0 || beforeRow > rows.length) return rows;
-  if (fromRow === beforeRow || fromRow + 1 === beforeRow) return rows;
-  const next = [...rows];
-  const [item] = next.splice(fromRow, 1);
-  let insertAt = beforeRow;
-  if (fromRow < beforeRow) insertAt -= 1;
-  next.splice(insertAt, 0, item);
+function cloneLines(lines: BodyLine[]): BodyLine[] {
+  return lines.map((l) => ({ cells: [...l.cells] }));
+}
+
+function splitMixedLine(line: BodyLine): BodyLine[] {
+  const hasText = line.cells.some((c) => c.type === "text");
+  const hasEmbed = line.cells.some((c) => c.type === "embed");
+  if (!hasText || !hasEmbed) return [line];
+
+  const out: BodyLine[] = [];
+  let embedBuf: LineCell[] = [];
+  for (const cell of line.cells) {
+    if (cell.type === "text") {
+      if (embedBuf.length) {
+        out.push({ cells: embedBuf });
+        embedBuf = [];
+      }
+      out.push({ cells: [cell] });
+    } else {
+      embedBuf.push(cell);
+    }
+  }
+  if (embedBuf.length) out.push({ cells: embedBuf });
+  return out;
+}
+
+function finalizeLines(lines: BodyLine[], files: NoteFile[]): BodyLine[] {
+  const split = lines.flatMap(splitMixedLine);
+  const withEmbeds = normalizeEmbedImageRows(split, files);
+  const next = withEmbeds
+    .map((line) => ({
+      cells: line.cells.length > 0 ? line.cells : [{ type: "text" as const, content: "" }],
+    }))
+    .filter((line) => line.cells.some((c) => (c.type === "text" ? c.content.length > 0 : true)));
+  return next.length > 0 ? next : [{ cells: [{ type: "text", content: "" }] }];
+}
+
+function adjustBeforeAfterRemoval(lines: BodyLine[], from: CellPos, before: CellPos): CellPos {
+  let { line, cell } = before;
+  if (from.line < line) line -= 1;
+  else if (from.line === line && from.cell < cell) cell -= 1;
+  return { line: Math.max(0, line), cell: Math.max(0, cell) };
+}
+
+export function isDropNoop(from: CellPos, before: CellPos): boolean {
+  return from.line === before.line && (from.cell === before.cell || from.cell + 1 === before.cell);
+}
+
+export function moveEmbedAt(lines: BodyLine[], from: CellPos, before: CellPos, files: NoteFile[]): BodyLine[] {
+  const src = lines[from.line]?.cells[from.cell];
+  if (!src || src.type !== "embed") return lines;
+  if (isDropNoop(from, before)) return lines;
+
+  const next = cloneLines(lines);
+  next[from.line].cells.splice(from.cell, 1);
+  if (next[from.line].cells.length === 0) next.splice(from.line, 1);
+
+  const at = adjustBeforeAfterRemoval(next, from, before);
+  const target = next[at.line];
+  const isImg = isImageEmbed(findNoteFile(files, src.name));
+
+  if (!target || isTextLine(target)) {
+    next.splice(at.line, 0, { cells: [src] });
+    return finalizeLines(next, files);
+  }
+
+  const imagesInRow = countEmbedRowImages(target.cells, files);
+  if (isImg && imagesInRow >= MAX_IMAGES_PER_EMBED_ROW) {
+    next.splice(at.line + 1, 0, { cells: [src] });
+    return finalizeLines(next, files);
+  }
+
+  target.cells.splice(Math.min(at.cell, target.cells.length), 0, src);
+  return finalizeLines(next, files);
+}
+
+export function insertEmbedAt(lines: BodyLine[], before: CellPos, name: string, files: NoteFile[]): BodyLine[] {
+  const next = cloneLines(lines);
+  const line = Math.min(before.line, next.length);
+  const target = next[line];
+  const embed: LineCell = { type: "embed", name };
+  const isImg = isImageEmbed(findNoteFile(files, name));
+
+  if (!target || isTextLine(target)) {
+    next.splice(line, 0, { cells: [embed] });
+    return finalizeLines(next, files);
+  }
+
+  const imagesInRow = countEmbedRowImages(target.cells, files);
+  if (isImg && imagesInRow >= MAX_IMAGES_PER_EMBED_ROW) {
+    next.splice(line + 1, 0, { cells: [embed] });
+    return finalizeLines(next, files);
+  }
+
+  target.cells.splice(Math.min(before.cell, target.cells.length), 0, embed);
+  return finalizeLines(next, files);
+}
+
+export function updateTextCell(lines: BodyLine[], pos: CellPos, content: string): BodyLine[] {
+  const next = cloneLines(lines);
+  const line = next[pos.line];
+  if (!line || !isTextLine(line) || line.cells[0]?.type !== "text") return lines;
+  line.cells[0] = { type: "text", content };
   return next;
 }
 
-export function insertEmbedAtRow(rows: BodyRow[], beforeRow: number, name: string): BodyRow[] {
-  const pos = Math.max(0, Math.min(beforeRow, rows.length));
-  const next = [...rows];
-  next.splice(pos, 0, { type: "embed", name });
-  return next;
-}
+export function splitLineAtCaret(lines: BodyLine[], pos: CellPos, offset: number): BodyLine[] {
+  const line = lines[pos.line];
+  const cell = line?.cells[0];
+  if (!line || !isTextLine(line) || cell?.type !== "text") return lines;
 
-export function updateTextRow(rows: BodyRow[], rowIndex: number, content: string): BodyRow[] {
-  if (rowIndex < 0 || rowIndex >= rows.length || rows[rowIndex].type !== "text") return rows;
-  const next = [...rows];
-  next[rowIndex] = { type: "text", content };
-  return next;
-}
-
-export function splitTextRow(rows: BodyRow[], rowIndex: number, at: number): BodyRow[] {
-  if (rowIndex < 0 || rowIndex >= rows.length || rows[rowIndex].type !== "text") return rows;
-  const line = rows[rowIndex].content;
-  const next = [...rows];
-  const before = line.slice(0, at);
-  const after = line.slice(at);
-  next.splice(rowIndex, 1, { type: "text", content: before }, { type: "text", content: after });
+  const before = cell.content.slice(0, offset);
+  const after = cell.content.slice(offset);
+  const next = [
+    ...lines.slice(0, pos.line),
+    { cells: [{ type: "text" as const, content: before }] },
+    { cells: [{ type: "text" as const, content: after }] },
+    ...lines.slice(pos.line + 1),
+  ];
   return next;
 }
 

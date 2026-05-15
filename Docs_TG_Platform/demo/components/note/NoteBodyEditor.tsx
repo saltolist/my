@@ -1,23 +1,28 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { NoteFile } from "@/lib/types";
 import {
   embedToken,
   findNoteFile,
-  insertEmbedAtRow,
+  insertEmbedAt,
+  isDropNoop,
+  isEmbedLine,
   isImageEmbed,
-  moveEmbedAtRow,
+  isTextLine,
+  moveEmbedAt,
   parseNoteBody,
-  rowsToBody,
-  segmentsToRows,
-  splitTextRow,
-  updateTextRow,
-  type BodyRow,
+  segmentsToLines,
+  linesToBody,
+  splitLineAtCaret,
+  updateTextCell,
+  type BodyLine,
+  type CellPos,
+  type LineCell,
 } from "@/lib/noteEmbeds";
 
 const EMBED_MIME = "application/x-note-embed";
-const DEFAULT_GAP = 36;
+const DEFAULT_GAP = 28;
 
 type Props = {
   body: string;
@@ -29,60 +34,60 @@ type Props = {
 
 export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAddFile }: Props) {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const dragFromRowRef = useRef<number | null>(null);
-  const rows = useMemo(() => segmentsToRows(parseNoteBody(body)), [body]);
+  const dragFromRef = useRef<CellPos | null>(null);
+  const lines = useMemo(() => segmentsToLines(parseNoteBody(body)), [body]);
 
-  const [dragFromRow, setDragFromRow] = useState<number | null>(null);
-  const [dropBeforeRow, setDropBeforeRow] = useState<number | null>(null);
-  const [gapHeight, setGapHeight] = useState(DEFAULT_GAP);
+  const [dragFrom, setDragFrom] = useState<CellPos | null>(null);
+  const [dropBefore, setDropBefore] = useState<CellPos | null>(null);
   const [externalDrag, setExternalDrag] = useState(false);
 
-  const isDragging = dragFromRow != null || externalDrag;
+  const isDragging = dragFrom != null || externalDrag;
 
-  const applyRows = useCallback(
-    (next: BodyRow[]) => {
-      onBodyChange(rowsToBody(next));
+  const applyLines = useCallback(
+    (next: BodyLine[]) => {
+      onBodyChange(linesToBody(next));
     },
     [onBodyChange],
   );
 
   const resetDrag = useCallback(() => {
-    dragFromRowRef.current = null;
-    setDragFromRow(null);
-    setDropBeforeRow(null);
+    dragFromRef.current = null;
+    setDragFrom(null);
+    setDropBefore(null);
     setExternalDrag(false);
   }, []);
 
-  const setDropBefore = useCallback((row: number | null, height?: number) => {
-    setDropBeforeRow(row);
-    if (height != null && height > 0) setGapHeight(height);
+  const setDropTarget = useCallback((pos: CellPos | null) => {
+    setDropBefore((prev) => {
+      if (prev?.line === pos?.line && prev?.cell === pos?.cell) return prev;
+      return pos;
+    });
   }, []);
 
   const commitDropAt = useCallback(
-    (beforeRow: number, embedName?: string) => {
-      const fromRow = dragFromRowRef.current;
-      if (fromRow != null) {
-        if (fromRow !== beforeRow && fromRow + 1 !== beforeRow) {
-          applyRows(moveEmbedAtRow(rows, fromRow, beforeRow));
-        }
+    (before: CellPos, embedName?: string) => {
+      const from = dragFromRef.current;
+      if (from != null) {
+        if (!isDropNoop(from, before)) applyLines(moveEmbedAt(lines, from, before, files));
       } else if (embedName && findNoteFile(files, embedName)) {
-        applyRows(insertEmbedAtRow(rows, beforeRow, embedName));
+        applyLines(insertEmbedAt(lines, before, embedName, files));
       }
       resetDrag();
     },
-    [applyRows, files, resetDrag, rows],
+    [applyLines, files, lines, resetDrag],
   );
 
   const handleCanvasDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = dragFromRowRef.current != null ? "move" : "copy";
-    if (dragFromRowRef.current == null && e.dataTransfer.types.length > 0) setExternalDrag(true);
-    resolveDropFromPointer(e.clientY, rows, dragFromRowRef.current, setDropBefore);
+    e.dataTransfer.dropEffect = dragFromRef.current != null ? "move" : "copy";
+    if (dragFromRef.current == null && e.dataTransfer.types.length > 0) setExternalDrag(true);
+    const target = resolveDropTarget(e.clientX, e.clientY, lines, dragFromRef.current);
+    setDropTarget(target);
   };
 
   const handleCanvasDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const before = resolveDropRow(e.clientY, rows, dragFromRowRef.current);
+    const before = resolveDropTarget(e.clientX, e.clientY, lines, dragFromRef.current);
     commitDropAt(before, e.dataTransfer.getData(EMBED_MIME) || undefined);
   };
 
@@ -91,12 +96,12 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
     const file = e.dataTransfer.files?.[0];
     if (!file) return;
     const entry = onAddFile(file);
-    const before = dropBeforeRow ?? rows.length;
-    applyRows(insertEmbedAtRow(rows, before, entry.name));
+    const before = dropBefore ?? { line: lines.length, cell: 0 };
+    applyLines(insertEmbedAt(lines, before, entry.name, files));
     resetDrag();
   };
 
-  const hasContent = rows.some((r) => (r.type === "text" ? r.content.trim() : true));
+  const hasContent = lines.some((l) => l.cells.some((c) => (c.type === "text" ? c.content.trim() : true)));
 
   return (
     <div
@@ -117,174 +122,202 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
       {!hasContent && !isDragging ? (
         <span className="note-body-empty">Заметка пустая</span>
       ) : (
-        rows.map((row, i) => (
-          <Fragment key={`row-${i}-${row.type === "embed" ? row.name : "t"}`}>
-            {dropBeforeRow === i && isDragging ? <div className="note-embed-gap" style={{ minHeight: gapHeight }} /> : null}
-            <NoteBodyRow
-              row={row}
-              rowIndex={i}
-              files={files}
-              isView={isView}
-              isDragging={dragFromRow === i}
-              onTextChange={(content) => applyRows(updateTextRow(rows, i, content))}
-              onTextEnter={(at) => applyRows(splitTextRow(rows, i, at))}
-              onDragEmbedStart={(row, height) => {
-                dragFromRowRef.current = row;
-                setDragFromRow(row);
-                setGapHeight(height);
-              }}
-              onDragEmbedEnd={resetDrag}
-              onDragOverRow={(height) => setDropBefore(i, height)}
-              onDropOnRow={(embedName) => commitDropAt(i, embedName)}
-            />
-          </Fragment>
-        ))
+        lines.map((line, li) => {
+          const dropBeforeLine = isDragging && dropBefore?.line === li && dropBefore.cell === 0;
+          const dropAfterLine =
+            isDragging && isEmbedLine(line) && dropBefore?.line === li && dropBefore.cell === line.cells.length;
+          return (
+            <div
+              key={`line-${li}`}
+              className={`note-body-line${isEmbedLine(line) ? " note-body-line--embed" : " note-body-line--text"}${dropBeforeLine ? " is-drop-before-line" : ""}${dropAfterLine ? " is-drop-after-line" : ""}`}
+              data-line={li}
+            >
+              {line.cells.map((cell, ci) => (
+                <NoteBodyCell
+                  key={`cell-${li}-${ci}-${cell.type === "embed" ? cell.name : "t"}`}
+                  cell={cell}
+                  pos={{ line: li, cell: ci }}
+                  files={files}
+                  isView={isView}
+                  isDragging={dragFrom?.line === li && dragFrom.cell === ci}
+                  isDropBefore={
+                    isDragging && isEmbedLine(line) && dropBefore?.line === li && dropBefore.cell === ci
+                  }
+                  onTextChange={(content) => applyLines(updateTextCell(lines, { line: li, cell: ci }, content))}
+                  onTextEnter={(at) => applyLines(splitLineAtCaret(lines, { line: li, cell: ci }, at))}
+                  onDragEmbedStart={(pos) => {
+                    dragFromRef.current = pos;
+                    setDragFrom(pos);
+                  }}
+                  onDragEmbedEnd={resetDrag}
+                  onDragOverCell={(e) => {
+                    const target = isTextLine(line)
+                      ? resolveDropTarget(e.clientX, e.clientY, lines, dragFromRef.current)
+                      : { line: li, cell: ci };
+                    setDropTarget(target);
+                  }}
+                  onDropOnCell={(e, embedName) => {
+                    const before = isTextLine(line)
+                      ? resolveDropTarget(e.clientX, e.clientY, lines, dragFromRef.current)
+                      : { line: li, cell: ci };
+                    commitDropAt(before, embedName);
+                  }}
+                />
+              ))}
+            </div>
+          );
+        })
       )}
-      {dropBeforeRow === rows.length && isDragging ? (
-        <div className="note-embed-gap" style={{ minHeight: gapHeight }} />
+      {dropBefore?.line === lines.length && dropBefore.cell === 0 && isDragging ? (
+        <div className="note-embed-gap--trailing" aria-hidden />
       ) : null}
     </div>
   );
 }
 
-function resolveDropRow(clientY: number, rows: BodyRow[], dragFromRow: number | null): number {
-  const els = document.querySelectorAll<HTMLElement>(".note-body-row");
-  if (!els.length) return rows.length;
-  for (let i = 0; i < els.length; i++) {
-    const rect = els[i].getBoundingClientRect();
-    const mid = rect.top + rect.height / 2;
-    if (clientY < mid) {
-      if (dragFromRow === i) return dragFromRow + 1;
-      return i;
+function resolveDropTarget(clientX: number, clientY: number, lines: BodyLine[], dragFrom: CellPos | null): CellPos {
+  const lineEls = document.querySelectorAll<HTMLElement>(".note-body-line");
+  if (!lineEls.length) return { line: 0, cell: 0 };
+
+  for (let li = 0; li < lineEls.length; li++) {
+    const lineRect = lineEls[li].getBoundingClientRect();
+
+    if (clientY < lineRect.top) {
+      return { line: li, cell: 0 };
+    }
+
+    if (clientY <= lineRect.bottom) {
+      const line = lines[li];
+      if (!line) return { line: li, cell: 0 };
+
+      if (isTextLine(line)) {
+        const midY = lineRect.top + lineRect.height / 2;
+        if (clientY < midY) return { line: li, cell: 0 };
+        return { line: li + 1, cell: 0 };
+      }
+
+      const cellEls = lineEls[li].querySelectorAll<HTMLElement>(".note-body-cell");
+      if (!cellEls.length) return { line: li, cell: 0 };
+
+      for (let ci = 0; ci < cellEls.length; ci++) {
+        const cr = cellEls[ci].getBoundingClientRect();
+        const midX = cr.left + cr.width / 2;
+        if (clientX < midX) {
+          const pos = { line: li, cell: ci };
+          if (dragFrom && dragFrom.line === li && dragFrom.cell === ci) return { line: li, cell: ci + 1 };
+          return pos;
+        }
+      }
+      return { line: li, cell: cellEls.length };
     }
   }
-  return rows.length;
+
+  return { line: lines.length, cell: 0 };
 }
 
-function resolveDropFromPointer(
-  clientY: number,
-  rows: BodyRow[],
-  dragFromRow: number | null,
-  setDropBefore: (row: number | null, height?: number) => void,
-) {
-  const els = document.querySelectorAll<HTMLElement>(".note-body-row");
-  if (!els.length) {
-    setDropBefore(rows.length);
-    return;
-  }
-  for (let i = 0; i < els.length; i++) {
-    const rect = els[i].getBoundingClientRect();
-    const mid = rect.top + rect.height / 2;
-    if (clientY < mid) {
-      if (dragFromRow === i) return;
-      setDropBefore(i, rect.height);
-      return;
-    }
-  }
-  const last = els[els.length - 1];
-  setDropBefore(rows.length, last?.getBoundingClientRect().height ?? DEFAULT_GAP);
-}
-
-function NoteBodyRow({
-  row,
-  rowIndex,
+function NoteBodyCell({
+  cell,
+  pos,
   files,
   isView,
   isDragging,
+  isDropBefore,
   onTextChange,
   onTextEnter,
   onDragEmbedStart,
   onDragEmbedEnd,
-  onDragOverRow,
-  onDropOnRow,
+  onDragOverCell,
+  onDropOnCell,
 }: {
-  row: BodyRow;
-  rowIndex: number;
+  cell: LineCell;
+  pos: CellPos;
   files: NoteFile[];
   isView: boolean;
   isDragging: boolean;
+  isDropBefore?: boolean;
   onTextChange: (content: string) => void;
   onTextEnter: (caret: number) => void;
-  onDragEmbedStart: (rowIndex: number, height: number) => void;
+  onDragEmbedStart: (pos: CellPos) => void;
   onDragEmbedEnd: () => void;
-  onDragOverRow: (height: number) => void;
-  onDropOnRow: (embedName?: string) => void;
+  onDragOverCell: (e: React.DragEvent) => void;
+  onDropOnCell: (e: React.DragEvent, embedName?: string) => void;
 }) {
-  const rowRef = useRef<HTMLDivElement>(null);
+  const cellRef = useRef<HTMLSpanElement>(null);
   const lineRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (!isView && row.type === "text" && lineRef.current) autoGrow(lineRef.current);
-  }, [row, isView]);
+    if (!isView && cell.type === "text" && lineRef.current) autoGrow(lineRef.current);
+  }, [cell, isView]);
 
-  const dragRowHandlers = {
+  const dragHandlers = {
     onDragOver: (e: React.DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      const h = rowRef.current?.getBoundingClientRect().height ?? DEFAULT_GAP;
-      onDragOverRow(h);
+      onDragOverCell(e);
     },
     onDrop: (e: React.DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      onDropOnRow(e.dataTransfer.getData(EMBED_MIME) || undefined);
+      onDropOnCell(e, e.dataTransfer.getData(EMBED_MIME) || undefined);
     },
   };
 
-  if (row.type === "text") {
-    if (isView && !row.content) return null;
+  if (cell.type === "text") {
+    if (isView && !cell.content) return null;
     return (
-      <div
-        ref={rowRef}
-        className={`note-body-row note-body-row--text${isDragging ? " is-dragging" : ""}`}
-        data-row={rowIndex}
-        {...dragRowHandlers}
+      <span
+        ref={cellRef}
+        className={`note-body-cell note-body-cell--text${isDragging ? " is-dragging" : ""}${isDropBefore ? " is-drop-before" : ""}`}
+        data-line={pos.line}
+        data-cell={pos.cell}
+        {...dragHandlers}
       >
         {isView ? (
-          <span className="note-body-text">{row.content || "\u00a0"}</span>
+          <span className="note-body-text">{cell.content || "\u00a0"}</span>
         ) : (
           <textarea
             ref={lineRef}
             className="note-body-line-edit"
-            value={row.content}
+            value={cell.content}
             rows={1}
             onChange={(e) => onTextChange(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                onTextEnter(e.currentTarget.selectionStart ?? row.content.length);
+                onTextEnter(e.currentTarget.selectionStart ?? cell.content.length);
               }
             }}
           />
         )}
-      </div>
+      </span>
     );
   }
 
-  const file = findNoteFile(files, row.name);
+  const file = findNoteFile(files, cell.name);
   const isImage = isImageEmbed(file);
-  const token = embedToken(row.name);
+  const token = embedToken(cell.name);
   const blockChildDrag = (e: React.DragEvent) => e.preventDefault();
 
   return (
-    <div
-      ref={rowRef}
-      className={`note-body-row note-body-row--embed${isDragging ? " is-dragging" : ""}`}
-      data-row={rowIndex}
+    <span
+      ref={cellRef}
+      className={`note-body-cell note-body-cell--embed${isDragging ? " is-dragging" : ""}${isDropBefore ? " is-drop-before" : ""}`}
+      data-line={pos.line}
+      data-cell={pos.cell}
       draggable
       onDragStart={(e) => {
-        const h = rowRef.current?.getBoundingClientRect().height ?? DEFAULT_GAP;
-        e.dataTransfer.setData(EMBED_MIME, row.name);
+        const h = cellRef.current?.getBoundingClientRect().height ?? DEFAULT_GAP;
+        e.dataTransfer.setData(EMBED_MIME, cell.name);
         e.dataTransfer.setData("text/plain", token);
         e.dataTransfer.effectAllowed = "move";
-        if (rowRef.current) e.dataTransfer.setDragImage(rowRef.current, 12, 12);
-        onDragEmbedStart(rowIndex, h);
+        if (cellRef.current) e.dataTransfer.setDragImage(cellRef.current, 8, 8);
+        onDragEmbedStart(pos);
       }}
       onDragEnd={onDragEmbedEnd}
-      {...dragRowHandlers}
+      {...dragHandlers}
     >
       {isView && isImage && file?.url ? (
-        <img className="note-inline-image" src={file.url} alt={row.name} draggable={false} />
+        <img className="note-inline-image" src={file.url} alt={cell.name} draggable={false} />
       ) : (
         <span className="note-embed-chip">
           {isView ? (
@@ -305,7 +338,7 @@ function NoteBodyRow({
           )}
         </span>
       )}
-    </div>
+    </span>
   );
 }
 

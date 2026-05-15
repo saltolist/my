@@ -11,7 +11,7 @@ import NoteListCardMenu from "../note/NoteListCardMenu";
 import PostMediaBlock from "../post/PostMediaBlock";
 import { PostReactionPills, PostViewsReposts } from "../feed/PostEngagement";
 import { ContextMenu, type CtxMenuItem } from "../ContextMenu";
-import { createNewPostNote, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
+import { buildNoteSnapshot, createNewPostNote, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
 import type { LocalNote, NoteFile, PostMedia, PostMetrics, PostMode } from "@/lib/types";
 
 export default function PostScreen() {
@@ -474,7 +474,7 @@ function PostNotes() {
       currentNote: { ...n, isGlobal: false, postId: post.id, files },
       noteFrom: "post",
       noteMode: "view",
-      noteSavedSnapshot: JSON.stringify({ title: n.title, body: n.body, ai: n.ai, files }),
+      noteSavedSnapshot: buildNoteSnapshot(n.title, n.body, n.ai, files),
     });
   };
 

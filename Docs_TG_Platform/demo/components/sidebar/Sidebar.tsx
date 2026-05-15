@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import { ContextMenu } from "@/components/ContextMenu";
 import { useApp } from "@/state/AppContext";
+import { buildNoteSnapshot } from "@/lib/noteDraft";
 import type { ScreenId, NoteFile } from "@/lib/types";
 import {
   NavIconAnalytics,
@@ -429,7 +430,7 @@ export default function Sidebar() {
         currentNote: { ...n, isGlobal: true, files },
         noteFrom: "notes",
         noteMode: "view",
-        noteSavedSnapshot: JSON.stringify({ title: n.title, body: n.body, ai: n.ai, files }),
+        noteSavedSnapshot: buildNoteSnapshot(n.title, n.body, n.ai, files),
       });
     } else {
       const post = state.posts.find((p) => p.id === row.postId);
@@ -443,7 +444,7 @@ export default function Sidebar() {
         currentNote: { ...n, isGlobal: false, postId: row.postId, files },
         noteFrom,
         noteMode: "view",
-        noteSavedSnapshot: JSON.stringify({ title: n.title, body: n.body, ai: n.ai, files }),
+        noteSavedSnapshot: buildNoteSnapshot(n.title, n.body, n.ai, files),
       });
     }
   };

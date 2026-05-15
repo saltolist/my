@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useApp, postById } from "@/state/AppContext";
 import { truncate, postTitle } from "@/lib/helpers";
+import { normalizeNoteBody } from "@/lib/noteEmbeds";
 import {
   buildNoteSnapshot,
   draftNoteTitle,
@@ -151,29 +152,30 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
   const noteKey = noteIdentityKey(note);
   const isView = state.noteMode === "view" && !note.isNew;
 
+  const noteFiles = Array.isArray(note.files) ? note.files : [];
+  const initialBody = normalizeNoteBody(note.body, noteFiles);
   const [title, setTitle] = useState(note.title);
-  const [body, setBody] = useState(note.body);
-  const [files, setFiles] = useState<NoteFile[]>(Array.isArray(note.files) ? [...note.files] : []);
-  const initialSnapRef = useRef(
-    state.noteSavedSnapshot ||
-      buildNoteSnapshot(note.title, note.body, note.ai, Array.isArray(note.files) ? note.files : []),
+  const [body, setBody] = useState(initialBody);
+  const [files, setFiles] = useState<NoteFile[]>([...noteFiles]);
+  const [baselineSnapshot, setBaselineSnapshot] = useState(() =>
+    buildNoteSnapshot(note.title, initialBody, note.ai, noteFiles),
   );
 
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const nextFiles = Array.isArray(note.files) ? [...note.files] : [];
+    const nextBody = normalizeNoteBody(note.body, nextFiles);
     setTitle(note.title);
-    setBody(note.body);
-    setFiles(Array.isArray(note.files) ? [...note.files] : []);
-    initialSnapRef.current =
-      state.noteSavedSnapshot ||
-      buildNoteSnapshot(note.title, note.body, note.ai, Array.isArray(note.files) ? note.files : []);
+    setBody(nextBody);
+    setFiles(nextFiles);
+    setBaselineSnapshot(buildNoteSnapshot(note.title, nextBody, note.ai, nextFiles));
   }, [noteKey]); // eslint-disable-line react-hooks/exhaustive-deps -- сброс черновика только при смене заметки
 
   const changed = useMemo(
-    () => buildNoteSnapshot(title, body, note.ai, files) !== initialSnapRef.current,
-    [title, body, note.ai, files],
+    () => buildNoteSnapshot(title, body, note.ai, files) !== baselineSnapshot,
+    [title, body, note.ai, files, baselineSnapshot],
   );
 
   useEffect(() => {
@@ -186,8 +188,9 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
   const setEditMode = () => dispatch({ type: "SET_STATE", patch: { noteMode: "edit" } });
 
   const save = useCallback(() => {
-    if (!changed) return;
     const finalTitle = draftNoteTitle(title);
+    const snapshot = buildNoteSnapshot(finalTitle, body, note.ai, files);
+    if (snapshot === baselineSnapshot) return;
 
     if (note.isNew) {
       if (note.isGlobal) {
@@ -226,7 +229,7 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
           },
         });
       }
-      initialSnapRef.current = buildNoteSnapshot(finalTitle, body, note.ai, files);
+      setBaselineSnapshot(snapshot);
       setDirty("note", false);
       return;
     }
@@ -258,9 +261,9 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
         },
       });
     }
-    initialSnapRef.current = buildNoteSnapshot(finalTitle, body, note.ai, files);
+    setBaselineSnapshot(snapshot);
     setDirty("note", false);
-  }, [body, changed, dispatch, files, note, setDirty, title]);
+  }, [baselineSnapshot, body, dispatch, files, note, setDirty, title]);
 
   useEffect(() => {
     registerNotePersist(save);

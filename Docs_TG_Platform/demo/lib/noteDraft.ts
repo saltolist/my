@@ -1,11 +1,5 @@
 import type { ActiveNote, NoteFile } from "./types";
-
-export const EMPTY_NOTE_SNAPSHOT = JSON.stringify({
-  title: "",
-  body: "",
-  ai: false,
-  files: [] as NoteFile[],
-});
+import { canonicalNoteBody } from "./noteEmbeds";
 
 export function draftNoteTitle(title: string) {
   return title.trim() || "Без названия";
@@ -15,9 +9,23 @@ export function noteIdentityKey(note: ActiveNote): string {
   return note.isGlobal ? `g-${note.id}` : `p${note.postId}-${note.id}`;
 }
 
-export function buildNoteSnapshot(title: string, body: string, ai: boolean, files: NoteFile[]) {
-  return JSON.stringify({ title: title.trim(), body, ai, files });
+/** Стабильное сравнение вложений: без blob-url и прочих полей сессии. */
+export function snapshotNoteFiles(files: NoteFile[]) {
+  return (Array.isArray(files) ? files : [])
+    .map((f) => ({ name: f.name, type: f.type || "file" }))
+    .sort((a, b) => a.name.localeCompare(b.name, "ru"));
 }
+
+export function buildNoteSnapshot(title: string, body: string, ai: boolean, files: NoteFile[]) {
+  return JSON.stringify({
+    title: title.trim(),
+    body: canonicalNoteBody(body),
+    ai,
+    files: snapshotNoteFiles(files),
+  });
+}
+
+export const EMPTY_NOTE_SNAPSHOT = buildNoteSnapshot("", "", false, []);
 
 export function isNoteImageFile(file: NoteFile): boolean {
   if (file.type?.startsWith("image/")) return true;

@@ -6,7 +6,7 @@ import { postTitle } from "@/lib/helpers";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import NoteListCardMenu from "../note/NoteListCardMenu";
-import { createNewGlobalNote, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
+import { buildNoteSnapshot, createNewGlobalNote, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
 import type { GlobalNote, LocalNote, NoteFile } from "@/lib/types";
 
 type AnyNote =
@@ -47,7 +47,7 @@ export default function NotesScreen() {
         currentNote: { ...n, files },
         noteFrom: "notes",
         noteMode: "view",
-        noteSavedSnapshot: JSON.stringify({ title: n.title, body: n.body, ai: n.ai, files }),
+        noteSavedSnapshot: buildNoteSnapshot(n.title, n.body, n.ai, files),
       });
     } else {
       const files: NoteFile[] = Array.isArray(n.files) ? n.files : [];
@@ -56,7 +56,7 @@ export default function NotesScreen() {
         currentNote: { ...n, isGlobal: false, postId: n.postId, files },
         noteFrom: "notes",
         noteMode: "view",
-        noteSavedSnapshot: JSON.stringify({ title: n.title, body: n.body, ai: n.ai, files }),
+        noteSavedSnapshot: buildNoteSnapshot(n.title, n.body, n.ai, files),
       });
     }
   };
