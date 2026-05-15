@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useApp, postById } from "@/state/AppContext";
 import { truncate, postTitle } from "@/lib/helpers";
 import { ContextMenu } from "../ContextMenu";
+import NoteHeaderToolbar from "../note/NoteHeaderToolbar";
 import PageHeader from "../PageHeader";
 import { draftNoteTitle } from "@/lib/noteDraft";
 import type { ActiveNote, NoteFile } from "@/lib/types";
@@ -53,6 +54,21 @@ export default function NoteScreen() {
     dispatch({ type: "SET_STATE", patch: { screen: dest, currentNote: null, noteMode: "view" } });
   };
 
+  const toggleNoteAi = () => {
+    const next = !note.ai;
+    if (note.isNew) {
+      dispatch({ type: "SET_STATE", patch: { currentNote: { ...note, ai: next } } });
+      return;
+    }
+    if (note.isGlobal) {
+      dispatch({ type: "UPSERT_GLOBAL_NOTE", note: { ...note, ai: next } });
+      dispatch({ type: "SET_STATE", patch: { currentNote: { ...note, ai: next } } });
+    } else {
+      dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: note.postId, noteId: note.id });
+      dispatch({ type: "SET_STATE", patch: { currentNote: { ...note, ai: next } } });
+    }
+  };
+
   return (
     <>
       <PageHeader
@@ -61,6 +77,12 @@ export default function NoteScreen() {
         actions={
           <ContextMenu
             items={[
+              {
+                label: note.ai ? "● Учитывать в ИИ" : "○ Учитывать в ИИ",
+                icon: "✦",
+                active: note.ai,
+                onClick: toggleNoteAi,
+              },
               {
                 label: note.isNew ? "Отменить" : "Удалить заметку",
                 icon: note.isNew ? "✕" : "🗑",
@@ -100,15 +122,6 @@ function NoteView({ note, onOpenPost }: { note: ActiveNote; onOpenPost: (id: num
   const titleRef = useRef<HTMLDivElement>(null);
   useFitTitleSize(titleRef, note.title, false);
   const setEdit = () => dispatch({ type: "SET_STATE", patch: { noteMode: "edit" } });
-  const toggleAi = () => {
-    if (note.isGlobal) {
-      dispatch({
-        type: "UPSERT_GLOBAL_NOTE",
-        note: { ...note, ai: !note.ai },
-      });
-      dispatch({ type: "SET_STATE", patch: { currentNote: { ...note, ai: !note.ai } } });
-    }
-  };
   return (
     <div className="note-layout">
       <div className="note-shell">
@@ -120,19 +133,7 @@ function NoteView({ note, onOpenPost }: { note: ActiveNote; onOpenPost: (id: num
               </div>
             </div>
           </div>
-          <div className="note-ctrl">
-            {note.isGlobal ? (
-              <button className={`ai-toggle${note.ai ? " on" : ""}`} onClick={toggleAi} type="button">
-                {note.ai ? "● Учитывать ИИ" : "○ Учитывать ИИ"}
-              </button>
-            ) : null}
-            <button className="btn btn-ghost btn-sm" onClick={setEdit} type="button">
-              Ред.
-            </button>
-            <button className="btn btn-primary btn-sm" disabled type="button">
-              Сохранить
-            </button>
-          </div>
+          <NoteHeaderToolbar mode="view" onToggleMode={setEdit} saveDisabled />
         </div>
         <div className="note-shell-content">
           {!note.isGlobal ? (
@@ -275,23 +276,15 @@ function NoteEdit({ note }: { note: ActiveNote }) {
               />
             </div>
           </div>
-          <div className="note-ctrl">
-            <button className="btn btn-ghost btn-sm" onClick={() => fileInputRef.current?.click()} type="button">
-              📎 Файл
-            </button>
-            {!note.isNew ? (
-              <button
-                className="btn btn-ghost btn-sm"
-                onClick={() => dispatch({ type: "SET_STATE", patch: { noteMode: "view" } })}
-                type="button"
-              >
-                Просмотр
-              </button>
-            ) : null}
-            <button className="btn btn-primary btn-sm" onClick={save} disabled={!changed} type="button">
-              Сохранить
-            </button>
-          </div>
+          <NoteHeaderToolbar
+            mode="edit"
+            showAttach
+            onAttach={() => fileInputRef.current?.click()}
+            showModeToggle={!note.isNew}
+            onToggleMode={() => dispatch({ type: "SET_STATE", patch: { noteMode: "view" } })}
+            onSave={save}
+            saveDisabled={!changed}
+          />
         </div>
         <div className="note-shell-content">
           {!note.isGlobal ? (

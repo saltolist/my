@@ -966,7 +966,8 @@ button.nav-item {
 
 /* Кнопки в шапках (в т.ч. «← Назад»); переключатели ширины карточки ленты — в центре, справа от поля поиска; .ctx-btn (•••) не трогаем */
 .page-header .btn.btn-ghost.btn-sm,
-.post-hdr .btn.btn-ghost.btn-sm {
+.post-hdr .btn.btn-ghost.btn-sm,
+.note-shell-header .btn.btn-ghost.btn-sm {
   height: 32px;
   min-width: 40px;
   padding: 0 10px;
@@ -981,21 +982,35 @@ button.nav-item {
   transition: border-color 0.12s, background 0.12s, color 0.12s;
 }
 .page-header .btn.btn-ghost.btn-sm:hover,
-.post-hdr .btn.btn-ghost.btn-sm:hover {
+.post-hdr .btn.btn-ghost.btn-sm:hover,
+.note-shell-header .btn.btn-ghost.btn-sm:hover:not(:disabled) {
   opacity: 1;
   background: var(--page-header-control-bg-hover);
   color: var(--text);
 }
 .page-header .btn.btn-ghost.btn-sm.active,
-.post-hdr .btn.btn-ghost.btn-sm.active {
+.post-hdr .btn.btn-ghost.btn-sm.active,
+.note-shell-header .btn.btn-ghost.btn-sm.active,
+.note-shell-header .btn.note-ai-toggle.on {
   background: var(--page-header-control-bg);
   color: var(--text);
   border-color: var(--control-border-active);
 }
 .page-header .btn.btn-ghost.btn-sm.active:hover,
-.post-hdr .btn.btn-ghost.btn-sm.active:hover {
+.post-hdr .btn.btn-ghost.btn-sm.active:hover,
+.note-shell-header .btn.btn-ghost.btn-sm.active:hover,
+.note-shell-header .btn.note-ai-toggle.on:hover {
   background: var(--page-header-control-bg);
   color: var(--text);
+}
+.note-shell-header .btn.btn-ghost.btn-sm:disabled,
+.note-shell-header .btn.note-header-save:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.note-shell-header .btn.note-header-save:not(:disabled) {
+  color: var(--text);
+  border-color: var(--control-border-active);
 }
 
 .page-header-right {
@@ -2729,6 +2744,9 @@ button.nav-item {
   margin: 0;
 }
 .note-title-edit {
+  font-family: var(--font);
+  font-weight: 700;
+  letter-spacing: inherit;
   background: transparent;
   border: none;
   outline: none;
@@ -2738,8 +2756,14 @@ button.nav-item {
   overflow: hidden;
   overflow-y: hidden;
   min-height: 35px;
+  -webkit-appearance: none;
+  appearance: none;
 }
-.note-title-edit::placeholder { color: var(--text3); font-weight: 600; }
+.note-title-edit::placeholder {
+  color: var(--text3);
+  font-family: var(--font);
+  font-weight: 600;
+}
 .title-single-line { white-space: nowrap; }
 .title-multi-line { white-space: normal; }
 .note-title-static.title-single-line {
@@ -2757,16 +2781,51 @@ button.nav-item {
   line-height: 1.25;
 }
 .note-ctrl {
-  display: flex; align-items: center; gap: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   flex-shrink: 0;
   align-self: center;
 }
-.ai-toggle {
-  padding: 3px 9px; border-radius: 20px; font-size: 12px; cursor: pointer;
-  border: 1px solid var(--border2); background: var(--bg4); color: var(--text3);
-  transition: all .15s;
+.note-header-plain-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  transition: color 0.12s, background 0.12s;
 }
-.ai-toggle.on { background: rgba(91,143,249,.12); border-color: var(--accent); color: var(--accent); }
+.note-header-plain-btn svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.note-header-plain-btn--sm {
+  width: 22px;
+  height: 22px;
+}
+.note-header-plain-btn--attach {
+  transform: translateY(1px);
+}
+.note-header-plain-btn:hover {
+  color: var(--text);
+  background: transparent;
+}
+.note-shell-header .btn.note-ai-toggle {
+  cursor: pointer;
+}
+.note-shell-header .btn.note-ai-toggle:hover:not(.on) {
+  background: var(--page-header-control-bg-hover);
+  color: var(--text);
+  border-color: var(--page-header-control-border);
+}
 .note-mode-btns { display: flex; gap: 6px; }
 .note-local-info {
   font-size: 12px; color: var(--text3); margin-bottom: 12px;
