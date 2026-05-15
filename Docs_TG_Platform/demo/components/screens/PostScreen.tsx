@@ -195,7 +195,9 @@ export default function PostScreen() {
               )}
             </div>
           </div>
-          <div className="page-header-right">
+          <div
+            className={`page-header-right${showJump ? " post-hdr-has-reveal" : ""}`}
+          >
             <button
               className="btn btn-ghost btn-sm post-back-btn"
               onClick={handleBack}
@@ -224,6 +226,11 @@ export default function PostScreen() {
             >
               Чаты
             </button>
+            <div className={`post-new-chat-slot${state.postMode === "chats" ? " visible" : ""}`}>
+              <button className="post-new-chat-btn" onClick={startNewChat} type="button">
+                + Новый чат
+              </button>
+            </div>
             <ContextMenu items={ctxItems} />
           </div>
         </div>
@@ -269,7 +276,7 @@ export default function PostScreen() {
           <Composer scope="post" onSubmit={sendPost} />
         </>
       ) : state.postMode === "chats" ? (
-        <PostChats onOpenChat={openLocalChat} onNewChat={startNewChat} />
+        <PostChats onOpenChat={openLocalChat} />
       ) : (
         <PostNotes />
       )}
@@ -501,13 +508,7 @@ function PostNotes() {
   );
 }
 
-function PostChats({
-  onOpenChat,
-  onNewChat,
-}: {
-  onOpenChat: (chatId: number) => void;
-  onNewChat: () => void;
-}) {
+function PostChats({ onOpenChat }: { onOpenChat: (chatId: number) => void }) {
   const { state } = useApp();
   const post = postById(state, state.currentPostId);
   if (!post) return null;
@@ -515,11 +516,6 @@ function PostChats({
   return (
     <div id="post-chats" className="post-chats visible">
       <div className="post-chats-inner">
-        <div className="post-chats-actions">
-          <button className="btn btn-primary btn-sm" onClick={onNewChat} type="button">
-            + Новый чат
-          </button>
-        </div>
         {post.chats.length === 0 ? (
           <div className="empty">
             <div className="eico">💬</div>

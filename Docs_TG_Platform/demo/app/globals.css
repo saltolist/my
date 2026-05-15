@@ -2328,12 +2328,17 @@ button.nav-item {
   transition: transform .2s;
 }
 .post-hdr-actions.has-jump .post-back-btn { transform: translateX(-6px); }
+.post-hdr-top .page-header-right.post-hdr-has-reveal .post-back-btn {
+  transform: translateX(-6px);
+  transition: transform 0.2s;
+}
 .jump-post-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
   height: 32px;
+  min-width: 0;
   padding: 0 10px;
   border-radius: 999px;
   border: 1px solid var(--page-header-control-border);
@@ -2375,6 +2380,45 @@ button.nav-item {
   pointer-events: auto;
 }
 .jump-post-btn:hover {
+  background: var(--page-header-control-bg-hover);
+  color: var(--text);
+}
+/* Слот справа от «Чаты»: раскрытие с правого края влево (к меню) */
+.post-new-chat-slot {
+  display: flex;
+  justify-content: flex-end;
+  overflow: hidden;
+  max-width: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: max-width 0.2s ease, opacity 0.2s ease;
+}
+.post-new-chat-slot.visible {
+  max-width: 12rem;
+  opacity: 1;
+  pointer-events: auto;
+}
+.post-new-chat-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  height: 32px;
+  min-width: 40px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--page-header-control-border);
+  background: var(--page-header-control-bg);
+  color: var(--text2);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+}
+.post-new-chat-btn:hover {
   background: var(--page-header-control-bg-hover);
   color: var(--text);
 }
@@ -2590,8 +2634,11 @@ button.nav-item {
   gap: 10px;
   padding: 0 12px;
 }
-.post-chats-actions { display: flex; justify-content: flex-end; padding-bottom: 4px; }
 .post-chats-inner > .empty { width: 100%; }
+/* Без колонки иконки — симметричные отступы у текста, как справа */
+.post-chats-inner .chat-card .chat-card-body-row {
+  padding: 8px var(--chat-card-pad-x);
+}
 
 /* ════════════════════════════════
    SCREEN: NOTE PAGE
@@ -3711,6 +3758,22 @@ a.note-file-item:hover {
 
   .jump-post-btn.visible::before {
     content: '↑';
+    font-size: 12px;
+  }
+
+  .post-new-chat-slot.visible {
+    max-width: 34px;
+  }
+
+  .post-new-chat-slot.visible .post-new-chat-btn {
+    min-width: 34px;
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 0;
+  }
+
+  .post-new-chat-slot.visible .post-new-chat-btn::before {
+    content: '+';
     font-size: 12px;
   }
 
