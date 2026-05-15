@@ -3098,28 +3098,41 @@ button.nav-item {
   gap: 2px 8px;
   position: relative;
 }
+.note-embed-image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 400px);
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  align-items: start;
+}
 .note-body-line--text {
   position: relative;
 }
-.note-body-line.is-drop-before-line::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 2px;
-  background: var(--accent);
+.note-body-canvas--dragging .note-embed-image-grid .note-body-cell--embed,
+.note-body-canvas--dragging .note-embed-image-grid .note-embed-image-slot {
+  transition: none;
+}
+.note-embed-drop-gap {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  border-radius: 4px;
   pointer-events: none;
 }
-.note-body-line--embed.is-drop-after-line::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--accent);
+.note-embed-image-grid .note-embed-image-slot--empty {
+  width: 400px;
+  height: 200px;
+  box-sizing: border-box;
   pointer-events: none;
+}
+.note-body-cell--drop-placeholder {
+  visibility: hidden;
+  pointer-events: none;
+}
+.note-embed-drop-gap--line {
+  display: block;
+  width: 100%;
+  flex: 0 0 100%;
 }
 .note-body-cell { display: inline-flex; align-items: baseline; max-width: 100%; }
 .note-body-line--text .note-body-cell--text {
@@ -3134,21 +3147,20 @@ button.nav-item {
 .note-body-cell--embed {
   position: relative;
   flex: 0 0 auto;
+}
+.note-body-cell--embed-draggable {
   cursor: grab;
 }
-.note-body-cell--embed.is-drop-before::before {
-  content: "";
-  position: absolute;
-  left: -1px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--accent);
+.note-body-cell--embed-draggable:active { cursor: grabbing; }
+.note-body-cell--embed-draggable .note-inline-image {
   pointer-events: none;
-  z-index: 1;
+  user-select: none;
+  -webkit-user-drag: none;
 }
-.note-body-cell--embed:active { cursor: grabbing; }
-.note-body-cell.is-dragging { opacity: 0.4; }
+.note-body-cell--embed-draggable .note-embed-md {
+  pointer-events: none;
+  user-select: none;
+}
 .note-body-text { white-space: pre-wrap; display: block; }
 .note-body-line-edit {
   display: block;
@@ -3166,20 +3178,34 @@ button.nav-item {
   overflow: hidden;
 }
 .note-body-line-edit:focus { outline: none; }
-.note-embed-gap--trailing {
-  display: block;
-  width: 100%;
-  height: 2px;
-  margin: 4px 0 0;
-  background: var(--accent);
-  pointer-events: none;
+.note-embed-image-grid .note-body-cell--embed {
+  width: 400px;
+  height: 200px;
+  box-sizing: border-box;
 }
-.note-body-line--embed .note-body-cell--embed:has(.note-inline-image) {
+.note-embed-image-grid .note-inline-image {
+  display: block;
+  width: 400px;
+  height: 200px;
+  object-fit: cover;
+  margin: 0;
+  border-radius: var(--rs);
+  border: 1px solid var(--border);
+}
+.note-embed-image-grid .note-embed-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 400px;
+  height: 200px;
+  box-sizing: border-box;
+}
+.note-body-line--embed:not(.note-embed-image-grid) .note-body-cell--embed:has(.note-inline-image) {
   flex: 0 0 25%;
   max-width: 25%;
   box-sizing: border-box;
 }
-.note-body-line--embed .note-inline-image {
+.note-body-line--embed:not(.note-embed-image-grid) .note-inline-image {
   display: block;
   width: 100%;
   max-width: 100%;

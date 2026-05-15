@@ -11,6 +11,107 @@ export type CellPos = { line: number; cell: number };
 
 const EMBED_RE = /\[([^\]]+)\]/g;
 export const MAX_IMAGES_PER_EMBED_ROW = 3;
+export const EMBED_IMAGE_SLOT_W = 400;
+export const EMBED_IMAGE_SLOT_H = 200;
+export const EMBED_IMAGE_SLOT_GAP = 8;
+export const EMBED_IMAGE_SLOT_STEP = EMBED_IMAGE_SLOT_W + EMBED_IMAGE_SLOT_GAP;
+
+export function isImageEmbedRow(line: BodyLine, files: NoteFile[]): boolean {
+  if (!isEmbedLine(line)) return false;
+  return line.cells.some((c) => c.type === "embed" && isImageEmbed(findNoteFile(files, c.name)));
+}
+
+export function visibleEmbedIndices(line: BodyLine, lineIndex: number, dragFrom: CellPos | null): number[] {
+  const indices: number[] = [];
+  for (let ci = 0; ci < line.cells.length; ci++) {
+    if (dragFrom?.line === lineIndex && dragFrom.cell === ci) continue;
+    indices.push(ci);
+  }
+  return indices;
+}
+
+/** Слот 0..3 (3 = в конец ряда) → dropBefore.cell в исходной строке. */
+export function imageGridSlotToDropBefore(
+  line: BodyLine,
+  lineIndex: number,
+  slot: number,
+  dragFrom: CellPos | null,
+): CellPos {
+  const indices = visibleEmbedIndices(line, lineIndex, dragFrom);
+  if (slot <= 0) return { line: lineIndex, cell: indices[0] ?? 0 };
+  if (slot >= indices.length) return { line: lineIndex, cell: line.cells.length };
+  return { line: lineIndex, cell: indices[slot]! };
+}
+
+export function dropBeforeToImageSlot(
+  line: BodyLine,
+  lineIndex: number,
+  before: CellPos,
+  dragFrom: CellPos | null,
+): number {
+  const indices = visibleEmbedIndices(line, lineIndex, dragFrom);
+  const idx = indices.indexOf(before.cell);
+  return idx >= 0 ? idx : indices.length;
+}
+
+export type ImageGridSlotItem = {
+  cell: LineCell;
+  pos: CellPos;
+  isPlaceholder: boolean;
+};
+
+/** Раскладка 3 фиксированных слотов; при DnD — placeholder в insertSlot, без finalizeLines. */
+export function buildImageGridSlotLayout(
+  line: BodyLine,
+  lineIndex: number,
+  dragFrom: CellPos | null,
+  insertSlot: number | null,
+  files: NoteFile[],
+): (ImageGridSlotItem | null)[] {
+  const slots: (ImageGridSlotItem | null)[] = [null, null, null];
+  if (!isImageEmbedRow(line, files)) return slots;
+
+  const draggingHere = dragFrom?.line === lineIndex;
+  const src =
+    draggingHere && line.cells[dragFrom.cell]?.type === "embed" ? line.cells[dragFrom.cell]! : null;
+
+  if (!draggingHere || !src) {
+    line.cells.forEach((cell, ci) => {
+      if (ci < MAX_IMAGES_PER_EMBED_ROW) {
+        slots[ci] = { cell, pos: { line: lineIndex, cell: ci }, isPlaceholder: false };
+      }
+    });
+    return slots;
+  }
+
+  const others: { cell: LineCell; ci: number }[] = [];
+  line.cells.forEach((cell, ci) => {
+    if (ci === dragFrom.cell) return;
+    others.push({ cell, ci });
+  });
+
+  const targetSlot = Math.max(0, Math.min(MAX_IMAGES_PER_EMBED_ROW, insertSlot ?? dragFrom.cell));
+
+  const ordered: ImageGridSlotItem[] = [];
+  for (let i = 0; i < others.length; i++) {
+    if (ordered.length === targetSlot) {
+      ordered.push({ cell: src, pos: { line: lineIndex, cell: dragFrom.cell }, isPlaceholder: true });
+    }
+    ordered.push({
+      cell: others[i]!.cell,
+      pos: { line: lineIndex, cell: others[i]!.ci },
+      isPlaceholder: false,
+    });
+  }
+  if (ordered.length === targetSlot) {
+    ordered.push({ cell: src, pos: { line: lineIndex, cell: dragFrom.cell }, isPlaceholder: true });
+  }
+
+  ordered.forEach((item, i) => {
+    if (i < MAX_IMAGES_PER_EMBED_ROW) slots[i] = item;
+  });
+  return slots;
+}
 
 export function embedToken(name: string) {
   return `[${name}]`;
@@ -180,6 +281,124 @@ function adjustBeforeAfterRemoval(lines: BodyLine[], from: CellPos, before: Cell
 
 export function isDropNoop(from: CellPos, before: CellPos): boolean {
   return from.line === before.line && (from.cell === before.cell || from.cell + 1 === before.cell);
+}
+
+export type NotePreviewItem =
+  | { kind: "gap"; key: string }
+  | { kind: "cell"; cell: LineCell; pos: CellPos; isPlaceholder?: boolean };
+
+export type NotePreviewLine = {
+  lineKey: string;
+  isEmbed: boolean;
+  isImageGrid: boolean;
+  lineIndex: number;
+  items: NotePreviewItem[];
+};
+
+function linesWithoutCell(lines: BodyLine[], at: CellPos, files: NoteFile[]): BodyLine[] {
+  const next = cloneLines(lines);
+  next[at.line]?.cells.splice(at.cell, 1);
+  if (next[at.line]?.cells.length === 0) next.splice(at.line, 1);
+  return finalizeLines(next, files);
+}
+
+function mapPreviewLines(
+  displayLines: BodyLine[],
+  placeholderName: string | null,
+  files: NoteFile[],
+): NotePreviewLine[] {
+  let marked = false;
+  return displayLines.map((line, li) => ({
+    lineKey: `line-${li}`,
+    isEmbed: isEmbedLine(line),
+    isImageGrid: isImageEmbedRow(line, files),
+    lineIndex: li,
+    items: line.cells.map((cell, ci) => {
+      const isPlaceholder =
+        !!placeholderName &&
+        !marked &&
+        cell.type === "embed" &&
+        cell.name === placeholderName;
+      if (isPlaceholder) marked = true;
+      return { kind: "cell" as const, cell, pos: { line: li, cell: ci }, isPlaceholder };
+    }),
+  }));
+}
+
+/** Превью = финальная раскладка после moveEmbedAt; перетаскиваемый элемент — невидимый placeholder. */
+export function buildNotePreviewLines(
+  lines: BodyLine[],
+  dragFrom: CellPos | null,
+  dropBefore: CellPos | null,
+  files: NoteFile[],
+): { lines: NotePreviewLine[]; trailingGap: boolean } {
+  if (!dragFrom) {
+    if (!dropBefore) {
+      return {
+        lines: lines.map((line, li) => ({
+          lineKey: `line-${li}`,
+          isEmbed: isEmbedLine(line),
+          isImageGrid: isImageEmbedRow(line, files),
+          lineIndex: li,
+          items: line.cells.map((cell, ci) => ({ kind: "cell" as const, cell, pos: { line: li, cell: ci } })),
+        })),
+        trailingGap: false,
+      };
+    }
+
+    const trailingGap = dropBefore.line === lines.length && dropBefore.cell === 0;
+    const previewLines = lines.map((line, li) => {
+      const items: NotePreviewItem[] = [];
+      if (dropBefore.line === li && dropBefore.cell === 0) {
+        items.push({ kind: "gap", key: `gap-line-${li}` });
+      }
+      if (isTextLine(line)) {
+        line.cells.forEach((cell, ci) => {
+          items.push({ kind: "cell", cell, pos: { line: li, cell: ci } });
+        });
+        return { lineKey: `line-${li}`, isEmbed: false, isImageGrid: false, lineIndex: li, items };
+      }
+      if (isImageEmbedRow(line, files)) {
+        const slot =
+          dropBefore.line === li
+            ? visibleEmbedIndices(line, li, null).indexOf(dropBefore.cell)
+            : -1;
+        const insertSlot = slot >= 0 ? slot : line.cells.length;
+        let visible = 0;
+        for (let ci = 0; ci < line.cells.length; ci++) {
+          if (visible === insertSlot) items.push({ kind: "gap", key: `gap-${li}-${insertSlot}` });
+          items.push({ kind: "cell", cell: line.cells[ci]!, pos: { line: li, cell: ci } });
+          visible += 1;
+        }
+        if (insertSlot >= line.cells.length) items.push({ kind: "gap", key: `gap-after-${li}` });
+        return { lineKey: `line-${li}`, isEmbed: true, isImageGrid: true, lineIndex: li, items };
+      }
+      let gapAt = dropBefore.line === li ? dropBefore.cell : -1;
+      let visible = 0;
+      for (let ci = 0; ci < line.cells.length; ci++) {
+        if (visible === gapAt) items.push({ kind: "gap", key: `gap-${li}-${gapAt}` });
+        items.push({ kind: "cell", cell: line.cells[ci]!, pos: { line: li, cell: ci } });
+        visible += 1;
+      }
+      if (dropBefore.line === li && dropBefore.cell === line.cells.length) {
+        items.push({ kind: "gap", key: `gap-after-${li}` });
+      }
+      return { lineKey: `line-${li}`, isEmbed: true, isImageGrid: false, lineIndex: li, items };
+    });
+    return { lines: previewLines, trailingGap };
+  }
+
+  const src = lines[dragFrom.line]?.cells[dragFrom.cell];
+  if (!src || src.type !== "embed") {
+    return { lines: mapPreviewLines(lines, null, files), trailingGap: false };
+  }
+
+  if (!dropBefore || isDropNoop(dragFrom, dropBefore)) {
+    return { lines: mapPreviewLines(linesWithoutCell(lines, dragFrom, files), null, files), trailingGap: false };
+  }
+
+  const displayLines = moveEmbedAt(lines, dragFrom, dropBefore, files);
+  return { lines: mapPreviewLines(displayLines, src.name, files), trailingGap: false };
 }
 
 export function moveEmbedAt(lines: BodyLine[], from: CellPos, before: CellPos, files: NoteFile[]): BodyLine[] {
