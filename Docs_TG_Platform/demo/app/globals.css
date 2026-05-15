@@ -2160,6 +2160,9 @@ button.nav-item {
 .draft-cards-stack {
   gap: 0;
 }
+.draft-cards-stack--dragging .draft-card-wrap {
+  transition: transform 0.2s ease, margin 0.2s ease, opacity 0.2s ease;
+}
 .draft-cards-stack .draft-card-wrap:not(:last-child) {
   margin-bottom: 10px;
 }
@@ -2167,10 +2170,15 @@ button.nav-item {
   width: var(--feed-post-w);
   max-width: 100%;
 }
-.draft-card-wrap.is-dragging {
-  opacity: 0.94;
-  outline: none;
-  box-shadow: 0 0 0 1px var(--border2), 0 10px 32px rgba(0, 0, 0, 0.22);
+.draft-drop-gap {
+  width: var(--feed-post-w);
+  max-width: 100%;
+  margin-bottom: 10px;
+  border-radius: var(--post-card-r);
+  box-sizing: border-box;
+  flex-shrink: 0;
+  transition: height 0.2s ease, margin 0.2s ease;
+  pointer-events: none;
 }
 .draft-drag-preview {
   opacity: 1 !important;
