@@ -98,7 +98,7 @@ export default function ChatsScreen() {
         }
       >
         <div className="chat-card-icon-rail" aria-hidden>
-          <NavIconFeed strokeWidth={1.5} />
+          <NavIconFeed strokeWidth={1.5} outerStrokeWidth={1.5} />
         </div>
         <div className="chat-card-body-row">
           <div className="chat-card-main">

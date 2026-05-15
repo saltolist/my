@@ -30,16 +30,16 @@ export function NavIconLogo(props: IconProps) {
   );
 }
 
-/** Лента — карточка между двумя вертикалями и три строки (как в референсе) */
-export function NavIconFeed(props: IconProps) {
+type NavIconFeedProps = IconProps & { outerStrokeWidth?: number };
+
+/** Лента — карточка поста: медиа-блок и две строки текста */
+export function NavIconFeed({ outerStrokeWidth = 2, strokeWidth = 2, ...props }: NavIconFeedProps) {
   return (
-    <BaseIcon {...props}>
-      <line x1="4" y1="3.5" x2="4" y2="20.5" />
-      <line x1="20" y1="3.5" x2="20" y2="20.5" />
-      <rect x="7" y="6" width="10" height="12" rx="2.5" ry="2.5" />
-      <line x1="8.5" y1="9.25" x2="14.25" y2="9.25" />
-      <line x1="8.5" y1="12" x2="12.35" y2="12" />
-      <line x1="8.5" y1="14.75" x2="13.85" y2="14.75" />
+    <BaseIcon strokeWidth={strokeWidth} {...props}>
+      <rect x="4" y="2.5" width="16" height="19" rx="2.5" strokeWidth={outerStrokeWidth} />
+      <rect x="7.5" y="6" width="9" height="5.5" rx="1.5" />
+      <line x1="7.5" y1="15" x2="15.5" y2="15" />
+      <line x1="7.5" y1="18" x2="13" y2="18" />
     </BaseIcon>
   );
 }
