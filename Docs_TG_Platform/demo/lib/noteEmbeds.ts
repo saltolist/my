@@ -60,6 +60,31 @@ export type ImageGridSlotItem = {
   isPlaceholder: boolean;
 };
 
+function orderedSlotsWithPlaceholder(
+  others: { cell: LineCell; ci: number }[],
+  src: LineCell,
+  placeholderPos: CellPos,
+  rowLineIndex: number,
+  targetSlot: number,
+): ImageGridSlotItem[] {
+  const ordered: ImageGridSlotItem[] = [];
+  const slot = Math.max(0, Math.min(MAX_IMAGES_PER_EMBED_ROW, targetSlot));
+  for (let i = 0; i < others.length; i++) {
+    if (ordered.length === slot) {
+      ordered.push({ cell: src, pos: placeholderPos, isPlaceholder: true });
+    }
+    ordered.push({
+      cell: others[i]!.cell,
+      pos: { line: rowLineIndex, cell: others[i]!.ci },
+      isPlaceholder: false,
+    });
+  }
+  if (ordered.length === slot) {
+    ordered.push({ cell: src, pos: placeholderPos, isPlaceholder: true });
+  }
+  return ordered;
+}
+
 /** Раскладка 3 фиксированных слотов; при DnD — placeholder в insertSlot, без finalizeLines. */
 export function buildImageGridSlotLayout(
   line: BodyLine,
@@ -67,15 +92,39 @@ export function buildImageGridSlotLayout(
   dragFrom: CellPos | null,
   insertSlot: number | null,
   files: NoteFile[],
+  /** Embed с другой строки — показываем placeholder в этой сетке при наведении. */
+  incomingEmbed: LineCell | null,
+  incomingFrom: CellPos | null,
 ): (ImageGridSlotItem | null)[] {
   const slots: (ImageGridSlotItem | null)[] = [null, null, null];
   if (!isImageEmbedRow(line, files)) return slots;
 
   const draggingHere = dragFrom?.line === lineIndex;
-  const src =
+  const srcLocal =
     draggingHere && line.cells[dragFrom.cell]?.type === "embed" ? line.cells[dragFrom.cell]! : null;
 
-  if (!draggingHere || !src) {
+  const showIncoming =
+    !draggingHere &&
+    incomingEmbed?.type === "embed" &&
+    insertSlot != null &&
+    incomingFrom != null;
+
+  if (showIncoming) {
+    const others: { cell: LineCell; ci: number }[] = line.cells.map((cell, ci) => ({ cell, ci }));
+    const ordered = orderedSlotsWithPlaceholder(
+      others,
+      incomingEmbed,
+      incomingFrom,
+      lineIndex,
+      insertSlot,
+    );
+    ordered.forEach((item, i) => {
+      if (i < MAX_IMAGES_PER_EMBED_ROW) slots[i] = item;
+    });
+    return slots;
+  }
+
+  if (!draggingHere || !srcLocal) {
     line.cells.forEach((cell, ci) => {
       if (ci < MAX_IMAGES_PER_EMBED_ROW) {
         slots[ci] = { cell, pos: { line: lineIndex, cell: ci }, isPlaceholder: false };
@@ -92,20 +141,7 @@ export function buildImageGridSlotLayout(
 
   const targetSlot = Math.max(0, Math.min(MAX_IMAGES_PER_EMBED_ROW, insertSlot ?? dragFrom.cell));
 
-  const ordered: ImageGridSlotItem[] = [];
-  for (let i = 0; i < others.length; i++) {
-    if (ordered.length === targetSlot) {
-      ordered.push({ cell: src, pos: { line: lineIndex, cell: dragFrom.cell }, isPlaceholder: true });
-    }
-    ordered.push({
-      cell: others[i]!.cell,
-      pos: { line: lineIndex, cell: others[i]!.ci },
-      isPlaceholder: false,
-    });
-  }
-  if (ordered.length === targetSlot) {
-    ordered.push({ cell: src, pos: { line: lineIndex, cell: dragFrom.cell }, isPlaceholder: true });
-  }
+  const ordered = orderedSlotsWithPlaceholder(others, srcLocal, dragFrom, lineIndex, targetSlot);
 
   ordered.forEach((item, i) => {
     if (i < MAX_IMAGES_PER_EMBED_ROW) slots[i] = item;

@@ -3090,6 +3090,7 @@ button.nav-item {
 }
 .note-body-line--text {
   display: block;
+  position: relative;
 }
 .note-body-line--embed {
   display: flex;
@@ -3105,19 +3106,128 @@ button.nav-item {
   width: fit-content;
   max-width: 100%;
   align-items: start;
-}
-.note-body-line--text {
   position: relative;
+}
+/* Горизонтальная полоса «вставить перед строкой» вне потока — иначе она сдвигает текст и граница дропа дёргается. */
+.note-embed-drop-lead-abs {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.note-embed-drop-lead-abs .note-embed-drop-indicator--horizontal {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100% !important;
+  flex: none !important;
+  height: 3px;
+  margin: 0 !important;
+  transform: translateY(-50%);
+}
+.note-embed-grid-drop-lead-abs {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.note-embed-grid-drop-lead-abs .note-embed-drop-indicator--horizontal {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100% !important;
+  flex: none !important;
+  height: 3px;
+  margin: 0 !important;
+  transform: translateY(-50%);
 }
 .note-body-canvas--dragging .note-embed-image-grid .note-body-cell--embed,
 .note-body-canvas--dragging .note-embed-image-grid .note-embed-image-slot {
   transition: none;
+}
+.note-body-canvas--dragging {
+  user-select: none;
+}
+.note-embed-drop-indicator {
+  pointer-events: none;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  background: var(--accent);
+  border-radius: 2px;
+}
+.note-embed-drop-indicator--horizontal {
+  width: 100%;
+  flex: 0 0 auto;
+  height: 3px;
+  margin: 12px 0;
+}
+.note-embed-drop-indicator--vertical {
+  width: 3px;
+  min-height: 40px;
+  align-self: center;
+  margin: 0 8px;
+}
+.note-body-line--embed:not(.note-embed-image-grid) .note-embed-drop-indicator--vertical {
+  min-height: 56px;
+}
+.note-embed-drag-float {
+  position: fixed;
+  z-index: 10050;
+  pointer-events: none;
+  border-radius: var(--rs);
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16);
+  border: 1px solid var(--border);
+  background: var(--panel-bg, var(--bg));
+}
+.note-embed-drag-float-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 8px;
+}
+.note-embed-drag-float-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: calc(var(--rs) - 2px);
+}
+.note-embed-drag-float-code {
+  font-size: 14px;
+  color: var(--text);
+  word-break: break-all;
+  text-align: center;
 }
 .note-embed-drop-gap {
   flex: 0 0 auto;
   box-sizing: border-box;
   border-radius: 4px;
   pointer-events: none;
+  vertical-align: middle;
+  align-self: center;
+}
+.note-embed-drop-gap--flex {
+  display: inline-flex;
+  flex: 0 0 auto;
+  min-width: 0;
+  height: 1.6em;
+  margin: 0 2px;
+  opacity: 0;
+}
+.note-embed-drop-gap--flex.note-embed-drop-gap--active {
+  min-width: 44px;
+  opacity: 1;
 }
 .note-embed-image-grid .note-embed-image-slot--empty {
   width: 400px;
@@ -3125,14 +3235,45 @@ button.nav-item {
   box-sizing: border-box;
   pointer-events: none;
 }
+/* Прозрачность без pointer-events:none — иначе ломается setPointerCapture на самой ячейке (fallback). */
+.note-body-cell--drag-lifted {
+  opacity: 0 !important;
+}
 .note-body-cell--drop-placeholder {
   visibility: hidden;
   pointer-events: none;
+}
+.note-body-canvas--dragging .note-embed-image-grid .note-body-cell--drop-placeholder {
+  visibility: visible !important;
+  width: 4px !important;
+  min-width: 4px !important;
+  max-width: 4px !important;
+  height: 200px !important;
+  padding: 0 !important;
+  margin: 0 8px !important;
+  overflow: hidden !important;
+  background: var(--accent) !important;
+  border-radius: 2px !important;
+}
+.note-body-canvas--dragging .note-embed-image-grid .note-body-cell--drop-placeholder .note-inline-image,
+.note-body-canvas--dragging .note-embed-image-grid .note-body-cell--drop-placeholder .note-embed-chip {
+  display: none !important;
 }
 .note-embed-drop-gap--line {
   display: block;
   width: 100%;
   flex: 0 0 100%;
+  max-height: 0;
+  min-height: 0;
+  margin: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+.note-embed-drop-gap--line.note-embed-drop-gap--active {
+  min-height: 10px;
+  max-height: 28px;
+  margin: 6px 0;
+  opacity: 1;
 }
 .note-body-cell { display: inline-flex; align-items: baseline; max-width: 100%; }
 .note-body-line--text .note-body-cell--text {

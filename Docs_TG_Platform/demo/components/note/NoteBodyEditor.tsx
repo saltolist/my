@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import type { NoteFile } from "@/lib/types";
 import {
   buildImageGridSlotLayout,
@@ -29,6 +30,29 @@ import {
 
 const EMBED_MIME = "application/x-note-embed";
 const IMAGE_SLOT_HYSTERESIS = 32;
+/** Граница «перед строкой / после строки» (доля высоты строки сверху). */
+const TEXT_DROP_BOUNDARY_FRAC = 0.5;
+/**
+ * Гистерезис по Y между «вставить перед строкой i» и «после неё» (половина полосы с каждой стороны от границы).
+ * Шире — меньше дрожания у середины строки при появлении индикатора дропа.
+ */
+function textLineDropHysteresisPx(lineHeight: number): number {
+  return Math.max(28, lineHeight * 0.28);
+}
+
+/** Метрики текста без учёта in-flow индикаторов дропа (они вынесены в absolute). */
+function textLineCellMetrics(lineEl: HTMLElement): { top: number; height: number } {
+  const cell = lineEl.querySelector<HTMLElement>(".note-body-cell--text");
+  const r = (cell ?? lineEl).getBoundingClientRect();
+  const h = Math.max(r.height, 8);
+  return { top: r.top, height: h };
+}
+const FLEX_DROP_X_HYST_PX = 48;
+/** Плавающая карточка и слот вставки при перетаскивании вложения. */
+const DRAG_CARD_W = 400;
+const DRAG_CARD_H = 200;
+/** В режиме просмотра не начинаем drag сразу — иначе ломаются клики по ссылкам на файлы. */
+const VIEW_EMBED_DRAG_THRESHOLD_SQ = 36;
 
 type Props = {
   body: string;
@@ -49,13 +73,19 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
   const dragSourceRef = useRef<CellPos | null>(null);
   const imageDropSlotRef = useRef<ImageDropSlot | null>(null);
   const committedSlotRef = useRef<number | null>(null);
+  const dropCommittedRef = useRef<CellPos | null>(null);
+  const pointerDragSessionRef = useRef(false);
+  const pointerCaptureElRef = useRef<HTMLElement | null>(null);
+  const activePointerIdRef = useRef<number | null>(null);
 
   const lines = useMemo(() => segmentsToLines(parseNoteBody(body)), [body]);
   linesRef.current = lines;
   filesRef.current = files;
 
   const [dragFrom, setDragFrom] = useState<CellPos | null>(null);
+  const [dropBefore, setDropBefore] = useState<CellPos | null>(null);
   const [imageDropSlot, setImageDropSlot] = useState<ImageDropSlot | null>(null);
+  const [dragOverlay, setDragOverlay] = useState<{ x: number; y: number } | null>(null);
 
   const isDragging = dragFrom != null;
 
@@ -71,8 +101,14 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
     dragSourceRef.current = null;
     imageDropSlotRef.current = null;
     committedSlotRef.current = null;
+    dropCommittedRef.current = null;
     setDragFrom(null);
+    setDropBefore(null);
     setImageDropSlot(null);
+    setDragOverlay(null);
+    pointerDragSessionRef.current = false;
+    pointerCaptureElRef.current = null;
+    activePointerIdRef.current = null;
   }, []);
 
   const setImageSlot = useCallback((line: number, slot: number) => {
@@ -90,6 +126,10 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
     const hit = hitTestLine(clientX, clientY, curLines, curFiles);
     const slotState = imageDropSlotRef.current;
 
+    if (hit?.lineEl.dataset.dropTail === "1") {
+      return { line: curLines.length, cell: 0 };
+    }
+
     if (hit && slotState && slotState.line === hit.lineIndex && isImageEmbedRow(hit.line, curFiles)) {
       return imageGridSlotToDropBefore(hit.line, hit.lineIndex, slotState.slot, from);
     }
@@ -97,8 +137,9 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
     if (!hit) return { line: curLines.length, cell: 0 };
 
     if (isTextLine(hit.line)) {
-      const r = hit.lineEl.getBoundingClientRect();
-      if (clientY < r.top + r.height * 0.25) return { line: hit.lineIndex, cell: 0 };
+      const { top, height: h } = textLineCellMetrics(hit.lineEl);
+      const boundaryY = top + h * TEXT_DROP_BOUNDARY_FRAC;
+      if (clientY < boundaryY) return { line: hit.lineIndex, cell: 0 };
       return { line: hit.lineIndex + 1, cell: 0 };
     }
 
@@ -119,7 +160,7 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
 
   const commitDropAt = useCallback(
     (before: CellPos, embedName?: string) => {
-      const from = dragSourceRef.current;
+      const from = dragSourceRef.current ?? dragFromRef.current;
       const curLines = linesRef.current;
       const curFiles = filesRef.current;
 
@@ -135,19 +176,42 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
     [applyLines, clearDrag],
   );
 
-  const updateDropTarget = useCallback((clientX: number, clientY: number) => {
-    const hit = hitTestLine(clientX, clientY, linesRef.current, filesRef.current);
-    if (!hit?.isImageGrid) return;
+  const updateDropTarget = useCallback(
+    (clientX: number, clientY: number) => {
+      const hit = hitTestLine(clientX, clientY, linesRef.current, filesRef.current);
 
-    const slot = resolveImageGridSlot(
-      clientX,
-      hit.lineEl.getBoundingClientRect(),
-      hit.lineIndex,
-      committedSlotRef,
-      imageDropSlotRef,
-    );
-    setImageSlot(hit.lineIndex, slot);
-  }, [setImageSlot]);
+      if (hit?.isImageGrid) {
+        const slot = resolveImageGridSlot(
+          clientX,
+          hit.lineEl.getBoundingClientRect(),
+          hit.lineIndex,
+          committedSlotRef,
+          imageDropSlotRef,
+        );
+        setImageSlot(hit.lineIndex, slot);
+      } else if (imageDropSlotRef.current != null) {
+        imageDropSlotRef.current = null;
+        setImageDropSlot(null);
+      }
+
+      if (dragSourceRef.current != null) {
+        const raw = resolveDropBefore(clientX, clientY);
+        const stable = stabilizeDropBeforeCommitted(
+          dropCommittedRef.current,
+          raw,
+          clientX,
+          clientY,
+          linesRef.current,
+          filesRef.current,
+        );
+        dropCommittedRef.current = stable;
+        setDropBefore((prev) =>
+          prev && prev.line === stable.line && prev.cell === stable.cell ? prev : stable,
+        );
+      }
+    },
+    [resolveDropBefore, setImageSlot],
+  );
 
   const performDrop = useCallback(
     (clientX: number, clientY: number, dataTransfer: DataTransfer | null) => {
@@ -168,6 +232,202 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
     [commitDropAt, onAddFile, resolveDropBefore],
   );
 
+  const initEmbedDragSession = useCallback(
+    (pos: CellPos, lineCtx?: BodyLine, lineIndexCtx?: number, overlayPos?: { x: number; y: number }) => {
+      dragSourceRef.current = pos;
+      dragFromRef.current = pos;
+      committedSlotRef.current = null;
+      dropCommittedRef.current = { line: pos.line, cell: pos.cell };
+      setDropBefore({ line: pos.line, cell: pos.cell });
+      setDragFrom(pos);
+      if (overlayPos) setDragOverlay(overlayPos);
+
+      const curFiles = filesRef.current;
+      if (
+        lineCtx != null &&
+        lineIndexCtx !== undefined &&
+        isImageEmbedRow(lineCtx, curFiles)
+      ) {
+        const startSlot = dropBeforeToImageSlot(
+          lineCtx,
+          lineIndexCtx,
+          { line: lineIndexCtx, cell: pos.cell },
+          null,
+        );
+        imageDropSlotRef.current = { line: lineIndexCtx, slot: startSlot };
+        setImageDropSlot({ line: lineIndexCtx, slot: startSlot });
+      } else {
+        imageDropSlotRef.current = null;
+        setImageDropSlot(null);
+      }
+    },
+    [],
+  );
+
+  const runEmbedPointerDrag = useCallback(
+    (
+      pos: CellPos,
+      lineCtx: BodyLine | undefined,
+      lineIndexCtx: number | undefined,
+      pointerId: number,
+      clientX: number,
+      clientY: number,
+      captureFallbackEl: HTMLElement | null,
+    ) => {
+      if (pointerDragSessionRef.current) return;
+
+      pointerDragSessionRef.current = true;
+      /** Захват на body: иначе после re-render ячейка с opacity:0 и поток событий обрывается. */
+      const captureEl =
+        typeof document !== "undefined" ? document.body : captureFallbackEl;
+      pointerCaptureElRef.current = captureEl ?? captureFallbackEl;
+      activePointerIdRef.current = pointerId;
+      try {
+        captureEl?.setPointerCapture(pointerId);
+      } catch {
+        try {
+          if (captureFallbackEl) {
+            captureFallbackEl.setPointerCapture(pointerId);
+            pointerCaptureElRef.current = captureFallbackEl;
+          }
+        } catch {
+          /* ignore */
+        }
+      }
+
+      initEmbedDragSession(pos, lineCtx, lineIndexCtx, { x: clientX, y: clientY });
+
+      const capEl = pointerCaptureElRef.current;
+      if (!capEl) {
+        pointerDragSessionRef.current = false;
+        return;
+      }
+      const capTarget = capEl;
+
+      let finished = false;
+
+      function teardown() {
+        if (finished) return;
+        finished = true;
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        window.removeEventListener("pointercancel", onUp);
+        capTarget.removeEventListener("lostpointercapture", onLostCapture);
+      }
+
+      function onLostCapture(ev: PointerEvent) {
+        if (ev.pointerId !== activePointerIdRef.current) return;
+        teardown();
+        pointerCaptureElRef.current = null;
+        activePointerIdRef.current = null;
+        pointerDragSessionRef.current = false;
+        clearDrag();
+      }
+
+      function onMove(ev: PointerEvent) {
+        if (ev.pointerId !== activePointerIdRef.current) return;
+        ev.preventDefault();
+        setDragOverlay({ x: ev.clientX, y: ev.clientY });
+        updateDropTarget(ev.clientX, ev.clientY);
+      }
+
+      function onUp(ev: PointerEvent) {
+        if (ev.pointerId !== activePointerIdRef.current) return;
+        teardown();
+
+        const cap = pointerCaptureElRef.current;
+        const pid = ev.pointerId;
+        pointerCaptureElRef.current = null;
+        activePointerIdRef.current = null;
+        pointerDragSessionRef.current = false;
+        try {
+          cap?.releasePointerCapture(pid);
+        } catch {
+          /* released */
+        }
+
+        const raw = resolveDropBefore(ev.clientX, ev.clientY);
+        const before = stabilizeDropBeforeCommitted(
+          dropCommittedRef.current,
+          raw,
+          ev.clientX,
+          ev.clientY,
+          linesRef.current,
+          filesRef.current,
+        );
+        commitDropAt(before);
+      }
+
+      capTarget.addEventListener("lostpointercapture", onLostCapture);
+
+      window.addEventListener("pointermove", onMove, { passive: false });
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onUp);
+    },
+    [clearDrag, commitDropAt, initEmbedDragSession, resolveDropBefore, updateDropTarget],
+  );
+
+  const beginEmbedPointerDrag = useCallback(
+    (pos: CellPos, e: React.PointerEvent, lineCtx?: BodyLine, lineIndexCtx?: number) => {
+      if (pointerDragSessionRef.current) return;
+      if (e.button !== 0) return;
+
+      const fallback = e.currentTarget instanceof HTMLElement ? e.currentTarget : null;
+
+      if (!isView) {
+        e.preventDefault();
+        e.stopPropagation();
+        runEmbedPointerDrag(
+          pos,
+          lineCtx,
+          lineIndexCtx,
+          e.pointerId,
+          e.clientX,
+          e.clientY,
+          fallback,
+        );
+        return;
+      }
+
+      e.stopPropagation();
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const pid = e.pointerId;
+
+      const onTentativeMove = (ev: PointerEvent) => {
+        if (ev.pointerId !== pid) return;
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+        if (dx * dx + dy * dy < VIEW_EMBED_DRAG_THRESHOLD_SQ) return;
+        window.removeEventListener("pointermove", onTentativeMove);
+        window.removeEventListener("pointerup", onTentativeUp);
+        window.removeEventListener("pointercancel", onTentativeUp);
+        ev.preventDefault();
+        runEmbedPointerDrag(
+          pos,
+          lineCtx,
+          lineIndexCtx,
+          pid,
+          ev.clientX,
+          ev.clientY,
+          fallback,
+        );
+      };
+
+      const onTentativeUp = (ev: PointerEvent) => {
+        if (ev.pointerId !== pid) return;
+        window.removeEventListener("pointermove", onTentativeMove);
+        window.removeEventListener("pointerup", onTentativeUp);
+        window.removeEventListener("pointercancel", onTentativeUp);
+      };
+
+      window.addEventListener("pointermove", onTentativeMove, { passive: false });
+      window.addEventListener("pointerup", onTentativeUp);
+      window.addEventListener("pointercancel", onTentativeUp);
+    },
+    [isView, runEmbedPointerDrag],
+  );
+
   useEffect(() => {
     const onDocDragOver = (e: DragEvent) => {
       const canvas = canvasRef.current;
@@ -178,6 +438,9 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
       e.preventDefault();
       if (e.dataTransfer) {
         e.dataTransfer.dropEffect = dragFromRef.current != null ? "move" : "copy";
+      }
+      if (dragSourceRef.current != null) {
+        setDragOverlay({ x: e.clientX, y: e.clientY });
       }
       updateDropTarget(e.clientX, e.clientY);
     };
@@ -202,131 +465,187 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
   const handleCanvasDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = dragFromRef.current != null ? "move" : "copy";
+    if (dragSourceRef.current != null) {
+      setDragOverlay({ x: e.clientX, y: e.clientY });
+    }
     updateDropTarget(e.clientX, e.clientY);
   };
 
-  const endEmbedDrag = useCallback(() => {
-    requestAnimationFrame(() => {
-      if (dragSourceRef.current != null) clearDrag();
-    });
-  }, [clearDrag]);
-
-  const startEmbedDrag = useCallback((pos: CellPos, line: BodyLine, lineIndex: number) => {
-    dragSourceRef.current = pos;
-    dragFromRef.current = pos;
-    committedSlotRef.current = null;
-    const startSlot = dropBeforeToImageSlot(line, lineIndex, { line: lineIndex, cell: pos.cell }, null);
-    imageDropSlotRef.current = { line: lineIndex, slot: startSlot };
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (dragFromRef.current?.line === pos.line && dragFromRef.current?.cell === pos.cell) {
-          setDragFrom(pos);
-          setImageDropSlot({ line: lineIndex, slot: startSlot });
-        }
-      });
-    });
-  }, []);
-
   const hasContent = lines.some((l) => l.cells.some((c) => (c.type === "text" ? c.content.trim() : true)));
 
-  return (
-    <div
-      ref={canvasRef}
-      className={`note-body-canvas${isView ? " note-body-view note-body-view--rich" : " note-body-edit-canvas"}${isDragging ? " note-body-canvas--dragging" : ""}`}
-      onDragOver={handleCanvasDragOver}
-    >
-      {!hasContent ? (
-        <span className="note-body-empty">Заметка пустая</span>
-      ) : (
-        lines.map((line, li) => {
-          if (isImageEmbedRow(line, files)) {
-            return (
-              <ImageGridLine
-                key={`line-${li}`}
-                line={line}
-                lineIndex={li}
-                files={files}
-                isView={isView}
-                dragFrom={dragFrom}
-                imageDropSlot={imageDropSlot}
-                onDragEmbedStart={(pos) => startEmbedDrag(pos, line, li)}
-                onDragEmbedEnd={endEmbedDrag}
-              />
-            );
-          }
+  const draggedEmbedCell =
+    dragFrom != null && lines[dragFrom.line]?.cells[dragFrom.cell]?.type === "embed"
+      ? lines[dragFrom.line]!.cells[dragFrom.cell]!
+      : null;
 
-          return (
-            <div
-              key={`line-${li}`}
-              className={`note-body-line${isEmbedLine(line) ? " note-body-line--embed" : " note-body-line--text"}`}
-              data-line={li}
-              onDragOver={(e) => e.preventDefault()}
-            >
-              {line.cells.map((cell, ci) => {
-                if (dragFrom?.line === li && dragFrom.cell === ci) return null;
-                return (
-                  <NoteBodyCell
-                    key={`cell-${li}-${ci}-${cell.type === "embed" ? cell.name : "t"}`}
-                    cell={cell}
-                    pos={{ line: li, cell: ci }}
-                    files={files}
-                    isView={isView}
-                    isPlaceholder={false}
-                    onTextChange={(content) => applyLines(updateTextCell(lines, { line: li, cell: ci }, content))}
-                    onTextEnter={(at) => applyLines(splitLineAtCaret(lines, { line: li, cell: ci }, at))}
-                    onDragEmbedStart={(pos) => {
-                      dragSourceRef.current = pos;
-                      dragFromRef.current = pos;
-                      imageDropSlotRef.current = null;
-                      committedSlotRef.current = null;
-                      requestAnimationFrame(() => {
-                        requestAnimationFrame(() => {
-                          if (dragFromRef.current?.line === pos.line && dragFromRef.current?.cell === pos.cell) {
-                            setDragFrom(pos);
-                            setImageDropSlot(null);
+  const dropGapActive = dragFrom != null && dropBefore != null && !isDropNoop(dragFrom, dropBefore);
+
+  return (
+    <>
+      <div
+        ref={canvasRef}
+        className={`note-body-canvas${isView ? " note-body-view note-body-view--rich" : " note-body-edit-canvas"}${isDragging ? " note-body-canvas--dragging" : ""}`}
+        onDragOver={handleCanvasDragOver}
+      >
+        {!hasContent ? (
+          <span className="note-body-empty">Заметка пустая</span>
+        ) : (
+          lines.map((line, li) => {
+            const leadSlot =
+              dropGapActive && dropBefore!.line === li && dropBefore!.cell === 0 ? (
+                <div key={`slot-lead-${li}`} className="note-embed-drop-lead-abs" aria-hidden>
+                  <DropIndicator axis="horizontal" />
+                </div>
+              ) : null;
+
+            if (isImageEmbedRow(line, files)) {
+              return (
+                <ImageGridLine
+                  key={`line-${li}`}
+                  line={line}
+                  lineIndex={li}
+                  lines={lines}
+                  files={files}
+                  isView={isView}
+                  dragFrom={dragFrom}
+                  imageDropSlot={imageDropSlot}
+                  dropSlotBefore={!!leadSlot}
+                  onEmbedPointerDown={(pos, e) => beginEmbedPointerDrag(pos, e, line, li)}
+                />
+              );
+            }
+
+            return (
+              <div
+                key={`line-${li}`}
+                className={`note-body-line${isEmbedLine(line) ? " note-body-line--embed" : " note-body-line--text"}`}
+                data-line={li}
+                onDragOver={(e) => e.preventDefault()}
+              >
+                {leadSlot}
+                {isEmbedLine(line) ? (
+                  <>
+                    {line.cells.flatMap((cell, ci) => {
+                      const nodes: ReactNode[] = [];
+                      const showFlexSlot =
+                        dropGapActive && dropBefore!.line === li && dropBefore!.cell === ci;
+                      if (showFlexSlot) nodes.push(<DropIndicator key={`slot-flex-${li}-${ci}`} axis="vertical" />);
+                      const lifted = dragFrom?.line === li && dragFrom.cell === ci;
+                      nodes.push(
+                        <NoteBodyCell
+                          key={`cell-${li}-${ci}-${cell.type === "embed" ? cell.name : "t"}`}
+                          cell={cell}
+                          pos={{ line: li, cell: ci }}
+                          files={files}
+                          isView={isView}
+                          isPlaceholder={false}
+                          isDragLifted={lifted}
+                          onTextChange={(content) =>
+                            applyLines(updateTextCell(lines, { line: li, cell: ci }, content))
                           }
-                        });
-                      });
-                    }}
-                    onDragEmbedEnd={endEmbedDrag}
-                  />
-                );
-              })}
-            </div>
-          );
-        })
-      )}
-    </div>
+                          onTextEnter={(at) => applyLines(splitLineAtCaret(lines, { line: li, cell: ci }, at))}
+                          onEmbedPointerDown={(pos, e) => beginEmbedPointerDrag(pos, e, line, li)}
+                        />,
+                      );
+                      return nodes;
+                    })}
+                    {dropGapActive &&
+                    dropBefore!.line === li &&
+                    dropBefore!.cell === line.cells.length ? (
+                      <DropIndicator key={`slot-flex-tail-${li}`} axis="vertical" />
+                    ) : null}
+                  </>
+                ) : (
+                  line.cells.map((cell, ci) => (
+                    <NoteBodyCell
+                      key={`cell-${li}-${ci}-${cell.type === "embed" ? cell.name : "t"}`}
+                      cell={cell}
+                      pos={{ line: li, cell: ci }}
+                      files={files}
+                      isView={isView}
+                      isPlaceholder={false}
+                      isDragLifted={dragFrom?.line === li && dragFrom.cell === ci}
+                      onTextChange={(content) =>
+                        applyLines(updateTextCell(lines, { line: li, cell: ci }, content))
+                      }
+                      onTextEnter={(at) => applyLines(splitLineAtCaret(lines, { line: li, cell: ci }, at))}
+                    />
+                  ))
+                )}
+              </div>
+            );
+          })
+        )}
+        {dropGapActive && dropBefore!.line === lines.length && dropBefore!.cell === 0 ? (
+          <div
+            key="note-drop-tail"
+            className="note-body-line note-body-line--drop-tail"
+            data-line={lines.length}
+            data-drop-tail="1"
+            onDragOver={(e) => e.preventDefault()}
+          >
+            <DropIndicator axis="horizontal" />
+          </div>
+        ) : null}
+      </div>
+      {typeof document !== "undefined" &&
+        dragOverlay &&
+        draggedEmbedCell &&
+        createPortal(
+          <div
+            className="note-embed-drag-float"
+            style={{
+              left: dragOverlay.x,
+              top: dragOverlay.y,
+              width: DRAG_CARD_W,
+              height: DRAG_CARD_H,
+            }}
+          >
+            <EmbedDragPreview cell={draggedEmbedCell} files={files} />
+          </div>,
+          document.body,
+        )}
+    </>
   );
 }
 
 function ImageGridLine({
   line,
   lineIndex,
+  lines,
   files,
   isView,
   dragFrom,
   imageDropSlot,
-  onDragEmbedStart,
-  onDragEmbedEnd,
+  dropSlotBefore,
+  onEmbedPointerDown,
 }: {
   line: BodyLine;
   lineIndex: number;
+  lines: BodyLine[];
   files: NoteFile[];
   isView: boolean;
   dragFrom: CellPos | null;
   imageDropSlot: ImageDropSlot | null;
-  onDragEmbedStart: (pos: CellPos) => void;
-  onDragEmbedEnd: () => void;
+  dropSlotBefore: boolean;
+  onEmbedPointerDown?: (pos: CellPos, e: React.PointerEvent) => void;
 }) {
-  const insertSlot =
-    dragFrom?.line === lineIndex
-      ? imageDropSlot?.line === lineIndex
-        ? imageDropSlot.slot
-        : dragFrom.cell
+  const insertSlot = imageDropSlot?.line === lineIndex ? imageDropSlot.slot : null;
+
+  const incoming =
+    dragFrom != null && dragFrom.line !== lineIndex && lines[dragFrom.line]?.cells[dragFrom.cell]?.type === "embed"
+      ? lines[dragFrom.line]!.cells[dragFrom.cell]!
       : null;
 
-  const slots = buildImageGridSlotLayout(line, lineIndex, dragFrom, insertSlot, files);
+  const slots = buildImageGridSlotLayout(
+    line,
+    lineIndex,
+    dragFrom,
+    insertSlot,
+    files,
+    incoming,
+    incoming ? dragFrom : null,
+  );
 
   return (
     <div
@@ -334,6 +653,11 @@ function ImageGridLine({
       data-line={lineIndex}
       onDragOver={(e) => e.preventDefault()}
     >
+      {dropSlotBefore ? (
+        <div className="note-embed-grid-drop-lead-abs" aria-hidden>
+          <DropIndicator axis="horizontal" />
+        </div>
+      ) : null}
       {slots.map((item, slotIdx) =>
         item ? (
           <NoteBodyCell
@@ -345,8 +669,13 @@ function ImageGridLine({
             isPlaceholder={item.isPlaceholder}
             onTextChange={() => {}}
             onTextEnter={() => {}}
-            onDragEmbedStart={onDragEmbedStart}
-            onDragEmbedEnd={onDragEmbedEnd}
+            onEmbedPointerDown={onEmbedPointerDown}
+            isDragLifted={
+              !item.isPlaceholder &&
+              dragFrom != null &&
+              dragFrom.line === lineIndex &&
+              dragFrom.cell === item.pos.cell
+            }
           />
         ) : (
           <div key={`empty-${lineIndex}-${slotIdx}`} className="note-embed-image-slot note-embed-image-slot--empty" aria-hidden />
@@ -354,6 +683,103 @@ function ImageGridLine({
       )}
     </div>
   );
+}
+
+function DropIndicator({ axis }: { axis: "horizontal" | "vertical" }) {
+  return (
+    <div
+      className={`note-embed-drop-indicator note-embed-drop-indicator--${axis}`}
+      aria-hidden
+    />
+  );
+}
+
+function EmbedDragPreview({ cell, files }: { cell: LineCell; files: NoteFile[] }) {
+  if (cell.type !== "embed") return null;
+  const file = findNoteFile(files, cell.name);
+  const isImage = isImageEmbed(file);
+  const token = embedToken(cell.name);
+  return (
+    <div className="note-embed-drag-float-inner">
+      {isImage && file?.url ? (
+        <img src={file.url} alt="" className="note-embed-drag-float-img" draggable={false} />
+      ) : (
+        <code className="note-embed-drag-float-code">{token}</code>
+      )}
+    </div>
+  );
+}
+
+function stabilizeFlexEmbedDropCommitted(
+  prev: CellPos | null,
+  raw: CellPos,
+  clientX: number,
+  lineIndex: number,
+): CellPos {
+  if (!prev || prev.line !== raw.line || prev.line !== lineIndex || prev.cell === raw.cell) return raw;
+  if (Math.abs(prev.cell - raw.cell) !== 1) return raw;
+
+  const lineEl = document.querySelector<HTMLElement>(`.note-body-line[data-line="${lineIndex}"]`);
+  if (!lineEl) return raw;
+
+  const embeds = [...lineEl.children].filter(
+    (el): el is HTMLElement =>
+      el instanceof HTMLElement && el.classList.contains("note-body-cell--embed"),
+  );
+
+  const rectFor = (cellIdx: number) =>
+    embeds.find((el) => Number(el.dataset.cell) === cellIdx)?.getBoundingClientRect();
+
+  const lo = Math.min(prev.cell, raw.cell);
+  const hi = Math.max(prev.cell, raw.cell);
+  const leftEl = rectFor(lo);
+  const rightEl = rectFor(hi);
+  if (!leftEl || !rightEl) return raw;
+
+  const mid = (leftEl.right + rightEl.left) / 2;
+  if (Math.abs(clientX - mid) < FLEX_DROP_X_HYST_PX) return prev;
+  return raw;
+}
+
+/** Пока курсор в полосе у границы «до/после» текстовой строки — держим прошлую цель, меньше дрожания. */
+function stabilizeDropBeforeCommitted(
+  prev: CellPos | null,
+  raw: CellPos,
+  clientX: number,
+  clientY: number,
+  lines: BodyLine[],
+  files: NoteFile[],
+): CellPos {
+  const hit = hitTestLine(clientX, clientY, lines, files);
+  if (!hit) return raw;
+
+  if (isTextLine(hit.line)) {
+    const { top, height: h } = textLineCellMetrics(hit.lineEl);
+    const boundaryY = top + h * TEXT_DROP_BOUNDARY_FRAC;
+    const band = textLineDropHysteresisPx(h);
+    const i = hit.lineIndex;
+
+    if (prev && prev.cell === 0) {
+      const prevLine = prev.line;
+      if (prevLine === i || prevLine === i + 1) {
+        if (prevLine === i) {
+          if (clientY <= boundaryY + band) return prev;
+          return raw;
+        }
+        if (prevLine === i + 1) {
+          if (clientY >= boundaryY - band) return prev;
+          return raw;
+        }
+      }
+    }
+    return raw;
+  }
+
+  if (!hit.isImageGrid && isEmbedLine(hit.line)) {
+    return stabilizeFlexEmbedDropCommitted(prev, raw, clientX, hit.lineIndex);
+  }
+
+  return raw;
 }
 
 function hitTestLine(
@@ -367,6 +793,14 @@ function hitTestLine(
     const lineEl = lineEls[li]!;
     const r = lineEl.getBoundingClientRect();
     if (clientY >= r.top && clientY <= r.bottom) {
+      if (lineEl.dataset.dropTail === "1") {
+        return {
+          line: { cells: [{ type: "text", content: "" }] },
+          lineIndex: lines.length,
+          lineEl,
+          isImageGrid: false,
+        };
+      }
       const line = lines[li];
       if (!line) return null;
       return { line, lineIndex: li, lineEl, isImageGrid: isImageEmbedRow(line, files) };
@@ -444,20 +878,20 @@ function NoteBodyCell({
   files,
   isView,
   isPlaceholder = false,
+  isDragLifted = false,
   onTextChange,
   onTextEnter,
-  onDragEmbedStart,
-  onDragEmbedEnd,
+  onEmbedPointerDown,
 }: {
   cell: LineCell;
   pos: CellPos;
   files: NoteFile[];
   isView: boolean;
   isPlaceholder?: boolean;
+  isDragLifted?: boolean;
   onTextChange: (content: string) => void;
   onTextEnter: (caret: number) => void;
-  onDragEmbedStart: (pos: CellPos) => void;
-  onDragEmbedEnd: () => void;
+  onEmbedPointerDown?: (pos: CellPos, e: React.PointerEvent) => void;
 }) {
   const cellRef = useRef<HTMLSpanElement>(null);
   const lineRef = useRef<HTMLTextAreaElement>(null);
@@ -501,38 +935,23 @@ function NoteBodyCell({
   const isImage = isImageEmbed(file);
   const token = embedToken(cell.name);
   const blockLinkNativeDrag = (e: React.DragEvent) => e.preventDefault();
+  const canPointerDrag = !isPlaceholder && onEmbedPointerDown != null;
 
   return (
     <span
       ref={cellRef}
-      className={`note-body-cell note-body-cell--embed note-body-cell--embed-draggable${isPlaceholder ? " note-body-cell--drop-placeholder" : ""}`}
+      className={`note-body-cell note-body-cell--embed note-body-cell--embed-draggable${isPlaceholder ? " note-body-cell--drop-placeholder" : ""}${isDragLifted ? " note-body-cell--drag-lifted" : ""}`}
       data-line={pos.line}
       data-cell={pos.cell}
       data-embed-name={cell.name}
-      draggable={!isPlaceholder}
-      onDragStart={(e) => {
-        e.stopPropagation();
-        e.dataTransfer.setData(EMBED_MIME, cell.name);
-        e.dataTransfer.setData("text/plain", token);
-        e.dataTransfer.effectAllowed = "move";
-        if (cellRef.current) {
-          const ghost = cellRef.current.cloneNode(true) as HTMLElement;
-          ghost.style.position = "fixed";
-          ghost.style.left = "-9999px";
-          ghost.style.pointerEvents = "none";
-          document.body.appendChild(ghost);
-          try {
-            e.dataTransfer.setDragImage(ghost, 8, 8);
-          } finally {
-            requestAnimationFrame(() => ghost.remove());
-          }
-        }
-        onDragEmbedStart(pos);
-      }}
-      onDragEnd={(e) => {
-        e.stopPropagation();
-        onDragEmbedEnd();
-      }}
+      style={canPointerDrag ? ({ touchAction: "none" } as const) : undefined}
+      onPointerDown={
+        canPointerDrag
+          ? (e) => {
+              onEmbedPointerDown!(pos, e);
+            }
+          : undefined
+      }
       {...dragHandlers}
     >
       {isView && isImage && file?.url ? (
