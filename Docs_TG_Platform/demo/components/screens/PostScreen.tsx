@@ -479,7 +479,7 @@ function PostNotes() {
               <div className="note-card-preview-post">{n.body || "Пустая заметка"}</div>
             </div>
             <div className="note-card-footer">
-              <span className="note-date">{n.date} · Локальная</span>
+              <span className="note-date">{n.date}</span>
               <button
                 className={`note-ai-toggle${n.ai ? " on" : ""}`}
                 onClick={(e) => {
