@@ -6,7 +6,9 @@ import type { NoteFile } from "@/lib/types";
 import {
   buildImageGridSlotLayout,
   dropBeforeToImageSlot,
-  EMBED_IMAGE_SLOT_STEP,
+  EMBED_IMAGE_SLOT_GAP,
+  EMBED_IMAGE_SLOT_H,
+  EMBED_IMAGE_SLOT_W,
   embedToken,
   findNoteFile,
   imageGridSlotToDropBefore,
@@ -29,7 +31,6 @@ import {
 } from "@/lib/noteEmbeds";
 
 const EMBED_MIME = "application/x-note-embed";
-const IMAGE_SLOT_HYSTERESIS = 32;
 /** Граница «перед строкой / после строки» (доля высоты строки сверху). */
 const TEXT_DROP_BOUNDARY_FRAC = 0.5;
 /**
@@ -49,8 +50,8 @@ function textLineCellMetrics(lineEl: HTMLElement): { top: number; height: number
 }
 const FLEX_DROP_X_HYST_PX = 48;
 /** Плавающая карточка и слот вставки при перетаскивании вложения. */
-const DRAG_CARD_W = 400;
-const DRAG_CARD_H = 200;
+const DRAG_CARD_W = EMBED_IMAGE_SLOT_W;
+const DRAG_CARD_H = EMBED_IMAGE_SLOT_H;
 /** В режиме просмотра не начинаем drag сразу — иначе ломаются клики по ссылкам на файлы. */
 const VIEW_EMBED_DRAG_THRESHOLD_SQ = 36;
 
@@ -77,6 +78,27 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
   const pointerDragSessionRef = useRef(false);
   const pointerCaptureElRef = useRef<HTMLElement | null>(null);
   const activePointerIdRef = useRef<number | null>(null);
+  /** Позиция плавающего превью: только ref + стили у узла, без setState на каждый pointermove (иначе вся сетка с img перерисовывается и «дрожит»). */
+  const dragFloatRef = useRef<HTMLDivElement | null>(null);
+  const dragFloatPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  const syncDragFloatPosition = useCallback((x: number, y: number) => {
+    dragFloatPosRef.current = { x, y };
+    const el = dragFloatRef.current;
+    if (el) {
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+    }
+  }, []);
+
+  const dragFloatMountRef = useCallback((el: HTMLDivElement | null) => {
+    dragFloatRef.current = el;
+    if (el) {
+      const p = dragFloatPosRef.current;
+      el.style.left = `${p.x}px`;
+      el.style.top = `${p.y}px`;
+    }
+  }, []);
 
   const lines = useMemo(() => segmentsToLines(parseNoteBody(body)), [body]);
   linesRef.current = lines;
@@ -85,7 +107,6 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
   const [dragFrom, setDragFrom] = useState<CellPos | null>(null);
   const [dropBefore, setDropBefore] = useState<CellPos | null>(null);
   const [imageDropSlot, setImageDropSlot] = useState<ImageDropSlot | null>(null);
-  const [dragOverlay, setDragOverlay] = useState<{ x: number; y: number } | null>(null);
 
   const isDragging = dragFrom != null;
 
@@ -105,7 +126,6 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
     setDragFrom(null);
     setDropBefore(null);
     setImageDropSlot(null);
-    setDragOverlay(null);
     pointerDragSessionRef.current = false;
     pointerCaptureElRef.current = null;
     activePointerIdRef.current = null;
@@ -146,8 +166,10 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
     if (hit.isImageGrid && from) {
       const slot = resolveImageGridSlot(
         clientX,
-        hit.lineEl.getBoundingClientRect(),
+        hit.lineEl,
         hit.lineIndex,
+        hit.line,
+        dragSourceRef.current ?? dragFromRef.current,
         committedSlotRef,
         imageDropSlotRef,
       );
@@ -183,8 +205,10 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
       if (hit?.isImageGrid) {
         const slot = resolveImageGridSlot(
           clientX,
-          hit.lineEl.getBoundingClientRect(),
+          hit.lineEl,
           hit.lineIndex,
+          hit.line,
+          dragSourceRef.current ?? dragFromRef.current,
           committedSlotRef,
           imageDropSlotRef,
         );
@@ -240,7 +264,10 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
       dropCommittedRef.current = { line: pos.line, cell: pos.cell };
       setDropBefore({ line: pos.line, cell: pos.cell });
       setDragFrom(pos);
-      if (overlayPos) setDragOverlay(overlayPos);
+      if (overlayPos) {
+        dragFloatPosRef.current = overlayPos;
+        syncDragFloatPosition(overlayPos.x, overlayPos.y);
+      }
 
       const curFiles = filesRef.current;
       if (
@@ -261,7 +288,7 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
         setImageDropSlot(null);
       }
     },
-    [],
+    [syncDragFloatPosition],
   );
 
   const runEmbedPointerDrag = useCallback(
@@ -327,7 +354,7 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
       function onMove(ev: PointerEvent) {
         if (ev.pointerId !== activePointerIdRef.current) return;
         ev.preventDefault();
-        setDragOverlay({ x: ev.clientX, y: ev.clientY });
+        syncDragFloatPosition(ev.clientX, ev.clientY);
         updateDropTarget(ev.clientX, ev.clientY);
       }
 
@@ -364,7 +391,7 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
       window.addEventListener("pointerup", onUp);
       window.addEventListener("pointercancel", onUp);
     },
-    [clearDrag, commitDropAt, initEmbedDragSession, resolveDropBefore, updateDropTarget],
+    [clearDrag, commitDropAt, initEmbedDragSession, resolveDropBefore, syncDragFloatPosition, updateDropTarget],
   );
 
   const beginEmbedPointerDrag = useCallback(
@@ -440,7 +467,7 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
         e.dataTransfer.dropEffect = dragFromRef.current != null ? "move" : "copy";
       }
       if (dragSourceRef.current != null) {
-        setDragOverlay({ x: e.clientX, y: e.clientY });
+        syncDragFloatPosition(e.clientX, e.clientY);
       }
       updateDropTarget(e.clientX, e.clientY);
     };
@@ -460,13 +487,13 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
       document.removeEventListener("dragover", onDocDragOver);
       document.removeEventListener("drop", onDocDrop);
     };
-  }, [performDrop, updateDropTarget]);
+  }, [performDrop, syncDragFloatPosition, updateDropTarget]);
 
   const handleCanvasDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = dragFromRef.current != null ? "move" : "copy";
     if (dragSourceRef.current != null) {
-      setDragOverlay({ x: e.clientX, y: e.clientY });
+      syncDragFloatPosition(e.clientX, e.clientY);
     }
     updateDropTarget(e.clientX, e.clientY);
   };
@@ -589,14 +616,13 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
         ) : null}
       </div>
       {typeof document !== "undefined" &&
-        dragOverlay &&
+        isDragging &&
         draggedEmbedCell &&
         createPortal(
           <div
+            ref={dragFloatMountRef}
             className="note-embed-drag-float"
             style={{
-              left: dragOverlay.x,
-              top: dragOverlay.y,
               width: DRAG_CARD_W,
               height: DRAG_CARD_H,
             }}
@@ -661,7 +687,7 @@ function ImageGridLine({
       {slots.map((item, slotIdx) =>
         item ? (
           <NoteBodyCell
-            key={`${lineIndex}-${item.cell.type === "embed" ? item.cell.name : "t"}`}
+            key={`ig-${lineIndex}-${slotIdx}`}
             cell={item.cell}
             pos={item.pos}
             files={files}
@@ -810,44 +836,85 @@ function hitTestLine(
   return null;
 }
 
-function rawImageGridSlot(clientX: number, lineRect: DOMRect): number {
-  const x = clientX - lineRect.left;
-  let slot = Math.floor(x / EMBED_IMAGE_SLOT_STEP);
-  if (slot < 0) slot = 0;
-  if (slot > MAX_IMAGES_PER_EMBED_ROW) slot = MAX_IMAGES_PER_EMBED_ROW;
-  return slot;
+function imageGridMetrics(lineEl: HTMLElement) {
+  const r = lineEl.getBoundingClientRect();
+  const gap = EMBED_IMAGE_SLOT_GAP;
+  const width = Math.max(0, r.width);
+  const cellW = width > 0 ? (width - 2 * gap) / 3 : 0;
+  return { left: r.left, width, cellW, gap };
+}
+
+/** Гистерезис слота: только от ширины сетки, не от rect детей (они двигаются вместе с плейсхолдером и создавали обратную связь). */
+function imageGridSlotHysteresisPx(cellW: number): number {
+  return Math.max(28, Math.min(56, cellW * 0.14));
+}
+
+function rawImageGridSlot(clientX: number, lineEl: HTMLElement): number {
+  const { left, width, cellW, gap } = imageGridMetrics(lineEl);
+  if (width <= 0 || cellW <= 0) return 0;
+  const x = clientX - left;
+  if (x < 0) return 0;
+  if (x >= width) return MAX_IMAGES_PER_EMBED_ROW;
+  for (let i = 0; i < 3; i++) {
+    const colStart = i * (cellW + gap);
+    const colEnd = colStart + cellW;
+    if (x < colEnd) return i;
+    if (i < 2) {
+      const gapEnd = colEnd + gap;
+      if (x < gapEnd) {
+        return x < colEnd + gap * 0.5 ? i : i + 1;
+      }
+    }
+  }
+  return MAX_IMAGES_PER_EMBED_ROW;
 }
 
 function stabilizeImageGridSlot(
   clientX: number,
-  lineRect: DOMRect,
+  lineEl: HTMLElement,
   rawSlot: number,
   committed: number | null,
 ): number {
-  if (committed == null) return rawSlot;
+  const { left, width, cellW, gap } = imageGridMetrics(lineEl);
+  if (width <= 0 || cellW <= 0 || committed == null) return rawSlot;
+  const h = imageGridSlotHysteresisPx(cellW);
+  const colLeft = (i: number) => left + i * (cellW + gap);
+  const colRight = (i: number) => colLeft(i) + cellW;
+
   let slot = committed;
-  if (rawSlot > slot) {
-    const edge = lineRect.left + (slot + 1) * EMBED_IMAGE_SLOT_STEP - IMAGE_SLOT_HYSTERESIS;
-    if (clientX >= edge) slot += 1;
-  } else if (rawSlot < slot) {
-    const edge = lineRect.left + slot * EMBED_IMAGE_SLOT_STEP + IMAGE_SLOT_HYSTERESIS;
-    if (clientX <= edge) slot -= 1;
+  if (rawSlot > slot && slot < MAX_IMAGES_PER_EMBED_ROW) {
+    if (slot < 2) {
+      const nextLeft = colLeft(slot + 1);
+      if (clientX >= nextLeft - h) slot += 1;
+    } else if (slot === 2) {
+      if (clientX >= colRight(2) - h) slot += 1;
+    }
+  } else if (rawSlot < slot && slot > 0) {
+    if (slot === MAX_IMAGES_PER_EMBED_ROW) {
+      if (clientX <= colRight(2) - h) slot -= 1;
+    } else if (clientX <= colLeft(slot) + h) {
+      slot -= 1;
+    }
   }
   return Math.max(0, Math.min(MAX_IMAGES_PER_EMBED_ROW, slot));
 }
 
 function resolveImageGridSlot(
   clientX: number,
-  lineRect: DOMRect,
+  lineEl: HTMLElement,
   lineIndex: number,
+  line: BodyLine,
+  dragSource: CellPos | null,
   committedRef: MutableRefObject<number | null>,
   slotRef: React.MutableRefObject<ImageDropSlot | null>,
 ): number {
-  const raw = rawImageGridSlot(clientX, lineRect);
+  const raw = rawImageGridSlot(clientX, lineEl);
   const committed = slotRef.current?.line === lineIndex ? committedRef.current : null;
-  const slot = stabilizeImageGridSlot(clientX, lineRect, raw, committed);
-  committedRef.current = slot;
-  return slot;
+  const slot = stabilizeImageGridSlot(clientX, lineEl, raw, committed);
+  const othersCount = Math.max(0, line.cells.length - (dragSource?.line === lineIndex ? 1 : 0));
+  const normalized = Math.min(slot, othersCount);
+  committedRef.current = normalized;
+  return normalized;
 }
 
 function resolveFlexEmbedDrop(clientX: number, line: BodyLine, lineIndex: number, dragFrom: CellPos): CellPos {

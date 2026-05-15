@@ -11,10 +11,10 @@ export type CellPos = { line: number; cell: number };
 
 const EMBED_RE = /\[([^\]]+)\]/g;
 export const MAX_IMAGES_PER_EMBED_ROW = 3;
+/** Должно совпадать с `--note-embed-image-max-w` в globals.css (превью при перетаскивании). */
 export const EMBED_IMAGE_SLOT_W = 400;
 export const EMBED_IMAGE_SLOT_H = 200;
 export const EMBED_IMAGE_SLOT_GAP = 8;
-export const EMBED_IMAGE_SLOT_STEP = EMBED_IMAGE_SLOT_W + EMBED_IMAGE_SLOT_GAP;
 
 export function isImageEmbedRow(line: BodyLine, files: NoteFile[]): boolean {
   if (!isEmbedLine(line)) return false;
@@ -111,12 +111,14 @@ export function buildImageGridSlotLayout(
 
   if (showIncoming) {
     const others: { cell: LineCell; ci: number }[] = line.cells.map((cell, ci) => ({ cell, ci }));
+    /** Слоты 2 и 3 при неполном ряду — одна и та же позиция «в конец»; иначе плейсхолдер то появляется, то пропадает и границы колонок дрожат. */
+    const insertCap = Math.min(insertSlot!, others.length);
     const ordered = orderedSlotsWithPlaceholder(
       others,
       incomingEmbed,
       incomingFrom,
       lineIndex,
-      insertSlot,
+      insertCap,
     );
     ordered.forEach((item, i) => {
       if (i < MAX_IMAGES_PER_EMBED_ROW) slots[i] = item;
@@ -139,7 +141,12 @@ export function buildImageGridSlotLayout(
     others.push({ cell, ci });
   });
 
-  const targetSlot = Math.max(0, Math.min(MAX_IMAGES_PER_EMBED_ROW, insertSlot ?? dragFrom.cell));
+  const othersCount = others.length;
+  const rawInsert = insertSlot ?? dragFrom.cell;
+  const targetSlot = Math.min(
+    Math.max(0, Math.min(MAX_IMAGES_PER_EMBED_ROW, rawInsert)),
+    othersCount,
+  );
 
   const ordered = orderedSlotsWithPlaceholder(others, srcLocal, dragFrom, lineIndex, targetSlot);
 

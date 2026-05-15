@@ -36,6 +36,9 @@
   --control-border-active: color-mix(in srgb, var(--border2) 72%, #000 28%);
   /* Ширина карточки поста в ленте (переопределяется с экрана ленты) */
   --feed-post-w: 500px;
+  /* Ряд картинок в заметке: до 3 шт., равные доли ширины, потолок на ячейку */
+  --note-embed-image-max-w: 400px;
+  --note-embed-image-gap: 8px;
   --hdr:     56px;
   --r:       10px;
   --rs:      6px;
@@ -3101,10 +3104,10 @@ button.nav-item {
 }
 .note-embed-image-grid {
   display: grid;
-  grid-template-columns: repeat(3, 400px);
-  gap: 8px;
-  width: fit-content;
-  max-width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--note-embed-image-gap);
+  width: 100%;
+  max-width: calc(3 * var(--note-embed-image-max-w) + 2 * var(--note-embed-image-gap));
   align-items: start;
   position: relative;
 }
@@ -3230,8 +3233,10 @@ button.nav-item {
   opacity: 1;
 }
 .note-embed-image-grid .note-embed-image-slot--empty {
-  width: 400px;
-  height: 200px;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 2 / 1;
+  height: auto;
   box-sizing: border-box;
   pointer-events: none;
 }
@@ -3248,7 +3253,9 @@ button.nav-item {
   width: 4px !important;
   min-width: 4px !important;
   max-width: 4px !important;
-  height: 200px !important;
+  height: auto !important;
+  align-self: stretch;
+  min-height: 48px;
   padding: 0 !important;
   margin: 0 8px !important;
   overflow: hidden !important;
@@ -3320,26 +3327,34 @@ button.nav-item {
 }
 .note-body-line-edit:focus { outline: none; }
 .note-embed-image-grid .note-body-cell--embed {
-  width: 400px;
-  height: 200px;
+  display: block;
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  aspect-ratio: 2 / 1;
   box-sizing: border-box;
+  overflow: hidden;
 }
 .note-embed-image-grid .note-inline-image {
+  position: absolute;
+  inset: 0;
   display: block;
-  width: 400px;
-  height: 200px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   margin: 0;
   border-radius: var(--rs);
   border: 1px solid var(--border);
 }
 .note-embed-image-grid .note-embed-chip {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 400px;
-  height: 200px;
   box-sizing: border-box;
+  padding: 8px;
 }
 .note-body-line--embed:not(.note-embed-image-grid) .note-body-cell--embed:has(.note-inline-image) {
   flex: 0 0 25%;
