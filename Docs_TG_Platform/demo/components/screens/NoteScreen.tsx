@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useApp, postById } from "@/state/AppContext";
 import { truncate, postTitle } from "@/lib/helpers";
 import { ContextMenu } from "../ContextMenu";
 import PageHeader from "../PageHeader";
+import { draftNoteTitle } from "@/lib/noteDraft";
 import type { ActiveNote, NoteFile } from "@/lib/types";
 import { useFitTitleSize } from "@/lib/use-fit-title";
 
 export default function NoteScreen() {
-  const { state, dispatch, navigate, navigateBack, openPost } = useApp();
+  const { state, dispatch, navigate, navigateBack, openPost, setDirty } = useApp();
   const note = state.currentNote;
 
   if (!note) {
@@ -26,7 +27,7 @@ export default function NoteScreen() {
           Заметки
         </span>
         <span className="bc-sep">/</span>
-        <span className="crumb-current">{truncate(note.title, 38)}</span>
+        <span className="crumb-current">{truncate(note.title || "Новая заметка", 38)}</span>
       </div>
     ) : (
       <div className="breadcrumb">
@@ -42,9 +43,15 @@ export default function NoteScreen() {
             <span className="bc-sep">/</span>
           </>
         ) : null}
-        <span className="crumb-current">{truncate(note.title, 38)}</span>
+        <span className="crumb-current">{truncate(note.title || "Новая заметка", 38)}</span>
       </div>
     );
+
+  const discardNewNote = () => {
+    setDirty("note", false);
+    const dest = state.noteFrom === "post" ? "post" : "notes";
+    dispatch({ type: "SET_STATE", patch: { screen: dest, currentNote: null, noteMode: "view" } });
+  };
 
   return (
     <>
@@ -55,10 +62,14 @@ export default function NoteScreen() {
           <ContextMenu
             items={[
               {
-                label: "Удалить заметку",
-                icon: "🗑",
-                danger: true,
+                label: note.isNew ? "Отменить" : "Удалить заметку",
+                icon: note.isNew ? "✕" : "🗑",
+                danger: !note.isNew,
                 onClick: () => {
+                  if (note.isNew) {
+                    discardNewNote();
+                    return;
+                  }
                   if (!confirm(`Удалить заметку «${note.title}»?`)) return;
                   if (note.isGlobal) {
                     dispatch({ type: "DELETE_GLOBAL_NOTE", noteId: note.id });
@@ -74,7 +85,11 @@ export default function NoteScreen() {
         }
       />
       <div className="note-page" id="note-page-body">
-        {state.noteMode === "view" ? <NoteView note={note} onOpenPost={openPost} /> : <NoteEdit note={note} />}
+        {state.noteMode === "view" && !note.isNew ? (
+          <NoteView note={note} onOpenPost={openPost} />
+        ) : (
+          <NoteEdit note={note} />
+        )}
       </div>
     </>
   );
@@ -140,7 +155,7 @@ function NoteView({ note, onOpenPost }: { note: ActiveNote; onOpenPost: (id: num
 }
 
 function NoteEdit({ note }: { note: ActiveNote }) {
-  const { dispatch, navigate, setDirty } = useApp();
+  const { dispatch, navigate, setDirty, registerNotePersist } = useApp();
   const [title, setTitle] = useState(note.title);
   const [body, setBody] = useState(note.body);
   const [files, setFiles] = useState<NoteFile[]>(Array.isArray(note.files) ? note.files : []);
@@ -166,9 +181,51 @@ function NoteEdit({ note }: { note: ActiveNote }) {
     return () => setDirty("note", false);
   }, [setDirty]);
 
-  const save = () => {
+  const save = useCallback(() => {
+    if (!changed) return;
+    const finalTitle = draftNoteTitle(title);
+
+    if (note.isNew) {
+      if (note.isGlobal) {
+        const saved = {
+          id: "gn" + Date.now(),
+          title: finalTitle,
+          body,
+          ai: note.ai,
+          date: "сейчас",
+        };
+        dispatch({ type: "UPSERT_GLOBAL_NOTE", note: saved });
+        dispatch({
+          type: "SET_STATE",
+          patch: {
+            currentNote: { ...saved, isGlobal: true, files },
+            noteMode: "view",
+          },
+        });
+      } else {
+        const saved = {
+          id: Date.now(),
+          title: finalTitle,
+          body,
+          ai: note.ai,
+          date: "сейчас",
+          files,
+        };
+        dispatch({ type: "ADD_POST_NOTE", postId: note.postId, note: saved });
+        dispatch({
+          type: "SET_STATE",
+          patch: {
+            currentNote: { ...saved, isGlobal: false, postId: note.postId, files },
+            noteMode: "view",
+          },
+        });
+      }
+      setDirty("note", false);
+      return;
+    }
+
     if (note.isGlobal) {
-      const next = { ...note, title: title.trim() || note.title, body, files };
+      const next = { ...note, title: finalTitle, body, files };
       dispatch({ type: "UPSERT_GLOBAL_NOTE", note: next });
       dispatch({ type: "SET_STATE", patch: { currentNote: next, noteMode: "view" } });
     } else {
@@ -176,17 +233,23 @@ function NoteEdit({ note }: { note: ActiveNote }) {
         type: "UPDATE_POST_NOTE",
         postId: note.postId,
         noteId: note.id,
-        patch: { title: title.trim() || note.title, body, files },
+        patch: { title: finalTitle, body, files },
       });
       dispatch({
         type: "SET_STATE",
         patch: {
-          currentNote: { ...note, title: title.trim() || note.title, body, files },
+          currentNote: { ...note, title: finalTitle, body, files },
           noteMode: "view",
         },
       });
     }
-  };
+    setDirty("note", false);
+  }, [body, changed, dispatch, files, note, setDirty, title]);
+
+  useEffect(() => {
+    registerNotePersist(save);
+    return () => registerNotePersist(null);
+  }, [registerNotePersist, save]);
 
   const onFilePicked = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -216,13 +279,15 @@ function NoteEdit({ note }: { note: ActiveNote }) {
             <button className="btn btn-ghost btn-sm" onClick={() => fileInputRef.current?.click()} type="button">
               📎 Файл
             </button>
-            <button
-              className="btn btn-ghost btn-sm"
-              onClick={() => dispatch({ type: "SET_STATE", patch: { noteMode: "view" } })}
-              type="button"
-            >
-              Просмотр
-            </button>
+            {!note.isNew ? (
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => dispatch({ type: "SET_STATE", patch: { noteMode: "view" } })}
+                type="button"
+              >
+                Просмотр
+              </button>
+            ) : null}
             <button className="btn btn-primary btn-sm" onClick={save} disabled={!changed} type="button">
               Сохранить
             </button>

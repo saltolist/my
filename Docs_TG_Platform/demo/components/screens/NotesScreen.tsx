@@ -6,6 +6,7 @@ import { postTitle } from "@/lib/helpers";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import NoteListCardMenu from "../note/NoteListCardMenu";
+import { createNewGlobalNote, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
 import type { GlobalNote, LocalNote, NoteFile } from "@/lib/types";
 
 type AnyNote =
@@ -69,26 +70,16 @@ export default function NotesScreen() {
   };
 
   const newGlobal = () => {
-    const title = prompt("Название заметки:");
-    if (!title) return;
     if (!canLeaveCurrentScreen("note")) return;
-    const note: GlobalNote = {
-      id: "gn" + Date.now(),
-      title,
-      ai: false,
-      date: "сейчас",
-      body: "",
-    };
     pushRouteSnapshot();
-    dispatch({ type: "UPSERT_GLOBAL_NOTE", note });
     dispatch({
       type: "SET_STATE",
       patch: {
         screen: "note",
-        currentNote: { ...note, isGlobal: true, files: [] },
+        currentNote: createNewGlobalNote(),
         noteFrom: "notes",
         noteMode: "edit",
-        noteSavedSnapshot: JSON.stringify({ title: note.title, body: "", ai: false, files: [] }),
+        noteSavedSnapshot: EMPTY_NOTE_SNAPSHOT,
       },
     });
   };

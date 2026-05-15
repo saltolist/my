@@ -11,10 +11,12 @@ import NoteListCardMenu from "../note/NoteListCardMenu";
 import PostMediaBlock from "../post/PostMediaBlock";
 import { PostReactionPills, PostViewsReposts } from "../feed/PostEngagement";
 import { ContextMenu, type CtxMenuItem } from "../ContextMenu";
+import { createNewPostNote, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
 import type { LocalNote, NoteFile, PostMedia, PostMetrics, PostMode } from "@/lib/types";
 
 export default function PostScreen() {
-  const { state, dispatch, navigate, navigateBack, sendPost } = useApp();
+  const { state, dispatch, navigate, navigateBack, navigateWithState, canLeaveCurrentScreen, sendPost } =
+    useApp();
   const post = postById(state, state.currentPostId);
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const postCardRef = useRef<HTMLDivElement>(null);
@@ -76,10 +78,14 @@ export default function PostScreen() {
   const startNewChat = () => pushPostView("chat", null);
   const startNewNote = () => {
     if (!post) return;
-    const title = prompt("Название заметки:");
-    if (!title) return;
-    const note: LocalNote = { id: Date.now(), title, date: "сейчас", ai: false, body: "" };
-    dispatch({ type: "ADD_POST_NOTE", postId: post.id, note });
+    if (!canLeaveCurrentScreen("note")) return;
+    navigateWithState({
+      screen: "note",
+      currentNote: createNewPostNote(post.id),
+      noteFrom: "post",
+      noteMode: "edit",
+      noteSavedSnapshot: EMPTY_NOTE_SNAPSHOT,
+    });
   };
   const handleBack = () => {
     if (state.postViewStack.length > 0) {

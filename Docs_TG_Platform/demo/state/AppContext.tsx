@@ -563,6 +563,7 @@ type AppContextValue = {
   webLabel: (id: string) => string;
 
   setDirty: (key: DirtyKey, dirty: boolean) => void;
+  registerNotePersist: (fn: (() => void) | null) => void;
   noteDirty: boolean;
   profileSettingsDirty: boolean;
   canLeaveCurrentScreen: (next: ScreenId) => boolean;
@@ -575,6 +576,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const stateRef = useRef(state);
   stateRef.current = state;
   const navStackRef = useRef<RouteSnapshot[]>([]);
+  const notePersistRef = useRef<(() => void) | null>(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [dirtyMap, setDirtyMap] = useState<Record<DirtyKey, boolean>>({
     note: false,
@@ -587,16 +589,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setDirtyMap((prev) => (prev[key] === dirty ? prev : { ...prev, [key]: dirty }));
   }, []);
 
+  const registerNotePersist = useCallback((fn: (() => void) | null) => {
+    notePersistRef.current = fn;
+  }, []);
+
   const noteDirty = dirtyMap.note;
   const profileSettingsDirty =
     dirtyMap["profile-ai"] || dirtyMap["profile-prompt"] || dirtyMap["profile-telegram"];
 
   const canLeaveCurrentScreen = useCallback(
     (next: ScreenId): boolean => {
-      if (state.screen === "note" && next !== "note" && noteDirty) {
-        return window.confirm(
-          "У вас есть несохранённые изменения в заметке. Покинуть страницу без сохранения?",
-        );
+      if (state.screen === "note" && next !== "note") {
+        if (state.currentNote?.isNew) {
+          if (noteDirty) notePersistRef.current?.();
+          return true;
+        }
+        if (noteDirty) {
+          return window.confirm(
+            "У вас есть несохранённые изменения в заметке. Покинуть страницу без сохранения?",
+          );
+        }
       }
       if (state.screen === "profile" && next !== "profile" && profileSettingsDirty) {
         return window.confirm(
@@ -605,7 +617,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       return true;
     },
-    [state.screen, noteDirty, profileSettingsDirty],
+    [state.screen, state.currentNote, noteDirty, profileSettingsDirty],
   );
 
   const navigate = useCallback(
@@ -988,6 +1000,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       llmLabel,
       webLabel,
       setDirty,
+      registerNotePersist,
       noteDirty,
       profileSettingsDirty,
       canLeaveCurrentScreen,
@@ -1012,6 +1025,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       llmLabel,
       webLabel,
       setDirty,
+      registerNotePersist,
       noteDirty,
       profileSettingsDirty,
       canLeaveCurrentScreen,

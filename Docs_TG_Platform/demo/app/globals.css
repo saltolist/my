@@ -129,7 +129,8 @@ html.sidebar-collapsed {
 :root[data-theme="light"] .post-msg-card,
 :root[data-theme="light"] .chat-card,
 :root[data-theme="light"] .note-card,
-:root[data-theme="light"] .note-card-page {
+:root[data-theme="light"] .note-card-page,
+:root[data-theme="light"] .note-shell {
   background: #ffffff;
 }
 :root[data-theme="light"] .post-card:hover,
@@ -188,7 +189,8 @@ html.sidebar-collapsed {
   :root[data-theme="system"] .post-msg-card,
   :root[data-theme="system"] .chat-card,
   :root[data-theme="system"] .note-card,
-  :root[data-theme="system"] .note-card-page {
+  :root[data-theme="system"] .note-card-page,
+  :root[data-theme="system"] .note-shell {
     background: #ffffff;
   }
   :root[data-theme="system"] .post-card:hover,

@@ -151,8 +151,8 @@ export type NoteMode = "view" | "edit";
 export type NoteFromScreen = "notes" | "post";
 
 export type ActiveNote =
-  | (GlobalNote & { isGlobal: true; files: NoteFile[] })
-  | (LocalNote & { isGlobal: false; postId: number; files: NoteFile[] });
+  | (GlobalNote & { isGlobal: true; files: NoteFile[]; isNew?: boolean })
+  | (LocalNote & { isGlobal: false; postId: number; files: NoteFile[]; isNew?: boolean });
 
 export type ComposerAttachment =
   | { id: string; kind: "post"; postId: number; title: string }
