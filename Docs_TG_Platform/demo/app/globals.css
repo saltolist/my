@@ -2391,22 +2391,38 @@ button.nav-item {
   background: var(--page-header-control-bg-hover);
   color: var(--text);
 }
-/* Слот справа от «Чаты»: раскрытие с правого края влево (к меню) */
-.post-new-chat-slot {
+/* Кнопка режима + раскрывающийся слот без лишнего gap у соседней группы */
+.post-mode-cluster {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+/* Слот справа от «Чаты» / «Заметки»: раскрытие с правого края влево (к меню) */
+.post-new-chat-slot,
+.post-new-note-slot {
   display: flex;
   justify-content: flex-end;
   overflow: hidden;
   max-width: 0;
+  margin-left: 0;
   opacity: 0;
   pointer-events: none;
-  transition: max-width 0.2s ease, opacity 0.2s ease;
+  transition: max-width 0.2s ease, opacity 0.2s ease, margin-left 0.2s ease;
 }
 .post-new-chat-slot.visible {
   max-width: 12rem;
+  margin-left: 10px;
   opacity: 1;
   pointer-events: auto;
 }
-.post-new-chat-btn {
+.post-new-note-slot.visible {
+  max-width: 14rem;
+  margin-left: 10px;
+  opacity: 1;
+  pointer-events: auto;
+}
+.post-new-chat-btn,
+.post-new-note-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2426,7 +2442,8 @@ button.nav-item {
   cursor: pointer;
   transition: border-color 0.12s, background 0.12s, color 0.12s;
 }
-.post-new-chat-btn:hover {
+.post-new-chat-btn:hover,
+.post-new-note-btn:hover {
   background: var(--page-header-control-bg-hover);
   color: var(--text);
 }
@@ -3824,18 +3841,21 @@ button.filter-tab {
     font-size: 12px;
   }
 
-  .post-new-chat-slot.visible {
+  .post-new-chat-slot.visible,
+  .post-new-note-slot.visible {
     max-width: 34px;
   }
 
-  .post-new-chat-slot.visible .post-new-chat-btn {
+  .post-new-chat-slot.visible .post-new-chat-btn,
+  .post-new-note-slot.visible .post-new-note-btn {
     min-width: 34px;
     padding-left: 8px;
     padding-right: 8px;
     font-size: 0;
   }
 
-  .post-new-chat-slot.visible .post-new-chat-btn::before {
+  .post-new-chat-slot.visible .post-new-chat-btn::before,
+  .post-new-note-slot.visible .post-new-note-btn::before {
     content: '+';
     font-size: 12px;
   }

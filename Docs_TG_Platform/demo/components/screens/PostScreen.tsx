@@ -74,6 +74,13 @@ export default function PostScreen() {
   };
   const openLocalChat = (chatId: number) => pushPostView("chat", chatId);
   const startNewChat = () => pushPostView("chat", null);
+  const startNewNote = () => {
+    if (!post) return;
+    const title = prompt("Название заметки:");
+    if (!title) return;
+    const note: LocalNote = { id: Date.now(), title, date: "сейчас", ai: false, body: "" };
+    dispatch({ type: "ADD_POST_NOTE", postId: post.id, note });
+  };
   const handleBack = () => {
     if (state.postViewStack.length > 0) {
       const stack = state.postViewStack.slice(0, -1);
@@ -111,6 +118,11 @@ export default function PostScreen() {
       label: "Новый чат",
       icon: "✦",
       onClick: startNewChat,
+    },
+    {
+      label: "Новая заметка",
+      icon: "📝",
+      onClick: startNewNote,
     },
   ];
   if (post.status === "draft") {
@@ -213,24 +225,33 @@ export default function PostScreen() {
             >
               ↑ К посту
             </button>
-            <button
-              className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "notes" ? " active" : ""}`}
-              onClick={() => toggleMode("notes")}
-              type="button"
-            >
-              Заметки
-            </button>
-            <button
-              className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "chats" ? " active" : ""}`}
-              onClick={() => toggleMode("chats")}
-              type="button"
-            >
-              Чаты
-            </button>
-            <div className={`post-new-chat-slot${state.postMode === "chats" ? " visible" : ""}`}>
-              <button className="post-new-chat-btn" onClick={startNewChat} type="button">
-                + Новый чат
+            <div className="post-mode-cluster">
+              <button
+                className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "notes" ? " active" : ""}`}
+                onClick={() => toggleMode("notes")}
+                type="button"
+              >
+                Заметки
               </button>
+              <div className={`post-new-note-slot${state.postMode === "notes" ? " visible" : ""}`}>
+                <button className="post-new-note-btn" onClick={startNewNote} type="button">
+                  + Новая заметка
+                </button>
+              </div>
+            </div>
+            <div className="post-mode-cluster">
+              <button
+                className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "chats" ? " active" : ""}`}
+                onClick={() => toggleMode("chats")}
+                type="button"
+              >
+                Чаты
+              </button>
+              <div className={`post-new-chat-slot${state.postMode === "chats" ? " visible" : ""}`}>
+                <button className="post-new-chat-btn" onClick={startNewChat} type="button">
+                  + Новый чат
+                </button>
+              </div>
             </div>
             <ContextMenu items={ctxItems} />
           </div>
@@ -279,7 +300,7 @@ export default function PostScreen() {
       ) : state.postMode === "chats" ? (
         <PostChats onOpenChat={openLocalChat} />
       ) : (
-        <PostNotes />
+        <PostNotes onAddNote={startNewNote} />
       )}
     </>
   );
@@ -435,17 +456,10 @@ const PostMessageCard = ({
   );
 };
 
-function PostNotes() {
+function PostNotes({ onAddNote }: { onAddNote: () => void }) {
   const { state, dispatch, navigateWithState } = useApp();
   const post = postById(state, state.currentPostId);
   if (!post) return null;
-
-  const addNote = () => {
-    const title = prompt("Название заметки:");
-    if (!title) return;
-    const note: LocalNote = { id: Date.now(), title, date: "сейчас", ai: false, body: "" };
-    dispatch({ type: "ADD_POST_NOTE", postId: post.id, note });
-  };
 
   const openNote = (n: LocalNote) => {
     const files: NoteFile[] = Array.isArray(n.files) ? n.files : [];
@@ -493,7 +507,7 @@ function PostNotes() {
             </div>
           </div>
         ))}
-        <div className="note-card new-note" onClick={addNote}>
+        <div className="note-card new-note" onClick={onAddNote}>
           <span style={{ fontSize: 22 }}>＋</span>
           <span style={{ fontSize: 12 }}>Новая заметка</span>
         </div>
