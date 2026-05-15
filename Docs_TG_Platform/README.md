@@ -69,7 +69,7 @@ TG Platform
 - `concept/07-notes.md` - модель заметок
 - `concept/08-roadmap.md` - фазы разработки (MVP и далее)
 - `concept/09-user-scenario.md` - сквозной пользовательский сценарий
-- `concept/10-pages.md` - функциональная спецификация страниц
+- `concept/10-pages.md` - структура страниц **текущего демо** (источник правды для UX-витрины)
 - `concept/11-reusable-modules-integration.md` - как TG Platform собирается на базе reusable-modules
 - `concept/12-demo.md` - демо-версия на GitHub Pages: назначение, сценарии, ограничения
 
@@ -81,13 +81,13 @@ TG Platform
 - `wireframes/04-note.md` - страница заметки
 - `wireframes/05-global-chat.md` - состояние глобального чата
 - `wireframes/06-chats.md` - экран чатов
-- `wireframes/07-notes.md` - экран глобальных заметок
+- `wireframes/07-notes.md` - каталог заметок
 - `wireframes/08-analytics.md` - аналитика канала
 - `wireframes/09-profile.md` - профиль (канал/настройки/аналитика платформы)
 
 ### Прочее
 
-- `demo/` - публичная статическая демо-версия для GitHub Pages (концепт описан в `concept/12-demo.md`)
+- `demo/` - публичная статическая демо-версия для GitHub Pages (концепт в `concept/12-demo.md`, экраны — в `concept/10-pages.md`)
 
 ## Статус проекта
 
