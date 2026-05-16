@@ -55,7 +55,13 @@ function isImageGridLineBeforeDrop(clientY: number, lineEl: HTMLElement): boolea
   return clientY <= r.top + Math.min(14, r.height * 0.1);
 }
 
+function isWithinImageGridSideDropX(clientX: number, lineEl: HTMLElement): boolean {
+  const r = lineEl.getBoundingClientRect();
+  return clientX >= r.left && clientX <= r.right;
+}
+
 const FLEX_DROP_X_HYST_PX = 48;
+const IMAGE_GRID_BOTTOM_SIDE_DROP_TOLERANCE_PX = 24;
 /** Плавающая карточка и слот вставки при перетаскивании вложения. */
 const DRAG_CARD_W = EMBED_IMAGE_SLOT_W;
 const DRAG_CARD_H = EMBED_IMAGE_SLOT_H;
@@ -144,6 +150,10 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
 
   const setImageSlot = useCallback((line: number, slot: number) => {
     const prev = imageDropSlotRef.current;
+    if (dropLineBeforeRef.current != null) {
+      dropLineBeforeRef.current = null;
+      setDropLineBefore(null);
+    }
     if (prev?.line === line && prev?.slot === slot) return;
     imageDropSlotRef.current = { line, slot };
     setImageDropSlot({ line, slot });
@@ -200,7 +210,7 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
       const from = dragSourceRef.current ?? dragFromRef.current;
       const curLines = linesRef.current;
       const curFiles = filesRef.current;
-      const lineBefore = dropLineBeforeRef.current;
+      const lineBefore = imageDropSlotRef.current == null ? dropLineBeforeRef.current : null;
 
       if (from != null) {
         if (lineBefore != null) {
@@ -851,6 +861,7 @@ function hitTestLine(
   files: NoteFile[],
 ): { line: BodyLine; lineIndex: number; lineEl: HTMLElement; isImageGrid: boolean } | null {
   const lineEls = document.querySelectorAll<HTMLElement>(".note-body-line");
+  let imageGridBottomEdgeHit: { line: BodyLine; lineIndex: number; lineEl: HTMLElement; isImageGrid: boolean } | null = null;
   for (let li = 0; li < lineEls.length; li++) {
     const lineEl = lineEls[li]!;
     const r = lineEl.getBoundingClientRect();
@@ -867,9 +878,19 @@ function hitTestLine(
       if (!line) return null;
       return { line, lineIndex: li, lineEl, isImageGrid: isImageEmbedRow(line, files) };
     }
+    const line = lines[li];
+    if (
+      line &&
+      isImageEmbedRow(line, files) &&
+      clientY > r.bottom &&
+      clientY <= r.bottom + IMAGE_GRID_BOTTOM_SIDE_DROP_TOLERANCE_PX &&
+      isWithinImageGridSideDropX(clientX, lineEl)
+    ) {
+      imageGridBottomEdgeHit = { line, lineIndex: li, lineEl, isImageGrid: true };
+    }
     if (clientY < r.top) break;
   }
-  return null;
+  return imageGridBottomEdgeHit;
 }
 
 function imageGridMetrics(lineEl: HTMLElement) {

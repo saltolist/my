@@ -315,9 +315,9 @@ function finalizeLines(lines: BodyLine[], files: NoteFile[]): BodyLine[] {
   return next.length > 0 ? next : [{ cells: [{ type: "text", content: "" }] }];
 }
 
-function adjustBeforeAfterRemoval(lines: BodyLine[], from: CellPos, before: CellPos): CellPos {
+function adjustBeforeAfterRemoval(from: CellPos, before: CellPos, sourceLineRemoved: boolean): CellPos {
   let { line, cell } = before;
-  if (from.line < line) line -= 1;
+  if (sourceLineRemoved && from.line < line) line -= 1;
   else if (from.line === line && from.cell < cell) cell -= 1;
   return { line: Math.max(0, line), cell: Math.max(0, cell) };
 }
@@ -451,20 +451,14 @@ export function moveEmbedAt(lines: BodyLine[], from: CellPos, before: CellPos, f
 
   const next = cloneLines(lines);
   next[from.line].cells.splice(from.cell, 1);
-  if (next[from.line].cells.length === 0) next.splice(from.line, 1);
+  const sourceLineRemoved = next[from.line].cells.length === 0;
+  if (sourceLineRemoved) next.splice(from.line, 1);
 
-  const at = adjustBeforeAfterRemoval(next, from, before);
+  const at = adjustBeforeAfterRemoval(from, before, sourceLineRemoved);
   const target = next[at.line];
-  const isImg = isImageEmbed(findNoteFile(files, src.name));
 
   if (!target || isTextLine(target)) {
     next.splice(at.line, 0, { cells: [src] });
-    return finalizeLines(next, files);
-  }
-
-  const imagesInRow = countEmbedRowImages(target.cells, files);
-  if (isImg && imagesInRow >= MAX_IMAGES_PER_EMBED_ROW) {
-    next.splice(at.line + 1, 0, { cells: [src] });
     return finalizeLines(next, files);
   }
 
@@ -492,16 +486,9 @@ export function insertEmbedAt(lines: BodyLine[], before: CellPos, name: string, 
   const line = Math.min(before.line, next.length);
   const target = next[line];
   const embed: LineCell = { type: "embed", name };
-  const isImg = isImageEmbed(findNoteFile(files, name));
 
   if (!target || isTextLine(target)) {
     next.splice(line, 0, { cells: [embed] });
-    return finalizeLines(next, files);
-  }
-
-  const imagesInRow = countEmbedRowImages(target.cells, files);
-  if (isImg && imagesInRow >= MAX_IMAGES_PER_EMBED_ROW) {
-    next.splice(line + 1, 0, { cells: [embed] });
     return finalizeLines(next, files);
   }
 
