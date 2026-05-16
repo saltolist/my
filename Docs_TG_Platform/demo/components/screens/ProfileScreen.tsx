@@ -12,7 +12,7 @@ import { useApp } from "@/state/AppContext";
 const PROFILE_TABS = ["Настройки", "Канал", "Аналитика платформы"] as const;
 
 export default function ProfileScreen() {
-  const [tab, setTab] = useState(1);
+  const [tab, setTab] = useState(0);
   const { profileSettingsDirty } = useApp();
 
   const switchTab = (next: number) => {
