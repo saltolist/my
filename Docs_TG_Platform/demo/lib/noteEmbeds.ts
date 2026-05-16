@@ -472,6 +472,21 @@ export function moveEmbedAt(lines: BodyLine[], from: CellPos, before: CellPos, f
   return finalizeLines(next, files);
 }
 
+export function moveEmbedToLineBefore(lines: BodyLine[], from: CellPos, lineIndex: number, files: NoteFile[]): BodyLine[] {
+  const src = lines[from.line]?.cells[from.cell];
+  if (!src || src.type !== "embed") return lines;
+
+  const next = cloneLines(lines);
+  next[from.line].cells.splice(from.cell, 1);
+  const removedSourceLine = next[from.line]?.cells.length === 0;
+  if (removedSourceLine) next.splice(from.line, 1);
+
+  const adjustedLine = removedSourceLine && from.line < lineIndex ? lineIndex - 1 : lineIndex;
+  const targetLine = Math.max(0, Math.min(adjustedLine, next.length));
+  next.splice(targetLine, 0, { cells: [src] });
+  return finalizeLines(next, files);
+}
+
 export function insertEmbedAt(lines: BodyLine[], before: CellPos, name: string, files: NoteFile[]): BodyLine[] {
   const next = cloneLines(lines);
   const line = Math.min(before.line, next.length);

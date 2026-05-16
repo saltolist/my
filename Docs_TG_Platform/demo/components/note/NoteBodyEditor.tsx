@@ -19,6 +19,7 @@ import {
   isImageEmbedRow,
   isTextLine,
   moveEmbedAt,
+  moveEmbedToLineBefore,
   MAX_IMAGES_PER_EMBED_ROW,
   parseNoteBody,
   segmentsToLines,
@@ -48,6 +49,12 @@ function textLineCellMetrics(lineEl: HTMLElement): { top: number; height: number
   const h = Math.max(r.height, 8);
   return { top: r.top, height: h };
 }
+
+function isImageGridLineBeforeDrop(clientY: number, lineEl: HTMLElement): boolean {
+  const r = lineEl.getBoundingClientRect();
+  return clientY <= r.top + Math.min(14, r.height * 0.1);
+}
+
 const FLEX_DROP_X_HYST_PX = 48;
 /** Плавающая карточка и слот вставки при перетаскивании вложения. */
 const DRAG_CARD_W = EMBED_IMAGE_SLOT_W;
@@ -73,6 +80,7 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
   /** Сохраняем источник до dragEnd, иначе drop воспринимается как вставку копии. */
   const dragSourceRef = useRef<CellPos | null>(null);
   const imageDropSlotRef = useRef<ImageDropSlot | null>(null);
+  const dropLineBeforeRef = useRef<number | null>(null);
   const committedSlotRef = useRef<number | null>(null);
   const dropCommittedRef = useRef<CellPos | null>(null);
   const pointerDragSessionRef = useRef(false);
@@ -107,6 +115,7 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
   const [dragFrom, setDragFrom] = useState<CellPos | null>(null);
   const [dropBefore, setDropBefore] = useState<CellPos | null>(null);
   const [imageDropSlot, setImageDropSlot] = useState<ImageDropSlot | null>(null);
+  const [dropLineBefore, setDropLineBefore] = useState<number | null>(null);
 
   const isDragging = dragFrom != null;
 
@@ -121,11 +130,13 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
     dragFromRef.current = null;
     dragSourceRef.current = null;
     imageDropSlotRef.current = null;
+    dropLineBeforeRef.current = null;
     committedSlotRef.current = null;
     dropCommittedRef.current = null;
     setDragFrom(null);
     setDropBefore(null);
     setImageDropSlot(null);
+    setDropLineBefore(null);
     pointerDragSessionRef.current = false;
     pointerCaptureElRef.current = null;
     activePointerIdRef.current = null;
@@ -148,6 +159,10 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
 
     if (hit?.lineEl.dataset.dropTail === "1") {
       return { line: curLines.length, cell: 0 };
+    }
+
+    if (hit?.isImageGrid && from && isImageGridLineBeforeDrop(clientY, hit.lineEl)) {
+      return { line: hit.lineIndex, cell: 0 };
     }
 
     if (hit && slotState && slotState.line === hit.lineIndex && isImageEmbedRow(hit.line, curFiles)) {
@@ -185,9 +200,12 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
       const from = dragSourceRef.current ?? dragFromRef.current;
       const curLines = linesRef.current;
       const curFiles = filesRef.current;
+      const lineBefore = dropLineBeforeRef.current;
 
       if (from != null) {
-        if (!isDropNoop(from, before)) {
+        if (lineBefore != null) {
+          applyLines(moveEmbedToLineBefore(curLines, from, lineBefore, curFiles));
+        } else if (!isDropNoop(from, before)) {
           applyLines(moveEmbedAt(curLines, from, before, curFiles));
         }
       } else if (embedName && findNoteFile(curFiles, embedName)) {
@@ -201,8 +219,28 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
   const updateDropTarget = useCallback(
     (clientX: number, clientY: number) => {
       const hit = hitTestLine(clientX, clientY, linesRef.current, filesRef.current);
+      const lineBefore =
+        hit?.isImageGrid && dragSourceRef.current != null && isImageGridLineBeforeDrop(clientY, hit.lineEl)
+          ? hit.lineIndex
+          : null;
 
-      if (hit?.isImageGrid) {
+      if (lineBefore != null) {
+        if (imageDropSlotRef.current != null) {
+          imageDropSlotRef.current = null;
+          setImageDropSlot(null);
+        }
+        if (dropLineBeforeRef.current !== lineBefore) {
+          dropLineBeforeRef.current = lineBefore;
+          setDropLineBefore(lineBefore);
+        }
+      } else {
+        if (dropLineBeforeRef.current != null) {
+          dropLineBeforeRef.current = null;
+          setDropLineBefore(null);
+        }
+      }
+
+      if (hit?.isImageGrid && lineBefore == null) {
         const slot = resolveImageGridSlot(
           clientX,
           hit.lineEl,
@@ -239,7 +277,9 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
 
   const performDrop = useCallback(
     (clientX: number, clientY: number, dataTransfer: DataTransfer | null) => {
-      const before = resolveDropBefore(clientX, clientY);
+      const before = dragSourceRef.current != null
+        ? dropCommittedRef.current ?? resolveDropBefore(clientX, clientY)
+        : resolveDropBefore(clientX, clientY);
 
       if (dataTransfer?.files?.length) {
         const file = dataTransfer.files[0];
@@ -260,9 +300,11 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
     (pos: CellPos, lineCtx?: BodyLine, lineIndexCtx?: number, overlayPos?: { x: number; y: number }) => {
       dragSourceRef.current = pos;
       dragFromRef.current = pos;
+      dropLineBeforeRef.current = null;
       committedSlotRef.current = null;
       dropCommittedRef.current = { line: pos.line, cell: pos.cell };
       setDropBefore({ line: pos.line, cell: pos.cell });
+      setDropLineBefore(null);
       setDragFrom(pos);
       if (overlayPos) {
         dragFloatPosRef.current = overlayPos;
@@ -373,15 +415,7 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
           /* released */
         }
 
-        const raw = resolveDropBefore(ev.clientX, ev.clientY);
-        const before = stabilizeDropBeforeCommitted(
-          dropCommittedRef.current,
-          raw,
-          ev.clientX,
-          ev.clientY,
-          linesRef.current,
-          filesRef.current,
-        );
+        const before = dropCommittedRef.current ?? resolveDropBefore(ev.clientX, ev.clientY);
         commitDropAt(before);
       }
 
@@ -506,6 +540,7 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
       : null;
 
   const dropGapActive = dragFrom != null && dropBefore != null && !isDropNoop(dragFrom, dropBefore);
+  const dropLineBeforeActive = dragFrom != null && dropLineBefore != null;
 
   return (
     <>
@@ -518,14 +553,15 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
           <span className="note-body-empty">Заметка пустая</span>
         ) : (
           lines.map((line, li) => {
+            const isImageLine = isImageEmbedRow(line, files);
             const leadSlot =
-              dropGapActive && dropBefore!.line === li && dropBefore!.cell === 0 ? (
+              !isImageLine && dropGapActive && dropBefore!.line === li && dropBefore!.cell === 0 ? (
                 <div key={`slot-lead-${li}`} className="note-embed-drop-lead-abs" aria-hidden>
                   <DropIndicator axis="horizontal" />
                 </div>
               ) : null;
 
-            if (isImageEmbedRow(line, files)) {
+            if (isImageLine) {
               return (
                 <ImageGridLine
                   key={`line-${li}`}
@@ -536,7 +572,7 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
                   isView={isView}
                   dragFrom={dragFrom}
                   imageDropSlot={imageDropSlot}
-                  dropSlotBefore={!!leadSlot}
+                  dropSlotBefore={dropLineBeforeActive && dropLineBefore === li}
                   onEmbedPointerDown={(pos, e) => beginEmbedPointerDrag(pos, e, line, li)}
                 />
               );
