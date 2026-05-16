@@ -219,29 +219,34 @@ html, body {
 /* ── Custom thin scrollbar for main scroll containers (WebKit) ── */
 .gchat-messages::-webkit-scrollbar,
 .post-body::-webkit-scrollbar,
-.feed-scroll::-webkit-scrollbar {
+.feed-scroll::-webkit-scrollbar,
+.profile-page::-webkit-scrollbar {
   width: var(--sb-w);
   height: var(--sb-w);
 }
 .gchat-messages::-webkit-scrollbar-track,
 .post-body::-webkit-scrollbar-track,
-.feed-scroll::-webkit-scrollbar-track {
+.feed-scroll::-webkit-scrollbar-track,
+.profile-page::-webkit-scrollbar-track {
   background: transparent;
 }
 .gchat-messages::-webkit-scrollbar-thumb,
 .post-body::-webkit-scrollbar-thumb,
-.feed-scroll::-webkit-scrollbar-thumb {
+.feed-scroll::-webkit-scrollbar-thumb,
+.profile-page::-webkit-scrollbar-thumb {
   background: var(--scroll-thumb);
   border-radius: 999px;
 }
 .gchat-messages::-webkit-scrollbar-thumb:hover,
 .post-body::-webkit-scrollbar-thumb:hover,
-.feed-scroll::-webkit-scrollbar-thumb:hover {
+.feed-scroll::-webkit-scrollbar-thumb:hover,
+.profile-page::-webkit-scrollbar-thumb:hover {
   background: var(--scroll-thumb-hover);
 }
 .gchat-messages::-webkit-scrollbar-corner,
 .post-body::-webkit-scrollbar-corner,
-.feed-scroll::-webkit-scrollbar-corner {
+.feed-scroll::-webkit-scrollbar-corner,
+.profile-page::-webkit-scrollbar-corner {
   background: transparent;
 }
 
@@ -3783,15 +3788,14 @@ button.filter-tab {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
   align-items: center;
   padding-top: var(--hdr);
   min-height: 0;
 }
 .profile-scroll-inner {
   width: min(var(--content-w), 100%);
-  flex: 1;
-  overflow-y: auto;
+  flex: none;
   padding: 14px 0 20px;
   box-sizing: border-box;
 }
