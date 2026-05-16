@@ -211,15 +211,20 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
       const curLines = linesRef.current;
       const curFiles = filesRef.current;
       const lineBefore = imageDropSlotRef.current == null ? dropLineBeforeRef.current : null;
+      const imageSlot = imageDropSlotRef.current;
+      const committedBefore =
+        imageSlot && curLines[imageSlot.line]
+          ? imageGridSlotToDropBefore(curLines[imageSlot.line]!, imageSlot.line, imageSlot.slot, from)
+          : before;
 
       if (from != null) {
         if (lineBefore != null) {
           applyLines(moveEmbedToLineBefore(curLines, from, lineBefore, curFiles));
-        } else if (!isDropNoop(from, before)) {
-          applyLines(moveEmbedAt(curLines, from, before, curFiles));
+        } else if (!isDropNoop(from, committedBefore)) {
+          applyLines(moveEmbedAt(curLines, from, committedBefore, curFiles));
         }
       } else if (embedName && findNoteFile(curFiles, embedName)) {
-        applyLines(insertEmbedAt(curLines, before, embedName, curFiles));
+        applyLines(insertEmbedAt(curLines, committedBefore, embedName, curFiles));
       }
       clearDrag();
     },
