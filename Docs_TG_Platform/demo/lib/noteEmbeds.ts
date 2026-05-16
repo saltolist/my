@@ -466,6 +466,34 @@ export function moveEmbedAt(lines: BodyLine[], from: CellPos, before: CellPos, f
   return finalizeLines(next, files);
 }
 
+export function moveEmbedToImageGridSlot(
+  lines: BodyLine[],
+  from: CellPos,
+  targetLineIndex: number,
+  slot: number,
+  files: NoteFile[],
+): BodyLine[] {
+  const src = lines[from.line]?.cells[from.cell];
+  if (!src || src.type !== "embed") return lines;
+
+  const next = cloneLines(lines);
+  next[from.line].cells.splice(from.cell, 1);
+  const sourceLineRemoved = next[from.line].cells.length === 0;
+  if (sourceLineRemoved) next.splice(from.line, 1);
+
+  const adjustedLine = sourceLineRemoved && from.line < targetLineIndex ? targetLineIndex - 1 : targetLineIndex;
+  const targetLine = Math.max(0, Math.min(adjustedLine, next.length));
+  const target = next[targetLine];
+
+  if (!target || isTextLine(target)) {
+    next.splice(targetLine, 0, { cells: [src] });
+    return finalizeLines(next, files);
+  }
+
+  target.cells.splice(Math.max(0, Math.min(slot, target.cells.length)), 0, src);
+  return finalizeLines(next, files);
+}
+
 export function moveEmbedToLineBefore(lines: BodyLine[], from: CellPos, lineIndex: number, files: NoteFile[]): BodyLine[] {
   const src = lines[from.line]?.cells[from.cell];
   if (!src || src.type !== "embed") return lines;
