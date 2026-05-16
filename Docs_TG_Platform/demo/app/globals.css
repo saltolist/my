@@ -2398,7 +2398,8 @@ button.nav-item {
   display: flex;
   align-items: center;
   min-width: 0;
-  max-width: min(var(--page-header-search-w), calc(100vw - var(--nav-w) - 280px));
+  width: fit-content;
+  max-width: min(calc(var(--page-header-search-w) + 10px + 14rem), calc(100vw - var(--nav-w) - 280px));
 }
 .post-hdr--with-search .page-header-right {
   justify-self: end;
@@ -2471,35 +2472,23 @@ button.nav-item {
   background: var(--page-header-control-bg-hover);
   color: var(--text);
 }
-/* Кнопка режима + раскрывающийся слот без лишнего gap у соседней группы */
+/* Кнопки режимов справа остаются компактными; создание живёт рядом с поиском */
 .post-mode-cluster {
   display: flex;
   align-items: center;
   min-width: 0;
 }
-/* Слот справа от «Чаты» / «Заметки»: раскрытие с правого края влево (к меню) */
-.post-new-chat-slot,
-.post-new-note-slot {
+.post-header-search-row {
   display: flex;
-  justify-content: flex-end;
-  overflow: hidden;
-  max-width: 0;
-  margin-left: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: max-width 0.2s ease, opacity 0.2s ease, margin-left 0.2s ease;
+  align-items: center;
+  gap: 10px;
+  width: auto;
+  max-width: 100%;
+  min-width: 0;
 }
-.post-new-chat-slot.visible {
-  max-width: 12rem;
-  margin-left: 10px;
-  opacity: 1;
-  pointer-events: auto;
-}
-.post-new-note-slot.visible {
-  max-width: 14rem;
-  margin-left: 10px;
-  opacity: 1;
-  pointer-events: auto;
+.post-header-search-row .page-header-search-field {
+  flex: 0 1 var(--page-header-search-w);
+  min-width: 0;
 }
 .post-new-chat-btn,
 .post-new-note-btn {
@@ -4481,21 +4470,16 @@ button.filter-tab {
     font-size: 12px;
   }
 
-  .post-new-chat-slot.visible,
-  .post-new-note-slot.visible {
-    max-width: 34px;
-  }
-
-  .post-new-chat-slot.visible .post-new-chat-btn,
-  .post-new-note-slot.visible .post-new-note-btn {
+  .post-header-search-row .post-new-chat-btn,
+  .post-header-search-row .post-new-note-btn {
     min-width: 34px;
     padding-left: 8px;
     padding-right: 8px;
     font-size: 0;
   }
 
-  .post-new-chat-slot.visible .post-new-chat-btn::before,
-  .post-new-note-slot.visible .post-new-note-btn::before {
+  .post-header-search-row .post-new-chat-btn::before,
+  .post-header-search-row .post-new-note-btn::before {
     content: '+';
     font-size: 12px;
   }
@@ -4548,6 +4532,7 @@ button.filter-tab {
   }
 
   .page-header-search-tools-row,
+  .post-header-search-row,
   .notes-filter-row,
   .page-header-analytics-periods,
   .page-header-profile-tabs {
@@ -4556,6 +4541,7 @@ button.filter-tab {
   }
 
   .page-header-search-tools-row::-webkit-scrollbar,
+  .post-header-search-row::-webkit-scrollbar,
   .notes-filter-row::-webkit-scrollbar,
   .page-header-analytics-periods::-webkit-scrollbar,
   .page-header-profile-tabs::-webkit-scrollbar {

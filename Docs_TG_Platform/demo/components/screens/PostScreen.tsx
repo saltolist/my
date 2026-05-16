@@ -249,11 +249,23 @@ export default function PostScreen() {
           </div>
           {showListHeaderSearch ? (
             <div className="page-header-center">
-              <PageHeaderSearchInput
-                placeholder={listSearchPlaceholder}
-                value={listSearch}
-                onChange={(e) => setListSearch(e.target.value)}
-              />
+              <div className="post-header-search-row">
+                <PageHeaderSearchInput
+                  placeholder={listSearchPlaceholder}
+                  value={listSearch}
+                  onChange={(e) => setListSearch(e.target.value)}
+                />
+                {state.postMode === "notes" ? (
+                  <button className="post-new-note-btn" onClick={startNewNote} type="button">
+                    + Новая заметка
+                  </button>
+                ) : null}
+                {state.postMode === "chats" ? (
+                  <button className="post-new-chat-btn" onClick={startNewChat} type="button">
+                    + Новый чат
+                  </button>
+                ) : null}
+              </div>
             </div>
           ) : null}
           <div
@@ -274,11 +286,6 @@ export default function PostScreen() {
               >
                 Заметки
               </button>
-              <div className={`post-new-note-slot${state.postMode === "notes" ? " visible" : ""}`}>
-                <button className="post-new-note-btn" onClick={startNewNote} type="button">
-                  + Новая заметка
-                </button>
-              </div>
             </div>
             <div className="post-mode-cluster">
               <button
@@ -288,11 +295,6 @@ export default function PostScreen() {
               >
                 Чаты
               </button>
-              <div className={`post-new-chat-slot${state.postMode === "chats" ? " visible" : ""}`}>
-                <button className="post-new-chat-btn" onClick={startNewChat} type="button">
-                  + Новый чат
-                </button>
-              </div>
             </div>
             <button
               className="btn btn-ghost btn-sm post-back-btn"
