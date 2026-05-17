@@ -72,6 +72,7 @@ TG Platform
 - `concept/10-pages.md` - структура страниц **текущего демо** (источник правды для UX-витрины)
 - `concept/11-reusable-modules-integration.md` - как TG Platform собирается на базе reusable-modules
 - `concept/12-demo.md` - демо-версия на GitHub Pages: назначение, сценарии, ограничения
+- `concept/13-chat-context-summaries.md` - механика сводок канала, summary диалога и лог-чата
 
 ### Wireframes
 
