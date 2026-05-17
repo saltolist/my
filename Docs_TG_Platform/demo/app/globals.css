@@ -3940,6 +3940,64 @@ button.filter-tab {
   box-shadow: 0 0 0 3px rgba(74,158,255,.15);
 }
 .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.profile-channel-actions {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.profile-channel-actions .profile-section-title { margin-bottom: 6px; }
+.profile-action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.profile-muted {
+  color: var(--text2);
+  line-height: 1.5;
+}
+.profile-section-muted {
+  background: var(--bg);
+  border-style: dashed;
+}
+.profile-subsection-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+  margin: 16px 0 10px;
+}
+.profile-subsection-title:first-child { margin-top: 0; }
+.profile-textarea-compact {
+  min-height: 70px;
+  line-height: 1.5;
+}
+.rubric-editor {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--rs);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.rubric-editor:last-child { margin-bottom: 0; }
+.rubric-editor-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.rubric-editor-head .rubric-item {
+  flex: 1;
+  margin-bottom: 0;
+}
 .telegram-status-row {
   display: flex;
   align-items: center;
@@ -4673,9 +4731,15 @@ button.filter-tab {
 
   .telegram-status-row,
   .telegram-action-row,
-  .telegram-code-row {
+  .telegram-code-row,
+  .profile-channel-actions,
+  .rubric-editor-head {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .profile-action-buttons {
+    justify-content: flex-start;
   }
 
   .telegram-form-grid,

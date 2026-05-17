@@ -124,6 +124,31 @@ export type LlmModel = {
 
 export type WebSearchModel = LlmModel;
 
+export type ChannelProfileRubric = {
+  id: string;
+  title: string;
+  description: string;
+};
+
+export type ChannelProfileConfig = {
+  core: {
+    topic: string;
+    audience: string;
+    promise: string;
+    angle: string;
+  };
+  voice: {
+    tone: string;
+    format: string;
+    phrases: string;
+  };
+  rules: {
+    must: string;
+    avoid: string;
+  };
+  rubrics: ChannelProfileRubric[];
+};
+
 export type AiProfileConfig = {
   llmModels: LlmModel[];
   webSearchModels: WebSearchModel[];

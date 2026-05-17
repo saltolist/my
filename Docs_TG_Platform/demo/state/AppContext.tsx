@@ -13,6 +13,7 @@ import {
 } from "react";
 import {
   initialAiProfileConfig,
+  initialChannelProfileConfig,
   initialGlobalChats,
   initialGlobalNotes,
   initialPinnedPostIds,
@@ -40,6 +41,7 @@ import type {
   ActiveNote,
   AiProfileConfig,
   AiVariant,
+  ChannelProfileConfig,
   ChatMessage,
   ChatsTab,
   ComposerScope,
@@ -67,6 +69,7 @@ type State = {
   posts: Post[];
   globalChats: GlobalChat[];
   globalNotes: GlobalNote[];
+  channelProfileConfig: ChannelProfileConfig;
   aiProfileConfig: AiProfileConfig;
   telegramProfileConfig: TelegramProfileConfig;
   pinnedPostIds: number[];
@@ -92,6 +95,7 @@ type State = {
   systemPromptSavedSnapshot: string;
   modelSettingsSavedSnapshot: string;
   telegramSettingsSavedSnapshot: string;
+  channelProfileSavedSnapshot: string;
 
   theme: ThemeMode;
 };
@@ -168,6 +172,7 @@ type Action =
   | { type: "DELETE_GLOBAL_NOTE"; noteId: string }
   | { type: "SET_AI_VARIANT"; scope: "gchat" | "post"; entityId: string | number; path: number[]; variantIdx: number }
   | { type: "SET_USER_BRANCH"; scope: "gchat" | "post"; postId?: number; entityId: string | number; path: number[]; branchIdx: number }
+  | { type: "UPDATE_CHANNEL_PROFILE"; config: ChannelProfileConfig }
   | { type: "UPDATE_AI_CONFIG"; config: AiProfileConfig }
   | { type: "UPDATE_TELEGRAM_CONFIG"; config: TelegramProfileConfig };
 
@@ -475,6 +480,8 @@ function reducer(state: State, action: Action): State {
         ),
       };
     }
+    case "UPDATE_CHANNEL_PROFILE":
+      return { ...state, channelProfileConfig: action.config };
     case "UPDATE_AI_CONFIG":
       return { ...state, aiProfileConfig: action.config };
     case "UPDATE_TELEGRAM_CONFIG":
@@ -520,6 +527,7 @@ const initialState: State = {
   posts: initialPosts,
   globalChats: initialGlobalChats,
   globalNotes: initialGlobalNotes,
+  channelProfileConfig: initialChannelProfileConfig,
   aiProfileConfig: initialAiProfileConfig,
   telegramProfileConfig: initialTelegramProfileConfig,
   pinnedPostIds: initialPinnedPostIds,
@@ -549,11 +557,12 @@ const initialState: State = {
   systemPromptSavedSnapshot: initialAiProfileConfig.systemPrompt,
   modelSettingsSavedSnapshot: buildInitialAiSnapshot(),
   telegramSettingsSavedSnapshot: buildInitialTelegramSnapshot(),
+  channelProfileSavedSnapshot: JSON.stringify(initialChannelProfileConfig),
 
   theme: "dark",
 };
 
-export type DirtyKey = "note" | "profile-ai" | "profile-prompt" | "profile-telegram";
+export type DirtyKey = "note" | "profile-channel" | "profile-ai" | "profile-prompt" | "profile-telegram";
 
 type AppContextValue = {
   state: State;
@@ -583,6 +592,7 @@ type AppContextValue = {
   setDirty: (key: DirtyKey, dirty: boolean) => void;
   registerNotePersist: (fn: (() => void) | null) => void;
   noteDirty: boolean;
+  profileChannelDirty: boolean;
   profileSettingsDirty: boolean;
   canLeaveCurrentScreen: (next: ScreenId) => boolean;
 };
@@ -598,6 +608,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [dirtyMap, setDirtyMap] = useState<Record<DirtyKey, boolean>>({
     note: false,
+    "profile-channel": false,
     "profile-ai": false,
     "profile-prompt": false,
     "profile-telegram": false,
@@ -612,8 +623,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const noteDirty = dirtyMap.note;
+  const profileChannelDirty = dirtyMap["profile-channel"];
   const profileSettingsDirty =
-    dirtyMap["profile-ai"] || dirtyMap["profile-prompt"] || dirtyMap["profile-telegram"];
+    dirtyMap["profile-ai"] ||
+    dirtyMap["profile-prompt"] ||
+    dirtyMap["profile-telegram"];
+  const profileDirty = profileChannelDirty || profileSettingsDirty;
 
   const canLeaveCurrentScreen = useCallback(
     (next: ScreenId): boolean => {
@@ -628,14 +643,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
           );
         }
       }
-      if (state.screen === "profile" && next !== "profile" && profileSettingsDirty) {
+      if (state.screen === "profile" && next !== "profile" && profileDirty) {
         return window.confirm(
-          "Есть несохранённые изменения в настройках профиля. Уйти без сохранения?",
+          "Есть несохранённые изменения в профиле. Уйти без сохранения?",
         );
       }
       return true;
     },
-    [state.screen, state.currentNote, noteDirty, profileSettingsDirty],
+    [state.screen, state.currentNote, noteDirty, profileDirty],
   );
 
   const navigate = useCallback(
@@ -691,13 +706,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     function onBeforeUnload(e: BeforeUnloadEvent) {
-      if (!noteDirty && !profileSettingsDirty) return;
+      if (!noteDirty && !profileDirty) return;
       e.preventDefault();
       e.returnValue = "";
     }
     window.addEventListener("beforeunload", onBeforeUnload);
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
-  }, [noteDirty, profileSettingsDirty]);
+  }, [noteDirty, profileDirty]);
 
   useEffect(() => {
     try {
@@ -1031,6 +1046,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setDirty,
       registerNotePersist,
       noteDirty,
+      profileChannelDirty,
       profileSettingsDirty,
       canLeaveCurrentScreen,
     }),
@@ -1057,6 +1073,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setDirty,
       registerNotePersist,
       noteDirty,
+      profileChannelDirty,
       profileSettingsDirty,
       canLeaveCurrentScreen,
     ],

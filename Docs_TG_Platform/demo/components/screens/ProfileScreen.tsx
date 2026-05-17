@@ -13,12 +13,22 @@ const PROFILE_TABS = ["Настройки", "Канал", "Аналитика п
 
 export default function ProfileScreen() {
   const [tab, setTab] = useState(0);
-  const { profileSettingsDirty } = useApp();
+  const { profileChannelDirty, profileSettingsDirty } = useApp();
 
   const switchTab = (next: number) => {
     if (tab === 0 && next !== 0 && profileSettingsDirty) {
       const ok = window.confirm(
         "Есть несохранённые изменения в настройках профиля. Перейти без сохранения?",
+      );
+      if (!ok) return;
+    }
+    if (
+      tab === 1 &&
+      next !== 1 &&
+      profileChannelDirty
+    ) {
+      const ok = window.confirm(
+        "Есть несохранённые изменения в профиле канала. Перейти без сохранения?",
       );
       if (!ok) return;
     }
