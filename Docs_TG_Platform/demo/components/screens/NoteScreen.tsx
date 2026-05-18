@@ -157,6 +157,7 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
   const [title, setTitle] = useState(note.title);
   const [body, setBody] = useState(initialBody);
   const [files, setFiles] = useState<NoteFile[]>([...noteFiles]);
+  const [bodyFocusRequest, setBodyFocusRequest] = useState(0);
   const [baselineSnapshot, setBaselineSnapshot] = useState(() =>
     buildNoteSnapshot(note.title, initialBody, note.ai, noteFiles),
   );
@@ -298,6 +299,10 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
   };
 
   const openPost = () => navigate("post");
+  const focusBodyFromTitle = () => {
+    if (isView) setEditMode();
+    setBodyFocusRequest((request) => request + 1);
+  };
 
   return (
     <div className="note-layout">
@@ -312,6 +317,11 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
                 placeholder="Без названия"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter") return;
+                  e.preventDefault();
+                  focusBodyFromTitle();
+                }}
               />
             </div>
           </div>
@@ -341,6 +351,7 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
             onBodyChange={setBody}
             onAddFile={addFile}
             onEditRequest={setEditMode}
+            focusRequest={bodyFocusRequest}
           />
           <NoteFilesPanel files={files} draggable />
         </div>

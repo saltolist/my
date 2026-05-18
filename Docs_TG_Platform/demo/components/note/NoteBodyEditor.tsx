@@ -93,6 +93,7 @@ type Props = {
   onBodyChange: (body: string) => void;
   onAddFile: (file: File) => NoteFile;
   onEditRequest?: () => void;
+  focusRequest?: number;
 };
 
 type ImageDropSlot = { line: number; slot: number };
@@ -101,7 +102,15 @@ type CurrentDropTarget =
   | { type: "imageSlot"; line: number; slot: number }
   | { type: "lineBefore"; line: number };
 
-export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAddFile, onEditRequest }: Props) {
+export default function NoteBodyEditor({
+  body,
+  files,
+  isView,
+  onBodyChange,
+  onAddFile,
+  onEditRequest,
+  focusRequest = 0,
+}: Props) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const linesRef = useRef<BodyLine[]>([]);
   const filesRef = useRef<NoteFile[]>(files);
@@ -654,6 +663,17 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
     window.getSelection()?.removeAllRanges();
     if (isView) onEditRequest?.();
   }, [isView, onEditRequest]);
+
+  useEffect(() => {
+    if (isView || focusRequest <= 0) return;
+    requestAnimationFrame(() => {
+      const firstLine = canvasRef.current?.querySelector<HTMLTextAreaElement>(".note-body-line-edit");
+      if (!firstLine) return;
+      firstLine.focus();
+      const end = firstLine.value.length;
+      firstLine.setSelectionRange(end, end);
+    });
+  }, [focusRequest, isView, lines]);
 
   return (
     <>

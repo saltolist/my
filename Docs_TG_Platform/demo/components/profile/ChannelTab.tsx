@@ -248,6 +248,14 @@ function RubricNoteFields({
     resizeDescription();
   }, [description]);
 
+  const focusDescription = () => {
+    const textarea = descriptionRef.current;
+    if (!textarea) return;
+    textarea.focus();
+    const end = textarea.value.length;
+    textarea.setSelectionRange(end, end);
+  };
+
   return (
     <div className="rubric-note-fields">
       <div className="rubric-note-title-row">
@@ -259,6 +267,11 @@ function RubricNoteFields({
           value={title}
           onChange={(e) => {
             onTitleChange(e.target.value);
+          }}
+          onKeyDown={(e) => {
+            if (e.key !== "Enter") return;
+            e.preventDefault();
+            focusDescription();
           }}
         />
         <button
