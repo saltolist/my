@@ -33,6 +33,11 @@ export default function AiModelsBlock() {
     dispatch({ type: "SET_STATE", patch: { modelSettingsSavedSnapshot: currentSnapshot } });
   };
 
+  const cancel = () => {
+    if (!dirty) return;
+    update(restoreAiConfigFromSnapshot(cfg, state.modelSettingsSavedSnapshot));
+  };
+
   const setLlms = (llmModels: LlmModel[]) => update({ ...cfg, llmModels });
   const setWebs = (webSearchModels: LlmModel[]) => update({ ...cfg, webSearchModels });
 
@@ -123,15 +128,16 @@ export default function AiModelsBlock() {
           )}
         </div>
       </div>
-      <button
-        className="btn btn-primary"
-        disabled={!dirty}
-        onClick={save}
-        style={{ marginTop: 10 }}
-        type="button"
-      >
-        Сохранить
-      </button>
+      <div className="profile-action-buttons profile-action-buttons--ai">
+        <button className="btn btn-primary" disabled={!dirty} onClick={save} type="button">
+          Сохранить
+        </button>
+        {dirty ? (
+          <button className="btn btn-ghost" onClick={cancel} type="button">
+            Отменить
+          </button>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -217,6 +223,20 @@ function ModelRow({
   );
 }
 
+type AiModelSnapshot = {
+  provider: string;
+  model: string;
+  apiKey: string;
+  active: boolean;
+  includeInMulti: boolean;
+};
+
+type AiSettingsSnapshot = {
+  llmModels: AiModelSnapshot[];
+  webSearchModels: AiModelSnapshot[];
+  multiResponseEnabled: boolean;
+};
+
 function snapshotAiConfig(cfg: AiProfileConfig) {
   return JSON.stringify({
     llmModels: cfg.llmModels.map((m) => ({
@@ -235,4 +255,28 @@ function snapshotAiConfig(cfg: AiProfileConfig) {
     })),
     multiResponseEnabled: !!cfg.multiResponseEnabled,
   });
+}
+
+function restoreAiConfigFromSnapshot(current: AiProfileConfig, snapshotJson: string): AiProfileConfig {
+  const saved = JSON.parse(snapshotJson) as AiSettingsSnapshot;
+  const mapModels = (
+    currentModels: LlmModel[],
+    savedModels: AiModelSnapshot[],
+    idPrefix: string,
+  ): LlmModel[] =>
+    savedModels.map((row, i) => ({
+      id: currentModels[i]?.id ?? `${idPrefix}-${Date.now()}-${i}`,
+      provider: row.provider,
+      model: row.model,
+      apiKey: row.apiKey,
+      active: row.active,
+      includeInMulti: row.includeInMulti,
+    }));
+
+  return {
+    ...current,
+    llmModels: mapModels(current.llmModels, saved.llmModels, "llm"),
+    webSearchModels: mapModels(current.webSearchModels, saved.webSearchModels, "web"),
+    multiResponseEnabled: saved.multiResponseEnabled,
+  };
 }

@@ -4058,17 +4058,17 @@ button.filter-tab {
 .theme-switch-icon { font-size: 15px; line-height: 1; }
 .profile-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
 .profile-ai-engine-section > .profile-section-title {
-  margin-bottom: 19px;
+  margin-bottom: 20px;
 }
 .profile-ai-engine-section .profile-row--after-models,
 .profile-ai-engine-section .profile-multi-block.profile-row--after-models {
-  margin-top: 19px;
+  margin-top: 20px;
 }
 .profile-multi-block {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 .profile-multi-block .profile-label,
 .profile-multi-block .profile-checkbox-label,
@@ -4196,6 +4196,9 @@ button.filter-tab {
 .profile-model-picker {
   width: 100%;
 }
+.profile-model-picker .model-picker-label {
+  text-align: center;
+}
 .profile-model-picker .model-picker-btn {
   width: 100%;
   height: 36px;
@@ -4223,6 +4226,9 @@ button.filter-tab {
   -webkit-backdrop-filter: var(--profile-control-blur);
   backdrop-filter: var(--profile-control-blur);
 }
+.profile-page .model-picker-dropdown .model-picker-item {
+  text-align: center;
+}
 .profile-page .model-picker-item:hover {
   background: var(--profile-control-bg-hover);
 }
@@ -4241,9 +4247,13 @@ button.filter-tab {
   color: var(--text2);
   border: 1px solid var(--profile-control-border);
 }
+.profile-page .btn-ghost:disabled {
+  color: var(--text3);
+}
 .profile-page .btn-ghost:hover:not(:disabled) {
   background: var(--profile-control-bg-hover);
   color: var(--text);
+  border-color: var(--control-border-active);
   opacity: 1;
 }
 .profile-page .btn-ghost.active {
@@ -4253,12 +4263,19 @@ button.filter-tab {
   opacity: 1;
 }
 .profile-page .btn-primary {
-  background: var(--profile-control-bg-active);
-  color: var(--accent);
-  border: 1px solid color-mix(in srgb, var(--accent) 42%, var(--profile-control-border));
+  background: var(--profile-control-bg);
+  color: var(--text3);
+  border: 1px solid var(--profile-control-border);
 }
-.profile-page .btn-primary:hover:not(:disabled) {
+.profile-page .btn-primary:not(:disabled) {
+  background: var(--profile-control-bg);
+  color: #3a3a3a;
+  border-color: var(--control-border-active);
+}
+.profile-page .btn-primary:not(:disabled):hover {
   background: var(--profile-control-bg-hover);
+  color: color-mix(in srgb, #3a3a3a 58%, #000 42%);
+  border-color: var(--control-border-active);
   opacity: 1;
 }
 .profile-page .btn-danger {
@@ -4354,6 +4371,15 @@ button.filter-tab {
   gap: 8px;
   flex-wrap: wrap;
   flex-shrink: 0;
+}
+.profile-action-buttons--ai {
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 20px;
+}
+.profile-action-buttons--ai .btn {
+  padding: 8px 18px;
+  font-size: 13px;
 }
 .profile-muted {
   color: var(--text2);
