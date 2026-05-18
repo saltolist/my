@@ -66,14 +66,6 @@ export default function ChannelTab({ active }: { active: boolean }) {
             локальными чатами постов.
           </div>
         </div>
-        <div className="profile-action-buttons">
-          <button className="btn btn-ghost btn-sm" disabled={!dirty} onClick={reset} type="button">
-            Отменить
-          </button>
-          <button className="btn btn-primary btn-sm" disabled={!dirty} onClick={save} type="button">
-            Сохранить профиль
-          </button>
-        </div>
       </div>
 
       <div className="profile-section profile-channel-combined-section">
@@ -136,6 +128,16 @@ export default function ChannelTab({ active }: { active: boolean }) {
             />
           </div>
         </ChannelSubsection>
+        <div className="profile-action-buttons profile-action-buttons--ai">
+          <button className="btn btn-primary" disabled={!dirty} onClick={save} type="button">
+            Сохранить
+          </button>
+          {dirty ? (
+            <button className="btn btn-ghost" onClick={reset} type="button">
+              Отменить
+            </button>
+          ) : null}
+        </div>
       </div>
 
       <FormSection

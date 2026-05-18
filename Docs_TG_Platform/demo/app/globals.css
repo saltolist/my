@@ -4455,7 +4455,13 @@ button.filter-tab {
   justify-content: space-between;
   gap: 16px;
 }
-.profile-channel-actions .profile-section-title { margin-bottom: 6px; }
+.profile-channel-actions .profile-section-title {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+.profile-channel-actions .profile-muted {
+  font-size: 13px;
+}
 .profile-action-buttons {
   display: flex;
   align-items: center;
@@ -4484,9 +4490,21 @@ button.filter-tab {
   display: flex;
   flex-direction: column;
 }
-.profile-channel-subsection .profile-row:last-child,
+.profile-channel-subsection .profile-row {
+  margin-bottom: 0;
+}
+.profile-channel-subsection .profile-grid {
+  row-gap: 25px;
+  margin-bottom: 25px;
+}
 .profile-channel-subsection .profile-grid:last-child {
   margin-bottom: 0;
+}
+.profile-channel-subsection:last-of-type .profile-subsection-title {
+  margin-top: 0;
+}
+.profile-channel-combined-section > .profile-action-buttons--ai {
+  margin-top: 20px;
 }
 .profile-channel-divider {
   width: 100%;
@@ -4495,9 +4513,9 @@ button.filter-tab {
   background: var(--profile-control-border);
 }
 .profile-subsection-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--text2);
+  color: var(--text);
   margin: 16px 0 10px;
 }
 .profile-subsection-title:first-child { margin-top: 0; }
