@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject, type ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type MutableRefObject, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { NoteFile } from "@/lib/types";
 import {
@@ -114,6 +114,8 @@ export default function NoteBodyEditor({
   const canvasRef = useRef<HTMLDivElement>(null);
   const linesRef = useRef<BodyLine[]>([]);
   const filesRef = useRef<NoteFile[]>(files);
+  const handledFocusRequestRef = useRef(0);
+  const pendingTextFocusRef = useRef<CellPos | null>(null);
   const dragFromRef = useRef<CellPos | null>(null);
   /** Сохраняем источник до dragEnd, иначе drop воспринимается как вставку копии. */
   const dragSourceRef = useRef<CellPos | null>(null);
@@ -165,6 +167,28 @@ export default function NoteBodyEditor({
     },
     [onBodyChange],
   );
+
+  const handleTextEnter = useCallback(
+    (pos: CellPos, offset: number) => {
+      pendingTextFocusRef.current = { line: pos.line + 1, cell: 0 };
+      applyLines(splitLineAtCaret(linesRef.current, pos, offset));
+    },
+    [applyLines],
+  );
+
+  useLayoutEffect(() => {
+    const target = pendingTextFocusRef.current;
+    if (!target || isView) return;
+    pendingTextFocusRef.current = null;
+    requestAnimationFrame(() => {
+      const textarea = canvasRef.current?.querySelector<HTMLTextAreaElement>(
+        `.note-body-cell--text[data-line="${target.line}"][data-cell="${target.cell}"] .note-body-line-edit`,
+      );
+      if (!textarea) return;
+      textarea.focus();
+      textarea.setSelectionRange(0, 0);
+    });
+  }, [lines, isView]);
 
   const clearDrag = useCallback(() => {
     dragFromRef.current = null;
@@ -665,7 +689,8 @@ export default function NoteBodyEditor({
   }, [isView, onEditRequest]);
 
   useEffect(() => {
-    if (isView || focusRequest <= 0) return;
+    if (isView || focusRequest <= handledFocusRequestRef.current) return;
+    handledFocusRequestRef.current = focusRequest;
     requestAnimationFrame(() => {
       const firstLine = canvasRef.current?.querySelector<HTMLTextAreaElement>(".note-body-line-edit");
       if (!firstLine) return;
@@ -673,7 +698,7 @@ export default function NoteBodyEditor({
       const end = firstLine.value.length;
       firstLine.setSelectionRange(end, end);
     });
-  }, [focusRequest, isView, lines]);
+  }, [focusRequest, isView]);
 
   return (
     <>
@@ -684,7 +709,7 @@ export default function NoteBodyEditor({
         onMouseDown={isView ? handleViewMouseDown : undefined}
         onDoubleClick={isView ? handleViewDoubleClick : undefined}
       >
-        {!hasContent ? (
+        {!hasContent && isView ? (
           <span className="note-body-empty">Заметка пустая</span>
         ) : (
           lines.map((line, li) => {
@@ -741,7 +766,7 @@ export default function NoteBodyEditor({
                           onTextChange={(content) =>
                             applyLines(updateTextCell(lines, { line: li, cell: ci }, content))
                           }
-                          onTextEnter={(at) => applyLines(splitLineAtCaret(lines, { line: li, cell: ci }, at))}
+                          onTextEnter={(at) => handleTextEnter({ line: li, cell: ci }, at)}
                           onEmbedPointerDown={(pos, e) => beginEmbedPointerDrag(pos, e, line, li)}
                         />,
                       );
@@ -766,7 +791,7 @@ export default function NoteBodyEditor({
                       onTextChange={(content) =>
                         applyLines(updateTextCell(lines, { line: li, cell: ci }, content))
                       }
-                      onTextEnter={(at) => applyLines(splitLineAtCaret(lines, { line: li, cell: ci }, at))}
+                      onTextEnter={(at) => handleTextEnter({ line: li, cell: ci }, at)}
                     />
                   ))
                 )}
