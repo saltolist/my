@@ -4,7 +4,9 @@ import { useEffect } from "react";
 import { useApp } from "@/state/AppContext";
 import { LLM_PROVIDER_MODELS, WEB_SEARCH_PROVIDER_MODELS } from "@/lib/composer-config";
 import type { AiProfileConfig, LlmModel } from "@/lib/types";
-import ModelPicker from "@/components/composer/ModelPicker";
+import ModelPicker, { BrainIcon, SearchIcon } from "@/components/composer/ModelPicker";
+import MessageTrashIcon from "@/components/chat/MessageTrashIcon";
+import ProfileCheckbox from "@/components/profile/ProfileCheckbox";
 
 export default function AiModelsBlock() {
   const { state, dispatch, multiResponsePairs, setDirty } = useApp();
@@ -45,68 +47,81 @@ export default function AiModelsBlock() {
       { id: "web-" + Date.now(), provider: "", model: "", apiKey: "", active: true, includeInMulti: false },
     ]);
   return (
-    <div className="profile-section">
+    <div className="profile-section profile-ai-engine-section">
       <div className="profile-section-title">ИИ-движок</div>
 
       <div className="profile-row">
-        <div className="profile-label">LLM-модели</div>
+        <div className="profile-label profile-label--with-icon">
+          <span className="profile-label-icon" aria-hidden>
+            <BrainIcon />
+          </span>
+          LLM-модели
+        </div>
       </div>
-      <div>
+      <div className="profile-model-list">
         {cfg.llmModels.map((m, idx) => (
           <ModelRow
             key={m.id}
             model={m}
             providerMap={LLM_PROVIDER_MODELS}
+            canRemove={cfg.llmModels.length > 1}
             onChange={(patch) =>
               setLlms(cfg.llmModels.map((row, i) => (i === idx ? { ...row, ...patch } : row)))
             }
+            onRemove={() => setLlms(cfg.llmModels.filter((_, i) => i !== idx))}
           />
         ))}
+        <button className="btn btn-ghost btn-sm" onClick={addLlm} type="button">
+          Добавить LLM модель
+        </button>
       </div>
-      <button className="btn btn-ghost btn-sm" onClick={addLlm} type="button">
-        Добавить LLM модель
-      </button>
 
-      <div className="profile-row" style={{ marginTop: 14 }}>
-        <div className="profile-label">Web Search модели</div>
+      <div className="profile-row profile-row--after-models">
+        <div className="profile-label profile-label--with-icon">
+          <span className="profile-label-icon" aria-hidden>
+            <SearchIcon />
+          </span>
+          Web Search модели
+        </div>
       </div>
-      <div>
+      <div className="profile-model-list">
         {cfg.webSearchModels.map((m, idx) => (
           <ModelRow
             key={m.id}
             model={m}
             providerMap={WEB_SEARCH_PROVIDER_MODELS}
+            canRemove={cfg.webSearchModels.length > 1}
             onChange={(patch) =>
               setWebs(cfg.webSearchModels.map((row, i) => (i === idx ? { ...row, ...patch } : row)))
             }
+            onRemove={() => setWebs(cfg.webSearchModels.filter((_, i) => i !== idx))}
           />
         ))}
+        <button className="btn btn-ghost btn-sm" onClick={addWeb} type="button">
+          Добавить Web Search модель
+        </button>
       </div>
-      <button className="btn btn-ghost btn-sm" onClick={addWeb} type="button">
-        Добавить Web Search модель
-      </button>
 
 
-      <div className="profile-row" style={{ marginTop: 14 }}>
+      <div className="profile-multi-block profile-row--after-models">
         <div className="profile-label">Мультиответ</div>
-        <label className="profile-val" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <input
-            type="checkbox"
+        <label className="profile-checkbox-label profile-multi-toggle">
+          <ProfileCheckbox
             disabled={!multiEligible}
             checked={cfg.multiResponseEnabled && multiEligible}
             onChange={(e) => update({ ...cfg, multiResponseEnabled: e.target.checked && multiEligible })}
           />
           <span className={!multiEligible ? "toggle-disabled-strike" : ""}>Включить</span>
         </label>
-      </div>
-      <div className="profile-val" style={{ fontSize: 12, color: "var(--text3)", marginTop: 8 }}>
-        При включенном мультиответе в поле ввода показывается один заблокированный режим.
-        {multiEligible ? null : (
-          <>
-            {" "}
-            Сейчас доступно пар: <b>{multiResponsePairs().length}</b>, нужно минимум 2.
-          </>
-        )}
+        <div className="profile-val profile-ai-multi-hint">
+          При включенном мультиответе в поле ввода показывается один заблокированный режим.
+          {multiEligible ? null : (
+            <>
+              {" "}
+              Сейчас доступно пар: <b>{multiResponsePairs().length}</b>, нужно минимум 2.
+            </>
+          )}
+        </div>
       </div>
       <button
         className="btn btn-primary"
@@ -124,11 +139,15 @@ export default function AiModelsBlock() {
 function ModelRow({
   model,
   providerMap,
+  canRemove,
   onChange,
+  onRemove,
 }: {
   model: LlmModel;
   providerMap: Record<string, string[]>;
+  canRemove: boolean;
   onChange: (patch: Partial<LlmModel>) => void;
+  onRemove: () => void;
 }) {
   const providerOptions = Object.keys(providerMap).map((p) => ({ id: p, label: p }));
   const modelOptions = (providerMap[model.provider] || []).map((m) => ({ id: m, label: m }));
@@ -164,9 +183,8 @@ function ModelRow({
         onChange={(e) => onChange({ apiKey: e.target.value })}
         style={{ display: model.provider ? undefined : "none" }}
       />
-      <label className="profile-val profile-model-multi">
-        <input
-          type="checkbox"
+      <label className="profile-checkbox-label profile-model-multi">
+        <ProfileCheckbox
           checked={model.active}
           onChange={(e) =>
             onChange({ active: e.target.checked, includeInMulti: e.target.checked && model.includeInMulti })
@@ -174,14 +192,27 @@ function ModelRow({
         />
         Активна
       </label>
-      <label className="profile-val profile-model-multi">
-        <input
-          type="checkbox"
+      <label className="profile-checkbox-label profile-model-multi">
+        <ProfileCheckbox
           checked={model.includeInMulti}
           onChange={(e) => onChange({ includeInMulti: e.target.checked })}
         />
         В мультиответ
       </label>
+      <button
+        type="button"
+        className="profile-model-remove"
+        disabled={!canRemove}
+        aria-label="Удалить модель"
+        title={canRemove ? "Удалить модель" : "Нельзя удалить последнюю модель"}
+        onClick={() => {
+          const label = model.model || model.provider || "модель";
+          if (!window.confirm(`Удалить модель «${label}»?`)) return;
+          onRemove();
+        }}
+      >
+        <MessageTrashIcon />
+      </button>
     </div>
   );
 }
