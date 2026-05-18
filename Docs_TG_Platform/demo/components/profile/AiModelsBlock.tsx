@@ -81,6 +81,7 @@ export default function AiModelsBlock() {
         </button>
       </div>
 
+      <div className="profile-ai-divider" />
       <div className="profile-row profile-row--after-models">
         <div className="profile-label profile-label--with-icon">
           <span className="profile-label-icon" aria-hidden>
@@ -107,7 +108,7 @@ export default function AiModelsBlock() {
         </button>
       </div>
 
-
+      <div className="profile-ai-divider" />
       <div className="profile-multi-block profile-row--after-models">
         <div className="profile-label">Мультиответ</div>
         <label className="profile-checkbox-label profile-multi-toggle">
@@ -200,7 +201,7 @@ function ModelRow({
           title={apiKeyVisible ? "Скрыть API key" : "Показать API key"}
           onClick={() => setApiKeyVisible((value) => !value)}
         >
-          <EyeIcon hidden={apiKeyVisible} />
+          <EyeIcon hidden={!apiKeyVisible} />
         </button>
       </div>
       <label className="profile-checkbox-label profile-model-multi">

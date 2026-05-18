@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useApp } from "@/state/AppContext";
-import type { TelegramProfileConfig, TelegramSyncMode } from "@/lib/types";
-import ModelPicker from "@/components/composer/ModelPicker";
+import type { TelegramProfileConfig } from "@/lib/types";
 
 export default function TelegramBlock() {
   const { state, dispatch, setDirty } = useApp();
   const cfg = state.telegramProfileConfig;
   const [code, setCode] = useState("");
+  const [syncing, setSyncing] = useState(false);
+  const [apiHashVisible, setApiHashVisible] = useState(false);
+  const syncTimerRef = useRef<number | null>(null);
 
   const update = (patch: Partial<TelegramProfileConfig>) =>
     dispatch({ type: "UPDATE_TELEGRAM_CONFIG", config: { ...cfg, ...patch } });
@@ -21,14 +23,13 @@ export default function TelegramBlock() {
   }, [dirty, setDirty]);
 
   useEffect(() => {
-    return () => setDirty("profile-telegram", false);
+    return () => {
+      setDirty("profile-telegram", false);
+      if (syncTimerRef.current !== null) window.clearTimeout(syncTimerRef.current);
+    };
   }, [setDirty]);
 
-  const save = () => {
-    dispatch({ type: "SET_STATE", patch: { telegramSettingsSavedSnapshot: currentSnap } });
-  };
-
-  const status = getTelegramStatusLabel(cfg);
+  const status = getTelegramStatusLabel(cfg, syncing);
   const isConnected = cfg.authStatus === "connected" && cfg.channelStatus === "connected";
   const isAuthorized = cfg.authStatus === "authorized" || cfg.authStatus === "connected";
   const codeHidden = cfg.authStatus !== "code-sent";
@@ -47,6 +48,7 @@ export default function TelegramBlock() {
     });
 
   const connectChannel = () => {
+    if (syncTimerRef.current !== null) window.clearTimeout(syncTimerRef.current);
     const next: Partial<TelegramProfileConfig> = {
       authStatus: "connected",
       authStep: "connected",
@@ -60,10 +62,19 @@ export default function TelegramBlock() {
       type: "SET_STATE",
       patch: { telegramSettingsSavedSnapshot: snapshot({ ...cfg, ...next }) },
     });
+    setSyncing(true);
+    syncTimerRef.current = window.setTimeout(() => {
+      setSyncing(false);
+      syncTimerRef.current = null;
+    }, 1800);
   };
 
-  const runSync = () => update({ lastSync: "только что", importedPosts: cfg.importedPosts + 3 });
   const reset = () => {
+    if (syncTimerRef.current !== null) {
+      window.clearTimeout(syncTimerRef.current);
+      syncTimerRef.current = null;
+    }
+    setSyncing(false);
     update({
       authStatus: "idle",
       authStep: "credentials",
@@ -109,7 +120,7 @@ export default function TelegramBlock() {
             <small>username, invite link или id канала</small>
           </div>
         </div>
-        <div className={`telegram-step ${isConnected ? "done" : ""}`}>
+        <div className={`telegram-step ${syncing ? "active syncing" : isConnected ? "done" : ""}`}>
           <span>3</span>
           <div>
             <b>Синхронизация</b>
@@ -127,10 +138,21 @@ export default function TelegramBlock() {
         />
         <Field
           label="api_hash"
-          type="password"
+          type={apiHashVisible ? "text" : "password"}
           value={cfg.apiHash}
           placeholder="••••••••••••••••"
           onChange={(v) => update({ apiHash: v })}
+          trailing={
+            <button
+              type="button"
+              className="profile-api-key-toggle"
+              aria-label={apiHashVisible ? "Скрыть api_hash" : "Показать api_hash"}
+              title={apiHashVisible ? "Скрыть api_hash" : "Показать api_hash"}
+              onClick={() => setApiHashVisible((value) => !value)}
+            >
+              <EyeIcon hidden={!apiHashVisible} />
+            </button>
+          }
         />
         <Field
           label="Телефон аккаунта"
@@ -138,31 +160,32 @@ export default function TelegramBlock() {
           placeholder="+7 999 000-00-00"
           onChange={(v) => update({ phone: v })}
         />
-        <Field
-          label="Session name"
-          value={cfg.sessionName}
-          placeholder="author-main.session"
-          onChange={(v) => update({ sessionName: v })}
-        />
-      </div>
-
-      <div className="telegram-action-row">
-        <button className="btn btn-primary btn-sm" onClick={startAuth} type="button">
-          Отправить код
-        </button>
-        <div className={`telegram-code-row${codeHidden ? " hidden" : ""}`}>
-          <input
-            className="profile-input profile-input-explicit telegram-code-input"
-            placeholder="Код из Telegram"
-            maxLength={8}
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-          />
-          <button className="btn btn-ghost btn-sm" onClick={confirmCode} type="button">
-            Подтвердить
+        <div className="profile-row telegram-inline-action">
+          <div className="profile-label" aria-hidden>
+            &nbsp;
+          </div>
+          <button className="btn btn-ghost telegram-inline-button" onClick={startAuth} type="button">
+            Отправить код
           </button>
         </div>
       </div>
+
+      {codeHidden ? null : (
+        <div className="telegram-action-row">
+          <div className="telegram-code-row">
+            <input
+              className="profile-input profile-input-explicit telegram-code-input"
+              placeholder="Код из Telegram"
+              maxLength={8}
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+            />
+            <button className="btn btn-ghost btn-sm" onClick={confirmCode} type="button">
+              Подтвердить
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className={`telegram-channel-block${!isAuthorized ? " hidden" : ""}`}>
         <div className="telegram-form-grid">
@@ -172,37 +195,14 @@ export default function TelegramBlock() {
             placeholder="@channel или -100..."
             onChange={(v) => update({ channel: v })}
           />
-          <div className="profile-row">
-            <div className="profile-label">Режим синхронизации</div>
-            <ModelPicker
-              ariaLabel="Режим синхронизации"
-              className="profile-model-picker telegram-input"
-              value={cfg.syncMode}
-              options={[
-                { id: "live-only", label: "Только новые посты" },
-                { id: "history-and-live", label: "История + новые посты" },
-                { id: "publish-only", label: "Только публикация" },
-              ]}
-              placement="down"
-              onChange={(v) => update({ syncMode: v as TelegramSyncMode })}
-            />
+          <div className="profile-row telegram-inline-action">
+            <div className="profile-label" aria-hidden>
+              &nbsp;
+            </div>
+            <button className="btn btn-ghost telegram-inline-button" onClick={connectChannel} type="button">
+              Подключить канал
+            </button>
           </div>
-        </div>
-        <div className="telegram-action-row">
-          <button className="btn btn-primary btn-sm" onClick={connectChannel} type="button">
-            Подключить канал
-          </button>
-          <button
-            className="btn btn-ghost btn-sm"
-            onClick={runSync}
-            disabled={!isConnected}
-            type="button"
-          >
-            Синхронизировать
-          </button>
-          <button className="btn btn-primary btn-sm" disabled={!dirty} onClick={save} type="button">
-            Сохранить
-          </button>
         </div>
       </div>
 
@@ -232,24 +232,58 @@ function Field({
   onChange,
   placeholder,
   type = "text",
+  trailing,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   type?: string;
+  trailing?: ReactNode;
 }) {
   return (
     <div className="profile-row">
       <div className="profile-label">{label}</div>
-      <input
-        className="profile-input profile-input-explicit telegram-input"
-        type={type}
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-      />
+      {trailing ? (
+        <div className="telegram-input-wrap">
+          <input
+            className="profile-input profile-input-explicit telegram-input telegram-input-with-toggle"
+            type={type}
+            value={value}
+            placeholder={placeholder}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          {trailing}
+        </div>
+      ) : (
+        <input
+          className="profile-input profile-input-explicit telegram-input"
+          type={type}
+          value={value}
+          placeholder={placeholder}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      )}
     </div>
+  );
+}
+
+function EyeIcon({ hidden }: { hidden: boolean }) {
+  return (
+    <svg
+      className="profile-api-key-toggle-icon"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" />
+      <circle cx="12" cy="12" r="2.6" />
+      {hidden ? <path d="M4 4l16 16" /> : null}
+    </svg>
   );
 }
 
@@ -260,11 +294,11 @@ function snapshot(cfg: TelegramProfileConfig) {
     phone: cfg.phone || "",
     sessionName: cfg.sessionName || "",
     channel: cfg.channel || "",
-    syncMode: cfg.syncMode || "",
   });
 }
 
-function getTelegramStatusLabel(cfg: TelegramProfileConfig) {
+function getTelegramStatusLabel(cfg: TelegramProfileConfig, syncing: boolean) {
+  if (syncing) return { className: "syncing", text: "Синхронизация" };
   if (cfg.authStatus === "connected" && cfg.channelStatus === "connected") {
     return { className: "ok", text: "MTProto подключён" };
   }

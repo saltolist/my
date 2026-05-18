@@ -457,7 +457,7 @@ export const initialTelegramProfileConfig: TelegramProfileConfig = {
   authStatus: "connected",
   authStep: "connected",
   apiId: "20483651",
-  apiHash: "••••••••••••••••",
+  apiHash: "a4c9f2b71e6d48c0a93f5b2d8e17c064",
   phone: "+7 999 123-45-67",
   sessionName: "author-main.session",
   channel: "@dengibeznpaniki",
