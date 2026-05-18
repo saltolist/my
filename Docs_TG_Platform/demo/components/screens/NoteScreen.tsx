@@ -152,7 +152,7 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
   const noteKey = noteIdentityKey(note);
   const isView = state.noteMode === "view" && !note.isNew;
 
-  const noteFiles = Array.isArray(note.files) ? note.files : [];
+  const noteFiles = useMemo(() => (Array.isArray(note.files) ? note.files : []), [note.files]);
   const initialBody = normalizeNoteBody(note.body, noteFiles);
   const [title, setTitle] = useState(note.title);
   const [body, setBody] = useState(initialBody);
@@ -186,6 +186,16 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
 
   const setViewMode = () => dispatch({ type: "SET_STATE", patch: { noteMode: "view" } });
   const setEditMode = () => dispatch({ type: "SET_STATE", patch: { noteMode: "edit" } });
+
+  const cancel = useCallback(() => {
+    const nextBody = normalizeNoteBody(note.body, noteFiles);
+    const nextFiles = [...noteFiles];
+    setTitle(note.title);
+    setBody(nextBody);
+    setFiles(nextFiles);
+    setBaselineSnapshot(buildNoteSnapshot(note.title, nextBody, note.ai, nextFiles));
+    setDirty("note", false);
+  }, [note, noteFiles, setDirty]);
 
   const save = useCallback(() => {
     const finalTitle = draftNoteTitle(title);
@@ -312,7 +322,9 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
             showModeToggle={!note.isNew}
             onToggleMode={isView ? setEditMode : setViewMode}
             onSave={save}
+            onCancel={cancel}
             saveDisabled={!changed}
+            showCancel={changed}
           />
         </div>
         <div className="note-shell-content">
@@ -328,6 +340,7 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
             isView={isView}
             onBodyChange={setBody}
             onAddFile={addFile}
+            onEditRequest={setEditMode}
           />
           <NoteFilesPanel files={files} draggable />
         </div>

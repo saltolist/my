@@ -92,6 +92,7 @@ type Props = {
   isView: boolean;
   onBodyChange: (body: string) => void;
   onAddFile: (file: File) => NoteFile;
+  onEditRequest?: () => void;
 };
 
 type ImageDropSlot = { line: number; slot: number };
@@ -100,7 +101,7 @@ type CurrentDropTarget =
   | { type: "imageSlot"; line: number; slot: number }
   | { type: "lineBefore"; line: number };
 
-export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAddFile }: Props) {
+export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAddFile, onEditRequest }: Props) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const linesRef = useRef<BodyLine[]>([]);
   const filesRef = useRef<NoteFile[]>(files);
@@ -641,12 +642,17 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
   const dropGapActive = dragFrom != null && dropBefore != null && !isDropNoop(dragFrom, dropBefore);
   const dropLineBeforeActive = dragFrom != null && dropLineBefore != null;
 
+  const handleViewDoubleClick = useCallback(() => {
+    if (isView) onEditRequest?.();
+  }, [isView, onEditRequest]);
+
   return (
     <>
       <div
         ref={canvasRef}
         className={`note-body-canvas${isView ? " note-body-view note-body-view--rich" : " note-body-edit-canvas"}${isDragging ? " note-body-canvas--dragging" : ""}`}
         onDragOver={handleCanvasDragOver}
+        onDoubleClick={isView ? handleViewDoubleClick : undefined}
       >
         {!hasContent ? (
           <span className="note-body-empty">Заметка пустая</span>

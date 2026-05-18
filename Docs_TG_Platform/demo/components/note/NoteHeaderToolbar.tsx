@@ -7,7 +7,9 @@ type Props = {
   onToggleMode?: () => void;
   onAttach?: () => void;
   onSave?: () => void;
+  onCancel?: () => void;
   saveDisabled?: boolean;
+  showCancel?: boolean;
   showAttach?: boolean;
   showModeToggle?: boolean;
 };
@@ -17,7 +19,9 @@ export default function NoteHeaderToolbar({
   onToggleMode,
   onAttach,
   onSave,
+  onCancel,
   saveDisabled = true,
+  showCancel = false,
   showAttach = false,
   showModeToggle = true,
 }: Props) {
@@ -53,6 +57,11 @@ export default function NoteHeaderToolbar({
       >
         Сохранить
       </button>
+      {showCancel && onCancel ? (
+        <button className="btn btn-ghost btn-sm" onClick={onCancel} type="button">
+          Отменить
+        </button>
+      ) : null}
     </div>
   );
 }
