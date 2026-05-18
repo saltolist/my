@@ -540,7 +540,6 @@ function buildInitialTelegramSnapshot() {
     phone: cfg.phone || "",
     sessionName: cfg.sessionName || "",
     channel: cfg.channel || "",
-    syncMode: cfg.syncMode || "",
   });
 }
 
