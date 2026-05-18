@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { useApp } from "@/state/AppContext";
 import type { AiProfileConfig, LlmModel } from "@/lib/types";
 
@@ -21,6 +21,7 @@ const PERIOD_CHART_LABELS = [
 ];
 
 type ModelTypeId = "llm" | "web" | "orchestrator" | "webReasoner" | "ragReasoner";
+type ModelFilterId = "all" | ModelTypeId;
 
 const MODEL_TYPES: { id: ModelTypeId; label: string; hint: string }[] = [
   { id: "llm", label: "LLM", hint: "генерация ответов и постов" },
@@ -28,6 +29,11 @@ const MODEL_TYPES: { id: ModelTypeId; label: string; hint: string }[] = [
   { id: "orchestrator", label: "Оркестратор", hint: "маршрутизация сценариев" },
   { id: "webReasoner", label: "Web Reasoner", hint: "рассуждения поверх web-источников" },
   { id: "ragReasoner", label: "RAG Reasoner", hint: "рассуждения поверх базы знаний" },
+];
+
+const MODEL_FILTERS: { id: ModelFilterId; label: string; hint: string }[] = [
+  { id: "all", label: "Все", hint: "сравнение по типам моделей" },
+  ...MODEL_TYPES,
 ];
 
 const MODEL_LINE_COLORS = [
@@ -46,14 +52,17 @@ const MODEL_LINE_COLORS = [
 export default function PlatformAnalyticsBlock() {
   const { state } = useApp();
   const [period, setPeriod] = useState(2);
-  const [modelType, setModelType] = useState<ModelTypeId>("llm");
+  const [modelType, setModelType] = useState<ModelFilterId>("all");
 
   const modelUsage = useMemo(
     () => buildModelUsage(state.aiProfileConfig, PERIODS[period].multiplier),
     [state.aiProfileConfig, period],
   );
-  const selectedTypeMeta = MODEL_TYPES.find((type) => type.id === modelType) ?? MODEL_TYPES[0];
-  const selectedModels = modelUsage.filter((model) => model.type === modelType);
+  const selectedTypeMeta = MODEL_FILTERS.find((type) => type.id === modelType) ?? MODEL_FILTERS[0];
+  const isAllTypes = modelType === "all";
+  const selectedModels = isAllTypes
+    ? buildTypeUsage(modelUsage)
+    : modelUsage.filter((model) => model.type === modelType);
   const modelTotals = summarizeModelUsage(selectedModels);
 
   return (
@@ -62,13 +71,9 @@ export default function PlatformAnalyticsBlock() {
         <div className="analytics-card-head">
           <div>
             <div className="profile-section-title">Аналитика моделей</div>
-            <div className="analytics-card-subtitle">
-              По каждой модели, которая когда-либо использовалась на платформе
-            </div>
           </div>
           <div className="model-filter-stack">
             <label className="platform-filter-label">
-              <span>Период</span>
               <select
                 className="platform-filter-select"
                 value={period}
@@ -82,13 +87,12 @@ export default function PlatformAnalyticsBlock() {
               </select>
             </label>
             <label className="platform-filter-label">
-              <span>Тип модели</span>
               <select
                 className="platform-filter-select"
                 value={modelType}
-                onChange={(event) => setModelType(event.target.value as ModelTypeId)}
+                onChange={(event) => setModelType(event.target.value as ModelFilterId)}
               >
-                {MODEL_TYPES.map((type) => (
+                {MODEL_FILTERS.map((type) => (
                   <option key={type.id} value={type.id}>
                     {type.label}
                   </option>
@@ -102,56 +106,28 @@ export default function PlatformAnalyticsBlock() {
           <MiniMetric label="Запросы" value={formatNumber(modelTotals.calls)} />
           <MiniMetric label="Токены" value={formatCompact(modelTotals.tokens)} />
           <MiniMetric label="Стоимость" value={`$${modelTotals.cost.toFixed(2)}`} />
-          <MiniMetric label="Успешность" value={`${modelTotals.success}%`} />
         </div>
 
-        <div className="analytics-card-subtitle model-chart-hint">
-          {selectedTypeMeta.label}: {selectedTypeMeta.hint}
-        </div>
         <ModelTrendChart
           labels={PERIOD_CHART_LABELS[period]}
           rows={selectedModels}
-          title={`Динамика запросов: ${selectedTypeMeta.label}`}
+          title={`Динамика стоимости: ${selectedTypeMeta.label}`}
         />
       </div>
 
       <div className="profile-section platform-analytics-section">
-        <div className="profile-section-title">Модели за период</div>
-        {selectedModels.map((model) => (
-          <ModelUsageBar key={model.id} model={model} />
-        ))}
-      </div>
-
-      <div className="profile-section platform-analytics-section">
-        <div className="profile-section-title">Детализация по моделям</div>
-        <div className="platform-table-scroll">
-          <table className="top-table model-usage-table">
-            <thead>
-              <tr>
-                <th>Модель</th>
-                <th>Роль</th>
-                <th>Запросы</th>
-                <th>Токены</th>
-                <th>Стоимость</th>
-                <th>Latency</th>
-                <th>Статус</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedModels.map((model) => (
-                <tr key={model.id}>
-                  <td>{model.label}</td>
-                  <td>{model.role}</td>
-                  <td>{formatNumber(model.calls)}</td>
-                  <td>{formatCompact(model.tokens)}</td>
-                  <td>${model.cost.toFixed(2)}</td>
-                  <td>{model.latency} мс</td>
-                  <td>{model.active ? "Активна" : "Архив"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="profile-section-title platform-section-title-spaced">
+          {isAllTypes ? "Типы моделей за период" : "Модели за период"}
         </div>
+        <div className="model-usage-head">
+          <span>{isAllTypes ? "Тип" : "Модель"}</span>
+          <span>Запросы</span>
+          <span>Токены</span>
+          <span>Стоимость</span>
+        </div>
+        {selectedModels.map((model) => (
+          <ModelUsageBar key={model.id} model={model} totals={modelTotals} />
+        ))}
       </div>
 
       <div className="profile-section platform-analytics-section">
@@ -198,27 +174,47 @@ function ModelTrendChart({
   rows: ModelUsage[];
   title: string;
 }) {
-  const max = Math.max(...rows.flatMap((model) => model.trend), 1);
+  const chartTop = 1;
+  const chartBottom = 88;
+  const chartHeight = chartBottom - chartTop;
+  const maxCost = Math.max(
+    ...rows.flatMap((model) =>
+      model.trend.map((value) => {
+        const ratio = model.calls > 0 ? value / model.calls : 0;
+        return model.cost * ratio;
+      }),
+    ),
+    1,
+  );
+  const gridRows = [
+    { y: chartTop, label: `$${maxCost.toFixed(2)}` },
+    { y: (chartTop + chartBottom) / 2, label: `$${(maxCost / 2).toFixed(2)}` },
+    { y: chartBottom, label: "$0.00" },
+  ];
   const chartRows = rows.map((model) => {
-    const points = labels
-      .map((_, i) => {
+    const points = labels.map((_, i) => {
         const value = model.trend[i] ?? 0;
+        const ratio = model.calls > 0 ? value / model.calls : 0;
+        const cost = model.cost * ratio;
         const x = labels.length === 1 ? 132 : (264 / (labels.length - 1)) * i;
-        const y = 88 - (value / max) * 70;
-        return `${x.toFixed(1)},${y.toFixed(1)}`;
-      })
-      .join(" ");
+        const y = chartBottom - (cost / maxCost) * chartHeight;
+        return { x, y };
+      });
     const dots = labels.map((_, i) => {
       const value = model.trend[i] ?? 0;
+      const ratio = model.calls > 0 ? value / model.calls : 0;
+      const cost = model.cost * ratio;
       return {
         x: labels.length === 1 ? 50 : (i / (labels.length - 1)) * 100,
-        y: 88 - (value / max) * 70,
+        y: chartBottom - (cost / maxCost) * chartHeight,
         value,
         label: labels[i],
+        tokens: Math.round(model.tokens * ratio),
+        cost,
       };
     });
 
-    return { ...model, points, dots };
+    return { ...model, path: buildSmoothPath(points), dots };
   });
 
   return (
@@ -231,14 +227,18 @@ function ModelTrendChart({
           role="img"
           aria-label={title}
         >
-          <polyline className="trend-grid-line" points="0,88 264,88" />
-          <polyline className="trend-grid-line" points="0,53 264,53" />
-          <polyline className="trend-grid-line" points="0,18 264,18" />
-          {chartRows.map((model) => (
+          {gridRows.map((row) => (
             <polyline
+              key={row.label}
+              className="trend-grid-line"
+              points={`0,${row.y.toFixed(1)} 264,${row.y.toFixed(1)}`}
+            />
+          ))}
+          {chartRows.map((model) => (
+            <path
               key={model.id}
               className="trend-line model-trend-line"
-              points={model.points}
+              d={model.path}
               style={{ stroke: model.color }}
             />
           ))}
@@ -256,10 +256,21 @@ function ModelTrendChart({
                 <b>{model.label}</b>
                 <span>{dot.label}</span>
                 <em>{formatNumber(dot.value)} запросов</em>
+                <em>{formatCompact(dot.tokens)} токенов</em>
+                <em>${dot.cost.toFixed(2)}</em>
               </span>
             </button>
           ))
         )}
+        {gridRows.map((row) => (
+          <span
+            key={row.label}
+            className="trend-y-label"
+            style={{ top: `${row.y}%` }}
+          >
+            {row.label}
+          </span>
+        ))}
       </div>
       <div className="trend-labels">
         {labels.map((label) => (
@@ -270,23 +281,72 @@ function ModelTrendChart({
   );
 }
 
-function ModelUsageBar({ model }: { model: ModelUsage }) {
+function ModelUsageBar({ model, totals }: { model: ModelUsage; totals: ReturnType<typeof summarizeModelUsage> }) {
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const callsShare = totals.calls > 0 ? Math.round((model.calls / totals.calls) * 100) : 0;
+  const tokensShare = totals.tokens > 0 ? Math.round((model.tokens / totals.tokens) * 100) : 0;
+  const costShare = totals.cost > 0 ? Math.round((model.cost / totals.cost) * 100) : 0;
+
+  const updateTooltipPosition = (clientX: number, clientY: number) => {
+    const tooltipWidth = 190;
+    const x = Math.min(clientX + 14, window.innerWidth - tooltipWidth - 8);
+    const y = Math.max(clientY - 12, 8);
+    setTooltipPos({ x, y });
+  };
+
   return (
     <div className="bar-row model-usage-bar">
       <div className="bar-label">
         <span>{model.label}</span>
-        <em>{model.role}</em>
       </div>
-      <div className="bar-track">
+      <div
+        className="bar-track model-usage-track"
+        tabIndex={0}
+        style={{ "--fill-width": `${Math.max(model.share, 4)}%` } as CSSProperties}
+        onMouseEnter={(event) => updateTooltipPosition(event.clientX, event.clientY)}
+        onMouseMove={(event) => updateTooltipPosition(event.clientX, event.clientY)}
+        onMouseLeave={() => setTooltipPos(null)}
+        onFocus={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect();
+          setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top - 12 });
+        }}
+        onBlur={() => setTooltipPos(null)}
+      >
         <div
           className={`bar-fill ${model.type}`}
-          style={{ width: `${Math.max(model.share, 4)}%`, backgroundColor: model.color }}
+          style={{ backgroundColor: model.color }}
         />
       </div>
-      <div className="bar-val">{formatNumber(model.calls)}</div>
-      <div className="bar-meta">{model.share}%</div>
+      {tooltipPos ? (
+        <div
+          className="model-usage-tooltip"
+          style={{ left: tooltipPos.x, top: tooltipPos.y }}
+        >
+          <b>{model.label}</b>
+          <span>Запросы: {callsShare}%</span>
+          <span>Токены: {tokensShare}%</span>
+          <span>Стоимость: {costShare}%</span>
+        </div>
+      ) : null}
+      <div className="model-row-metric">{formatNumber(model.calls)}</div>
+      <div className="model-row-metric">{formatCompact(model.tokens)}</div>
+      <div className="model-row-metric">${model.cost.toFixed(2)}</div>
     </div>
   );
+}
+
+function buildSmoothPath(points: { x: number; y: number }[]) {
+  if (points.length === 0) return "";
+  if (points.length === 1) return `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+
+  return points.slice(1).reduce((path, point, i) => {
+    const prev = points[i];
+    const controlOffset = (point.x - prev.x) * 0.45;
+    const c1x = prev.x + controlOffset;
+    const c2x = point.x - controlOffset;
+
+    return `${path} C ${c1x.toFixed(1)} ${prev.y.toFixed(1)}, ${c2x.toFixed(1)} ${point.y.toFixed(1)}, ${point.x.toFixed(1)} ${point.y.toFixed(1)}`;
+  }, `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`);
 }
 
 function buildModelUsage(config: AiProfileConfig, periodMultiplier: number): ModelUsage[] {
@@ -346,6 +406,47 @@ function mapConfigModels(models: LlmModel[], type: ModelTypeId, role: string) {
       type,
       active: model.active,
     }));
+}
+
+function buildTypeUsage(models: ModelUsage[]): ModelUsage[] {
+  const totalCalls = models.reduce((sum, model) => sum + model.calls, 0);
+
+  return MODEL_TYPES.map((type, i) => {
+    const rows = models.filter((model) => model.type === type.id);
+    if (rows.length === 0) return null;
+
+    const calls = rows.reduce((sum, model) => sum + model.calls, 0);
+    const tokens = rows.reduce((sum, model) => sum + model.tokens, 0);
+    const cost = rows.reduce((sum, model) => sum + model.cost, 0);
+    const latency =
+      calls > 0
+        ? Math.round(rows.reduce((sum, model) => sum + model.latency * model.calls, 0) / calls)
+        : 0;
+    const success =
+      calls > 0
+        ? Math.round(rows.reduce((sum, model) => sum + model.success * model.calls, 0) / calls)
+        : 0;
+    const trendLength = Math.max(...rows.map((model) => model.trend.length), 0);
+    const trend = Array.from({ length: trendLength }, (_, trendIndex) =>
+      rows.reduce((sum, model) => sum + (model.trend[trendIndex] ?? 0), 0),
+    );
+
+    return {
+      id: `type-${type.id}`,
+      label: type.label,
+      role: "Тип моделей",
+      type: type.id,
+      active: rows.some((model) => model.active),
+      calls,
+      tokens,
+      cost,
+      success,
+      latency,
+      share: totalCalls > 0 ? Math.round((calls / totalCalls) * 100) : 0,
+      trend,
+      color: MODEL_LINE_COLORS[i % MODEL_LINE_COLORS.length],
+    };
+  }).filter((model): model is ModelUsage => model !== null);
 }
 
 function buildTrend(seed: number, total: number) {
