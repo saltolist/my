@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import type { ReactNode } from "react";
 import { useApp } from "@/state/AppContext";
 import type { ChannelProfileConfig, ChannelProfileRubric } from "@/lib/types";
@@ -76,61 +76,67 @@ export default function ChannelTab({ active }: { active: boolean }) {
         </div>
       </div>
 
-      <FormSection title="Ядро канала">
-        <div className="profile-grid">
-          <Area
-            label="О чём канал"
-            value={cfg.core.topic}
-            onChange={(topic) => updateGroup("core", { topic })}
-          />
-          <Area
-            label="Для кого"
-            value={cfg.core.audience}
-            onChange={(audience) => updateGroup("core", { audience })}
-          />
-          <Area
-            label="Что обещает читателю"
-            value={cfg.core.promise}
-            onChange={(promise) => updateGroup("core", { promise })}
-          />
-          <Area
-            label="Угол зрения"
-            value={cfg.core.angle}
-            onChange={(angle) => updateGroup("core", { angle })}
-          />
-        </div>
-      </FormSection>
+      <div className="profile-section profile-channel-combined-section">
+        <ChannelSubsection title="Ядро канала">
+          <div className="profile-grid">
+            <Area
+              label="О чём канал"
+              value={cfg.core.topic}
+              onChange={(topic) => updateGroup("core", { topic })}
+            />
+            <Area
+              label="Для кого"
+              value={cfg.core.audience}
+              onChange={(audience) => updateGroup("core", { audience })}
+            />
+            <Area
+              label="Что обещает читателю"
+              value={cfg.core.promise}
+              onChange={(promise) => updateGroup("core", { promise })}
+            />
+            <Area
+              label="Угол зрения"
+              value={cfg.core.angle}
+              onChange={(angle) => updateGroup("core", { angle })}
+            />
+          </div>
+        </ChannelSubsection>
 
-      <FormSection title="Голос и формат">
-        <div className="profile-grid">
-          <Area label="Тон" value={cfg.voice.tone} onChange={(tone) => updateGroup("voice", { tone })} />
-          <Area
-            label="Базовый формат"
-            value={cfg.voice.format}
-            onChange={(format) => updateGroup("voice", { format })}
-          />
-        </div>
-        <Area
-          label="Характерные фразы"
-          value={cfg.voice.phrases}
-          onChange={(phrases) => updateGroup("voice", { phrases })}
-        />
-      </FormSection>
+        <div className="profile-channel-divider" />
 
-      <FormSection title="Правила">
-        <div className="profile-grid">
+        <ChannelSubsection title="Голос и формат">
+          <div className="profile-grid">
+            <Area label="Тон" value={cfg.voice.tone} onChange={(tone) => updateGroup("voice", { tone })} />
+            <Area
+              label="Базовый формат"
+              value={cfg.voice.format}
+              onChange={(format) => updateGroup("voice", { format })}
+            />
+          </div>
           <Area
-            label="Обязательно"
-            value={cfg.rules.must}
-            onChange={(must) => updateGroup("rules", { must })}
+            label="Характерные фразы"
+            value={cfg.voice.phrases}
+            onChange={(phrases) => updateGroup("voice", { phrases })}
           />
-          <Area
-            label="Избегать"
-            value={cfg.rules.avoid}
-            onChange={(avoid) => updateGroup("rules", { avoid })}
-          />
-        </div>
-      </FormSection>
+        </ChannelSubsection>
+
+        <div className="profile-channel-divider" />
+
+        <ChannelSubsection title="Правила">
+          <div className="profile-grid">
+            <Area
+              label="Обязательно"
+              value={cfg.rules.must}
+              onChange={(must) => updateGroup("rules", { must })}
+            />
+            <Area
+              label="Избегать"
+              value={cfg.rules.avoid}
+              onChange={(avoid) => updateGroup("rules", { avoid })}
+            />
+          </div>
+        </ChannelSubsection>
+      </div>
 
       <FormSection
         title="Рубрики"
@@ -202,6 +208,15 @@ function FormSection({
   );
 }
 
+function ChannelSubsection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="profile-channel-subsection">
+      <div className="profile-subsection-title">{title}</div>
+      {children}
+    </div>
+  );
+}
+
 function Field({
   label,
   value,
@@ -232,14 +247,58 @@ function Area({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const resize = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    resizeProfileTextarea(textarea);
+  };
+
+  useLayoutEffect(() => {
+    resize();
+  }, [value]);
+
   return (
     <label className="profile-row">
       <span className="profile-label">{label}</span>
       <textarea
+        ref={textareaRef}
         className="profile-input profile-input-explicit profile-textarea profile-textarea-compact"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          onChange(e.target.value);
+          requestAnimationFrame(resize);
+        }}
       />
     </label>
   );
+}
+
+function resizeProfileTextarea(textarea: HTMLTextAreaElement) {
+  const grid = textarea.closest(".profile-grid");
+  if (!grid) {
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+    return;
+  }
+
+  const textareas = Array.from(grid.querySelectorAll<HTMLTextAreaElement>(".profile-textarea-compact"));
+  textareas.forEach((item) => {
+    item.style.height = "auto";
+  });
+
+  const rows = new Map<number, HTMLTextAreaElement[]>();
+  textareas.forEach((item) => {
+    const rowTop = item.closest(".profile-row")?.getBoundingClientRect().top ?? item.getBoundingClientRect().top;
+    const key = Math.round(rowTop);
+    rows.set(key, [...(rows.get(key) ?? []), item]);
+  });
+
+  rows.forEach((rowTextareas) => {
+    const rowHeight = Math.max(...rowTextareas.map((item) => item.scrollHeight));
+    rowTextareas.forEach((item) => {
+      item.style.height = `${rowHeight}px`;
+    });
+  });
 }
