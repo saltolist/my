@@ -4244,6 +4244,7 @@ button.filter-tab {
 .profile-textarea { min-height: 80px; resize: vertical; }
 .profile-system-prompt-textarea {
   resize: none;
+  overflow: hidden;
 }
 .profile-input-explicit {
   background: var(--profile-control-bg);
