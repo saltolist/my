@@ -143,9 +143,19 @@ export default function ChannelTab({ active }: { active: boolean }) {
       <FormSection
         title="Рубрики"
         action={
-          <button className="btn btn-primary btn-sm" onClick={addRubric} type="button">
-            + Рубрика
-          </button>
+          <div className="profile-rubric-actions">
+            <button className="btn btn-ghost btn-sm profile-rubric-save" disabled={!dirty} onClick={save} type="button">
+              Сохранить
+            </button>
+            {dirty ? (
+              <button className="btn btn-ghost btn-sm" onClick={reset} type="button">
+                Отменить
+              </button>
+            ) : null}
+            <button className="btn btn-ghost btn-sm" onClick={addRubric} type="button">
+              + Рубрика
+            </button>
+          </div>
         }
       >
         {cfg.rubrics.map((rubric, index) => (

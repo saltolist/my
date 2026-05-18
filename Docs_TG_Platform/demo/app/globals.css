@@ -4479,6 +4479,45 @@ button.filter-tab {
   padding: 8px 18px;
   font-size: 13px;
 }
+.profile-rubric-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.profile-rubric-actions .btn.btn-ghost.btn-sm {
+  height: 32px;
+  min-width: 40px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--page-header-control-border);
+  background: var(--page-header-control-bg);
+  color: var(--text2);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 1;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+}
+.profile-rubric-actions .btn.btn-ghost.btn-sm:hover:not(:disabled) {
+  background: var(--page-header-control-bg-hover);
+  color: var(--text);
+  border-color: var(--control-border-active);
+  opacity: 1;
+}
+.profile-rubric-actions .btn.btn-ghost.btn-sm:active:not(:disabled) {
+  border-color: var(--control-border-active);
+  opacity: 1;
+}
+.profile-rubric-actions .btn.btn-ghost.btn-sm:disabled,
+.profile-rubric-actions .btn.profile-rubric-save:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.profile-rubric-actions .btn.profile-rubric-save:not(:disabled) {
+  color: var(--text);
+  border-color: var(--control-border-active);
+}
 .profile-muted {
   color: var(--text2);
   line-height: 1.5;
