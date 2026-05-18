@@ -152,6 +152,9 @@ export type ChannelProfileConfig = {
 export type AiProfileConfig = {
   llmModels: LlmModel[];
   webSearchModels: WebSearchModel[];
+  orchestratorModels: LlmModel[];
+  webReasonerModels: LlmModel[];
+  ragReasonerModels: LlmModel[];
   multiResponseEnabled: boolean;
   systemPrompt: string;
 };

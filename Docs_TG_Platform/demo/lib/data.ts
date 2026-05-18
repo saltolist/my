@@ -449,6 +449,36 @@ export const initialAiProfileConfig: AiProfileConfig = {
       includeInMulti: false,
     },
   ],
+  orchestratorModels: [
+    {
+      id: "orchestrator-1",
+      provider: "OpenAI",
+      model: "gpt-4.1",
+      apiKey: "sk-openai-demo",
+      active: true,
+      includeInMulti: false,
+    },
+  ],
+  webReasonerModels: [
+    {
+      id: "web-reasoner-1",
+      provider: "OpenAI",
+      model: "gpt-4.1-mini",
+      apiKey: "sk-openai-demo",
+      active: true,
+      includeInMulti: false,
+    },
+  ],
+  ragReasonerModels: [
+    {
+      id: "rag-reasoner-1",
+      provider: "OpenAI",
+      model: "gpt-4.1-mini",
+      apiKey: "sk-openai-demo",
+      active: true,
+      includeInMulti: false,
+    },
+  ],
   multiResponseEnabled: false,
   systemPrompt: "Ты помогаешь автору Telegram-канала о личных финансах...",
 };

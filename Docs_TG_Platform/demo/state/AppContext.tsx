@@ -507,6 +507,27 @@ function buildInitialAiSnapshot() {
       active: !!m.active,
       includeInMulti: !!m.includeInMulti,
     })),
+    orchestratorModels: initialAiProfileConfig.orchestratorModels.map((m) => ({
+      provider: m.provider || "",
+      model: m.model || "",
+      apiKey: m.apiKey || "",
+      active: !!m.active,
+      includeInMulti: false,
+    })),
+    webReasonerModels: initialAiProfileConfig.webReasonerModels.map((m) => ({
+      provider: m.provider || "",
+      model: m.model || "",
+      apiKey: m.apiKey || "",
+      active: !!m.active,
+      includeInMulti: false,
+    })),
+    ragReasonerModels: initialAiProfileConfig.ragReasonerModels.map((m) => ({
+      provider: m.provider || "",
+      model: m.model || "",
+      apiKey: m.apiKey || "",
+      active: !!m.active,
+      includeInMulti: false,
+    })),
     multiResponseEnabled: !!initialAiProfileConfig.multiResponseEnabled,
   });
 }

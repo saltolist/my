@@ -40,6 +40,12 @@ export default function AiModelsBlock() {
 
   const setLlms = (llmModels: LlmModel[]) => update({ ...cfg, llmModels });
   const setWebs = (webSearchModels: LlmModel[]) => update({ ...cfg, webSearchModels });
+  const setOrchestrators = (orchestratorModels: LlmModel[]) =>
+    update({ ...cfg, orchestratorModels: normalizeExclusiveModels(orchestratorModels) });
+  const setWebReasoners = (webReasonerModels: LlmModel[]) =>
+    update({ ...cfg, webReasonerModels: normalizeExclusiveModels(webReasonerModels) });
+  const setRagReasoners = (ragReasonerModels: LlmModel[]) =>
+    update({ ...cfg, ragReasonerModels: normalizeExclusiveModels(ragReasonerModels) });
 
   const addLlm = () =>
     setLlms([
@@ -50,6 +56,21 @@ export default function AiModelsBlock() {
     setWebs([
       ...cfg.webSearchModels,
       { id: "web-" + Date.now(), provider: "", model: "", apiKey: "", active: true, includeInMulti: false },
+    ]);
+  const addOrchestrator = () =>
+    setOrchestrators([
+      ...cfg.orchestratorModels,
+      { id: "orchestrator-" + Date.now(), provider: "", model: "", apiKey: "", active: false, includeInMulti: false },
+    ]);
+  const addWebReasoner = () =>
+    setWebReasoners([
+      ...cfg.webReasonerModels,
+      { id: "web-reasoner-" + Date.now(), provider: "", model: "", apiKey: "", active: false, includeInMulti: false },
+    ]);
+  const addRagReasoner = () =>
+    setRagReasoners([
+      ...cfg.ragReasonerModels,
+      { id: "rag-reasoner-" + Date.now(), provider: "", model: "", apiKey: "", active: false, includeInMulti: false },
     ]);
   return (
     <div className="profile-section profile-ai-engine-section">
@@ -109,6 +130,90 @@ export default function AiModelsBlock() {
       </div>
 
       <div className="profile-ai-divider" />
+      <div className="profile-row profile-row--after-models">
+        <div className="profile-label profile-label--with-icon">
+          <span className="profile-label-icon" aria-hidden>
+            <BrainIcon />
+          </span>
+          Оркестратор
+        </div>
+      </div>
+      <div className="profile-model-list">
+        {cfg.orchestratorModels.map((m, idx) => (
+          <ModelRow
+            key={m.id}
+            model={m}
+            providerMap={LLM_PROVIDER_MODELS}
+            canRemove={cfg.orchestratorModels.length > 1}
+            showMultiToggle={false}
+            onChange={(patch) =>
+              setOrchestrators(updateExclusiveModel(cfg.orchestratorModels, idx, patch))
+            }
+            onRemove={() => setOrchestrators(cfg.orchestratorModels.filter((_, i) => i !== idx))}
+          />
+        ))}
+        <button className="btn btn-ghost btn-sm" onClick={addOrchestrator} type="button">
+          Добавить модель оркестратора
+        </button>
+      </div>
+
+      <div className="profile-ai-divider" />
+      <div className="profile-row profile-row--after-models">
+        <div className="profile-label profile-label--with-icon">
+          <span className="profile-label-icon" aria-hidden>
+            <SearchIcon />
+          </span>
+          Web Reasoner
+        </div>
+      </div>
+      <div className="profile-model-list">
+        {cfg.webReasonerModels.map((m, idx) => (
+          <ModelRow
+            key={m.id}
+            model={m}
+            providerMap={LLM_PROVIDER_MODELS}
+            canRemove={cfg.webReasonerModels.length > 1}
+            showMultiToggle={false}
+            onChange={(patch) =>
+              setWebReasoners(updateExclusiveModel(cfg.webReasonerModels, idx, patch))
+            }
+            onRemove={() => setWebReasoners(cfg.webReasonerModels.filter((_, i) => i !== idx))}
+          />
+        ))}
+        <button className="btn btn-ghost btn-sm" onClick={addWebReasoner} type="button">
+          Добавить Web Reasoner
+        </button>
+      </div>
+
+      <div className="profile-ai-divider" />
+      <div className="profile-row profile-row--after-models">
+        <div className="profile-label profile-label--with-icon">
+          <span className="profile-label-icon" aria-hidden>
+            <BrainIcon />
+          </span>
+          RAG Reasoner
+        </div>
+      </div>
+      <div className="profile-model-list">
+        {cfg.ragReasonerModels.map((m, idx) => (
+          <ModelRow
+            key={m.id}
+            model={m}
+            providerMap={LLM_PROVIDER_MODELS}
+            canRemove={cfg.ragReasonerModels.length > 1}
+            showMultiToggle={false}
+            onChange={(patch) =>
+              setRagReasoners(updateExclusiveModel(cfg.ragReasonerModels, idx, patch))
+            }
+            onRemove={() => setRagReasoners(cfg.ragReasonerModels.filter((_, i) => i !== idx))}
+          />
+        ))}
+        <button className="btn btn-ghost btn-sm" onClick={addRagReasoner} type="button">
+          Добавить RAG Reasoner
+        </button>
+      </div>
+
+      <div className="profile-ai-divider" />
       <div className="profile-multi-block profile-row--after-models">
         <div className="profile-label">Мультиответ</div>
         <label className="profile-checkbox-label profile-multi-toggle">
@@ -146,15 +251,19 @@ export default function AiModelsBlock() {
 function ModelRow({
   model,
   providerMap,
-  canRemove,
+  canRemove = false,
+  showActiveToggle = true,
+  showMultiToggle = true,
   onChange,
   onRemove,
 }: {
   model: LlmModel;
   providerMap: Record<string, string[]>;
-  canRemove: boolean;
+  canRemove?: boolean;
+  showActiveToggle?: boolean;
+  showMultiToggle?: boolean;
   onChange: (patch: Partial<LlmModel>) => void;
-  onRemove: () => void;
+  onRemove?: () => void;
 }) {
   const [apiKeyVisible, setApiKeyVisible] = useState(false);
   const providerOptions = Object.keys(providerMap).map((p) => ({ id: p, label: p }));
@@ -166,7 +275,7 @@ function ModelRow({
         className="profile-model-picker profile-model-provider"
         value={model.provider}
         options={providerOptions}
-        placeholderLabel="Выберите провайдера"
+        placeholderLabel="Провайдер"
         placement="down"
         onChange={(provider) => {
           const next = provider ? providerMap[provider]?.[0] || "" : "";
@@ -204,36 +313,42 @@ function ModelRow({
           <EyeIcon hidden={!apiKeyVisible} />
         </button>
       </div>
-      <label className="profile-checkbox-label profile-model-multi">
-        <ProfileCheckbox
-          checked={model.active}
-          onChange={(e) =>
-            onChange({ active: e.target.checked, includeInMulti: e.target.checked && model.includeInMulti })
-          }
-        />
-        Активна
-      </label>
-      <label className="profile-checkbox-label profile-model-multi">
-        <ProfileCheckbox
-          checked={model.includeInMulti}
-          onChange={(e) => onChange({ includeInMulti: e.target.checked })}
-        />
-        В мультиответ
-      </label>
-      <button
-        type="button"
-        className="profile-model-remove"
-        disabled={!canRemove}
-        aria-label="Удалить модель"
-        title={canRemove ? "Удалить модель" : "Нельзя удалить последнюю модель"}
-        onClick={() => {
-          const label = model.model || model.provider || "модель";
-          if (!window.confirm(`Удалить модель «${label}»?`)) return;
-          onRemove();
-        }}
-      >
-        <MessageTrashIcon />
-      </button>
+      {showActiveToggle ? (
+        <label className="profile-checkbox-label profile-model-multi">
+          <ProfileCheckbox
+            checked={model.active}
+            onChange={(e) =>
+              onChange({ active: e.target.checked, includeInMulti: e.target.checked && model.includeInMulti })
+            }
+          />
+          Активна
+        </label>
+      ) : null}
+      {showMultiToggle ? (
+        <label className="profile-checkbox-label profile-model-multi">
+          <ProfileCheckbox
+            checked={model.includeInMulti}
+            onChange={(e) => onChange({ includeInMulti: e.target.checked })}
+          />
+          В мультиответ
+        </label>
+      ) : null}
+      {onRemove ? (
+        <button
+          type="button"
+          className="profile-model-remove"
+          disabled={!canRemove}
+          aria-label="Удалить модель"
+          title={canRemove ? "Удалить модель" : "Нельзя удалить последнюю модель"}
+          onClick={() => {
+            const label = model.model || model.provider || "модель";
+            if (!window.confirm(`Удалить модель «${label}»?`)) return;
+            onRemove();
+          }}
+        >
+          <MessageTrashIcon />
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -257,6 +372,23 @@ function EyeIcon({ hidden }: { hidden: boolean }) {
   );
 }
 
+function normalizeExclusiveModels(models: LlmModel[]): LlmModel[] {
+  let activeSeen = false;
+  return models.map((model) => {
+    const active = !!model.active && !activeSeen;
+    if (active) activeSeen = true;
+    return { ...model, active, includeInMulti: false };
+  });
+}
+
+function updateExclusiveModel(models: LlmModel[], idx: number, patch: Partial<LlmModel>): LlmModel[] {
+  return models.map((model, i) => {
+    if (i === idx) return { ...model, ...patch, includeInMulti: false };
+    if (patch.active) return { ...model, active: false, includeInMulti: false };
+    return { ...model, includeInMulti: false };
+  });
+}
+
 type AiModelSnapshot = {
   provider: string;
   model: string;
@@ -268,31 +400,40 @@ type AiModelSnapshot = {
 type AiSettingsSnapshot = {
   llmModels: AiModelSnapshot[];
   webSearchModels: AiModelSnapshot[];
+  orchestratorModels: AiModelSnapshot[];
+  webReasonerModels: AiModelSnapshot[];
+  ragReasonerModels: AiModelSnapshot[];
   multiResponseEnabled: boolean;
 };
 
 function snapshotAiConfig(cfg: AiProfileConfig) {
+  const modelSnapshot = (m: LlmModel): AiModelSnapshot => ({
+    provider: m.provider || "",
+    model: m.model || "",
+    apiKey: m.apiKey || "",
+    active: !!m.active,
+    includeInMulti: !!m.includeInMulti,
+  });
+
   return JSON.stringify({
-    llmModels: cfg.llmModels.map((m) => ({
-      provider: m.provider || "",
-      model: m.model || "",
-      apiKey: m.apiKey || "",
-      active: !!m.active,
-      includeInMulti: !!m.includeInMulti,
-    })),
-    webSearchModels: cfg.webSearchModels.map((m) => ({
-      provider: m.provider || "",
-      model: m.model || "",
-      apiKey: m.apiKey || "",
-      active: !!m.active,
-      includeInMulti: !!m.includeInMulti,
-    })),
+    llmModels: cfg.llmModels.map(modelSnapshot),
+    webSearchModels: cfg.webSearchModels.map(modelSnapshot),
+    orchestratorModels: normalizeExclusiveModels(cfg.orchestratorModels).map(modelSnapshot),
+    webReasonerModels: normalizeExclusiveModels(cfg.webReasonerModels).map(modelSnapshot),
+    ragReasonerModels: normalizeExclusiveModels(cfg.ragReasonerModels).map(modelSnapshot),
     multiResponseEnabled: !!cfg.multiResponseEnabled,
   });
 }
 
 function restoreAiConfigFromSnapshot(current: AiProfileConfig, snapshotJson: string): AiProfileConfig {
   const saved = JSON.parse(snapshotJson) as AiSettingsSnapshot;
+  const currentModelSnapshot = (model: LlmModel): AiModelSnapshot => ({
+    provider: model.provider || "",
+    model: model.model || "",
+    apiKey: model.apiKey || "",
+    active: !!model.active,
+    includeInMulti: false,
+  });
   const mapModels = (
     currentModels: LlmModel[],
     savedModels: AiModelSnapshot[],
@@ -311,6 +452,27 @@ function restoreAiConfigFromSnapshot(current: AiProfileConfig, snapshotJson: str
     ...current,
     llmModels: mapModels(current.llmModels, saved.llmModels, "llm"),
     webSearchModels: mapModels(current.webSearchModels, saved.webSearchModels, "web"),
+    orchestratorModels: normalizeExclusiveModels(
+      mapModels(
+        current.orchestratorModels,
+        saved.orchestratorModels ?? current.orchestratorModels.map(currentModelSnapshot),
+        "orchestrator",
+      ),
+    ),
+    webReasonerModels: normalizeExclusiveModels(
+      mapModels(
+        current.webReasonerModels,
+        saved.webReasonerModels ?? current.webReasonerModels.map(currentModelSnapshot),
+        "web-reasoner",
+      ),
+    ),
+    ragReasonerModels: normalizeExclusiveModels(
+      mapModels(
+        current.ragReasonerModels,
+        saved.ragReasonerModels ?? current.ragReasonerModels.map(currentModelSnapshot),
+        "rag-reasoner",
+      ),
+    ),
     multiResponseEnabled: saved.multiResponseEnabled,
   };
 }
