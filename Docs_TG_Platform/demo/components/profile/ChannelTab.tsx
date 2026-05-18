@@ -53,9 +53,6 @@ export default function ChannelTab({ active }: { active: boolean }) {
       rubrics: cfg.rubrics.map((rubric) => (rubric.id === id ? { ...rubric, ...patch } : rubric)),
     });
 
-  const removeRubric = (id: string) =>
-    update({ ...cfg, rubrics: cfg.rubrics.filter((rubric) => rubric.id !== id) });
-
   return (
     <div className={`profile-panel${active ? " active" : ""}`}>
       <div className="profile-channel-actions">
@@ -158,29 +155,14 @@ export default function ChannelTab({ active }: { active: boolean }) {
           </div>
         }
       >
-        {cfg.rubrics.map((rubric, index) => (
+        {cfg.rubrics.map((rubric) => (
           <div className="rubric-editor" key={rubric.id}>
-            <div className="rubric-editor-head">
-              <div className="rubric-item">
-                <div
-                  className="rubric-dot"
-                  style={{ background: RUBRIC_COLORS[index % RUBRIC_COLORS.length] }}
-                />
-                <div className="rubric-name">{rubric.title || "Без названия"}</div>
-              </div>
-              <button
-                className="btn btn-danger btn-sm"
-                disabled={cfg.rubrics.length <= 1}
-                onClick={() => removeRubric(rubric.id)}
-                type="button"
-              >
-                Удалить
-              </button>
-            </div>
-            <div className="profile-grid">
-              <Field label="Название" value={rubric.title} onChange={(title) => updateRubric(rubric.id, { title })} />
-            </div>
-            <Area label="Описание" value={rubric.description} onChange={(description) => updateRubric(rubric.id, { description })} />
+            <RubricNoteFields
+              title={rubric.title}
+              description={rubric.description}
+              onTitleChange={(title) => updateRubric(rubric.id, { title })}
+              onDescriptionChange={(description) => updateRubric(rubric.id, { description })}
+            />
           </div>
         ))}
       </FormSection>
@@ -197,8 +179,6 @@ export default function ChannelTab({ active }: { active: boolean }) {
     </div>
   );
 }
-
-const RUBRIC_COLORS = ["var(--accent)", "var(--orange)", "var(--green)", "var(--purple)"];
 
 function FormSection({
   title,
@@ -229,24 +209,58 @@ function ChannelSubsection({ title, children }: { title: string; children: React
   );
 }
 
-function Field({
-  label,
-  value,
-  onChange,
+function RubricNoteFields({
+  title,
+  description,
+  onTitleChange,
+  onDescriptionChange,
 }: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
+  title: string;
+  description: string;
+  onTitleChange: (value: string) => void;
+  onDescriptionChange: (value: string) => void;
 }) {
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+  const resize = () => {
+    [titleRef.current, descriptionRef.current].forEach((textarea) => {
+      if (!textarea) return;
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    });
+  };
+
+  useLayoutEffect(() => {
+    resize();
+  }, [title, description]);
+
   return (
-    <label className="profile-row">
-      <span className="profile-label">{label}</span>
-      <input
-        className="profile-input profile-input-explicit"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+    <div className="rubric-note-fields">
+      <textarea
+        ref={titleRef}
+        className="rubric-note-title"
+        rows={1}
+        placeholder="Название"
+        value={title}
+        onChange={(e) => {
+          onTitleChange(e.target.value);
+          requestAnimationFrame(resize);
+        }}
       />
-    </label>
+      <div className="rubric-note-divider" />
+      <textarea
+        ref={descriptionRef}
+        className="rubric-note-description"
+        rows={2}
+        placeholder="Описание"
+        value={description}
+        onChange={(e) => {
+          onDescriptionChange(e.target.value);
+          requestAnimationFrame(resize);
+        }}
+      />
+    </div>
   );
 }
 
