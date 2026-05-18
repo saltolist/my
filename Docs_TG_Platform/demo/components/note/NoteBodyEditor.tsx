@@ -642,7 +642,16 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
   const dropGapActive = dragFrom != null && dropBefore != null && !isDropNoop(dragFrom, dropBefore);
   const dropLineBeforeActive = dragFrom != null && dropLineBefore != null;
 
-  const handleViewDoubleClick = useCallback(() => {
+  const handleViewMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (isView && e.detail > 1) e.preventDefault();
+    },
+    [isView],
+  );
+
+  const handleViewDoubleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    window.getSelection()?.removeAllRanges();
     if (isView) onEditRequest?.();
   }, [isView, onEditRequest]);
 
@@ -652,6 +661,7 @@ export default function NoteBodyEditor({ body, files, isView, onBodyChange, onAd
         ref={canvasRef}
         className={`note-body-canvas${isView ? " note-body-view note-body-view--rich" : " note-body-edit-canvas"}${isDragging ? " note-body-canvas--dragging" : ""}`}
         onDragOver={handleCanvasDragOver}
+        onMouseDown={isView ? handleViewMouseDown : undefined}
         onDoubleClick={isView ? handleViewDoubleClick : undefined}
       >
         {!hasContent ? (
