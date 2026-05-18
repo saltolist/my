@@ -10,8 +10,23 @@ import type { ChannelProfileConfig, ChannelProfileRubric } from "@/lib/types";
 export default function ChannelTab({ active }: { active: boolean }) {
   const { state, dispatch, setDirty } = useApp();
   const cfg = state.channelProfileConfig;
-  const currentSnapshot = useMemo(() => JSON.stringify(cfg), [cfg]);
-  const dirty = currentSnapshot !== state.channelProfileSavedSnapshot;
+  const savedCfg = useMemo(
+    () => JSON.parse(state.channelProfileSavedSnapshot) as ChannelProfileConfig,
+    [state.channelProfileSavedSnapshot],
+  );
+  const channelProfileSnapshot = useMemo(
+    () => JSON.stringify({ core: cfg.core, voice: cfg.voice, rules: cfg.rules }),
+    [cfg.core, cfg.voice, cfg.rules],
+  );
+  const savedChannelProfileSnapshot = useMemo(
+    () => JSON.stringify({ core: savedCfg.core, voice: savedCfg.voice, rules: savedCfg.rules }),
+    [savedCfg.core, savedCfg.voice, savedCfg.rules],
+  );
+  const rubricsSnapshot = useMemo(() => JSON.stringify(cfg.rubrics), [cfg.rubrics]);
+  const savedRubricsSnapshot = useMemo(() => JSON.stringify(savedCfg.rubrics), [savedCfg.rubrics]);
+  const channelProfileDirty = channelProfileSnapshot !== savedChannelProfileSnapshot;
+  const rubricsDirty = rubricsSnapshot !== savedRubricsSnapshot;
+  const dirty = channelProfileDirty || rubricsDirty;
 
   useEffect(() => {
     setDirty("profile-channel", dirty);
@@ -24,12 +39,48 @@ export default function ChannelTab({ active }: { active: boolean }) {
   const update = (next: ChannelProfileConfig) =>
     dispatch({ type: "UPDATE_CHANNEL_PROFILE", config: next });
 
-  const save = () => {
-    if (!dirty) return;
-    dispatch({ type: "SET_STATE", patch: { channelProfileSavedSnapshot: currentSnapshot } });
+  const saveChannelProfile = () => {
+    if (!channelProfileDirty) return;
+    dispatch({
+      type: "SET_STATE",
+      patch: {
+        channelProfileSavedSnapshot: JSON.stringify({
+          ...savedCfg,
+          core: cfg.core,
+          voice: cfg.voice,
+          rules: cfg.rules,
+        }),
+      },
+    });
   };
 
-  const reset = () => update(JSON.parse(state.channelProfileSavedSnapshot) as ChannelProfileConfig);
+  const resetChannelProfile = () => {
+    if (!channelProfileDirty) return;
+    update({
+      ...cfg,
+      core: savedCfg.core,
+      voice: savedCfg.voice,
+      rules: savedCfg.rules,
+    });
+  };
+
+  const saveRubrics = () => {
+    if (!rubricsDirty) return;
+    dispatch({
+      type: "SET_STATE",
+      patch: {
+        channelProfileSavedSnapshot: JSON.stringify({
+          ...savedCfg,
+          rubrics: cfg.rubrics,
+        }),
+      },
+    });
+  };
+
+  const resetRubrics = () => {
+    if (!rubricsDirty) return;
+    update({ ...cfg, rubrics: savedCfg.rubrics });
+  };
 
   const updateGroup = <K extends keyof ChannelProfileConfig>(
     group: K,
@@ -131,11 +182,11 @@ export default function ChannelTab({ active }: { active: boolean }) {
           </div>
         </ChannelSubsection>
         <div className="profile-action-buttons profile-action-buttons--ai">
-          <button className="btn btn-primary" disabled={!dirty} onClick={save} type="button">
+          <button className="btn btn-primary" disabled={!channelProfileDirty} onClick={saveChannelProfile} type="button">
             Сохранить
           </button>
-          {dirty ? (
-            <button className="btn btn-ghost" onClick={reset} type="button">
+          {channelProfileDirty ? (
+            <button className="btn btn-ghost" onClick={resetChannelProfile} type="button">
               Отменить
             </button>
           ) : null}
@@ -146,11 +197,11 @@ export default function ChannelTab({ active }: { active: boolean }) {
         title="Рубрики"
         action={
           <div className="profile-rubric-actions">
-            <button className="btn btn-ghost btn-sm profile-rubric-save" disabled={!dirty} onClick={save} type="button">
+            <button className="btn btn-ghost btn-sm profile-rubric-save" disabled={!rubricsDirty} onClick={saveRubrics} type="button">
               Сохранить
             </button>
-            {dirty ? (
-              <button className="btn btn-ghost btn-sm" onClick={reset} type="button">
+            {rubricsDirty ? (
+              <button className="btn btn-ghost btn-sm" onClick={resetRubrics} type="button">
                 Отменить
               </button>
             ) : null}
