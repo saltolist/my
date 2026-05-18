@@ -2,6 +2,8 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import type { ReactNode } from "react";
+import MessageTrashIcon from "@/components/chat/MessageTrashIcon";
+import { useFitTitleSize } from "@/lib/use-fit-title";
 import { useApp } from "@/state/AppContext";
 import type { ChannelProfileConfig, ChannelProfileRubric } from "@/lib/types";
 
@@ -52,6 +54,9 @@ export default function ChannelTab({ active }: { active: boolean }) {
       ...cfg,
       rubrics: cfg.rubrics.map((rubric) => (rubric.id === id ? { ...rubric, ...patch } : rubric)),
     });
+
+  const removeRubric = (id: string) =>
+    update({ ...cfg, rubrics: cfg.rubrics.filter((rubric) => rubric.id !== id) });
 
   return (
     <div className={`profile-panel${active ? " active" : ""}`}>
@@ -155,16 +160,20 @@ export default function ChannelTab({ active }: { active: boolean }) {
           </div>
         }
       >
-        {cfg.rubrics.map((rubric) => (
-          <div className="rubric-editor" key={rubric.id}>
-            <RubricNoteFields
-              title={rubric.title}
-              description={rubric.description}
-              onTitleChange={(title) => updateRubric(rubric.id, { title })}
-              onDescriptionChange={(description) => updateRubric(rubric.id, { description })}
-            />
-          </div>
-        ))}
+        <div className="profile-rubrics-grid">
+          {cfg.rubrics.map((rubric) => (
+            <div className="rubric-editor" key={rubric.id}>
+              <RubricNoteFields
+                title={rubric.title}
+                description={rubric.description}
+                onTitleChange={(title) => updateRubric(rubric.id, { title })}
+                onDescriptionChange={(description) => updateRubric(rubric.id, { description })}
+                onRemove={() => removeRubric(rubric.id)}
+                canRemove={cfg.rubrics.length > 1}
+              />
+            </div>
+          ))}
+        </div>
       </FormSection>
 
       <div className="profile-section profile-section-muted">
@@ -214,50 +223,65 @@ function RubricNoteFields({
   description,
   onTitleChange,
   onDescriptionChange,
+  onRemove,
+  canRemove,
 }: {
   title: string;
   description: string;
   onTitleChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
+  onRemove: () => void;
+  canRemove: boolean;
 }) {
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  useFitTitleSize(titleRef, title, true, { maxSize: 18, minSize: 13 });
 
-  const resize = () => {
-    [titleRef.current, descriptionRef.current].forEach((textarea) => {
-      if (!textarea) return;
-      textarea.style.height = "auto";
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    });
+  const resizeDescription = () => {
+    const textarea = descriptionRef.current;
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
   };
 
   useLayoutEffect(() => {
-    resize();
-  }, [title, description]);
+    resizeDescription();
+  }, [description]);
 
   return (
     <div className="rubric-note-fields">
-      <textarea
-        ref={titleRef}
-        className="rubric-note-title"
-        rows={1}
-        placeholder="Название"
-        value={title}
-        onChange={(e) => {
-          onTitleChange(e.target.value);
-          requestAnimationFrame(resize);
-        }}
-      />
+      <div className="rubric-note-title-row">
+        <textarea
+          ref={titleRef}
+          className="rubric-note-title"
+          rows={1}
+          placeholder="Название"
+          value={title}
+          onChange={(e) => {
+            onTitleChange(e.target.value);
+          }}
+        />
+        <button
+          className="rubric-note-delete"
+          disabled={!canRemove}
+          onClick={onRemove}
+          type="button"
+          aria-label="Удалить рубрику"
+          title={canRemove ? "Удалить рубрику" : "Нельзя удалить последнюю рубрику"}
+        >
+          <MessageTrashIcon />
+        </button>
+      </div>
       <div className="rubric-note-divider" />
       <textarea
         ref={descriptionRef}
         className="rubric-note-description"
-        rows={2}
+        rows={5}
         placeholder="Описание"
         value={description}
         onChange={(e) => {
           onDescriptionChange(e.target.value);
-          requestAnimationFrame(resize);
+          requestAnimationFrame(resizeDescription);
         }}
       />
     </div>

@@ -7,20 +7,23 @@ export function useFitTitleSize(
   ref: RefObject<HTMLElement | HTMLTextAreaElement | null>,
   value: string,
   isEditing: boolean,
+  options?: { maxSize?: number; minSize?: number },
 ) {
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
 
+    const maxSize = options?.maxSize ?? MAX_SIZE;
+    const minSize = options?.minSize ?? MIN_SIZE;
     const isTextarea = el instanceof HTMLTextAreaElement;
     const fit = () => {
       const available = el.clientWidth;
       if (available <= 0) return;
-      let size = MAX_SIZE;
+      let size = maxSize;
       el.style.fontSize = `${size}px`;
       el.style.whiteSpace = "nowrap";
       if (isTextarea) el.setAttribute("wrap", "off");
-      while (size > MIN_SIZE && el.scrollWidth > available) {
+      while (size > minSize && el.scrollWidth > available) {
         size -= 1;
         el.style.fontSize = `${size}px`;
       }
@@ -56,5 +59,5 @@ export function useFitTitleSize(
       window.removeEventListener("resize", onResize);
       observer?.disconnect();
     };
-  }, [ref, value, isEditing]);
+  }, [ref, value, isEditing, options?.maxSize, options?.minSize]);
 }
