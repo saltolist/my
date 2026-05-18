@@ -4113,6 +4113,40 @@ button.filter-tab {
   min-width: 0;
   width: auto;
 }
+.profile-model-key-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.profile-model-key-input {
+  width: 100%;
+  padding-right: 42px;
+}
+.profile-api-key-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  transition: color 0.12s;
+}
+.profile-api-key-toggle:hover {
+  color: var(--text);
+}
+.profile-api-key-toggle-icon {
+  width: 17px;
+  height: 17px;
+  display: block;
+}
 .profile-checkbox-label,
 .profile-model-multi {
   display: inline-flex;

@@ -25,6 +25,11 @@ export default function SystemPromptBlock() {
     dispatch({ type: "SET_STATE", patch: { systemPromptSavedSnapshot: draft } });
   };
 
+  const cancel = () => {
+    if (!dirty) return;
+    setDraft(state.systemPromptSavedSnapshot);
+  };
+
   return (
     <div className="profile-section">
       <div className="profile-section-title">Системный промпт</div>
@@ -35,9 +40,16 @@ export default function SystemPromptBlock() {
           onChange={(e) => setDraft(e.target.value)}
         />
       </div>
-      <button className="btn btn-primary" disabled={!dirty} onClick={save} type="button">
-        Сохранить
-      </button>
+      <div className="profile-action-buttons profile-action-buttons--ai">
+        <button className="btn btn-primary" disabled={!dirty} onClick={save} type="button">
+          Сохранить
+        </button>
+        {dirty ? (
+          <button className="btn btn-ghost" onClick={cancel} type="button">
+            Отменить
+          </button>
+        ) : null}
+      </div>
     </div>
   );
 }

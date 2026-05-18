@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useApp } from "@/state/AppContext";
 import { LLM_PROVIDER_MODELS, WEB_SEARCH_PROVIDER_MODELS } from "@/lib/composer-config";
 import type { AiProfileConfig, LlmModel } from "@/lib/types";
@@ -155,6 +155,7 @@ function ModelRow({
   onChange: (patch: Partial<LlmModel>) => void;
   onRemove: () => void;
 }) {
+  const [apiKeyVisible, setApiKeyVisible] = useState(false);
   const providerOptions = Object.keys(providerMap).map((p) => ({ id: p, label: p }));
   const modelOptions = (providerMap[model.provider] || []).map((m) => ({ id: m, label: m }));
   return (
@@ -181,14 +182,27 @@ function ModelRow({
         placement="down"
         onChange={(value) => onChange({ model: value })}
       />
-      <input
-        className="profile-input profile-input-explicit profile-model-key"
-        type="password"
-        value={model.apiKey}
-        placeholder="API key"
-        onChange={(e) => onChange({ apiKey: e.target.value })}
+      <div
+        className="profile-model-key profile-model-key-wrap"
         style={{ display: model.provider ? undefined : "none" }}
-      />
+      >
+        <input
+          className="profile-input profile-input-explicit profile-model-key-input"
+          type={apiKeyVisible ? "text" : "password"}
+          value={model.apiKey}
+          placeholder="API key"
+          onChange={(e) => onChange({ apiKey: e.target.value })}
+        />
+        <button
+          type="button"
+          className="profile-api-key-toggle"
+          aria-label={apiKeyVisible ? "Скрыть API key" : "Показать API key"}
+          title={apiKeyVisible ? "Скрыть API key" : "Показать API key"}
+          onClick={() => setApiKeyVisible((value) => !value)}
+        >
+          <EyeIcon hidden={apiKeyVisible} />
+        </button>
+      </div>
       <label className="profile-checkbox-label profile-model-multi">
         <ProfileCheckbox
           checked={model.active}
@@ -220,6 +234,25 @@ function ModelRow({
         <MessageTrashIcon />
       </button>
     </div>
+  );
+}
+
+function EyeIcon({ hidden }: { hidden: boolean }) {
+  return (
+    <svg
+      className="profile-api-key-toggle-icon"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" />
+      <circle cx="12" cy="12" r="2.6" />
+      {hidden ? <path d="M4 4l16 16" /> : null}
+    </svg>
   );
 }
 
