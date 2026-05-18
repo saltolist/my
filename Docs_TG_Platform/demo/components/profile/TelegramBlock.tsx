@@ -33,13 +33,34 @@ export default function TelegramBlock() {
   const isConnected = cfg.authStatus === "connected" && cfg.channelStatus === "connected";
   const isAuthorized = cfg.authStatus === "authorized" || cfg.authStatus === "connected";
   const codeHidden = cfg.authStatus !== "code-sent";
+  const savedSnapshot = parseTelegramSnapshot(state.telegramSettingsSavedSnapshot);
+  const phoneChangedFromSaved = normalizeTelegramValue(cfg.phone) !== normalizeTelegramValue(savedSnapshot.phone);
+  const channelChangedFromSaved = normalizeTelegramValue(cfg.channel) !== normalizeTelegramValue(savedSnapshot.channel);
+  const sendCodeDisabled = isAuthorized && !phoneChangedFromSaved;
+  const connectChannelDisabled = isConnected && !channelChangedFromSaved;
 
-  const startAuth = () =>
+  const startAuth = () => {
+    if (sendCodeDisabled) return;
+    if (isAuthorized && phoneChangedFromSaved) {
+      const ok = window.confirm(
+        "При переподключении телефона данные прошлого аккаунта и подключенного канала будут недоступны, пока вы не подключите их снова.",
+      );
+      if (!ok) return;
+      setSyncing(false);
+      if (syncTimerRef.current !== null) {
+        window.clearTimeout(syncTimerRef.current);
+        syncTimerRef.current = null;
+      }
+    }
     update({
       authStatus: "code-sent",
       authStep: "code",
-      channelStatus: cfg.channelStatus === "connected" ? "pending" : cfg.channelStatus,
+      channelStatus: isAuthorized && phoneChangedFromSaved ? "idle" : cfg.channelStatus === "connected" ? "pending" : cfg.channelStatus,
+      channelTitle: isAuthorized && phoneChangedFromSaved ? "" : cfg.channelTitle,
+      lastSync: isAuthorized && phoneChangedFromSaved ? "—" : cfg.lastSync,
+      importedPosts: isAuthorized && phoneChangedFromSaved ? 0 : cfg.importedPosts,
     });
+  };
 
   const confirmCode = () =>
     update({
@@ -48,6 +69,13 @@ export default function TelegramBlock() {
     });
 
   const connectChannel = () => {
+    if (connectChannelDisabled) return;
+    if (isConnected && channelChangedFromSaved) {
+      const ok = window.confirm(
+        "При подключении другого канала данные прошлого канала будут недоступны, пока вы не подключите его снова.",
+      );
+      if (!ok) return;
+    }
     if (syncTimerRef.current !== null) window.clearTimeout(syncTimerRef.current);
     const next: Partial<TelegramProfileConfig> = {
       authStatus: "connected",
@@ -164,28 +192,32 @@ export default function TelegramBlock() {
           <div className="profile-label" aria-hidden>
             &nbsp;
           </div>
-          <button className="btn btn-ghost telegram-inline-button" onClick={startAuth} type="button">
-            Отправить код
-          </button>
-        </div>
-      </div>
-
-      {codeHidden ? null : (
-        <div className="telegram-action-row">
           <div className="telegram-code-row">
-            <input
-              className="profile-input profile-input-explicit telegram-code-input"
-              placeholder="Код из Telegram"
-              maxLength={8}
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-            />
-            <button className="btn btn-ghost btn-sm" onClick={confirmCode} type="button">
-              Подтвердить
+            <button
+              className="btn btn-ghost telegram-inline-button"
+              disabled={sendCodeDisabled}
+              onClick={startAuth}
+              type="button"
+            >
+              Отправить код
             </button>
+            {codeHidden ? null : (
+              <>
+                <input
+                  className="profile-input profile-input-explicit telegram-code-input"
+                  placeholder="Код из Telegram"
+                  maxLength={8}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                />
+                <button className="btn btn-ghost telegram-inline-button" onClick={confirmCode} type="button">
+                  Подтвердить
+                </button>
+              </>
+            )}
           </div>
         </div>
-      )}
+      </div>
 
       <div className={`telegram-channel-block${!isAuthorized ? " hidden" : ""}`}>
         <div className="telegram-form-grid">
@@ -199,7 +231,12 @@ export default function TelegramBlock() {
             <div className="profile-label" aria-hidden>
               &nbsp;
             </div>
-            <button className="btn btn-ghost telegram-inline-button" onClick={connectChannel} type="button">
+            <button
+              className="btn btn-ghost telegram-inline-button"
+              disabled={connectChannelDisabled}
+              onClick={connectChannel}
+              type="button"
+            >
               Подключить канал
             </button>
           </div>
@@ -295,6 +332,28 @@ function snapshot(cfg: TelegramProfileConfig) {
     sessionName: cfg.sessionName || "",
     channel: cfg.channel || "",
   });
+}
+
+function parseTelegramSnapshot(snapshotJson: string): Pick<
+  TelegramProfileConfig,
+  "apiId" | "apiHash" | "phone" | "sessionName" | "channel"
+> {
+  try {
+    const saved = JSON.parse(snapshotJson) as Partial<TelegramProfileConfig>;
+    return {
+      apiId: saved.apiId || "",
+      apiHash: saved.apiHash || "",
+      phone: saved.phone || "",
+      sessionName: saved.sessionName || "",
+      channel: saved.channel || "",
+    };
+  } catch {
+    return { apiId: "", apiHash: "", phone: "", sessionName: "", channel: "" };
+  }
+}
+
+function normalizeTelegramValue(value: string) {
+  return value.trim().toLowerCase();
 }
 
 function getTelegramStatusLabel(cfg: TelegramProfileConfig, syncing: boolean) {

@@ -4648,6 +4648,7 @@ button.filter-tab {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 .telegram-code-input {
   width: 150px;
