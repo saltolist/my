@@ -4163,6 +4163,13 @@ button.filter-tab {
 .profile-api-key-toggle:hover {
   color: var(--text);
 }
+.profile-api-key-toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.profile-api-key-toggle:disabled:hover {
+  color: var(--text3);
+}
 .profile-api-key-toggle-icon {
   width: 17px;
   height: 17px;
@@ -4179,6 +4186,10 @@ button.filter-tab {
   white-space: nowrap;
   flex-shrink: 0;
   cursor: pointer;
+}
+.profile-checkbox-label:has(input[type="checkbox"]:disabled),
+.profile-model-multi:has(input[type="checkbox"]:disabled) {
+  cursor: not-allowed;
 }
 .profile-model-remove {
   flex: 0 0 auto;
@@ -4243,7 +4254,7 @@ button.filter-tab {
   transition: border-color .12s, background .12s, box-shadow .12s, color .12s;
 }
 .profile-input-explicit::placeholder { color: var(--text3); }
-.profile-input-explicit:hover {
+.profile-input-explicit:hover:not(:disabled) {
   background: var(--profile-control-bg);
   color: #3a3a3a;
   border-color: var(--control-border-active);
@@ -4253,6 +4264,10 @@ button.filter-tab {
   color: #3a3a3a;
   border-color: var(--control-border-active);
   box-shadow: none;
+}
+.profile-input-explicit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 .profile-system-prompt-textarea {
   background: color-mix(in srgb, var(--profile-control-bg) 72%, #fff 28%);

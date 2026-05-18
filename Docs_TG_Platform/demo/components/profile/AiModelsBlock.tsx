@@ -266,6 +266,7 @@ function ModelRow({
   onRemove?: () => void;
 }) {
   const [apiKeyVisible, setApiKeyVisible] = useState(false);
+  const hasProvider = !!model.provider;
   const providerOptions = Object.keys(providerMap).map((p) => ({ id: p, label: p }));
   const modelOptions = (providerMap[model.provider] || []).map((m) => ({ id: m, label: m }));
   return (
@@ -279,7 +280,13 @@ function ModelRow({
         placement="down"
         onChange={(provider) => {
           const next = provider ? providerMap[provider]?.[0] || "" : "";
-          onChange({ provider, model: next, apiKey: provider ? model.apiKey : "" });
+          onChange({
+            provider,
+            model: next,
+            apiKey: provider ? model.apiKey : "",
+            active: provider ? model.active : false,
+            includeInMulti: provider ? model.includeInMulti : false,
+          });
         }}
       />
       <ModelPicker
@@ -287,25 +294,24 @@ function ModelRow({
         className="profile-model-picker profile-model-name"
         value={model.model}
         options={modelOptions}
-        disabled={!model.provider}
+        disabled={!hasProvider}
         placeholderLabel="Выберите модель"
         placement="down"
         onChange={(value) => onChange({ model: value })}
       />
-      <div
-        className="profile-model-key profile-model-key-wrap"
-        style={{ display: model.provider ? undefined : "none" }}
-      >
+      <div className="profile-model-key profile-model-key-wrap">
         <input
           className="profile-input profile-input-explicit profile-model-key-input"
           type={apiKeyVisible ? "text" : "password"}
           value={model.apiKey}
           placeholder="API key"
+          disabled={!hasProvider}
           onChange={(e) => onChange({ apiKey: e.target.value })}
         />
         <button
           type="button"
           className="profile-api-key-toggle"
+          disabled={!hasProvider}
           aria-label={apiKeyVisible ? "Скрыть API key" : "Показать API key"}
           title={apiKeyVisible ? "Скрыть API key" : "Показать API key"}
           onClick={() => setApiKeyVisible((value) => !value)}
@@ -316,7 +322,8 @@ function ModelRow({
       {showActiveToggle ? (
         <label className="profile-checkbox-label profile-model-multi">
           <ProfileCheckbox
-            checked={model.active}
+            disabled={!hasProvider}
+            checked={hasProvider && model.active}
             onChange={(e) =>
               onChange({ active: e.target.checked, includeInMulti: e.target.checked && model.includeInMulti })
             }
@@ -327,7 +334,8 @@ function ModelRow({
       {showMultiToggle ? (
         <label className="profile-checkbox-label profile-model-multi">
           <ProfileCheckbox
-            checked={model.includeInMulti}
+            disabled={!hasProvider}
+            checked={hasProvider && model.includeInMulti}
             onChange={(e) => onChange({ includeInMulti: e.target.checked })}
           />
           В мультиответ
