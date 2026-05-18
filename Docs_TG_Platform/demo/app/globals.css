@@ -1161,6 +1161,10 @@ button.nav-item {
   opacity: 1;
   background: var(--page-header-control-bg-hover);
   color: var(--text);
+  border-color: var(--control-border-active);
+}
+.note-shell-header .btn.btn-ghost.btn-sm:active:not(:disabled) {
+  border-color: var(--control-border-active);
 }
 .page-header .btn.btn-ghost.btn-sm.active,
 .post-hdr .btn.btn-ghost.btn-sm.active,
