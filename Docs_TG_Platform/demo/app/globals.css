@@ -4644,7 +4644,7 @@ button.filter-tab {
   background: transparent;
   color: var(--red);
   cursor: pointer;
-  opacity: 0.45;
+  opacity: 0.65;
   transition: opacity .12s, color .12s;
 }
 .rubric-note-delete svg {
@@ -4658,12 +4658,15 @@ button.filter-tab {
 }
 .rubric-note-delete:disabled {
   cursor: not-allowed;
-  opacity: 0.45;
+  opacity: 0.65;
 }
 .rubric-editor:hover .rubric-note-delete,
 .rubric-editor:focus-within .rubric-note-delete,
 .rubric-editor:hover .rubric-note-delete:disabled,
 .rubric-editor:focus-within .rubric-note-delete:disabled {
+  opacity: 0.93;
+}
+.rubric-editor .rubric-note-delete:hover:not(:disabled) {
   opacity: 1;
 }
 .rubric-note-divider {
