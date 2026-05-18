@@ -4261,8 +4261,8 @@ button.filter-tab {
 }
 .profile-input-explicit {
   background: var(--profile-field-bg);
-  border: 1px solid var(--profile-control-border);
-  color: color-mix(in srgb, var(--text2) 72%, #fff 28%);
+  border: 1px solid color-mix(in srgb, var(--text2) 44%, #fff 56%);
+  color: color-mix(in srgb, var(--text2) 88%, #fff 12%);
   -webkit-backdrop-filter: var(--profile-control-blur);
   backdrop-filter: var(--profile-control-blur);
   transition: border-color .12s, background .12s, box-shadow .12s, color .12s;
@@ -4306,7 +4306,7 @@ button.filter-tab {
   font-size: 14px;
   padding: 0 12px 0 14px;
   background: var(--profile-field-bg);
-  border: 1px solid var(--profile-control-border);
+  border: 1px solid color-mix(in srgb, var(--text2) 44%, #fff 56%);
   -webkit-backdrop-filter: var(--profile-control-blur);
   backdrop-filter: var(--profile-control-blur);
   transition: background .15s, border-color .15s, color .15s, box-shadow .15s;
@@ -4543,7 +4543,11 @@ button.filter-tab {
   flex-direction: column;
 }
 .profile-channel-subsection .profile-row {
+  gap: 8px;
   margin-bottom: 0;
+}
+.profile-channel-subsection .profile-label {
+  font-size: 10.5px;
 }
 .profile-channel-subsection .profile-grid {
   row-gap: 25px;
@@ -4590,7 +4594,7 @@ button.filter-tab {
   padding: 14px 16px;
   margin-bottom: 0;
   background: var(--profile-field-bg);
-  border: 1px solid var(--profile-control-border);
+  border: 1px solid color-mix(in srgb, var(--text2) 44%, #fff 56%);
   -webkit-backdrop-filter: var(--profile-control-blur);
   backdrop-filter: var(--profile-control-blur);
   transition: border-color .12s, background .12s, box-shadow .12s;
@@ -4640,7 +4644,7 @@ button.filter-tab {
   background: transparent;
   color: var(--red);
   cursor: pointer;
-  opacity: 0.82;
+  opacity: 0.45;
   transition: opacity .12s, color .12s;
 }
 .rubric-note-delete svg {
@@ -4654,13 +4658,19 @@ button.filter-tab {
 }
 .rubric-note-delete:disabled {
   cursor: not-allowed;
-  opacity: 0.35;
+  opacity: 0.45;
+}
+.rubric-editor:hover .rubric-note-delete,
+.rubric-editor:focus-within .rubric-note-delete,
+.rubric-editor:hover .rubric-note-delete:disabled,
+.rubric-editor:focus-within .rubric-note-delete:disabled {
+  opacity: 1;
 }
 .rubric-note-divider {
   height: 1px;
   margin: 0 -16px;
   width: calc(100% + 32px);
-  background: var(--profile-control-border);
+  background: color-mix(in srgb, var(--text2) 44%, #fff 56%);
   transition: background .12s;
 }
 .rubric-editor:hover .rubric-note-divider,
@@ -4676,7 +4686,7 @@ button.filter-tab {
   border: none;
   outline: none;
   background: transparent;
-  color: color-mix(in srgb, var(--text2) 72%, #fff 28%);
+  color: color-mix(in srgb, var(--text2) 88%, #fff 12%);
   font-family: var(--font);
   resize: none;
   overflow: hidden;
