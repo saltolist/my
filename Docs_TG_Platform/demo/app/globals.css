@@ -4370,6 +4370,7 @@ button.filter-tab {
   border-radius: var(--rs);
   background: var(--profile-select-bg-active);
   color: var(--text2);
+  text-align: left;
   padding: 9px 10px;
   box-shadow: var(--dropdown-shadow);
   -webkit-backdrop-filter: var(--profile-control-blur);
@@ -4450,6 +4451,7 @@ button.filter-tab {
   transform: none;
   min-width: 0;
   max-width: 220px;
+  text-align: left;
 }
 .trend-labels {
   position: relative;
