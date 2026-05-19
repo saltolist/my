@@ -1052,7 +1052,7 @@ function ModelUsageBar({ model, totals }: { model: ModelUsage; totals: ReturnTyp
       >
         <div
           className={`bar-fill ${model.type}`}
-          style={{ backgroundColor: model.color }}
+          style={{ "--bar-color": model.color, backgroundColor: model.color } as CSSProperties}
         />
       </div>
       {tooltipPos ? (

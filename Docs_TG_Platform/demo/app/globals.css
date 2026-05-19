@@ -4278,14 +4278,13 @@ button.filter-tab {
 .model-usage-track .bar-fill {
   position: relative;
   width: var(--fill-width, 0%);
-  transition: width .6s, height .18s ease, margin-top .18s ease, border-radius .18s ease, filter .16s ease;
+  background-color: var(--bar-color, var(--accent));
+  transition: width .6s, background-color .16s ease, filter .16s ease;
 }
 .model-usage-track:hover .bar-fill,
 .model-usage-track:focus-visible .bar-fill {
-  height: 13px;
-  margin-top: -3px;
-  border-radius: 999px;
-  filter: brightness(1.14) saturate(1.08);
+  background-color: color-mix(in srgb, var(--bar-color, var(--accent)) 82%, #000) !important;
+  filter: saturate(1.28) contrast(1.14);
 }
 .bar-fill.g { background: var(--green); } .bar-fill.o { background: var(--orange); } .bar-fill.p { background: var(--purple); }
 .bar-fill.llm { background: var(--accent); }
