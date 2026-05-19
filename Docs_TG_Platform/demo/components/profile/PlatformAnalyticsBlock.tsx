@@ -6,20 +6,205 @@ import { useApp } from "@/state/AppContext";
 import type { AiProfileConfig, LlmModel } from "@/lib/types";
 
 const PERIODS = [
-  { label: "Сегодня", multiplier: 0.06 },
+  { label: "24 часа", multiplier: 0.06 },
   { label: "7 дней", multiplier: 0.24 },
   { label: "30 дней", multiplier: 1 },
   { label: "90 дней", multiplier: 2.8 },
   { label: "Всё время", multiplier: 7.4 },
 ];
 
-const PERIOD_CHART_LABELS = [
-  ["00", "06", "12", "18", "Сейчас"],
-  ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
-  ["1 нед", "2 нед", "3 нед", "4 нед", "Сейчас"],
-  ["Янв", "Фев", "Мар", "Апр", "Май"],
-  ["Q1", "Q2", "Q3", "Q4", "Сейчас"],
-];
+const LAST_24_HOURS_POINTS = 24;
+const LAST_7_DAYS_POINTS = 7;
+const LAST_30_DAYS_POINTS = 30;
+const LAST_90_DAYS_POINTS = 30;
+const LAST_90_DAYS_STEP = 3;
+const PLATFORM_LIFETIME_MONTHS = 6;
+
+function formatAxisDateLabel(date: Date) {
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${day}.${month}`;
+}
+
+function formatAxisHourLabel(date: Date) {
+  return `${String(date.getHours()).padStart(2, "0")}:00`;
+}
+
+function formatAxisMonthLabel(date: Date) {
+  const label = new Intl.DateTimeFormat("ru-RU", { month: "short" }).format(date);
+  return label.endsWith(".") ? label.slice(0, -1) : label;
+}
+
+function buildLast24HoursChartLabels(now = new Date()) {
+  const end = new Date(now);
+  end.setMinutes(0, 0, 0);
+
+  return Array.from({ length: LAST_24_HOURS_POINTS }, (_, index) => {
+    const hour = new Date(end);
+    hour.setHours(hour.getHours() - (LAST_24_HOURS_POINTS - 1 - index));
+    return formatAxisHourLabel(hour);
+  });
+}
+
+function buildLast7DaysChartLabels(now = new Date()) {
+  return Array.from({ length: LAST_7_DAYS_POINTS }, (_, index) => {
+    const day = startOfDay(addDays(now, -(LAST_7_DAYS_POINTS - 1 - index)));
+    return formatAxisDateLabel(day);
+  });
+}
+
+function buildLast30DaysChartLabels(now = new Date()) {
+  const periodStart = startOfDay(addDays(now, -(LAST_30_DAYS_POINTS - 1)));
+  return Array.from({ length: LAST_30_DAYS_POINTS }, (_, index) => {
+    const day = addDays(periodStart, index);
+    return formatAxisDateLabel(day);
+  });
+}
+
+function buildLast90DaysChartLabels(now = new Date()) {
+  const periodStart = startOfDay(
+    addDays(now, -(LAST_90_DAYS_POINTS * LAST_90_DAYS_STEP - 1)),
+  );
+  return Array.from({ length: LAST_90_DAYS_POINTS }, (_, index) => {
+    const day = addDays(periodStart, index * LAST_90_DAYS_STEP);
+    return formatAxisDateLabel(day);
+  });
+}
+
+function buildAllTimeChartLabels(now = new Date()) {
+  const currentMonthStart = startOfMonth(now);
+  return Array.from({ length: PLATFORM_LIFETIME_MONTHS }, (_, index) => {
+    const month = new Date(currentMonthStart);
+    month.setMonth(month.getMonth() - (PLATFORM_LIFETIME_MONTHS - 1 - index));
+    return formatAxisMonthLabel(month);
+  });
+}
+
+function getPeriodChartLabels(period: number) {
+  if (period === 0) return buildLast24HoursChartLabels();
+  if (period === 1) return buildLast7DaysChartLabels();
+  if (period === 2) return buildLast30DaysChartLabels();
+  if (period === 3) return buildLast90DaysChartLabels();
+  if (period === 4) return buildAllTimeChartLabels();
+  return [];
+}
+
+function startOfDay(date: Date) {
+  const next = new Date(date);
+  next.setHours(0, 0, 0, 0);
+  return next;
+}
+
+function endOfDay(date: Date) {
+  const next = new Date(date);
+  next.setHours(23, 59, 59, 999);
+  return next;
+}
+
+function addDays(date: Date, days: number) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function startOfMonth(date: Date) {
+  const next = new Date(date);
+  next.setDate(1);
+  next.setHours(0, 0, 0, 0);
+  return next;
+}
+
+function endOfMonth(date: Date) {
+  return endOfDay(new Date(date.getFullYear(), date.getMonth() + 1, 0));
+}
+
+function formatTrendRangePart(date: Date, withTime: boolean) {
+  if (withTime) {
+    return new Intl.DateTimeFormat("ru-RU", {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  }
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "short",
+  }).format(date);
+}
+
+function getTrendPointPeriodBounds(
+  period: number,
+  pointIndex: number,
+  pointCount: number,
+  now = new Date(),
+): { from: Date; to: Date } {
+  if (pointCount <= 0) return { from: now, to: now };
+
+  switch (period) {
+    case 0: {
+      const end = new Date(now);
+      end.setMinutes(0, 0, 0);
+      const from = new Date(end);
+      from.setHours(from.getHours() - (pointCount - 1 - pointIndex));
+      if (pointIndex < pointCount - 1) {
+        const to = new Date(from);
+        to.setHours(to.getHours() + 1);
+        return { from, to: to > now ? now : to };
+      }
+      return { from, to: now };
+    }
+    case 1: {
+      const day = addDays(now, -(pointCount - 1 - pointIndex));
+      const from = startOfDay(day);
+      const to = pointIndex === pointCount - 1 ? now : endOfDay(day);
+      return { from, to };
+    }
+    case 2: {
+      const day = addDays(now, -(pointCount - 1 - pointIndex));
+      const from = startOfDay(day);
+      const to = pointIndex === pointCount - 1 ? now : endOfDay(day);
+      return { from, to };
+    }
+    case 3: {
+      const periodStart = startOfDay(
+        addDays(now, -(pointCount * LAST_90_DAYS_STEP - 1)),
+      );
+      const from = startOfDay(addDays(periodStart, pointIndex * LAST_90_DAYS_STEP));
+      if (pointIndex < pointCount - 1) {
+        const to = endOfDay(addDays(from, LAST_90_DAYS_STEP - 1));
+        return { from, to: to > now ? now : to };
+      }
+      return { from, to: now };
+    }
+    case 4: {
+      const currentMonthStart = startOfMonth(now);
+      const month = new Date(currentMonthStart);
+      month.setMonth(month.getMonth() - (pointCount - 1 - pointIndex));
+      const from = startOfMonth(month);
+      const to = pointIndex === pointCount - 1 ? now : endOfMonth(month);
+      return { from, to };
+    }
+    default:
+      return { from: now, to: now };
+  }
+}
+
+function formatTrendPointPeriod(
+  period: number,
+  pointIndex: number,
+  pointCount: number,
+  now = new Date(),
+) {
+  const { from, to } = getTrendPointPeriodBounds(period, pointIndex, pointCount, now);
+  const useTime = period === 0 || from.toDateString() === to.toDateString();
+  return `${formatTrendRangePart(from, useTime)} — ${formatTrendRangePart(to, useTime)}`;
+}
+
+function getTrendPointXPercent(index: number, pointCount: number) {
+  if (pointCount <= 1) return 50;
+  return (index / (pointCount - 1)) * 100;
+}
 
 type ModelTypeId = "llm" | "web" | "orchestrator" | "webReasoner" | "ragReasoner";
 type ModelFilterId = "all" | ModelTypeId;
@@ -55,9 +240,10 @@ export default function PlatformAnalyticsBlock() {
   const [period, setPeriod] = useState(2);
   const [modelType, setModelType] = useState<ModelFilterId>("all");
 
+  const chartLabels = useMemo(() => getPeriodChartLabels(period), [period]);
   const modelUsage = useMemo(
-    () => buildModelUsage(state.aiProfileConfig, PERIODS[period].multiplier),
-    [state.aiProfileConfig, period],
+    () => buildModelUsage(state.aiProfileConfig, PERIODS[period].multiplier, chartLabels.length),
+    [state.aiProfileConfig, period, chartLabels.length],
   );
   const selectedTypeMeta = MODEL_FILTERS.find((type) => type.id === modelType) ?? MODEL_FILTERS[0];
   const isAllTypes = modelType === "all";
@@ -110,8 +296,10 @@ export default function PlatformAnalyticsBlock() {
         </div>
 
         <ModelTrendChart
-          labels={PERIOD_CHART_LABELS[period]}
+          labels={chartLabels}
           rows={selectedModels}
+          period={period}
+          compactAxisLabels={period === 0 || period === 2 || period === 3}
           title={`Динамика стоимости: ${selectedTypeMeta.label}`}
         />
       </div>
@@ -178,6 +366,8 @@ type TrendChartDot = {
   y: number;
   value: number;
   label: string;
+  pointIndex: number;
+  periodLabel: string;
   tokens: number;
   cost: number;
 };
@@ -316,14 +506,84 @@ function shouldClearTrendDotHover(event: MouseEvent<HTMLButtonElement>) {
   return true;
 }
 
+function getTrendPointCost(model: ModelUsage, index: number) {
+  const value = model.trend[index] ?? 0;
+  const ratio = model.calls > 0 ? value / model.calls : 0;
+  return model.cost * ratio;
+}
+
+function collectTrendCosts(rows: ModelUsage[], pointCount: number) {
+  return rows.flatMap((model) =>
+    Array.from({ length: pointCount }, (_, index) => getTrendPointCost(model, index)),
+  );
+}
+
+function niceCeil(value: number) {
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  const exponent = Math.floor(Math.log10(value));
+  const magnitude = 10 ** exponent;
+  const fraction = value / magnitude;
+  const niceFraction = fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10;
+  return niceFraction * magnitude;
+}
+
+function buildAdaptiveCostScale(costs: number[]) {
+  const finite = costs.filter((cost) => Number.isFinite(cost) && cost >= 0);
+  const dataMax = finite.length > 0 ? Math.max(...finite) : 0;
+  const dataMin = finite.length > 0 ? Math.min(...finite) : 0;
+
+  if (dataMax <= 0) {
+    return { min: 0, max: 0.01, span: 0.01 };
+  }
+
+  const spread = dataMax - dataMin;
+  const relativeSpread = dataMax > 0 ? spread / dataMax : 0;
+
+  if (spread > 0 && relativeSpread < 0.12) {
+    const pad = Math.max(spread * 0.4, dataMax * 0.08, 0.000_001);
+    const min = Math.max(0, dataMin - pad);
+    const max = niceCeil(dataMax + pad) || dataMax + pad;
+    const span = Math.max(max - min, pad * 2);
+    return { min, max: min + span, span };
+  }
+
+  const max = niceCeil(dataMax * 1.12) || dataMax * 1.12;
+  const span = Math.max(max, dataMax * 1.04);
+  return { min: 0, max: span, span };
+}
+
+function formatTrendDollar(value: number, scaleMax: number) {
+  const absMax = Math.max(scaleMax, Math.abs(value));
+  if (absMax < 0.001) return `$${value.toFixed(5)}`;
+  if (absMax < 0.01) return `$${value.toFixed(4)}`;
+  if (absMax < 0.1) return `$${value.toFixed(3)}`;
+  if (absMax < 10) return `$${value.toFixed(2)}`;
+  return `$${value.toFixed(2)}`;
+}
+
+function costToChartY(
+  cost: number,
+  scale: { min: number; span: number },
+  chartBottom: number,
+  chartHeight: number,
+) {
+  if (scale.span <= 0) return chartBottom;
+  const normalized = (cost - scale.min) / scale.span;
+  return chartBottom - Math.min(1, Math.max(0, normalized)) * chartHeight;
+}
+
 function ModelTrendChart({
   labels,
   rows,
   title,
+  period,
+  compactAxisLabels = false,
 }: {
   labels: string[];
   rows: ModelUsage[];
   title: string;
+  period: number;
+  compactAxisLabels?: boolean;
 }) {
   const [hoveredClusterId, setHoveredClusterId] = useState<string | null>(null);
   const [hoveredDotKey, setHoveredDotKey] = useState<string | null>(null);
@@ -333,38 +593,31 @@ function ModelTrendChart({
   const chartTop = 1;
   const chartBottom = 88;
   const chartHeight = chartBottom - chartTop;
-  const maxCost = Math.max(
-    ...rows.flatMap((model) =>
-      model.trend.map((value) => {
-        const ratio = model.calls > 0 ? value / model.calls : 0;
-        return model.cost * ratio;
-      }),
-    ),
-    1,
-  );
+  const costScale = buildAdaptiveCostScale(collectTrendCosts(rows, labels.length));
+  const midCost = costScale.min + costScale.span / 2;
   const gridRows = [
-    { y: chartTop, label: `$${maxCost.toFixed(2)}` },
-    { y: (chartTop + chartBottom) / 2, label: `$${(maxCost / 2).toFixed(2)}` },
-    { y: chartBottom, label: "$0.00" },
+    { y: chartTop, label: formatTrendDollar(costScale.max, costScale.max) },
+    { y: (chartTop + chartBottom) / 2, label: formatTrendDollar(midCost, costScale.max) },
+    { y: chartBottom, label: formatTrendDollar(costScale.min, costScale.max) },
   ];
   const chartRows = rows.map((model) => {
     const points = labels.map((_, i) => {
-        const value = model.trend[i] ?? 0;
-        const ratio = model.calls > 0 ? value / model.calls : 0;
-        const cost = model.cost * ratio;
+        const cost = getTrendPointCost(model, i);
         const x = labels.length === 1 ? 132 : (264 / (labels.length - 1)) * i;
-        const y = chartBottom - (cost / maxCost) * chartHeight;
+        const y = costToChartY(cost, costScale, chartBottom, chartHeight);
         return { x, y };
       });
     const dots = labels.map((_, i) => {
       const value = model.trend[i] ?? 0;
       const ratio = model.calls > 0 ? value / model.calls : 0;
-      const cost = model.cost * ratio;
+      const cost = getTrendPointCost(model, i);
       return {
-        x: labels.length === 1 ? 50 : (i / (labels.length - 1)) * 100,
-        y: chartBottom - (cost / maxCost) * chartHeight,
+        x: getTrendPointXPercent(i, labels.length),
+        y: costToChartY(cost, costScale, chartBottom, chartHeight),
         value,
         label: labels[i],
+        pointIndex: i,
+        periodLabel: formatTrendPointPeriod(period, i, labels.length),
         tokens: Math.round(model.tokens * ratio),
         cost,
       };
@@ -404,6 +657,8 @@ function ModelTrendChart({
         y: dot.y,
         value: dot.value,
         label: dot.label ?? labels[index],
+        pointIndex: dot.pointIndex ?? index,
+        periodLabel: dot.periodLabel ?? formatTrendPointPeriod(period, index, labels.length),
         tokens: dot.tokens,
         cost: dot.cost,
       })),
@@ -430,7 +685,7 @@ function ModelTrendChart({
         } satisfies TrendChartDotView;
       }),
     };
-  }, [chartRows, labels, chartSizePx.height, chartSizePx.width]);
+  }, [chartRows, labels, period, chartSizePx.height, chartSizePx.width]);
   dotClustersRef.current = dotClusters;
   const clusterStripSyncKey =
     hoveredClusterId && hoveredDotKey
@@ -617,10 +872,10 @@ function ModelTrendChart({
               {dot.clusterSize === 1 ? (
                 <span className="trend-tooltip">
                   <b>{dot.modelLabel}</b>
-                  <span>{dot.label}</span>
+                  <span className="trend-tooltip-period">{dot.periodLabel}</span>
                   <em>{formatNumber(dot.value)} запросов</em>
                   <em>{formatCompact(dot.tokens)} токенов</em>
-                  <em>${dot.cost.toFixed(2)}</em>
+                  <em>{formatTrendDollar(dot.cost, costScale.max)}</em>
                 </span>
               ) : null}
             </button>
@@ -636,9 +891,16 @@ function ModelTrendChart({
           </span>
         ))}
       </div>
-      <div className="trend-labels">
-        {labels.map((label) => (
-          <span key={label}>{label}</span>
+      <div
+        className={`trend-labels${compactAxisLabels ? " trend-labels--hourly" : ""}`}
+      >
+        {labels.map((label, index) => (
+          <span
+            key={`${label}-${index}`}
+            style={{ left: `${getTrendPointXPercent(index, labels.length)}%` }}
+          >
+            {label}
+          </span>
         ))}
       </div>
       {hoveredCluster &&
@@ -658,10 +920,10 @@ function ModelTrendChart({
               {hoveredCluster.dots.map((dot) => (
                 <span key={trendDotKey(dot)} className="trend-tooltip trend-tooltip-card">
                   <b>{dot.modelLabel}</b>
-                  <span>{dot.label}</span>
+                  <span className="trend-tooltip-period">{dot.periodLabel}</span>
                   <em>{formatNumber(dot.value)} запросов</em>
                   <em>{formatCompact(dot.tokens)} токенов</em>
-                  <em>${dot.cost.toFixed(2)}</em>
+                  <em>{formatTrendDollar(dot.cost, costScale.max)}</em>
                 </span>
               ))}
             </div>
@@ -740,7 +1002,11 @@ function buildSmoothPath(points: { x: number; y: number }[]) {
   }, `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`);
 }
 
-function buildModelUsage(config: AiProfileConfig, periodMultiplier: number): ModelUsage[] {
+function buildModelUsage(
+  config: AiProfileConfig,
+  periodMultiplier: number,
+  trendPointCount = 7,
+): ModelUsage[] {
   const models = [
     ...mapConfigModels(config.llmModels, "llm", "LLM"),
     ...mapConfigModels(config.webSearchModels, "web", "Web Search"),
@@ -755,7 +1021,7 @@ function buildModelUsage(config: AiProfileConfig, periodMultiplier: number): Mod
     const activityBoost = model.active ? 1 : 0.36;
     const calls = Math.round(baseCalls * periodMultiplier * activityBoost);
     const tokensPerCall = 640 + (seed % 1900);
-    const trend = buildTrend(seed, calls);
+    const trend = buildTrend(seed, calls, trendPointCount);
 
     return {
       ...model,
@@ -840,10 +1106,12 @@ function buildTypeUsage(models: ModelUsage[]): ModelUsage[] {
   }).filter((model): model is ModelUsage => model !== null);
 }
 
-function buildTrend(seed: number, total: number) {
-  const weights = [0.72, 0.88, 0.78, 1.05, 0.94, 1.16, 1.28].map(
-    (weight, i) => weight + ((seed >> i) % 5) * 0.035,
-  );
+function buildTrend(seed: number, total: number, pointCount = 7) {
+  const weights = Array.from({ length: pointCount }, (_, i) => {
+    const progress = pointCount === 1 ? 0 : i / (pointCount - 1);
+    const weight = 0.72 + progress * 0.56;
+    return weight + ((seed >> (i % 8)) % 5) * 0.035;
+  });
   const weightTotal = weights.reduce((sum, weight) => sum + weight, 0);
   return weights.map((weight) => Math.max(1, Math.round((total * weight) / weightTotal)));
 }

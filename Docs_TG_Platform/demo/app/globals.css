@@ -4132,6 +4132,12 @@ button.filter-tab {
   color: var(--text3);
   font-size: 11px;
 }
+.trend-tooltip-period {
+  white-space: normal;
+  line-height: 1.35;
+  overflow: visible;
+  text-overflow: clip;
+}
 .trend-tooltip em {
   margin-top: 5px;
   color: var(--text2);
@@ -4183,8 +4189,24 @@ button.filter-tab {
   min-width: 170px;
   max-width: 220px;
 }
-.trend-labels { display: flex; justify-content: space-between; color: var(--text3); font-size: 11px; margin-top: 8px; }
-.trend-labels span { min-width: 18px; text-align: center; }
+.trend-labels {
+  position: relative;
+  min-height: 18px;
+  margin-top: 8px;
+  color: var(--text3);
+  font-size: 11px;
+  overflow: visible;
+}
+.trend-labels span {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.trend-labels--hourly { min-height: 14px; font-size: 9px; }
+.trend-labels--hourly span { font-variant-numeric: tabular-nums; }
 .analytics-metric-list { display: grid; gap: 0; }
 .analytics-metric-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(58px, auto) minmax(42px, auto); align-items: baseline; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
 .analytics-metric-row:last-child { border-bottom: none; }
