@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import {
   buildChannelMetricSummaries,
   buildChannelTrendSeries,
@@ -46,8 +47,9 @@ function ChannelMetricBarRow({ metric }: { metric: ChannelMetricSummary }) {
       <div className="bar-label">
         <span>{metric.label}</span>
       </div>
-      <div
-        className="bar-track model-usage-track channel-metric-track"
+      <div className="channel-metric-bar-zone">
+        <div
+          className="bar-track model-usage-track channel-metric-track"
         tabIndex={0}
         style={{ "--fill-width": `${fillPercent}%` } as CSSProperties}
         onMouseEnter={(event) => updateTooltipPosition(event.clientX, event.clientY)}
@@ -69,18 +71,22 @@ function ChannelMetricBarRow({ metric }: { metric: ChannelMetricSummary }) {
             } as CSSProperties
           }
         />
-      </div>
-      {tooltipPos ? (
-        <div
-          className="model-usage-tooltip"
-          style={{ left: tooltipPos.x, top: tooltipPos.y }}
-        >
-          <b>{metric.label}</b>
-          <span>Прирост: {metric.displayGrowth}</span>
-          <span>Доля за период: {metric.growthShare}%</span>
         </div>
-      ) : null}
-      <div className="channel-metric-value delta-up">{metric.displayGrowth}</div>
+      </div>
+      <div className="channel-metric-value">{metric.displayGrowth}</div>
+      {tooltipPos && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              className="model-usage-tooltip"
+              style={{ left: tooltipPos.x, top: tooltipPos.y }}
+            >
+              <b>{metric.label}</b>
+              <span>Прирост: {metric.displayGrowth}</span>
+              <span>Доля за период: {metric.growthShare}%</span>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }

@@ -3976,6 +3976,12 @@ button.filter-tab {
   padding: 14px 12px;
 }
 .channel-metrics-block {
+  --channel-metric-growth-col: 80px;
+  --channel-metric-col-gap: 10px;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) var(--channel-metric-growth-col);
+  column-gap: var(--channel-metric-col-gap);
+  row-gap: 10px;
   min-width: 0;
 }
 .channel-reactions-panel {
@@ -4013,37 +4019,21 @@ button.filter-tab {
 }
 .channel-metrics-head {
   display: grid;
-  grid-template-columns: minmax(140px, 200px) minmax(0, 1fr) minmax(88px, auto);
-  gap: 10px;
-  margin-bottom: 10px;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  align-items: end;
+  margin-bottom: 0;
   color: var(--text3);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 .channel-metrics-head span:first-child {
-  grid-column: 1 / 3;
+  grid-column: 1;
 }
 .channel-metrics-head span:last-child {
+  grid-column: 3;
   text-align: right;
-}
-.channel-metric-bar {
-  grid-template-columns: minmax(140px, 200px) minmax(0, 1fr) minmax(88px, auto);
-}
-.channel-metric-bar .channel-metric-track {
-  display: block;
-  overflow: hidden;
-  min-width: 0;
-}
-.channel-metric-bar .channel-metric-track .bar-fill {
-  display: block;
-  box-sizing: border-box;
-}
-.channel-metric-value {
-  font-size: 13px;
-  font-weight: 600;
-  text-align: right;
-  white-space: nowrap;
 }
 .analytics-dashboard-grid .analytics-card-span-2 { grid-column: 1 / -1; }
 .analytics-card-subtitle { color: var(--text3); font-size: 12px; margin: -6px 0 14px; }
@@ -4318,6 +4308,49 @@ button.filter-tab {
 .heatmap-level-4 { background: color-mix(in srgb, var(--accent) 52%, var(--bg3)); }
 .heatmap-level-5 { background: color-mix(in srgb, var(--accent) 72%, var(--bg3)); border-color: color-mix(in srgb, var(--accent) 50%, var(--border)); }
 .bar-row { display: grid; grid-template-columns: 170px minmax(0, 1fr) 52px 64px; align-items: center; gap: 10px; margin-bottom: 10px; }
+.bar-row.channel-metric-bar {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  margin-bottom: 0;
+  gap: 0;
+  align-items: center;
+}
+.bar-row.channel-metric-bar .bar-label {
+  grid-column: 1;
+  min-width: 0;
+  white-space: nowrap;
+}
+.bar-row.channel-metric-bar .channel-metric-bar-zone {
+  grid-column: 2;
+  min-width: 0;
+  max-width: 100%;
+  /* Как зазор перед «Прирост»: column-gap + «воздух» в 80px-колонке справа */
+  padding-left: calc(var(--channel-metric-growth-col) - 3.25rem);
+}
+.bar-row.channel-metric-bar .channel-metric-track {
+  flex: none;
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  overflow: hidden;
+  position: relative;
+}
+.bar-row.channel-metric-bar .channel-metric-track .bar-fill {
+  display: block;
+  box-sizing: border-box;
+}
+.bar-row.channel-metric-bar .channel-metric-value {
+  grid-column: 3;
+  justify-self: end;
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  text-align: right;
+  white-space: nowrap;
+}
 .bar-label { font-size: 12px; color: var(--text2); width: auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bar-label em { display: block; margin-top: 2px; color: var(--text3); font-size: 11px; font-style: normal; }
 .bar-track { flex: 1; height: 7px; background: var(--bg4); border-radius: 4px; overflow: hidden; }
@@ -6034,6 +6067,29 @@ button.filter-tab {
 
   .bar-meta {
     grid-column: 2;
+  }
+
+  .channel-metrics-block {
+    --channel-metric-growth-col: 72px;
+    grid-template-columns: minmax(0, 1fr) var(--channel-metric-growth-col);
+  }
+
+  .bar-row.channel-metric-bar .bar-label {
+    grid-column: 1 / -1;
+    width: auto;
+  }
+
+  .bar-row.channel-metric-bar .channel-metric-bar-zone {
+    grid-column: 1;
+  }
+
+  .bar-row.channel-metric-bar .channel-metric-value {
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  .channel-metrics-head span:first-child {
+    grid-column: 1;
   }
 
   .engagement-grid {
