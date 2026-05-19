@@ -361,58 +361,14 @@ function Area({
   value: string;
   onChange: (value: string) => void;
 }) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const resize = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    resizeProfileTextarea(textarea);
-  };
-
-  useLayoutEffect(() => {
-    resize();
-  }, [value]);
-
   return (
     <label className="profile-row">
       <span className="profile-label">{label}</span>
       <textarea
-        ref={textareaRef}
         className="profile-input profile-input-explicit profile-textarea profile-textarea-compact"
         value={value}
-        onChange={(e) => {
-          onChange(e.target.value);
-          requestAnimationFrame(resize);
-        }}
+        onChange={(e) => onChange(e.target.value)}
       />
     </label>
   );
-}
-
-function resizeProfileTextarea(textarea: HTMLTextAreaElement) {
-  const grid = textarea.closest(".profile-grid");
-  if (!grid) {
-    textarea.style.height = "auto";
-    textarea.style.height = `${textarea.scrollHeight}px`;
-    return;
-  }
-
-  const textareas = Array.from(grid.querySelectorAll<HTMLTextAreaElement>(".profile-textarea-compact"));
-  textareas.forEach((item) => {
-    item.style.height = "auto";
-  });
-
-  const rows = new Map<number, HTMLTextAreaElement[]>();
-  textareas.forEach((item) => {
-    const rowTop = item.closest(".profile-row")?.getBoundingClientRect().top ?? item.getBoundingClientRect().top;
-    const key = Math.round(rowTop);
-    rows.set(key, [...(rows.get(key) ?? []), item]);
-  });
-
-  rows.forEach((rowTextareas) => {
-    const rowHeight = Math.max(...rowTextareas.map((item) => item.scrollHeight));
-    rowTextareas.forEach((item) => {
-      item.style.height = `${rowHeight}px`;
-    });
-  });
 }

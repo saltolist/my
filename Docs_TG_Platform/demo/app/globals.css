@@ -4512,8 +4512,10 @@ button.filter-tab {
 .profile-input:focus { border-color: transparent; }
 .profile-textarea { min-height: 80px; resize: vertical; }
 .profile-system-prompt-textarea {
+  min-height: 125px;
+  height: 125px;
   resize: none;
-  overflow: hidden;
+  overflow-y: auto;
 }
 .profile-input-explicit {
   background: var(--profile-field-bg);
@@ -4845,10 +4847,11 @@ button.filter-tab {
 }
 .profile-subsection-title:first-child { margin-top: 0; }
 .profile-textarea-compact {
-  min-height: 70px;
+  min-height: 125px;
+  height: 125px;
   line-height: 1.5;
   resize: none;
-  overflow: hidden;
+  overflow-y: auto;
 }
 .profile-page .rubric-editor {
   border-radius: var(--profile-r);
