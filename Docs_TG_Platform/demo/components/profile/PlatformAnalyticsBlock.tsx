@@ -3,6 +3,7 @@
 import { useMemo, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import ChartSeriesSelector from "@/components/charts/ChartSeriesSelector";
+import ModelPicker from "@/components/composer/ModelPicker";
 import MultiSeriesTrendChart, { type TrendSeriesRow } from "@/components/charts/MultiSeriesTrendChart";
 import { useChartSeriesVisibility } from "@/lib/hooks/useChartSeriesVisibility";
 import { useApp } from "@/state/AppContext";
@@ -99,33 +100,24 @@ export default function PlatformAnalyticsBlock() {
             <div className="profile-section-title">Аналитика моделей</div>
           </div>
           <div className="model-filter-stack model-filter-stack--with-series">
-            <label className="platform-filter-label">
-              <select
-                className="platform-filter-select"
-                value={period}
-                onChange={(event) => setPeriod(Number(event.target.value))}
-              >
-                {PERIODS.map((item, i) => (
-                  <option key={item.label} value={i}>
-                    {item.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="platform-filter-label">
-              <select
-                className="platform-filter-select"
-                value={modelType}
-                onChange={(event) => setModelType(event.target.value as ModelFilterId)}
-              >
-                {MODEL_FILTERS.map((type) => (
-                  <option key={type.id} value={type.id}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <ModelPicker
+              ariaLabel="Период"
+              className="profile-model-picker"
+              value={String(period)}
+              options={PERIODS.map((item, index) => ({ id: String(index), label: item.label }))}
+              placement="down"
+              onChange={(id) => setPeriod(Number(id))}
+            />
+            <ModelPicker
+              ariaLabel="Тип модели"
+              className="profile-model-picker"
+              value={modelType}
+              options={MODEL_FILTERS.map((type) => ({ id: type.id, label: type.label }))}
+              placement="down"
+              onChange={(id) => setModelType(id as ModelFilterId)}
+            />
             <ChartSeriesSelector
+              variant="profile"
               label="Модели"
               items={selectorItems}
               isVisible={isVisible}
@@ -232,6 +224,7 @@ function ModelUsageBar({
   const callsShare = totals.calls > 0 ? Math.round((model.calls / totals.calls) * 100) : 0;
   const tokensShare = totals.tokens > 0 ? Math.round((model.tokens / totals.tokens) * 100) : 0;
   const costShare = totals.cost > 0 ? Math.round((model.cost / totals.cost) * 100) : 0;
+  const fillShare = Math.round((callsShare + tokensShare + costShare) / 3);
 
   const updateTooltipPosition = (clientX: number, anchorY: number) => {
     setTooltipPos({ x: clientX, y: anchorY });
@@ -245,7 +238,7 @@ function ModelUsageBar({
       <div
         className="bar-track model-usage-track"
         tabIndex={0}
-        style={{ "--fill-width": `${Math.max(callsShare, 4)}%` } as CSSProperties}
+        style={{ "--fill-width": `${Math.max(fillShare, 4)}%` } as CSSProperties}
         onMouseEnter={(event) => {
           const rect = event.currentTarget.getBoundingClientRect();
           updateTooltipPosition(event.clientX, rect.top);

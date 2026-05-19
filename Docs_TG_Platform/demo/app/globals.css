@@ -4183,13 +4183,21 @@ button.filter-tab {
 .model-filter-stack--with-series {
   grid-template-columns: repeat(3, minmax(140px, 1fr));
 }
-.model-filter-stack--with-series .chart-series-selector {
+.model-filter-stack--with-series .profile-model-picker,
+.model-filter-stack--with-series .chart-series-selector--profile {
   width: 100%;
   max-width: none;
   min-width: 0;
 }
-.model-filter-stack--with-series .chart-series-selector-trigger {
+.model-filter-stack--with-series .chart-series-selector--profile .model-picker-btn {
   width: 100%;
+}
+.chart-series-selector-panel--profile {
+  max-height: min(320px, calc(100vh - 24px));
+  overflow: auto;
+  display: grid;
+  gap: 2px;
+  padding: 6px;
 }
 .platform-analytics-section .analytics-card-head {
   align-items: center;
@@ -4251,6 +4259,14 @@ button.filter-tab {
   background: var(--page-header-control-bg);
 }
 .model-analytics-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+.platform-analytics-section .model-analytics-summary .mini-metric {
+  border: 1px solid color-mix(in srgb, var(--text2) 44%, #fff 56%);
+}
+.platform-analytics-section .model-analytics-summary .mini-metric::before {
+  background: var(--profile-field-bg);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
 .model-chart-hint { margin-top: 0; }
 .profile-page .profile-section.platform-analytics-section { overflow: visible; }
 .platform-analytics-section .profile-section-title { margin-bottom: 0; font-size: 17px; }
@@ -4460,7 +4476,7 @@ button.filter-tab {
 .analytics-metric-row b { color: var(--text); font-size: 14px; font-weight: 650; text-align: right; }
 .analytics-metric-row em { font-size: 12px; font-style: normal; text-align: right; }
 .engagement-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.mini-metric { border-radius: var(--rs); padding: 14px; min-height: 74px; display: flex; flex-direction: column; justify-content: center; }
+.mini-metric { border-radius: var(--profile-r); padding: 14px; min-height: 74px; display: flex; flex-direction: column; justify-content: center; }
 .mini-metric-value { color: var(--text); font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 .mini-metric-label { color: var(--text3); font-size: 12px; }
 .reaction-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }

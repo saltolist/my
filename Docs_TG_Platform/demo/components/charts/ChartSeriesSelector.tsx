@@ -22,14 +22,35 @@ type ChartSeriesSelectorProps = {
   items: ChartSeriesSelectorItem[];
   isVisible: (id: string) => boolean;
   onVisibleChange: (id: string, visible: boolean) => void;
+  /** В профиле — те же pill-селекторы, что у выбора модели в настройках. */
+  variant?: "default" | "profile";
 };
+
+function PickerChevron() {
+  return (
+    <svg
+      className="model-picker-chevron"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.4}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}
 
 export default function ChartSeriesSelector({
   label,
   items,
   isVisible,
   onVisibleChange,
+  variant = "default",
 }: ChartSeriesSelectorProps) {
+  const isProfile = variant === "profile";
   const [open, setOpen] = useState(false);
   const [panelPos, setPanelPos] = useState<{ top: number; left: number; width: number } | null>(
     null,
@@ -91,31 +112,42 @@ export default function ChartSeriesSelector({
     };
   }, [open]);
 
+  const rootClassName = isProfile
+    ? `model-picker profile-model-picker chart-series-selector chart-series-selector--profile${open ? " is-open" : ""}`
+    : `chart-series-selector${open ? " is-open" : ""}`;
+
+  const triggerClassName = isProfile ? "model-picker-btn" : "chart-series-selector-trigger";
+  const labelClassName = isProfile ? "model-picker-label" : "chart-series-selector-trigger-text";
+  const panelClassName = isProfile
+    ? "model-picker-dropdown chart-series-selector-panel chart-series-selector-panel--profile profile-checkbox-scope"
+    : "chart-series-selector-panel profile-checkbox-scope";
+
   return (
-    <div className={`chart-series-selector${open ? " is-open" : ""}`}>
+    <div className={rootClassName}>
       <button
         ref={triggerRef}
         type="button"
-        className="chart-series-selector-trigger"
+        className={triggerClassName}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={triggerLabel}
         disabled={items.length === 0}
         onClick={() => setOpen((value) => !value)}
       >
-        <span className="chart-series-selector-trigger-text">{triggerLabel}</span>
+        <span className={labelClassName}>{triggerLabel}</span>
+        {isProfile ? <PickerChevron /> : null}
       </button>
       {open && panelPos && typeof document !== "undefined"
         ? createPortal(
             <div
               ref={panelRef}
-              className="chart-series-selector-panel profile-checkbox-scope"
+              className={panelClassName}
               role="listbox"
               aria-label={label}
               style={{
                 top: panelPos.top,
                 left: panelPos.left,
-                minWidth: Math.max(panelPos.width, 220),
+                minWidth: Math.max(panelPos.width, isProfile ? panelPos.width : 220),
               }}
               onMouseDown={(event) => event.stopPropagation()}
             >
