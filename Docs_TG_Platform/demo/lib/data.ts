@@ -503,7 +503,7 @@ export const initialTelegramProfileConfig: TelegramProfileConfig = {
   syncMode: "history-and-live",
   lastSync: "сегодня, 12:40",
   importedPosts: 128,
-  botApiToken: "",
+  botApiToken: "7123456789:AAHdemoOmniBotTokenForTGPlatform",
   botStatus: "idle",
   botUsername: "",
   botLastActivity: "—",

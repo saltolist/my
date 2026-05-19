@@ -5,6 +5,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { useApp } from "@/state/AppContext";
 import type { ChatMessage as ChatMessageType } from "@/lib/types";
 import { clampActiveBranchIndex, displayUserText } from "@/lib/chatPaths";
+import { isOmnichannelChatId } from "@/lib/omnichannel";
 import { BrainIcon } from "@/components/composer/ModelPicker";
 import AiMessageToolbar from "./AiMessageToolbar";
 
@@ -200,7 +201,9 @@ export default function ChatMessage({
     setEditing(false);
   }, [ctx, draft, dispatch]);
 
-  const userBranchCount = message.userBranches?.length ?? 0;
+  const omnichannelEdit =
+    ctx?.scope === "gchat" && isOmnichannelChatId(ctx.entityId);
+  const userBranchCount = omnichannelEdit ? 0 : (message.userBranches?.length ?? 0);
   const userBranchIdx = isUser && userBranchCount > 0 ? clampActiveBranchIndex(message) : 0;
 
   const canGoBranchPrev = userBranchIdx > 0;

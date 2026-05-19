@@ -105,8 +105,11 @@ export type Post = {
   comments?: PostComment[];
 };
 
+export type GlobalChatKind = "default" | "omnichannel";
+
 export type GlobalChat = {
   id: string;
+  kind?: GlobalChatKind;
   title: string;
   preview: string;
   date: string;

@@ -6,7 +6,8 @@ import { postTitle, chatListUserLine, chatListAssistantLine } from "@/lib/helper
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import ChatListCardMenu from "../chat/ChatListCardMenu";
-import { NavIconChats, NavIconFeed } from "@/components/sidebar/NavIcons";
+import { NavIconChats, NavIconFeed, NavIconSend } from "@/components/sidebar/NavIcons";
+import { isOmnichannelChat } from "@/lib/omnichannel";
 import type { ChatMessage, ChatsTab } from "@/lib/types";
 
 type LocalChatRow = {
@@ -55,10 +56,11 @@ export default function ChatsScreen() {
   const globalCards = globalChats.map((c) => {
     const userLine = chatListUserLine(c.history, c.title);
     const assistantLine = chatListAssistantLine(c.history, c.preview);
+    const omnichannel = isOmnichannelChat(c);
     return (
       <div key={c.id} className="chat-card" onClick={() => openGChat(c.id)}>
         <div className="chat-card-icon-rail" aria-hidden>
-          <NavIconChats strokeWidth={1.5} />
+          {omnichannel ? <NavIconSend strokeWidth={1.5} /> : <NavIconChats strokeWidth={1.5} />}
         </div>
         <div className="chat-card-body-row">
           <div className="chat-card-main">

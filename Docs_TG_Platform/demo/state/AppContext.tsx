@@ -31,12 +31,15 @@ import { getGlobalReply, getPostReply } from "@/lib/replies";
 import { postTitle, truncate } from "@/lib/helpers";
 import {
   appendToActiveHistory,
+  applyOmnichannelUserMessageSave,
   applyUserMessageSave,
+  countVisibleChatMessages,
   lastUserPreviewFromVisibleHistory,
   mapMessageAtPath,
   removeMessageAtPath,
   setActiveUserBranch,
 } from "@/lib/chatPaths";
+import { isOmnichannelChatId, syncOmnichannelGlobalChats } from "@/lib/omnichannel";
 import type {
   ActiveNote,
   AiProfileConfig,
@@ -175,6 +178,49 @@ type Action =
   | { type: "UPDATE_CHANNEL_PROFILE"; config: ChannelProfileConfig }
   | { type: "UPDATE_AI_CONFIG"; config: AiProfileConfig }
   | { type: "UPDATE_TELEGRAM_CONFIG"; config: TelegramProfileConfig };
+
+function withTelegramOmnichannelSync(state: State, config: TelegramProfileConfig): State {
+  const globalChats = syncOmnichannelGlobalChats(state.globalChats, config);
+  const omni = globalChats.find((c) => isOmnichannelChatId(c.id));
+  const botMessageCount = omni ? countVisibleChatMessages(omni.history) : 0;
+  const currentGChatId =
+    config.botStatus !== "connected" && isOmnichannelChatId(state.currentGChatId)
+      ? null
+      : state.currentGChatId;
+  return {
+    ...state,
+    telegramProfileConfig: { ...config, botMessageCount },
+    globalChats,
+    currentGChatId,
+  };
+}
+
+function patchGlobalChatHistory(
+  state: State,
+  chatId: string,
+  history: ChatMessage[],
+): State {
+  const globalChats = state.globalChats.map((c) =>
+    c.id === chatId
+      ? {
+          ...c,
+          history,
+          preview: lastUserPreviewFromVisibleHistory(history),
+          date: "сейчас",
+        }
+      : c,
+  );
+  if (!globalChats.some((c) => c.id === chatId)) return state;
+  if (!isOmnichannelChatId(chatId)) return { ...state, globalChats };
+  return {
+    ...state,
+    globalChats,
+    telegramProfileConfig: {
+      ...state.telegramProfileConfig,
+      botMessageCount: countVisibleChatMessages(history),
+    },
+  };
+}
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -332,51 +378,26 @@ function reducer(state: State, action: Action): State {
       return { ...state, posts: action.posts };
     case "ADD_GLOBAL_CHAT":
       return { ...state, globalChats: [action.chat, ...state.globalChats] };
-    case "PUSH_GLOBAL_CHAT":
-      return {
-        ...state,
-        globalChats: state.globalChats.map((c) => {
-          if (c.id !== action.chatId) return c;
-          const history = appendToActiveHistory(c.history, action.message);
-          return {
-            ...c,
-            history,
-            preview:
-              action.message.role === "user" && action.message.text
-                ? action.message.text
-                : lastUserPreviewFromVisibleHistory(history),
-            date: "сейчас",
-          };
-        }),
-      };
-    case "UPDATE_GLOBAL_CHAT_MESSAGE":
-      return {
-        ...state,
-        globalChats: state.globalChats.map((c) => {
-          if (c.id !== action.chatId) return c;
-          const history = applyUserMessageSave(c.history, action.path, action.text);
-          return {
-            ...c,
-            history,
-            preview: lastUserPreviewFromVisibleHistory(history),
-            date: "сейчас",
-          };
-        }),
-      };
-    case "DELETE_GLOBAL_CHAT_MESSAGE":
-      return {
-        ...state,
-        globalChats: state.globalChats.map((c) => {
-          if (c.id !== action.chatId) return c;
-          const history = removeMessageAtPath(c.history, action.path);
-          return {
-            ...c,
-            history,
-            preview: lastUserPreviewFromVisibleHistory(history),
-            date: "сейчас",
-          };
-        }),
-      };
+    case "PUSH_GLOBAL_CHAT": {
+      const chat = state.globalChats.find((c) => c.id === action.chatId);
+      if (!chat) return state;
+      const history = appendToActiveHistory(chat.history, action.message);
+      return patchGlobalChatHistory(state, action.chatId, history);
+    }
+    case "UPDATE_GLOBAL_CHAT_MESSAGE": {
+      const chat = state.globalChats.find((c) => c.id === action.chatId);
+      if (!chat) return state;
+      const history = isOmnichannelChatId(action.chatId)
+        ? applyOmnichannelUserMessageSave(chat.history, action.path, action.text)
+        : applyUserMessageSave(chat.history, action.path, action.text);
+      return patchGlobalChatHistory(state, action.chatId, history);
+    }
+    case "DELETE_GLOBAL_CHAT_MESSAGE": {
+      const chat = state.globalChats.find((c) => c.id === action.chatId);
+      if (!chat) return state;
+      const history = removeMessageAtPath(chat.history, action.path);
+      return patchGlobalChatHistory(state, action.chatId, history);
+    }
     case "DELETE_GLOBAL_CHAT":
       return {
         ...state,
@@ -485,7 +506,7 @@ function reducer(state: State, action: Action): State {
     case "UPDATE_AI_CONFIG":
       return { ...state, aiProfileConfig: action.config };
     case "UPDATE_TELEGRAM_CONFIG":
-      return { ...state, telegramProfileConfig: action.config };
+      return withTelegramOmnichannelSync(state, action.config);
     default:
       return state;
   }

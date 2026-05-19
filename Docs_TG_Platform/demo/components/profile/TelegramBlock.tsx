@@ -110,7 +110,7 @@ export default function TelegramBlock() {
       botStatus: "connected",
       botUsername: `@omni_bot_${tokenHint}`,
       botLastActivity: "только что",
-      botMessageCount: 2847,
+      botMessageCount: 0,
     };
     update(next);
     dispatch({

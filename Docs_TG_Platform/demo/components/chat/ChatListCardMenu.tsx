@@ -1,6 +1,7 @@
 "use client";
 
 import { ContextMenu, type CtxMenuItem } from "@/components/ContextMenu";
+import { isOmnichannelChatId } from "@/lib/omnichannel";
 import { useApp } from "@/state/AppContext";
 import MessageTrashIcon from "./MessageTrashIcon";
 import MessageRenameIcon from "./MessageRenameIcon";
@@ -23,6 +24,8 @@ export default function ChatListCardMenu(props: Props) {
   const { dispatch, navigate, state } = useApp();
   const { title } = props;
 
+  const isOmnichannel = props.scope === "global" && isOmnichannelChatId(props.chatId);
+
   const items: CtxMenuItem[] = [
     {
       label: "Переименовать",
@@ -44,26 +47,30 @@ export default function ChatListCardMenu(props: Props) {
         }
       },
     },
-    {
-      label: "Удалить",
-      icon: <MessageTrashIcon />,
-      danger: true,
-      onClick: () => {
-        if (!window.confirm(`Удалить чат «${title}»?`)) return;
-        if (props.scope === "global") {
-          dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: props.chatId });
-          if (state.screen === "gchat" && state.currentGChatId === props.chatId) {
-            navigate("chats", { skipHistory: true });
-          }
-        } else {
-          dispatch({
-            type: "DELETE_LOCAL_CHAT",
-            postId: props.postId,
-            chatId: props.chatId,
-          });
-        }
-      },
-    },
+    ...(isOmnichannel
+      ? []
+      : [
+          {
+            label: "Удалить",
+            icon: <MessageTrashIcon />,
+            danger: true,
+            onClick: () => {
+              if (!window.confirm(`Удалить чат «${title}»?`)) return;
+              if (props.scope === "global") {
+                dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: props.chatId });
+                if (state.screen === "gchat" && state.currentGChatId === props.chatId) {
+                  navigate("chats", { skipHistory: true });
+                }
+              } else {
+                dispatch({
+                  type: "DELETE_LOCAL_CHAT",
+                  postId: props.postId,
+                  chatId: props.chatId,
+                });
+              }
+            },
+          },
+        ]),
   ];
 
   return (

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/lib/chatPaths";
+import { isOmnichannelChat, isOmnichannelChatId } from "@/lib/omnichannel";
 import { globalChatById, useApp } from "@/state/AppContext";
 import Composer from "../composer/Composer";
 import ChatMessage from "../chat/ChatMessage";
@@ -10,6 +11,7 @@ import { ContextMenu } from "../ContextMenu";
 export default function GlobalChatScreen() {
   const { state, navigate, navigateBack, dispatch, sendGChat } = useApp();
   const chat = globalChatById(state, state.currentGChatId);
+  const omnichannel = chat ? isOmnichannelChat(chat) : isOmnichannelChatId(state.currentGChatId);
   const messagesRef = useRef<HTMLDivElement>(null);
   const chatHistory = chat?.history;
   const flatMessages = useMemo(() => flattenVisibleWithPaths(chatHistory ?? []), [chatHistory]);
@@ -36,21 +38,23 @@ export default function GlobalChatScreen() {
           <button className="btn btn-ghost btn-sm" onClick={() => navigateBack("chats")} type="button">
             ← Назад
           </button>
-          <ContextMenu
-            items={[
-              {
-                label: "Удалить чат",
-                icon: "🗑",
-                danger: true,
-                onClick: () => {
-                  if (!chat) return;
-                  if (!confirm(`Удалить чат «${chat.title}»?`)) return;
-                  dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: chat.id });
-                  navigate("chats", { skipHistory: true });
+          {omnichannel ? null : (
+            <ContextMenu
+              items={[
+                {
+                  label: "Удалить чат",
+                  icon: "🗑",
+                  danger: true,
+                  onClick: () => {
+                    if (!chat) return;
+                    if (!confirm(`Удалить чат «${chat.title}»?`)) return;
+                    dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: chat.id });
+                    navigate("chats", { skipHistory: true });
+                  },
                 },
-              },
-            ]}
-          />
+              ]}
+            />
+          )}
         </div>
       </div>
       <div className="gchat-layout">

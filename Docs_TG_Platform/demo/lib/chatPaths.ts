@@ -138,6 +138,11 @@ export function flattenVisibleWithPaths(
   return out;
 }
 
+/** Число сообщений в видимом треде (для счётчика омниканального бота). */
+export function countVisibleChatMessages(history: ChatMessage[]): number {
+  return flattenVisibleWithPaths(history).length;
+}
+
 export function lastAssistantFlatIndex(
   flat: Array<{ message: ChatMessage; path: number[] }>,
 ): number {
@@ -275,6 +280,20 @@ function applyUserMessageSaveCore(history: ChatMessage[], path: number[], newTex
 export function applyUserMessageSave(history: ChatMessage[], path: number[], newText: string): ChatMessage[] {
   const next = applyUserMessageSaveCore(history, path, newText);
   if (next === history) return history;
+  return replaceTailAfterUserWithStubAi(next, path);
+}
+
+/** Омниканальный бот: правка на месте без веток, затем одна заглушка ассистента. */
+export function applyOmnichannelUserMessageSave(
+  history: ChatMessage[],
+  path: number[],
+  newText: string,
+): ChatMessage[] {
+  const u = resolveMessage(history, path);
+  if (!u || u.role !== "user") return history;
+  const trimmed = newText.trim();
+  if (trimmed === displayUserText(u).trim()) return history;
+  const next = mapMessageAtPath(history, path, () => ({ role: "user", text: trimmed }));
   return replaceTailAfterUserWithStubAi(next, path);
 }
 

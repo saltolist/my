@@ -67,6 +67,16 @@ export function NavIconNotes(props: IconProps) {
   );
 }
 
+/** Отправка / омниканальный бот — бумажный самолётик */
+export function NavIconSend(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M22 2 11 13" />
+      <path d="M22 2 15 22 11 13 2 9 22 2" />
+    </BaseIcon>
+  );
+}
+
 /** Чаты — облако сообщения */
 export function NavIconChats(props: IconProps) {
   return (
