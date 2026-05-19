@@ -1,24 +1,63 @@
 import { getPeriodChartLabels } from "@/lib/trendChart/periodLabels";
-import { buildTrend, formatCompact, formatNumber, hashString } from "@/lib/trendChart/math";
+import { buildTrend, formatNumber, hashString } from "@/lib/trendChart/math";
 import type { TrendSeriesRow } from "@/components/charts/MultiSeriesTrendChart";
 
 const CHANNEL_PERIOD_MULTIPLIERS = [0.24, 1, 2.8, 7.4];
 
 const CHANNEL_METRICS = [
-  { id: "subscribers", label: "Подписчики", color: "#3d7cff", base: 214, growthLabel: "подписчиков" },
-  { id: "reactions", label: "Реакции", color: "#4caf82", base: 1286, growthLabel: "реакций" },
-  { id: "views", label: "Просмотры", color: "#e8954a", base: 3820, growthLabel: "просмотров" },
-  { id: "comments", label: "Комментарии", color: "#9b7cdb", base: 94, growthLabel: "комментариев" },
-  { id: "reposts", label: "Репосты", color: "#e85a5a", base: 61, growthLabel: "репостов" },
+  {
+    id: "subscribers",
+    label: "Подписчики",
+    color: "#3d7cff",
+    base: 214,
+    countForms: ["подписчик", "подписчика", "подписчиков"] as const,
+  },
+  {
+    id: "reactions",
+    label: "Реакции",
+    color: "#4caf82",
+    base: 1286,
+    countForms: ["реакция", "реакции", "реакций"] as const,
+  },
+  {
+    id: "views",
+    label: "Просмотры",
+    color: "#e8954a",
+    base: 3820,
+    countForms: ["просмотр", "просмотра", "просмотров"] as const,
+  },
+  {
+    id: "comments",
+    label: "Комментарии",
+    color: "#9b7cdb",
+    base: 94,
+    countForms: ["комментарий", "комментария", "комментариев"] as const,
+  },
+  {
+    id: "reposts",
+    label: "Репосты",
+    color: "#e85a5a",
+    base: 61,
+    countForms: ["репост", "репоста", "репостов"] as const,
+  },
   {
     id: "er",
     label: "ER постов",
     color: "#35b8d4",
     base: 48,
-    growthLabel: "ER",
     isEr: true,
   },
 ] as const;
+
+function pluralRu(count: number, forms: readonly [string, string, string]) {
+  const n = Math.abs(Math.round(count));
+  const mod100 = n % 100;
+  const mod10 = n % 10;
+  if (mod100 >= 11 && mod100 <= 14) return forms[2];
+  if (mod10 === 1) return forms[0];
+  if (mod10 >= 2 && mod10 <= 4) return forms[1];
+  return forms[2];
+}
 
 export const CHANNEL_POST_TABLE_METRICS = CHANNEL_METRICS.map((metric) => ({
   id: metric.id,
@@ -151,26 +190,12 @@ export function formatChannelGrowthPrimary(
     return `ER ${er}%`;
   }
 
-  return `+${formatNumber(value)} ${metric.growthLabel}`;
+  const total = cumulativeChannelValue(values, pointIndex);
+  if (!("countForms" in metric)) return formatNumber(total);
+
+  return `${formatNumber(total)} ${pluralRu(total, metric.countForms)}`;
 }
 
-export function formatChannelGrowthExtra(
-  metricId: string,
-  value: number,
-  pointIndex: number,
-  values: number[],
-): string[] {
-  const prev = pointIndex > 0 ? (values[pointIndex - 1] ?? 0) : value;
-  const delta = prev > 0 ? Math.round(((value - prev) / prev) * 100) : 0;
-  const deltaLabel = delta >= 0 ? `+${delta}%` : `${delta}%`;
-  const totalLabel =
-    metricId === "er"
-      ? `к прошлой точке: ${delta >= 0 ? "+" : ""}${(value / 10 - prev / 10).toFixed(1)} п.п.`
-      : `к прошлой точке: ${deltaLabel}`;
-
-  if (value >= 10_000) {
-    return [totalLabel, `всего за точку: ${formatCompact(value)}`];
-  }
-
-  return [totalLabel];
+function cumulativeChannelValue(values: number[], pointIndex: number) {
+  return values.slice(0, pointIndex + 1).reduce((sum, item) => sum + item, 0);
 }

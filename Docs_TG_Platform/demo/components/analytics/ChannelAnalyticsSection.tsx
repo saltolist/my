@@ -8,7 +8,6 @@ import ChannelReactionsPanel from "@/components/analytics/ChannelReactionsPanel"
 import {
   ANALYTICS_SCREEN_PERIOD_TO_CHART,
   buildChannelTrendSeries,
-  formatChannelGrowthExtra,
   formatChannelGrowthPrimary,
 } from "@/lib/channelAnalyticsTrend";
 import { useChartSeriesVisibility } from "@/lib/hooks/useChartSeriesVisibility";
@@ -49,15 +48,6 @@ export default function ChannelAnalyticsSection({ periodIndex }: { periodIndex: 
           getDotPrimaryLine={(row, value, pointIndex) =>
             formatChannelGrowthPrimary(row.id, value, pointIndex, row.values)
           }
-          getDotExtraLines={(row, value, pointIndex) => {
-            const peak = row.values.reduce((max, item) => Math.max(max, item), 0);
-            const shareOfPeak =
-              peak > 0 ? Math.round((Math.max(0, value) / peak) * 100) : 0;
-            return [
-              `от пика метрики: ${shareOfPeak}%`,
-              ...formatChannelGrowthExtra(row.id, value, pointIndex, row.values),
-            ];
-          }}
         />
       </div>
 
