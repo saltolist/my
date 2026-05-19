@@ -20,6 +20,11 @@ const CHANNEL_METRICS = [
   },
 ] as const;
 
+export const CHANNEL_POST_TABLE_METRICS = CHANNEL_METRICS.map((metric) => ({
+  id: metric.id,
+  label: metric.id === "er" ? "ER" : metric.label,
+}));
+
 const CHANNEL_CURRENT_TOTALS: Record<string, number> = {
   subscribers: 8412,
   reactions: 1286,
@@ -30,6 +35,13 @@ const CHANNEL_CURRENT_TOTALS: Record<string, number> = {
 };
 
 export const ANALYTICS_SCREEN_PERIOD_TO_CHART = [1, 2, 3, 4] as const;
+
+/** 0–100: доля от максимума серии за период (для сравнимого графика). */
+export function normalizeTrendValuesToPercent(values: number[]): number[] {
+  const max = values.reduce((peak, value) => Math.max(peak, value), 0);
+  if (max <= 0) return values.map(() => 0);
+  return values.map((value) => (Math.max(0, value) / max) * 100);
+}
 
 export function buildChannelTrendSeries(analyticsPeriodIndex: number): {
   labels: string[];
@@ -50,6 +62,7 @@ export function buildChannelTrendSeries(analyticsPeriodIndex: number): {
       label: metric.label,
       color: metric.color,
       values,
+      yValues: normalizeTrendValuesToPercent(values),
     };
   });
 
@@ -117,6 +130,11 @@ export function buildChannelMetricSummaries(
     growthShare: totalGrowth > 0 ? Math.round((growth / totalGrowth) * 100) : 0,
     displayGrowth: formatGrowthDelta(row.id, growth),
   }));
+}
+
+export function formatChannelPostMetricValue(metricId: string, value: number): string {
+  if (isErMetric(metricId)) return `${value.toFixed(1)}%`;
+  return formatNumber(Math.round(value));
 }
 
 export function formatChannelGrowthPrimary(

@@ -3965,6 +3965,7 @@ button.filter-tab {
   grid-template-columns: minmax(0, 1fr) 248px;
   gap: 16px;
   align-items: stretch;
+  margin-bottom: 16px;
 }
 .analytics-metrics-row > .analytics-card {
   margin-bottom: 0;
@@ -4442,12 +4443,58 @@ button.filter-tab {
 .bar-val { font-size: 12px; color: var(--text3); width: 44px; text-align: right; flex-shrink: 0; }
 .bar-meta { font-size: 12px; color: var(--text3); width: 58px; text-align: right; flex-shrink: 0; }
 .top-table { width: 100%; min-width: 640px; border-collapse: collapse; }
+.analytics-top-posts-table {
+  min-width: 920px;
+  table-layout: fixed;
+  width: 100%;
+}
+.analytics-top-posts-table .analytics-top-posts-col-title {
+  width: 32%;
+  min-width: 200px;
+}
+.analytics-top-posts-table .analytics-top-posts-col-metric {
+  width: calc(68% / 6);
+}
+.analytics-top-posts-table .analytics-top-posts-col-action {
+  width: 40px;
+}
+.analytics-top-posts-table th,
+.analytics-top-posts-table td {
+  padding-left: 10px;
+  padding-right: 10px;
+  vertical-align: middle;
+}
+.analytics-top-posts-table th:first-child,
+.analytics-top-posts-table td:first-child {
+  padding-left: 0;
+  text-align: left;
+}
+.analytics-top-posts-table th:not(:first-child):not(:last-child),
+.analytics-top-posts-table td:not(:first-child):not(:last-child) {
+  text-align: right;
+  white-space: nowrap;
+}
+.analytics-top-posts-table th:last-child,
+.analytics-top-posts-table td:last-child {
+  padding-right: 0;
+  text-align: right;
+  width: 40px;
+}
 .model-usage-table { min-width: 760px; }
 .top-table th { text-align: left; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; padding: 0 0 8px; border-bottom: 1px solid var(--border); }
 .top-table td { padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
 .top-table td:first-child { color: var(--text); }
 .top-table td:not(:first-child) { color: var(--text2); text-align: right; }
 .top-table tr:last-child td { border-bottom: none; }
+.top-table.analytics-top-posts-table th:not(:first-child):not(:last-child) {
+  text-align: right;
+}
+.top-table.analytics-top-posts-table th:first-child {
+  text-align: left;
+}
+.top-table.analytics-top-posts-table th:last-child {
+  text-align: right;
+}
 .top-link { color: var(--accent); cursor: pointer; font-size: 12px; }
 
 @media (max-width: 980px) {
@@ -6182,26 +6229,8 @@ button.filter-tab {
     overflow-x: auto;
   }
 
-  .top-table {
-    table-layout: fixed;
-  }
-
-  .top-table th:first-child,
-  .top-table td:first-child {
-    width: auto;
-    padding-right: 10px;
-    white-space: normal;
-    word-break: break-word;
-  }
-
-  .top-table th:nth-child(2),
-  .top-table td:nth-child(2) {
-    width: 74px;
-  }
-
-  .top-table th:last-child,
-  .top-table td:last-child {
-    width: 24px;
+  .analytics-top-posts-table .analytics-top-posts-col-title {
+    min-width: 160px;
   }
 }
 

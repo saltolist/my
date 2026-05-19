@@ -5,7 +5,22 @@ import { useApp } from "@/state/AppContext";
 import ChannelMetricBars from "@/components/analytics/ChannelMetricBars";
 import ChannelReactionsPanel from "@/components/analytics/ChannelReactionsPanel";
 import ChannelTrendChart from "@/components/analytics/ChannelTrendChart";
+import {
+  CHANNEL_POST_TABLE_METRICS,
+  formatChannelPostMetricValue,
+} from "@/lib/channelAnalyticsTrend";
 import PageHeader from "../PageHeader";
+
+type TopPostRow = {
+  id: number;
+  title: string;
+  subscribers: number;
+  reactions: number;
+  views: number;
+  comments: number;
+  reposts: number;
+  er: number;
+};
 
 const PERIODS = ["7 дней", "30 дней", "90 дней", "Всё время"];
 
@@ -19,30 +34,36 @@ const heatmapRows = [
   { day: "Вс", values: [2, 3, 4, 4, 5] },
 ];
 
-const topPosts = [
+const topPosts: TopPostRow[] = [
   {
     id: 1,
     title: "Синдром чистого листа с деньгами",
-    rubric: "Психология денег",
-    reach: "5 100",
-    er: "6.4%",
+    subscribers: 51,
+    reactions: 917,
+    views: 5100,
+    comments: 48,
     reposts: 23,
+    er: 6.4,
   },
   {
     id: 2,
     title: "Почему ИИС — не страшно",
-    rubric: "Разбор",
-    reach: "4 200",
-    er: "5.1%",
+    subscribers: 34,
+    reactions: 612,
+    views: 4200,
+    comments: 31,
     reposts: 18,
+    er: 5.1,
   },
   {
     id: 5,
     title: "Личный опыт с ETF",
-    rubric: "Личный опыт",
-    reach: "3 800",
-    er: "5.8%",
+    subscribers: 28,
+    reactions: 488,
+    views: 3800,
+    comments: 22,
     reposts: 14,
+    er: 5.8,
   },
 ];
 
@@ -98,7 +119,7 @@ export default function AnalyticsScreen() {
           <div className="analytics-card analytics-chart-card">
             <div className="section-title">Динамика прироста</div>
             <div className="analytics-card-subtitle">
-              Подписчики, просмотры, реакции, комментарии, репосты и ER по выбранному периоду
+              Линии сравниваются в % от пика каждой метрики; в подсказке — фактический прирост
             </div>
             <ChannelTrendChart periodIndex={period} />
           </div>
@@ -120,25 +141,35 @@ export default function AnalyticsScreen() {
 
           <div className="analytics-card">
             <div className="section-title">Лучшие посты за период</div>
-            <table className="top-table">
+            <table className="top-table analytics-top-posts-table">
+              <colgroup>
+                <col className="analytics-top-posts-col-title" />
+                {CHANNEL_POST_TABLE_METRICS.map((metric) => (
+                  <col key={metric.id} className="analytics-top-posts-col-metric" />
+                ))}
+                <col className="analytics-top-posts-col-action" />
+              </colgroup>
               <thead>
                 <tr>
                   <th>Пост</th>
-                  <th>Рубрика</th>
-                  <th>Охваты</th>
-                  <th>ER</th>
-                  <th>Репосты</th>
-                  <th></th>
+                  {CHANNEL_POST_TABLE_METRICS.map((metric) => (
+                    <th key={metric.id}>{metric.label}</th>
+                  ))}
+                  <th aria-label="Открыть пост" />
                 </tr>
               </thead>
               <tbody>
                 {topPosts.map((post) => (
                   <tr key={post.id}>
                     <td>{post.title}</td>
-                    <td>{post.rubric}</td>
-                    <td>{post.reach}</td>
-                    <td>{post.er}</td>
-                    <td>{post.reposts}</td>
+                    {CHANNEL_POST_TABLE_METRICS.map((metric) => (
+                      <td key={metric.id}>
+                        {formatChannelPostMetricValue(
+                          metric.id,
+                          post[metric.id as keyof TopPostRow] as number,
+                        )}
+                      </td>
+                    ))}
                     <td>
                       <span className="top-link" onClick={() => openPost(post.id)}>
                         →

@@ -23,12 +23,19 @@ export default function ChannelTrendChart({ periodIndex }: { periodIndex: number
       period={chartPeriod}
       compactAxisLabels={chartPeriod === 2 || chartPeriod === 3 || chartPeriod === 4}
       title="Динамика прироста по метрикам канала"
+      formatAxisValue={(value) => `${Math.round(value)}%`}
       getDotPrimaryLine={(row, value, pointIndex) =>
         formatChannelGrowthPrimary(row.id, value, pointIndex, row.values)
       }
-      getDotExtraLines={(row, value, pointIndex) =>
-        formatChannelGrowthExtra(row.id, value, pointIndex, row.values)
-      }
+      getDotExtraLines={(row, value, pointIndex) => {
+        const peak = row.values.reduce((max, item) => Math.max(max, item), 0);
+        const shareOfPeak =
+          peak > 0 ? Math.round((Math.max(0, value) / peak) * 100) : 0;
+        return [
+          `от пика метрики: ${shareOfPeak}%`,
+          ...formatChannelGrowthExtra(row.id, value, pointIndex, row.values),
+        ];
+      }}
     />
   );
 }
