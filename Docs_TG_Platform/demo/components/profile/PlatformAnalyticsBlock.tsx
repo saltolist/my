@@ -206,6 +206,32 @@ function getTrendPointXPercent(index: number, pointCount: number) {
   return (index / (pointCount - 1)) * 100;
 }
 
+const TREND_CLUSTER_STRIP_MARGIN_PX = 12;
+const TREND_CLUSTER_STRIP_MAX_COLUMNS = 5;
+const TREND_CLUSTER_LEFT_EDGE_PERCENT = 20;
+const TREND_CLUSTER_RIGHT_EDGE_PERCENT = 80;
+
+function getClusterStripColumnCount(cardCount: number) {
+  return Math.min(Math.max(cardCount, 1), TREND_CLUSTER_STRIP_MAX_COLUMNS);
+}
+
+function computeClusterStripLeft(pointerX: number, stripWidth: number, dotXPercent: number) {
+  const margin = TREND_CLUSTER_STRIP_MARGIN_PX;
+  const minLeft = margin;
+  const maxLeft = Math.max(minLeft, window.innerWidth - stripWidth - margin);
+
+  let anchorOffset: number;
+  if (dotXPercent >= TREND_CLUSTER_RIGHT_EDGE_PERCENT) {
+    anchorOffset = stripWidth;
+  } else if (dotXPercent <= TREND_CLUSTER_LEFT_EDGE_PERCENT) {
+    anchorOffset = 0;
+  } else {
+    anchorOffset = stripWidth / 2;
+  }
+
+  return Math.round(Math.max(minLeft, Math.min(maxLeft, pointerX - anchorOffset)));
+}
+
 type ModelTypeId = "llm" | "web" | "orchestrator" | "webReasoner" | "ragReasoner";
 type ModelFilterId = "all" | ModelTypeId;
 
@@ -587,9 +613,12 @@ function ModelTrendChart({
 }) {
   const [hoveredClusterId, setHoveredClusterId] = useState<string | null>(null);
   const [hoveredDotKey, setHoveredDotKey] = useState<string | null>(null);
-  const [clusterStripAnchor, setClusterStripAnchor] = useState<{ left: number; bottom: number } | null>(
-    null,
-  );
+  const [clusterStripAnchor, setClusterStripAnchor] = useState<{
+    left?: number;
+    bottom: number;
+  } | null>(null);
+  const [clusterPointer, setClusterPointer] = useState<{ x: number; dotX: number } | null>(null);
+  const clusterStripRef = useRef<HTMLDivElement>(null);
   const chartTop = 1;
   const chartBottom = 88;
   const chartHeight = chartBottom - chartTop;
@@ -687,14 +716,14 @@ function ModelTrendChart({
     };
   }, [chartRows, labels, period, chartSizePx.height, chartSizePx.width]);
   dotClustersRef.current = dotClusters;
-  const clusterStripSyncKey =
-    hoveredClusterId && hoveredDotKey
-      ? `${hoveredClusterId}\u0000${hoveredDotKey}\u0000${chartSizePx.width}\u0000${chartSizePx.height}`
-      : "";
   const hoveredCluster = useMemo(
     () => dotClusters.find((cluster) => cluster.id === hoveredClusterId) ?? null,
     [dotClusters, hoveredClusterId],
   );
+  const clusterStripSyncKey =
+    hoveredClusterId && hoveredDotKey && clusterPointer
+      ? `${hoveredClusterId}\u0000${hoveredDotKey}\u0000${clusterPointer.x}\u0000${clusterPointer.dotX}\u0000${chartSizePx.width}\u0000${chartSizePx.height}\u0000${hoveredCluster?.dots.length ?? 0}`
+      : "";
   const hoveredLineHighlights = useMemo(() => {
     if (!hoveredCluster) return new Map<string, number>();
     const highlights = new Map<string, number>();
@@ -733,10 +762,22 @@ function ModelTrendChart({
     }
 
     const update = () => {
-      const rect = anchor.getBoundingClientRect();
+      const anchorRect = anchor.getBoundingClientRect();
+      const strip = clusterStripRef.current;
+      if (!strip) return;
+
+      const pointerX = clusterPointer?.x ?? anchorRect.left + anchorRect.width / 2;
+      const dotX = clusterPointer?.dotX ?? 50;
+      const bottom = Math.round(window.innerHeight - anchorRect.top + 10);
+      const stripWidth = strip.offsetWidth;
+      if (stripWidth === 0) {
+        requestAnimationFrame(update);
+        return;
+      }
+
       const next = {
-        left: Math.round(rect.left + rect.width / 2),
-        bottom: Math.round(window.innerHeight - rect.top + 10),
+        left: computeClusterStripLeft(pointerX, stripWidth, dotX),
+        bottom,
       };
       setClusterStripAnchor((prev) =>
         prev && prev.left === next.left && prev.bottom === next.bottom ? prev : next,
@@ -744,14 +785,22 @@ function ModelTrendChart({
     };
 
     update();
+    const strip = clusterStripRef.current;
+    const resizeObserver =
+      strip &&
+      new ResizeObserver(() => {
+        update();
+      });
+    resizeObserver?.observe(strip);
     window.addEventListener("resize", update);
     window.addEventListener("scroll", update, true);
 
     return () => {
+      resizeObserver?.disconnect();
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
     };
-  }, [clusterStripSyncKey]);
+  }, [clusterStripSyncKey, clusterPointer]);
 
   return (
     <div className="trend-plot model-trend-plot">
@@ -761,11 +810,15 @@ function ModelTrendChart({
         onMouseLeave={() => {
           setHoveredClusterId(null);
           setHoveredDotKey(null);
+          setClusterPointer(null);
+          setClusterStripAnchor(null);
         }}
         onBlur={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
             setHoveredClusterId(null);
             setHoveredDotKey(null);
+            setClusterPointer(null);
+            setClusterStripAnchor(null);
           }
         }}
       >
@@ -843,23 +896,47 @@ function ModelTrendChart({
                   "--dot-color": dot.color,
                 } as CSSProperties
               }
-              onMouseEnter={() => {
+              onMouseEnter={(event) => {
+                const rect = event.currentTarget.getBoundingClientRect();
                 setHoveredClusterId(dot.clusterId);
                 setHoveredDotKey(trendDotKey(dot));
+                setClusterPointer({ x: event.clientX, dotX: dot.x });
+                setClusterStripAnchor({
+                  bottom: Math.round(window.innerHeight - rect.top + 10),
+                });
+              }}
+              onMouseMove={(event) => {
+                if (dot.clusterSize < 2) return;
+                setClusterPointer({ x: event.clientX, dotX: dot.x });
+                setClusterStripAnchor((prev) =>
+                  prev ? { bottom: prev.bottom, left: undefined } : prev,
+                );
               }}
               onMouseLeave={(event) => {
                 if (!shouldClearTrendDotHover(event)) return;
                 setHoveredClusterId(null);
                 setHoveredDotKey(null);
+                setClusterPointer(null);
+                setClusterStripAnchor(null);
               }}
-              onFocus={() => {
+              onFocus={(event) => {
+                const rect = event.currentTarget.getBoundingClientRect();
                 setHoveredClusterId(dot.clusterId);
                 setHoveredDotKey(trendDotKey(dot));
+                setClusterPointer({
+                  x: rect.left + rect.width / 2,
+                  dotX: dot.x,
+                });
+                setClusterStripAnchor({
+                  bottom: Math.round(window.innerHeight - rect.top + 10),
+                });
               }}
               onBlur={(event) => {
                 if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
                 setHoveredClusterId(null);
                 setHoveredDotKey(null);
+                setClusterPointer(null);
+                setClusterStripAnchor(null);
               }}
             >
               <span className="trend-html-dot-body" aria-hidden>
@@ -905,18 +982,26 @@ function ModelTrendChart({
       </div>
       {hoveredCluster &&
         hoveredCluster.dots.length > 1 &&
+        clusterPointer &&
         clusterStripAnchor &&
         typeof document !== "undefined" &&
         createPortal(
           <div
+            ref={clusterStripRef}
             className="trend-tooltip-strip trend-tooltip-strip--fixed"
             style={{
-              left: `${clusterStripAnchor.left}px`,
+              left: `${clusterStripAnchor.left ?? clusterPointer.x}px`,
               bottom: `${clusterStripAnchor.bottom}px`,
+              opacity: clusterStripAnchor.left == null ? 0 : 1,
             }}
             aria-hidden
           >
-            <div className="trend-tooltip-strip-track">
+            <div
+              className="trend-tooltip-strip-track"
+              style={{
+                gridTemplateColumns: `repeat(${getClusterStripColumnCount(hoveredCluster.dots.length)}, minmax(170px, 220px))`,
+              }}
+            >
               {hoveredCluster.dots.map((dot) => (
                 <span key={trendDotKey(dot)} className="trend-tooltip trend-tooltip-card">
                   <b>{dot.modelLabel}</b>

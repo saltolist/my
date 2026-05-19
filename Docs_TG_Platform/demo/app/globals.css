@@ -4157,26 +4157,26 @@ button.filter-tab {
   z-index: 6;
   pointer-events: none;
   overflow: visible;
-  max-width: min(96vw, 920px);
+  width: max-content;
+  max-width: min(96vw, calc(5 * 220px + 4 * 8px));
 }
 .trend-tooltip-strip--fixed {
   position: fixed;
   top: auto;
   z-index: 10060;
-  transform: translateX(-50%);
+  transform: none;
 }
 .trend-tooltip-strip-track {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
+  display: grid;
   gap: 8px;
-  overflow-x: auto;
-  overflow-y: visible;
+  align-content: end;
+  justify-content: center;
+  width: max-content;
+  max-width: min(96vw, calc(5 * 220px + 4 * 8px));
+  overflow: visible;
   padding: 32px 28px 48px;
-  scrollbar-width: thin;
 }
 .trend-tooltip-strip--fixed .trend-tooltip-strip-track {
-  overflow: visible;
   padding: 0;
 }
 .trend-tooltip-card {
@@ -4185,8 +4185,7 @@ button.filter-tab {
   bottom: auto;
   opacity: 1;
   transform: none;
-  flex: 0 0 auto;
-  min-width: 170px;
+  min-width: 0;
   max-width: 220px;
 }
 .trend-labels {
