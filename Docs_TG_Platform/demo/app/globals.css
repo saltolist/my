@@ -4011,13 +4011,13 @@ button.filter-tab {
 }
 .model-analytics-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
 .model-chart-hint { margin-top: 0; }
-.profile-page .platform-analytics-section { overflow: visible; }
+.profile-page .profile-section.platform-analytics-section { overflow: visible; }
 .platform-analytics-section .profile-section-title { margin-bottom: 0; font-size: 17px; }
 .platform-section-title-spaced { margin-bottom: 18px !important; }
 .platform-table-scroll { overflow-x: auto; }
 .trend-plot { padding: 16px 34px 0; }
-.model-trend-plot { padding-top: 0; padding-left: 56px; }
-.trend-chart-wrap { position: relative; }
+.model-trend-plot { padding-top: 0; padding-left: 56px; overflow: visible; }
+.trend-chart-wrap { position: relative; overflow: visible; }
 .trend-chart { display: block; width: 100%; height: 145px; overflow: visible; }
 .model-trend-plot .trend-chart { height: 493px; }
 .trend-y-label {
@@ -4033,28 +4033,65 @@ button.filter-tab {
 }
 .trend-grid-line { fill: none; stroke: var(--border); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .trend-line { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-.model-trend-line { opacity: 0.92; }
+.model-trend-line {
+  opacity: 0.92;
+  transition: opacity .2s ease, stroke .2s ease, filter .2s ease;
+}
+.model-trend-line.is-highlighted {
+  opacity: 1;
+}
 .trend-dot { fill: var(--accent); stroke: var(--bg2); stroke-width: 2; }
 .trend-html-dot {
   position: absolute;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--accent);
-  border: 2px solid var(--bg2);
+  width: 12px;
+  height: 12px;
   padding: 0;
+  border: none;
+  background: transparent;
   transform: translate(-50%, -50%);
   cursor: pointer;
   pointer-events: auto;
-  transition: transform .16s ease, border-color .16s ease;
   z-index: 2;
 }
+.trend-html-dot-body {
+  position: absolute;
+  inset: 0;
+  transform-origin: center center;
+  transition: transform .16s ease;
+}
+.trend-html-dot-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: none;
+}
+.trend-html-dot-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7.5px;
+  height: 7.5px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: background .2s ease, filter .2s ease;
+}
 .trend-html-dot:hover,
-.trend-html-dot:focus-visible {
-  border-color: #fff;
+.trend-html-dot:focus-visible,
+.trend-html-dot.is-cluster-active {
   outline: none;
-  transform: translate(-50%, -50%) scale(1.45);
   z-index: 5;
+}
+.trend-html-dot:hover .trend-html-dot-body,
+.trend-html-dot:focus-visible .trend-html-dot-body,
+.trend-html-dot.is-cluster-active .trend-html-dot-body {
+  transform: scale(1.5);
+}
+.trend-html-dot:hover .trend-html-dot-core,
+.trend-html-dot:focus-visible .trend-html-dot-core,
+.trend-html-dot.is-cluster-active .trend-html-dot-core {
+  background: color-mix(in srgb, var(--dot-color) 82%, #000) !important;
+  filter: saturate(1.28) contrast(1.14);
 }
 .trend-tooltip {
   position: absolute;
@@ -4102,9 +4139,49 @@ button.filter-tab {
   font-style: normal;
 }
 .trend-html-dot:hover .trend-tooltip,
-.trend-html-dot:focus-visible .trend-tooltip {
+.trend-html-dot:focus-visible .trend-tooltip,
+.trend-html-dot.is-cluster-active .trend-tooltip {
   opacity: 1;
   transform: translate(-50%, 0) scale(1);
+}
+.trend-tooltip-strip {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 14px));
+  transform-origin: bottom center;
+  z-index: 6;
+  pointer-events: none;
+  overflow: visible;
+  max-width: min(96vw, 920px);
+}
+.trend-tooltip-strip--fixed {
+  position: fixed;
+  top: auto;
+  z-index: 10060;
+  transform: translateX(-50%);
+}
+.trend-tooltip-strip-track {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 32px 28px 48px;
+  scrollbar-width: thin;
+}
+.trend-tooltip-strip--fixed .trend-tooltip-strip-track {
+  overflow: visible;
+  padding: 0;
+}
+.trend-tooltip-card {
+  position: relative;
+  left: auto;
+  bottom: auto;
+  opacity: 1;
+  transform: none;
+  flex: 0 0 auto;
+  min-width: 170px;
+  max-width: 220px;
 }
 .trend-labels { display: flex; justify-content: space-between; color: var(--text3); font-size: 11px; margin-top: 8px; }
 .trend-labels span { min-width: 18px; text-align: center; }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { createPortal } from "react-dom";
 import { useApp } from "@/state/AppContext";
 import type { AiProfileConfig, LlmModel } from "@/lib/types";
 
@@ -131,7 +132,7 @@ export default function PlatformAnalyticsBlock() {
       </div>
 
       <div className="profile-section platform-analytics-section">
-        <div className="profile-section-title">Активность платформы</div>
+        <div className="profile-section-title platform-section-title-spaced">Активность платформы</div>
         <div className="profile-val" style={{ fontSize: 13, color: "var(--text2)" }}>
           Чатов создано: 12 &nbsp;•&nbsp; Заметок: 8 &nbsp;•&nbsp; Постов: 6
         </div>
@@ -165,6 +166,156 @@ type ModelUsage = {
   color: string;
 };
 
+const TREND_CHART_HEIGHT_PX = 493;
+const TREND_DOT_CORE_DIAMETER_PX = 7.5;
+const TREND_DOT_CLUSTER_FALLBACK_WIDTH_PX = 720;
+
+type TrendChartDot = {
+  modelId: string;
+  modelLabel: string;
+  color: string;
+  x: number;
+  y: number;
+  value: number;
+  label: string;
+  tokens: number;
+  cost: number;
+};
+
+type TrendDotCluster = {
+  id: string;
+  dots: TrendChartDot[];
+  x: number;
+  y: number;
+};
+
+type TrendChartDotView = TrendChartDot & {
+  clusterId: string;
+  clusterSize: number;
+};
+
+function trendDotCenterDistancePx(
+  a: { x: number; y: number },
+  b: { x: number; y: number },
+  chartWidthPx: number,
+  chartHeightPx: number,
+) {
+  const widthPx = chartWidthPx > 0 ? chartWidthPx : TREND_DOT_CLUSTER_FALLBACK_WIDTH_PX;
+  const heightPx = chartHeightPx > 0 ? chartHeightPx : TREND_CHART_HEIGHT_PX;
+  const dxPx = (Math.abs(b.x - a.x) / 100) * widthPx;
+  const dyPx = (Math.abs(b.y - a.y) / 100) * heightPx;
+  return Math.hypot(dxPx, dyPx);
+}
+
+function groupOverlappingTrendDots(
+  dots: TrendChartDot[],
+  chartWidthPx: number,
+  chartHeightPx: number,
+): TrendDotCluster[] {
+  if (dots.length === 0) return [];
+
+  const used = new Set<number>();
+  const clusters: TrendChartDot[][] = [];
+
+  for (let i = 0; i < dots.length; i += 1) {
+    if (used.has(i)) continue;
+
+    const cluster: TrendChartDot[] = [dots[i]];
+    used.add(i);
+
+    let grew = true;
+    while (grew) {
+      grew = false;
+      for (let j = 0; j < dots.length; j += 1) {
+        if (used.has(j)) continue;
+        const touchesCluster = cluster.every(
+          (member) =>
+            trendDotCenterDistancePx(member, dots[j], chartWidthPx, chartHeightPx) <=
+            TREND_DOT_CORE_DIAMETER_PX,
+        );
+        if (!touchesCluster) continue;
+        cluster.push(dots[j]);
+        used.add(j);
+        grew = true;
+      }
+    }
+
+    clusters.push(cluster);
+  }
+
+  return clusters.map((clusterDots, index) => {
+    const xs = clusterDots.map((dot) => dot.x);
+    const ys = clusterDots.map((dot) => dot.y);
+
+    return {
+      id: `cluster-${index}-${clusterDots.map((dot) => `${dot.modelId}:${dot.label}`).join("|")}`,
+      dots: clusterDots,
+      x: xs.reduce((sum, value) => sum + value, 0) / clusterDots.length,
+      y: ys.reduce((sum, value) => sum + value, 0) / clusterDots.length,
+    };
+  });
+}
+
+function trendDotKey(dot: Pick<TrendChartDot, "modelId" | "label">) {
+  return `${dot.modelId}:${dot.label}`;
+}
+
+const TREND_CHART_WIDTH = 264;
+
+function sanitizeSvgId(value: string) {
+  return value.replace(/[^a-zA-Z0-9_-]/g, "_");
+}
+
+function darkenHex(hex: string, mix = 0.18) {
+  const normalized = hex.trim();
+  if (!normalized.startsWith("#")) return hex;
+  const raw = normalized.slice(1);
+  const full =
+    raw.length === 3 ? raw.split("").map((channel) => channel + channel).join("") : raw;
+  if (full.length !== 6) return hex;
+
+  const channels = [0, 2, 4].map((offset) => parseInt(full.slice(offset, offset + 2), 16));
+  const mixChannel = (channel: number) => Math.round(channel * (1 - mix));
+  return `rgb(${mixChannel(channels[0])}, ${mixChannel(channels[1])}, ${mixChannel(channels[2])})`;
+}
+
+function buildTrendLineGradientStops(baseColor: string, highlightX: number) {
+  const darkColor = darkenHex(baseColor);
+  const center = Math.max(0, Math.min(1, highlightX / TREND_CHART_WIDTH));
+  const offset = (value: number) => `${(value * 100).toFixed(2)}%`;
+
+  if (center <= 0.0001) {
+    return [
+      { offset: offset(0), color: darkColor },
+      { offset: offset(1), color: baseColor },
+    ];
+  }
+
+  if (center >= 0.9999) {
+    return [
+      { offset: offset(0), color: baseColor },
+      { offset: offset(1), color: darkColor },
+    ];
+  }
+
+  return [
+    { offset: offset(0), color: baseColor },
+    { offset: offset(center), color: darkColor },
+    { offset: offset(1), color: baseColor },
+  ];
+}
+
+function shouldClearTrendDotHover(event: MouseEvent<HTMLButtonElement>) {
+  const related = event.relatedTarget;
+  const chartWrap = event.currentTarget.closest(".trend-chart-wrap");
+  if (related instanceof Node && chartWrap?.contains(related)) {
+    if (related instanceof Element && related.closest(".trend-html-dot")) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function ModelTrendChart({
   labels,
   rows,
@@ -174,6 +325,11 @@ function ModelTrendChart({
   rows: ModelUsage[];
   title: string;
 }) {
+  const [hoveredClusterId, setHoveredClusterId] = useState<string | null>(null);
+  const [hoveredDotKey, setHoveredDotKey] = useState<string | null>(null);
+  const [clusterStripAnchor, setClusterStripAnchor] = useState<{ left: number; bottom: number } | null>(
+    null,
+  );
   const chartTop = 1;
   const chartBottom = 88;
   const chartHeight = chartBottom - chartTop;
@@ -216,10 +372,148 @@ function ModelTrendChart({
 
     return { ...model, path: buildSmoothPath(points), dots };
   });
+  const chartWrapRef = useRef<HTMLDivElement>(null);
+  const dotClustersRef = useRef<TrendDotCluster[]>([]);
+  const [chartSizePx, setChartSizePx] = useState({ width: 0, height: 0 });
+
+  useLayoutEffect(() => {
+    const node = chartWrapRef.current;
+    if (!node) return;
+
+    const updateSize = () => {
+      const width = node.clientWidth;
+      const height = node.clientHeight;
+      setChartSizePx((prev) =>
+        prev.width === width && prev.height === height ? prev : { width, height },
+      );
+    };
+    updateSize();
+
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  const { chartDots, dotClusters } = useMemo(() => {
+    const flatDots = chartRows.flatMap((model) =>
+      model.dots.map((dot, index) => ({
+        modelId: model.id,
+        modelLabel: model.label,
+        color: model.color,
+        x: dot.x,
+        y: dot.y,
+        value: dot.value,
+        label: dot.label ?? labels[index],
+        tokens: dot.tokens,
+        cost: dot.cost,
+      })),
+    );
+    const clusters = groupOverlappingTrendDots(
+      flatDots,
+      chartSizePx.width,
+      chartSizePx.height,
+    );
+    const clusterSizeById = new Map(clusters.map((cluster) => [cluster.id, cluster.dots.length]));
+    const clusterIdByKey = new Map<string, string>();
+    clusters.forEach((cluster) => {
+      cluster.dots.forEach((dot) => clusterIdByKey.set(trendDotKey(dot), cluster.id));
+    });
+
+    return {
+      dotClusters: clusters,
+      chartDots: flatDots.map((dot) => {
+        const clusterId = clusterIdByKey.get(trendDotKey(dot)) ?? "";
+        return {
+          ...dot,
+          clusterId,
+          clusterSize: clusterSizeById.get(clusterId) ?? 1,
+        } satisfies TrendChartDotView;
+      }),
+    };
+  }, [chartRows, labels, chartSizePx.height, chartSizePx.width]);
+  dotClustersRef.current = dotClusters;
+  const clusterStripSyncKey =
+    hoveredClusterId && hoveredDotKey
+      ? `${hoveredClusterId}\u0000${hoveredDotKey}\u0000${chartSizePx.width}\u0000${chartSizePx.height}`
+      : "";
+  const hoveredCluster = useMemo(
+    () => dotClusters.find((cluster) => cluster.id === hoveredClusterId) ?? null,
+    [dotClusters, hoveredClusterId],
+  );
+  const hoveredLineHighlights = useMemo(() => {
+    if (!hoveredCluster) return new Map<string, number>();
+    const highlights = new Map<string, number>();
+    hoveredCluster.dots.forEach((dot) => {
+      highlights.set(dot.modelId, (dot.x / 100) * TREND_CHART_WIDTH);
+    });
+    return highlights;
+  }, [hoveredCluster]);
+
+  useLayoutEffect(() => {
+    if (!clusterStripSyncKey) {
+      setClusterStripAnchor((prev) => (prev === null ? prev : null));
+      return;
+    }
+
+    const [clusterId, dotKey] = clusterStripSyncKey.split("\u0000");
+    const clusterSize =
+      dotClustersRef.current.find((item) => item.id === clusterId)?.dots.length ?? 0;
+    if (clusterSize < 2) {
+      setClusterStripAnchor((prev) => (prev === null ? prev : null));
+      return;
+    }
+
+    const wrap = chartWrapRef.current;
+    if (!wrap) {
+      setClusterStripAnchor((prev) => (prev === null ? prev : null));
+      return;
+    }
+
+    const anchor = wrap.querySelector<HTMLButtonElement>(
+      `[data-trend-dot-key="${CSS.escape(dotKey)}"]`,
+    );
+    if (!anchor) {
+      setClusterStripAnchor((prev) => (prev === null ? prev : null));
+      return;
+    }
+
+    const update = () => {
+      const rect = anchor.getBoundingClientRect();
+      const next = {
+        left: Math.round(rect.left + rect.width / 2),
+        bottom: Math.round(window.innerHeight - rect.top + 10),
+      };
+      setClusterStripAnchor((prev) =>
+        prev && prev.left === next.left && prev.bottom === next.bottom ? prev : next,
+      );
+    };
+
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [clusterStripSyncKey]);
 
   return (
     <div className="trend-plot model-trend-plot">
-      <div className="trend-chart-wrap">
+      <div
+        ref={chartWrapRef}
+        className="trend-chart-wrap"
+        onMouseLeave={() => {
+          setHoveredClusterId(null);
+          setHoveredDotKey(null);
+        }}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+            setHoveredClusterId(null);
+            setHoveredDotKey(null);
+          }
+        }}
+      >
         <svg
           className="trend-chart"
           viewBox="0 0 264 100"
@@ -231,37 +525,107 @@ function ModelTrendChart({
             <polyline
               key={row.label}
               className="trend-grid-line"
-              points={`0,${row.y.toFixed(1)} 264,${row.y.toFixed(1)}`}
+              points={`0,${row.y.toFixed(1)} ${TREND_CHART_WIDTH},${row.y.toFixed(1)}`}
             />
           ))}
-          {chartRows.map((model) => (
-            <path
-              key={model.id}
-              className="trend-line model-trend-line"
-              d={model.path}
-              style={{ stroke: model.color }}
-            />
-          ))}
+          <defs>
+            {chartRows.map((model) => {
+              const highlightX = hoveredLineHighlights.get(model.id);
+              if (highlightX === undefined) return null;
+              const gradientId = `trend-grad-${sanitizeSvgId(model.id)}`;
+              return (
+                <linearGradient
+                  key={gradientId}
+                  id={gradientId}
+                  gradientUnits="userSpaceOnUse"
+                  x1="0"
+                  y1="0"
+                  x2={TREND_CHART_WIDTH}
+                  y2="0"
+                >
+                  {buildTrendLineGradientStops(model.color, highlightX).map((stop, index) => (
+                    <stop
+                      key={`${gradientId}-stop-${index}`}
+                      offset={stop.offset}
+                      stopColor={stop.color}
+                    />
+                  ))}
+                </linearGradient>
+              );
+            })}
+          </defs>
+          {chartRows.map((model) => {
+            const highlightX = hoveredLineHighlights.get(model.id);
+            const gradientId = `trend-grad-${sanitizeSvgId(model.id)}`;
+            const isHighlighted = highlightX !== undefined;
+
+            return (
+              <path
+                key={model.id}
+                className={`trend-line model-trend-line${isHighlighted ? " is-highlighted" : ""}`}
+                d={model.path}
+                style={{
+                  stroke: isHighlighted ? `url(#${gradientId})` : model.color,
+                }}
+              />
+            );
+          })}
         </svg>
-        {chartRows.flatMap((model) =>
-          model.dots.map((dot, i) => (
+        {chartDots.map((dot) => {
+          const isClusterActive = hoveredClusterId === dot.clusterId;
+
+          return (
             <button
-              key={`${model.id}-${labels[i]}-${dot.x}-${dot.y}`}
-              className="trend-html-dot"
+              key={trendDotKey(dot)}
+              data-trend-dot-key={trendDotKey(dot)}
+              className={`trend-html-dot${isClusterActive ? " is-cluster-active" : ""}`}
               type="button"
-              aria-label={`${model.label}: ${formatNumber(dot.value)} запросов, ${dot.label}`}
-              style={{ left: `${dot.x}%`, top: `${dot.y}%`, backgroundColor: model.color }}
+              aria-label={`${dot.modelLabel}: ${formatNumber(dot.value)} запросов, ${dot.label}`}
+              style={
+                {
+                  left: `${dot.x}%`,
+                  top: `${dot.y}%`,
+                  "--dot-color": dot.color,
+                } as CSSProperties
+              }
+              onMouseEnter={() => {
+                setHoveredClusterId(dot.clusterId);
+                setHoveredDotKey(trendDotKey(dot));
+              }}
+              onMouseLeave={(event) => {
+                if (!shouldClearTrendDotHover(event)) return;
+                setHoveredClusterId(null);
+                setHoveredDotKey(null);
+              }}
+              onFocus={() => {
+                setHoveredClusterId(dot.clusterId);
+                setHoveredDotKey(trendDotKey(dot));
+              }}
+              onBlur={(event) => {
+                if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+                setHoveredClusterId(null);
+                setHoveredDotKey(null);
+              }}
             >
-              <span className="trend-tooltip">
-                <b>{model.label}</b>
-                <span>{dot.label}</span>
-                <em>{formatNumber(dot.value)} запросов</em>
-                <em>{formatCompact(dot.tokens)} токенов</em>
-                <em>${dot.cost.toFixed(2)}</em>
+              <span className="trend-html-dot-body" aria-hidden>
+                <span className="trend-html-dot-halo" />
+                <span
+                  className="trend-html-dot-core"
+                  style={{ backgroundColor: dot.color }}
+                />
               </span>
+              {dot.clusterSize === 1 ? (
+                <span className="trend-tooltip">
+                  <b>{dot.modelLabel}</b>
+                  <span>{dot.label}</span>
+                  <em>{formatNumber(dot.value)} запросов</em>
+                  <em>{formatCompact(dot.tokens)} токенов</em>
+                  <em>${dot.cost.toFixed(2)}</em>
+                </span>
+              ) : null}
             </button>
-          ))
-        )}
+          );
+        })}
         {gridRows.map((row) => (
           <span
             key={row.label}
@@ -277,6 +641,33 @@ function ModelTrendChart({
           <span key={label}>{label}</span>
         ))}
       </div>
+      {hoveredCluster &&
+        hoveredCluster.dots.length > 1 &&
+        clusterStripAnchor &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="trend-tooltip-strip trend-tooltip-strip--fixed"
+            style={{
+              left: `${clusterStripAnchor.left}px`,
+              bottom: `${clusterStripAnchor.bottom}px`,
+            }}
+            aria-hidden
+          >
+            <div className="trend-tooltip-strip-track">
+              {hoveredCluster.dots.map((dot) => (
+                <span key={trendDotKey(dot)} className="trend-tooltip trend-tooltip-card">
+                  <b>{dot.modelLabel}</b>
+                  <span>{dot.label}</span>
+                  <em>{formatNumber(dot.value)} запросов</em>
+                  <em>{formatCompact(dot.tokens)} токенов</em>
+                  <em>${dot.cost.toFixed(2)}</em>
+                </span>
+              ))}
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
