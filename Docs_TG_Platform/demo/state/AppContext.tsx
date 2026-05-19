@@ -540,6 +540,8 @@ function buildInitialTelegramSnapshot() {
     phone: cfg.phone || "",
     sessionName: cfg.sessionName || "",
     channel: cfg.channel || "",
+    botApiToken: cfg.botApiToken || "",
+    botStatus: cfg.botStatus,
   });
 }
 

@@ -10,6 +10,7 @@ export default function TelegramBlock() {
   const [code, setCode] = useState("");
   const [syncing, setSyncing] = useState(false);
   const [apiHashVisible, setApiHashVisible] = useState(false);
+  const [botApiTokenVisible, setBotApiTokenVisible] = useState(false);
   const syncTimerRef = useRef<number | null>(null);
 
   const update = (patch: Partial<TelegramProfileConfig>) =>
@@ -38,6 +39,11 @@ export default function TelegramBlock() {
   const channelChangedFromSaved = normalizeTelegramValue(cfg.channel) !== normalizeTelegramValue(savedSnapshot.channel);
   const sendCodeDisabled = isAuthorized && !phoneChangedFromSaved;
   const connectChannelDisabled = isConnected && !channelChangedFromSaved;
+  const isBotConnected = cfg.botStatus === "connected";
+  const botTokenTrimmed = cfg.botApiToken.trim();
+  const botTokenChangedFromSaved =
+    normalizeTelegramValue(cfg.botApiToken) !== normalizeTelegramValue(savedSnapshot.botApiToken || "");
+  const addBotDisabled = !botTokenTrimmed || (isBotConnected && !botTokenChangedFromSaved);
 
   const startAuth = () => {
     if (sendCodeDisabled) return;
@@ -97,6 +103,22 @@ export default function TelegramBlock() {
     }, 1800);
   };
 
+  const connectBot = () => {
+    if (addBotDisabled) return;
+    const tokenHint = botTokenTrimmed.slice(0, 8);
+    const next: Partial<TelegramProfileConfig> = {
+      botStatus: "connected",
+      botUsername: `@omni_bot_${tokenHint}`,
+      botLastActivity: "только что",
+      botMessageCount: 2847,
+    };
+    update(next);
+    dispatch({
+      type: "SET_STATE",
+      patch: { telegramSettingsSavedSnapshot: snapshot({ ...cfg, ...next }) },
+    });
+  };
+
   const reset = () => {
     if (syncTimerRef.current !== null) {
       window.clearTimeout(syncTimerRef.current);
@@ -109,10 +131,23 @@ export default function TelegramBlock() {
       channelStatus: "idle",
       lastSync: "—",
       importedPosts: 0,
+      botApiToken: "",
+      botStatus: "idle",
+      botUsername: "",
+      botLastActivity: "—",
+      botMessageCount: 0,
     });
     dispatch({
       type: "SET_STATE",
-      patch: { telegramSettingsSavedSnapshot: snapshot({ ...cfg, authStatus: "idle", channelStatus: "idle" }) },
+      patch: {
+        telegramSettingsSavedSnapshot: snapshot({
+          ...cfg,
+          authStatus: "idle",
+          channelStatus: "idle",
+          botApiToken: "",
+          botStatus: "idle",
+        }),
+      },
     });
   };
 
@@ -219,7 +254,7 @@ export default function TelegramBlock() {
         </div>
       </div>
 
-      <div className={`telegram-channel-block${!isAuthorized ? " hidden" : ""}`}>
+      <div className={`telegram-channel-section${!isAuthorized ? " hidden" : ""}`}>
         <div className="telegram-form-grid">
           <Field
             label="Канал"
@@ -241,9 +276,9 @@ export default function TelegramBlock() {
             </button>
           </div>
         </div>
-      </div>
 
-      <div className={`telegram-sync-card${!isConnected ? " hidden" : ""}`}>
+        {isConnected ? (
+          <div className="telegram-sync-card telegram-channel-card">
         <div>
           <div className="profile-label">Подключённый канал</div>
           <div className="profile-val">
@@ -258,6 +293,65 @@ export default function TelegramBlock() {
           <div className="profile-label">Импортировано постов</div>
           <div className="profile-val">{cfg.importedPosts}</div>
         </div>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="telegram-section-divider" aria-hidden />
+
+      <div className="telegram-omnibot-section">
+        <div className="telegram-omnibot-title">Омниканальный бот</div>
+
+        <div className="telegram-form-grid">
+          <Field
+            label="API-токен"
+            type={botApiTokenVisible ? "text" : "password"}
+            value={cfg.botApiToken}
+            placeholder="••••••••••••••••"
+            onChange={(v) => update({ botApiToken: v })}
+            trailing={
+              <button
+                type="button"
+                className="profile-api-key-toggle"
+                aria-label={botApiTokenVisible ? "Скрыть API-токен" : "Показать API-токен"}
+                title={botApiTokenVisible ? "Скрыть API-токен" : "Показать API-токен"}
+                onClick={() => setBotApiTokenVisible((value) => !value)}
+              >
+                <EyeIcon hidden={!botApiTokenVisible} />
+              </button>
+            }
+          />
+          <div className="profile-row telegram-inline-action">
+            <div className="profile-label" aria-hidden>
+              &nbsp;
+            </div>
+            <button
+              className="btn btn-ghost telegram-inline-button"
+              disabled={addBotDisabled}
+              onClick={connectBot}
+              type="button"
+            >
+              Добавить
+            </button>
+          </div>
+        </div>
+
+        {isBotConnected ? (
+          <div className="telegram-sync-card telegram-omnibot-card">
+            <div>
+              <div className="profile-label">Подключённый бот</div>
+              <div className="profile-val">{cfg.botUsername}</div>
+            </div>
+            <div>
+              <div className="profile-label">Последняя активность</div>
+              <div className="profile-val">{cfg.botLastActivity}</div>
+            </div>
+            <div>
+              <div className="profile-label">Сообщений</div>
+              <div className="profile-val">{cfg.botMessageCount.toLocaleString("ru-RU")}</div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -331,12 +425,14 @@ function snapshot(cfg: TelegramProfileConfig) {
     phone: cfg.phone || "",
     sessionName: cfg.sessionName || "",
     channel: cfg.channel || "",
+    botApiToken: cfg.botApiToken || "",
+    botStatus: cfg.botStatus,
   });
 }
 
 function parseTelegramSnapshot(snapshotJson: string): Pick<
   TelegramProfileConfig,
-  "apiId" | "apiHash" | "phone" | "sessionName" | "channel"
+  "apiId" | "apiHash" | "phone" | "sessionName" | "channel" | "botApiToken"
 > {
   try {
     const saved = JSON.parse(snapshotJson) as Partial<TelegramProfileConfig>;
@@ -346,9 +442,10 @@ function parseTelegramSnapshot(snapshotJson: string): Pick<
       phone: saved.phone || "",
       sessionName: saved.sessionName || "",
       channel: saved.channel || "",
+      botApiToken: saved.botApiToken || "",
     };
   } catch {
-    return { apiId: "", apiHash: "", phone: "", sessionName: "", channel: "" };
+    return { apiId: "", apiHash: "", phone: "", sessionName: "", channel: "", botApiToken: "" };
   }
 }
 

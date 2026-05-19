@@ -3,6 +3,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import type { ReactNode } from "react";
 import MessageTrashIcon from "@/components/chat/MessageTrashIcon";
+import ProfileSyncRow from "@/components/profile/ProfileSyncRow";
+import { useProfileTextareaAutoResize } from "@/lib/use-profile-textarea-auto-resize";
 import { useFitTitleSize } from "@/lib/use-fit-title";
 import { useApp } from "@/state/AppContext";
 import type { ChannelProfileConfig, ChannelProfileRubric } from "@/lib/types";
@@ -110,7 +112,7 @@ export default function ChannelTab({ active }: { active: boolean }) {
     update({ ...cfg, rubrics: cfg.rubrics.filter((rubric) => rubric.id !== id) });
 
   return (
-    <div className={`profile-panel${active ? " active" : ""}`}>
+    <div className={`profile-panel profile-panel--channel${active ? " active" : ""}`}>
       <div className="profile-channel-actions">
         <div>
           <div className="profile-section-title">Канал как база знаний ИИ</div>
@@ -124,44 +126,62 @@ export default function ChannelTab({ active }: { active: boolean }) {
       <div className="profile-section profile-channel-combined-section">
         <ChannelSubsection title="Ядро канала">
           <div className="profile-grid">
-            <Area
-              label="О чём канал"
-              value={cfg.core.topic}
-              onChange={(topic) => updateGroup("core", { topic })}
-            />
-            <Area
-              label="Для кого"
-              value={cfg.core.audience}
-              onChange={(audience) => updateGroup("core", { audience })}
-            />
-            <Area
-              label="Что обещает читателю"
-              value={cfg.core.promise}
-              onChange={(promise) => updateGroup("core", { promise })}
-            />
-            <Area
-              label="Угол зрения"
-              value={cfg.core.angle}
-              onChange={(angle) => updateGroup("core", { angle })}
-            />
+            <ProfileSyncRow active={active} syncKey={`${cfg.core.topic}\u0000${cfg.core.angle}`}>
+              <Area
+                active={active}
+                label="О чём канал"
+                value={cfg.core.topic}
+                onChange={(topic) => updateGroup("core", { topic })}
+              />
+              <Area
+                active={active}
+                label="Цель канала"
+                value={cfg.core.angle}
+                onChange={(angle) => updateGroup("core", { angle })}
+              />
+            </ProfileSyncRow>
+            <ProfileSyncRow active={active} syncKey={`${cfg.core.audience}\u0000${cfg.core.promise}`}>
+              <Area
+                active={active}
+                label="Целевая аудитория"
+                value={cfg.core.audience}
+                onChange={(audience) => updateGroup("core", { audience })}
+              />
+              <Area
+                active={active}
+                label="Ценность для аудитории"
+                value={cfg.core.promise}
+                onChange={(promise) => updateGroup("core", { promise })}
+              />
+            </ProfileSyncRow>
           </div>
+          <Area
+            active={active}
+            label="Портрет автора"
+            value={cfg.core.author}
+            onChange={(author) => updateGroup("core", { author })}
+          />
         </ChannelSubsection>
 
         <div className="profile-channel-divider" />
 
         <ChannelSubsection title="Голос и формат">
           <div className="profile-grid">
-            <Area label="Тон" value={cfg.voice.tone} onChange={(tone) => updateGroup("voice", { tone })} />
-            <Area
-              label="Базовый формат"
-              value={cfg.voice.format}
-              onChange={(format) => updateGroup("voice", { format })}
-            />
+            <ProfileSyncRow active={active} syncKey={`${cfg.voice.tone}\u0000${cfg.voice.phrases}`}>
+              <Area active={active} label="Тон" value={cfg.voice.tone} onChange={(tone) => updateGroup("voice", { tone })} />
+              <Area
+                active={active}
+                label="Обращение к читателю"
+                value={cfg.voice.phrases}
+                onChange={(phrases) => updateGroup("voice", { phrases })}
+              />
+            </ProfileSyncRow>
           </div>
           <Area
-            label="Характерные фразы"
-            value={cfg.voice.phrases}
-            onChange={(phrases) => updateGroup("voice", { phrases })}
+            active={active}
+            label="Базовый формат поста"
+            value={cfg.voice.format}
+            onChange={(format) => updateGroup("voice", { format })}
           />
         </ChannelSubsection>
 
@@ -169,16 +189,20 @@ export default function ChannelTab({ active }: { active: boolean }) {
 
         <ChannelSubsection title="Правила">
           <div className="profile-grid">
-            <Area
-              label="Обязательно"
-              value={cfg.rules.must}
-              onChange={(must) => updateGroup("rules", { must })}
-            />
-            <Area
-              label="Избегать"
-              value={cfg.rules.avoid}
-              onChange={(avoid) => updateGroup("rules", { avoid })}
-            />
+            <ProfileSyncRow active={active} syncKey={`${cfg.rules.must}\u0000${cfg.rules.avoid}`}>
+              <Area
+                active={active}
+                label="Обязательно"
+                value={cfg.rules.must}
+                onChange={(must) => updateGroup("rules", { must })}
+              />
+              <Area
+                active={active}
+                label="Избегать"
+                value={cfg.rules.avoid}
+                onChange={(avoid) => updateGroup("rules", { avoid })}
+              />
+            </ProfileSyncRow>
           </div>
         </ChannelSubsection>
         <div className="profile-action-buttons profile-action-buttons--ai">
@@ -356,18 +380,26 @@ function Area({
   label,
   value,
   onChange,
+  active = true,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  active?: boolean;
 }) {
+  const { ref: textareaRef, resize } = useProfileTextareaAutoResize(value, active);
+
   return (
     <label className="profile-row">
       <span className="profile-label">{label}</span>
       <textarea
+        ref={textareaRef}
         className="profile-input profile-input-explicit profile-textarea profile-textarea-compact"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(event) => {
+          onChange(event.target.value);
+          requestAnimationFrame(resize);
+        }}
       />
     </label>
   );

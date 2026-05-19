@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useProfileTextareaAutoResize } from "@/lib/use-profile-textarea-auto-resize";
 import { useApp } from "@/state/AppContext";
 
-export default function SystemPromptBlock() {
+export default function SystemPromptBlock({ active = true }: { active?: boolean }) {
   const { state, dispatch, setDirty } = useApp();
   const [draft, setDraft] = useState(state.aiProfileConfig.systemPrompt);
   const dirty = draft !== state.systemPromptSavedSnapshot;
+  const { ref: textareaRef, resize } = useProfileTextareaAutoResize(draft, active);
 
   useEffect(() => {
     setDirty("profile-prompt", dirty);
@@ -35,9 +37,13 @@ export default function SystemPromptBlock() {
       <div className="profile-section-title">Системный промпт</div>
       <div className="profile-row">
         <textarea
+          ref={textareaRef}
           className="profile-input profile-input-explicit profile-textarea profile-system-prompt-textarea"
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            requestAnimationFrame(resize);
+          }}
         />
       </div>
       <div className="profile-action-buttons profile-action-buttons--ai">

@@ -14,7 +14,10 @@ const PROFILE_TABS = ["Настройки", "Канал", "Аналитика п
 
 export default function ProfileScreen() {
   const [tab, setTab] = useState(0);
-  const { profileChannelDirty, profileSettingsDirty } = useApp();
+  const { state, profileChannelDirty, profileSettingsDirty } = useApp();
+  const profileScreenActive = state.screen === "profile";
+  const settingsTabActive = tab === 0 && profileScreenActive;
+  const channelTabActive = tab === 1 && profileScreenActive;
 
   const switchTab = (next: number) => {
     if (tab === 0 && next !== 0 && profileSettingsDirty) {
@@ -58,12 +61,12 @@ export default function ProfileScreen() {
       <PageHeader title="Профиль канала" backTo="home" search={profileTabToolbar} />
       <div className="profile-page">
         <div className="profile-scroll-inner">
-          <ChannelTab active={tab === 1} />
+          <ChannelTab active={channelTabActive} />
 
-          <div className={`profile-panel${tab === 0 ? " active" : ""}`}>
+          <div className={`profile-panel profile-panel--settings${tab === 0 ? " active" : ""}`}>
             <ThemeBlock />
             <AiModelsBlock />
-            <SystemPromptBlock />
+            <SystemPromptBlock active={settingsTabActive} />
             <TelegramBlock />
           </div>
 

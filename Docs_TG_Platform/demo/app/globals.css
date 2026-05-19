@@ -4610,9 +4610,11 @@ button.filter-tab {
 .profile-textarea { min-height: 80px; resize: vertical; }
 .profile-system-prompt-textarea {
   min-height: 125px;
-  height: 125px;
+  height: auto;
+  line-height: 1.5;
   resize: none;
-  overflow-y: auto;
+  overflow-y: hidden;
+  box-sizing: border-box;
 }
 .profile-input-explicit {
   background: var(--profile-field-bg);
@@ -4825,7 +4827,14 @@ button.filter-tab {
 }
 .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .profile-grid > .profile-row {
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  min-height: 0;
+}
+.profile-grid > .profile-row .profile-textarea-compact {
+  flex: 0 0 auto;
+  width: 100%;
 }
 .profile-channel-actions {
   border-radius: var(--profile-r);
@@ -4837,8 +4846,24 @@ button.filter-tab {
   gap: 16px;
 }
 .profile-channel-actions .profile-section-title {
-  font-size: 14px;
   margin-bottom: 6px;
+}
+.profile-panel--settings .profile-section-title,
+.profile-panel--channel .profile-section-title,
+.profile-panel--channel .profile-channel-actions .profile-section-title {
+  font-size: 14px;
+}
+.profile-panel--channel .profile-subsection-title {
+  font-size: 14px;
+}
+.profile-panel--settings .profile-label,
+.profile-panel--channel .profile-channel-subsection .profile-label {
+  font-size: 10px;
+  letter-spacing: 0.05em;
+}
+.profile-panel--settings .profile-ai-engine-section .profile-label--with-icon,
+.profile-panel--settings .profile-multi-block > .profile-label {
+  font-size: 11px;
 }
 .profile-channel-actions .profile-muted {
   font-size: 13px;
@@ -4945,10 +4970,11 @@ button.filter-tab {
 .profile-subsection-title:first-child { margin-top: 0; }
 .profile-textarea-compact {
   min-height: 125px;
-  height: 125px;
+  height: auto;
   line-height: 1.5;
   resize: none;
-  overflow-y: auto;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 .profile-page .rubric-editor {
   border-radius: var(--profile-r);
@@ -5251,10 +5277,16 @@ button.filter-tab {
 .telegram-code-input {
   width: 150px;
 }
-.telegram-channel-block {
+.telegram-channel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   border-top: 1px solid var(--border);
   padding-top: 16px;
   margin-top: 4px;
+}
+.telegram-channel-card {
+  margin-top: 0;
 }
 .telegram-sync-card {
   display: grid;
@@ -5268,6 +5300,26 @@ button.filter-tab {
 }
 .telegram-sync-card .profile-label {
   margin-bottom: 8px;
+}
+.telegram-section-divider {
+  width: 100%;
+  height: 0;
+  margin: 20px 0;
+  border: none;
+  border-top: 1px dashed var(--profile-control-border);
+}
+.telegram-omnibot-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.telegram-omnibot-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.telegram-omnibot-card {
+  margin-top: 0;
 }
 @keyframes telegram-status-pulse {
   0%, 100% {

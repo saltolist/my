@@ -136,6 +136,7 @@ export type ChannelProfileConfig = {
     audience: string;
     promise: string;
     angle: string;
+    author: string;
   };
   voice: {
     tone: string;
@@ -163,6 +164,8 @@ export type TelegramAuthStatus = "idle" | "code-sent" | "authorized" | "connecte
 export type TelegramChannelStatus = "idle" | "pending" | "connected";
 export type TelegramSyncMode = "live-only" | "history-and-live" | "publish-only";
 
+export type TelegramBotStatus = "idle" | "connected";
+
 export type TelegramProfileConfig = {
   authStatus: TelegramAuthStatus;
   authStep: string;
@@ -176,6 +179,11 @@ export type TelegramProfileConfig = {
   syncMode: TelegramSyncMode;
   lastSync: string;
   importedPosts: number;
+  botApiToken: string;
+  botStatus: TelegramBotStatus;
+  botUsername: string;
+  botLastActivity: string;
+  botMessageCount: number;
 };
 
 export type ComposerTarget = { llmId: string; webId: string };
