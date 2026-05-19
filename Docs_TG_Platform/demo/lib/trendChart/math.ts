@@ -81,6 +81,15 @@ function niceCeil(value: number) {
   return niceFraction * magnitude;
 }
 
+/** «Красивый» потолок шкалы без скачка на следующий порядок (100 → 200). */
+function cappedNiceCeil(rawMax: number, dataMax: number, pad: number) {
+  const ceiling = dataMax + Math.max(pad * 1.15, dataMax * 0.1);
+  const nice = niceCeil(rawMax);
+  if (nice <= 0 || !Number.isFinite(nice)) return rawMax;
+  if (nice <= ceiling) return nice;
+  return Math.max(rawMax, ceiling);
+}
+
 export function buildAdaptiveValueScale(values: number[]) {
   const finite = values.filter((value) => Number.isFinite(value) && value >= 0);
   const dataMax = finite.length > 0 ? Math.max(...finite) : 0;
@@ -90,20 +99,26 @@ export function buildAdaptiveValueScale(values: number[]) {
     return { min: 0, max: 0.01, span: 0.01 };
   }
 
-  const spread = dataMax - dataMin;
+  const spread = Math.max(0, dataMax - dataMin);
   const relativeSpread = dataMax > 0 ? spread / dataMax : 0;
 
-  if (spread > 0 && relativeSpread < 0.12) {
-    const pad = Math.max(spread * 0.4, dataMax * 0.08, 0.000_001);
-    const min = Math.max(0, dataMin - pad);
-    const max = niceCeil(dataMax + pad) || dataMax + pad;
-    const span = Math.max(max - min, pad * 2);
-    return { min, max: min + span, span };
-  }
+  const pad = Math.max(
+    spread * (relativeSpread < 0.12 ? 0.12 : 0.08),
+    dataMax * 0.05,
+    spread * 0.04,
+    0.000_001,
+  );
 
-  const max = niceCeil(dataMax * 1.12) || dataMax * 1.12;
-  const span = Math.max(max, dataMax * 1.04);
-  return { min: 0, max: span, span };
+  const rawMax = dataMax + pad;
+  const axisTop = cappedNiceCeil(rawMax, dataMax, pad);
+
+  // Ноль только если данные действительно начинаются у оси; иначе — зум к диапазону.
+  const anchorAtZero = spread <= 0 || dataMin <= dataMax * 0.12;
+  const min = anchorAtZero ? 0 : Math.max(0, dataMin - pad * 0.5);
+  const top = Math.max(axisTop, rawMax);
+  const span = Math.max(top - min, pad, dataMax * 0.03);
+
+  return { min, max: min + span, span };
 }
 
 export function valueToChartY(

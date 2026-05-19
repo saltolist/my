@@ -4192,7 +4192,14 @@ button.filter-tab {
   width: 100%;
 }
 .platform-analytics-section .analytics-card-head {
-  align-items: flex-end;
+  align-items: center;
+}
+.platform-analytics-section .model-filter-stack {
+  align-items: center;
+}
+.platform-analytics-section .analytics-card-head .profile-section-title {
+  margin-bottom: 0;
+  line-height: 1.2;
 }
 .platform-filter-label { display: grid; color: var(--text3); font-size: 11px; }
 .platform-filter-select {
@@ -4525,7 +4532,7 @@ button.filter-tab {
 .model-usage-tooltip {
   position: fixed;
   min-width: 170px;
-  transform: translateY(-100%);
+  transform: translate(-50%, calc(-100% - 10px));
   pointer-events: none;
   border: 1px solid var(--profile-control-border);
   border-radius: var(--rs);

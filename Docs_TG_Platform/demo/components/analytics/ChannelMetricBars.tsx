@@ -40,11 +40,8 @@ function ChannelMetricBarRow({ metric }: { metric: ChannelMetricSummary }) {
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const fillPercent = Math.max(4, metric.growthShare);
 
-  const updateTooltipPosition = (clientX: number, clientY: number) => {
-    const tooltipWidth = 190;
-    const x = Math.min(clientX + 14, window.innerWidth - tooltipWidth - 8);
-    const y = Math.max(clientY - 12, 8);
-    setTooltipPos({ x, y });
+  const updateTooltipPosition = (clientX: number, anchorY: number) => {
+    setTooltipPos({ x: clientX, y: anchorY });
   };
 
   return (
@@ -57,12 +54,18 @@ function ChannelMetricBarRow({ metric }: { metric: ChannelMetricSummary }) {
           className="bar-track model-usage-track channel-metric-track"
           tabIndex={0}
           style={{ "--fill-width": `${fillPercent}%` } as CSSProperties}
-          onMouseEnter={(event) => updateTooltipPosition(event.clientX, event.clientY)}
-          onMouseMove={(event) => updateTooltipPosition(event.clientX, event.clientY)}
+          onMouseEnter={(event) => {
+            const rect = event.currentTarget.getBoundingClientRect();
+            updateTooltipPosition(event.clientX, rect.top);
+          }}
+          onMouseMove={(event) => {
+            const rect = event.currentTarget.getBoundingClientRect();
+            updateTooltipPosition(event.clientX, rect.top);
+          }}
           onMouseLeave={() => setTooltipPos(null)}
           onFocus={(event) => {
             const rect = event.currentTarget.getBoundingClientRect();
-            setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top - 12 });
+            setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top });
           }}
           onBlur={() => setTooltipPos(null)}
         >

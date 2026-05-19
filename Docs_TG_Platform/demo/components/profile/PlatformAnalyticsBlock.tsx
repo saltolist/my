@@ -233,11 +233,8 @@ function ModelUsageBar({
   const tokensShare = totals.tokens > 0 ? Math.round((model.tokens / totals.tokens) * 100) : 0;
   const costShare = totals.cost > 0 ? Math.round((model.cost / totals.cost) * 100) : 0;
 
-  const updateTooltipPosition = (clientX: number, clientY: number) => {
-    const tooltipWidth = 190;
-    const x = Math.min(clientX + 14, window.innerWidth - tooltipWidth - 8);
-    const y = Math.max(clientY - 12, 8);
-    setTooltipPos({ x, y });
+  const updateTooltipPosition = (clientX: number, anchorY: number) => {
+    setTooltipPos({ x: clientX, y: anchorY });
   };
 
   return (
@@ -249,12 +246,18 @@ function ModelUsageBar({
         className="bar-track model-usage-track"
         tabIndex={0}
         style={{ "--fill-width": `${Math.max(callsShare, 4)}%` } as CSSProperties}
-        onMouseEnter={(event) => updateTooltipPosition(event.clientX, event.clientY)}
-        onMouseMove={(event) => updateTooltipPosition(event.clientX, event.clientY)}
+        onMouseEnter={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect();
+          updateTooltipPosition(event.clientX, rect.top);
+        }}
+        onMouseMove={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect();
+          updateTooltipPosition(event.clientX, rect.top);
+        }}
         onMouseLeave={() => setTooltipPos(null)}
         onFocus={(event) => {
           const rect = event.currentTarget.getBoundingClientRect();
-          setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top - 12 });
+          setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top });
         }}
         onBlur={() => setTooltipPos(null)}
       >
