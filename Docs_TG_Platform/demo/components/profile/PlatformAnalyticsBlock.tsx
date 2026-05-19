@@ -418,7 +418,7 @@ function groupOverlappingTrendDots(
       grew = false;
       for (let j = 0; j < dots.length; j += 1) {
         if (used.has(j)) continue;
-        const touchesCluster = cluster.every(
+        const touchesCluster = cluster.some(
           (member) =>
             trendDotCenterDistancePx(member, dots[j], chartWidthPx, chartHeightPx) <=
             TREND_DOT_CORE_DIAMETER_PX,
