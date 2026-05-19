@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/state/AppContext";
-import ChannelMetricBars from "@/components/analytics/ChannelMetricBars";
-import ChannelReactionsPanel from "@/components/analytics/ChannelReactionsPanel";
-import ChannelTrendChart from "@/components/analytics/ChannelTrendChart";
+import ChannelAnalyticsSection from "@/components/analytics/ChannelAnalyticsSection";
 import {
   CHANNEL_POST_TABLE_METRICS,
   formatChannelPostMetricValue,
@@ -116,22 +114,7 @@ export default function AnalyticsScreen() {
             </div>
           </div>
 
-          <div className="analytics-card analytics-chart-card">
-            <div className="section-title">Динамика прироста</div>
-            <div className="analytics-card-subtitle">
-              Линии сравниваются в % от пика каждой метрики; в подсказке — фактический прирост
-            </div>
-            <ChannelTrendChart periodIndex={period} />
-          </div>
-
-          <div className="analytics-metrics-row">
-            <div className="analytics-card">
-              <ChannelMetricBars periodIndex={period} />
-            </div>
-            <div className="analytics-card channel-reactions-card">
-              <ChannelReactionsPanel />
-            </div>
-          </div>
+          <ChannelAnalyticsSection periodIndex={period} />
 
           <div className="analytics-card">
             <div className="section-title">Тепловая карта активности</div>

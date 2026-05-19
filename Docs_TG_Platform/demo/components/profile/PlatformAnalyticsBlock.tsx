@@ -1,7 +1,10 @@
 "use client";
 
 import { useMemo, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
+import ChartSeriesSelector from "@/components/charts/ChartSeriesSelector";
 import MultiSeriesTrendChart, { type TrendSeriesRow } from "@/components/charts/MultiSeriesTrendChart";
+import { useChartSeriesVisibility } from "@/lib/hooks/useChartSeriesVisibility";
 import { useApp } from "@/state/AppContext";
 import type { AiProfileConfig, LlmModel } from "@/lib/types";
 import { formatTrendDollar } from "@/lib/trendChart/math";
@@ -71,15 +74,31 @@ export default function PlatformAnalyticsBlock() {
       })),
     [selectedModels],
   );
+  const seriesIds = useMemo(() => selectedModels.map((model) => model.id), [selectedModels]);
+  const { isVisible, setVisible, filterSeries } = useChartSeriesVisibility(seriesIds);
+  const visibleCostTrendSeries = useMemo(
+    () => filterSeries(costTrendSeries),
+    [costTrendSeries, filterSeries],
+  );
+  const selectorItems = useMemo(
+    () =>
+      selectedModels.map((model) => ({
+        id: model.id,
+        label: model.label,
+        color: model.color,
+      })),
+    [selectedModels],
+  );
+  const chartTitle = `Динамика стоимости: ${selectedTypeMeta.label}`;
 
   return (
     <>
-      <div className="profile-section platform-analytics-section">
+      <div className="profile-section platform-analytics-section profile-checkbox-scope">
         <div className="analytics-card-head">
           <div>
             <div className="profile-section-title">Аналитика моделей</div>
           </div>
-          <div className="model-filter-stack">
+          <div className="model-filter-stack model-filter-stack--with-series">
             <label className="platform-filter-label">
               <select
                 className="platform-filter-select"
@@ -106,6 +125,12 @@ export default function PlatformAnalyticsBlock() {
                 ))}
               </select>
             </label>
+            <ChartSeriesSelector
+              label="Модели"
+              items={selectorItems}
+              isVisible={isVisible}
+              onVisibleChange={setVisible}
+            />
           </div>
         </div>
 
@@ -115,12 +140,13 @@ export default function PlatformAnalyticsBlock() {
           <MiniMetric label="Стоимость" value={`$${modelTotals.cost.toFixed(2)}`} />
         </div>
 
+        <div className="section-title analytics-chart-title">{chartTitle}</div>
         <MultiSeriesTrendChart
           labels={chartLabels}
-          series={costTrendSeries}
+          series={visibleCostTrendSeries}
           period={period}
           compactAxisLabels={period === 0 || period === 2 || period === 3}
-          title={`Динамика стоимости: ${selectedTypeMeta.label}`}
+          title={chartTitle}
           formatAxisValue={formatTrendDollar}
           getDotPrimaryLine={(_, value) => `${formatNumber(value)} запросов`}
           getDotExtraLines={(row, value, pointIndex) => {
@@ -143,6 +169,7 @@ export default function PlatformAnalyticsBlock() {
         </div>
         <div className="model-usage-head">
           <span>{isAllTypes ? "Тип" : "Модель"}</span>
+          <span className="model-usage-head-bar" aria-hidden />
           <span>Запросы</span>
           <span>Токены</span>
           <span>Стоимость</span>
@@ -194,7 +221,13 @@ function getTrendPointCost(model: ModelUsage, index: number) {
 }
 
 
-function ModelUsageBar({ model, totals }: { model: ModelUsage; totals: ReturnType<typeof summarizeModelUsage> }) {
+function ModelUsageBar({
+  model,
+  totals,
+}: {
+  model: ModelUsage;
+  totals: ReturnType<typeof summarizeModelUsage>;
+}) {
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const callsShare = totals.calls > 0 ? Math.round((model.calls / totals.calls) * 100) : 0;
   const tokensShare = totals.tokens > 0 ? Math.round((model.tokens / totals.tokens) * 100) : 0;
@@ -230,20 +263,23 @@ function ModelUsageBar({ model, totals }: { model: ModelUsage; totals: ReturnTyp
           style={{ "--bar-color": model.color, backgroundColor: model.color } as CSSProperties}
         />
       </div>
-      {tooltipPos ? (
-        <div
-          className="model-usage-tooltip"
-          style={{ left: tooltipPos.x, top: tooltipPos.y }}
-        >
-          <b>{model.label}</b>
-          <span>Запросы: {callsShare}%</span>
-          <span>Токены: {tokensShare}%</span>
-          <span>Стоимость: {costShare}%</span>
-        </div>
-      ) : null}
-      <div className="model-row-metric">{formatNumber(model.calls)}</div>
-      <div className="model-row-metric">{formatCompact(model.tokens)}</div>
-      <div className="model-row-metric">${model.cost.toFixed(2)}</div>
+      <div className="model-row-metric model-row-metric--calls">{formatNumber(model.calls)}</div>
+      <div className="model-row-metric model-row-metric--tokens">{formatCompact(model.tokens)}</div>
+      <div className="model-row-metric model-row-metric--cost">${model.cost.toFixed(2)}</div>
+      {tooltipPos && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              className="model-usage-tooltip"
+              style={{ left: tooltipPos.x, top: tooltipPos.y }}
+            >
+              <b>{model.label}</b>
+              <span>Запросы: {callsShare}%</span>
+              <span>Токены: {tokensShare}%</span>
+              <span>Стоимость: {costShare}%</span>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }

@@ -3955,6 +3955,29 @@ button.filter-tab {
 .section-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
 .analytics-card { border-radius: var(--r); padding: 18px; margin-bottom: 16px; overflow-x: auto; overflow-y: hidden; }
 .analytics-card-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.analytics-chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: nowrap;
+}
+.analytics-chart-head .section-title {
+  margin-bottom: 0;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.analytics-chart-card .analytics-chart-head .chart-series-selector {
+  flex-shrink: 0;
+}
+.analytics-chart-title {
+  flex: 1 1 auto;
+  margin-bottom: 12px;
+}
+.platform-analytics-section .analytics-chart-title {
+  margin-bottom: 12px;
+}
 .analytics-dashboard-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr); gap: 16px; align-items: start; }
 .analytics-card-wide { min-width: 0; }
 .analytics-chart-card { width: 100%; overflow: visible; }
@@ -4032,14 +4055,145 @@ button.filter-tab {
 .channel-metrics-head span:first-child {
   grid-column: 1;
 }
+.channel-metrics-head .channel-metrics-head-bar {
+  grid-column: 2;
+}
 .channel-metrics-head span:last-child {
   grid-column: 3;
   text-align: right;
+}
+.chart-series-selector {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  min-width: 148px;
+  max-width: 260px;
+}
+.chart-series-selector-trigger {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 36px;
+  border: 1px solid color-mix(in srgb, var(--text2) 44%, #fff 56%);
+  border-radius: var(--rs);
+  background: var(--profile-select-bg);
+  color: var(--text2);
+  font: 13px/1.2 var(--font);
+  padding: 0 34px 0 12px;
+  cursor: pointer;
+  text-align: left;
+  -webkit-backdrop-filter: var(--profile-control-blur);
+  backdrop-filter: var(--profile-control-blur);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 17px) 15px,
+    calc(100% - 12px) 15px;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+.chart-series-selector-trigger:hover:not(:disabled),
+.chart-series-selector.is-open .chart-series-selector-trigger {
+  border-color: var(--control-border-active);
+  color: var(--text);
+}
+.chart-series-selector-trigger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.chart-series-selector-trigger-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chart-series-selector-panel {
+  position: fixed;
+  z-index: 1000;
+  display: grid;
+  gap: 2px;
+  max-height: min(320px, calc(100vh - 24px));
+  overflow: auto;
+  padding: 6px;
+  border: 1px solid var(--profile-control-border);
+  border-radius: var(--rs);
+  background: var(--profile-select-bg-active);
+  box-shadow: var(--dropdown-shadow);
+  -webkit-backdrop-filter: var(--profile-control-blur);
+  backdrop-filter: var(--profile-control-blur);
+}
+.chart-series-selector-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 7px 8px;
+  border-radius: calc(var(--rs) - 2px);
+  color: var(--text2);
+  cursor: pointer;
+}
+.chart-series-selector-item:hover {
+  background: var(--profile-control-bg-hover);
+}
+.chart-series-selector-item-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+.chart-series-selector-item input[type="checkbox"].chart-series-selector-checkbox {
+  border-color: var(--series-color, var(--profile-control-border));
+}
+.chart-series-selector-item input[type="checkbox"].chart-series-selector-checkbox:hover:not(:disabled) {
+  border-color: var(--series-color, var(--border2));
+  background: color-mix(in srgb, var(--series-color, var(--accent)) 14%, var(--profile-control-bg));
+}
+.chart-series-selector-item input[type="checkbox"].chart-series-selector-checkbox:checked {
+  background: var(--series-color, var(--profile-control-bg-active));
+  border-color: var(--series-color, var(--control-border-active));
+}
+.chart-series-selector-item input[type="checkbox"].chart-series-selector-checkbox:checked::after {
+  border-color: #fff;
+}
+.chart-series-selector-item input[type="checkbox"].chart-series-selector-checkbox:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover) {
+  background: color-mix(in srgb, var(--series-color, var(--accent)) 86%, #000);
+  border-color: var(--series-color, var(--control-border-active));
+}
+.chart-series-selector-item input[type="checkbox"].chart-series-selector-checkbox:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover)::after {
+  border-color: #fff;
+}
+.chart-series-selector-item input[type="checkbox"].chart-series-selector-checkbox:checked.profile-checkbox--suppress-hover:hover:not(:disabled) {
+  background: var(--series-color, var(--profile-control-bg-active));
+  border-color: var(--series-color, var(--control-border-active));
+}
+.chart-series-selector-item input[type="checkbox"].chart-series-selector-checkbox:checked.profile-checkbox--suppress-hover:hover:not(:disabled)::after {
+  border-color: #fff;
+}
+.chart-series-selector-item input[type="checkbox"].chart-series-selector-checkbox:focus-visible {
+  border-color: var(--series-color, var(--control-border-active));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--series-color, var(--accent)) 40%, transparent);
 }
 .analytics-dashboard-grid .analytics-card-span-2 { grid-column: 1 / -1; }
 .analytics-card-subtitle { color: var(--text3); font-size: 12px; margin: -6px 0 14px; }
 .model-type-tabs { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
 .model-filter-stack { display: grid; grid-template-columns: repeat(2, minmax(150px, 1fr)); gap: 10px; align-items: end; }
+.model-filter-stack--with-series {
+  grid-template-columns: repeat(3, minmax(140px, 1fr));
+}
+.model-filter-stack--with-series .chart-series-selector {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+.model-filter-stack--with-series .chart-series-selector-trigger {
+  width: 100%;
+}
+.platform-analytics-section .analytics-card-head {
+  align-items: flex-end;
+}
 .platform-filter-label { display: grid; color: var(--text3); font-size: 11px; }
 .platform-filter-select {
   width: 100%;
@@ -4096,13 +4250,19 @@ button.filter-tab {
 .platform-section-title-spaced { margin-bottom: 18px !important; }
 .platform-table-scroll { overflow-x: auto; }
 .trend-plot { padding: 16px 34px 0; }
-.model-trend-plot { padding-top: 0; padding-left: 56px; overflow: visible; }
+.model-trend-plot {
+  --trend-y-label-inset: 44px;
+  --trend-plot-left-gutter: 56px;
+  padding-top: 0;
+  padding-left: var(--trend-plot-left-gutter);
+  overflow: visible;
+}
 .trend-chart-wrap { position: relative; overflow: visible; }
 .trend-chart { display: block; width: 100%; height: 145px; overflow: visible; }
 .model-trend-plot .trend-chart { height: 493px; }
 .trend-y-label {
   position: absolute;
-  left: -44px;
+  left: calc(-1 * var(--trend-y-label-inset, 44px));
   transform: translateY(-50%);
   transform-origin: right center;
   color: var(--text3);
@@ -4326,7 +4486,6 @@ button.filter-tab {
   grid-column: 2;
   min-width: 0;
   max-width: 100%;
-  /* Как зазор перед «Прирост»: column-gap + «воздух» в 80px-колонке справа */
   padding-left: calc(var(--channel-metric-growth-col) - 3.25rem);
 }
 .bar-row.channel-metric-bar .channel-metric-track {
@@ -4426,12 +4585,45 @@ button.filter-tab {
   letter-spacing: .06em;
 }
 .model-usage-head span:first-child {
-  grid-column: 1 / 3;
+  grid-column: 1;
 }
-.model-usage-head span:not(:first-child) {
+.model-usage-head .model-usage-head-bar {
+  grid-column: 2;
+}
+.model-usage-head span:nth-child(3) {
+  grid-column: 3;
   text-align: right;
 }
-.model-usage-bar { grid-template-columns: 260px minmax(0, 1fr) 78px 78px 82px; }
+.model-usage-head span:nth-child(4) {
+  grid-column: 4;
+  text-align: right;
+}
+.model-usage-head span:nth-child(5) {
+  grid-column: 5;
+  text-align: right;
+}
+.bar-row.model-usage-bar {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) 78px 78px 82px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.bar-row.model-usage-bar > .bar-label {
+  grid-column: 1;
+}
+.bar-row.model-usage-bar > .bar-track {
+  grid-column: 2;
+}
+.bar-row.model-usage-bar > .model-row-metric--calls {
+  grid-column: 3;
+}
+.bar-row.model-usage-bar > .model-row-metric--tokens {
+  grid-column: 4;
+}
+.bar-row.model-usage-bar > .model-row-metric--cost {
+  grid-column: 5;
+}
 .model-row-metric {
   color: var(--text2);
   font-size: 12px;
@@ -4936,7 +5128,8 @@ button.filter-tab {
   background: color-mix(in srgb, var(--red) 22%, var(--profile-control-bg-hover));
   opacity: 1;
 }
-.profile-page input[type="checkbox"] {
+.profile-page input[type="checkbox"],
+.profile-checkbox-scope input[type="checkbox"] {
   -webkit-appearance: none;
   appearance: none;
   box-sizing: border-box;
@@ -4954,7 +5147,8 @@ button.filter-tab {
   position: relative;
   transition: border-color 0.12s, background 0.12s, box-shadow 0.12s;
 }
-.profile-page input[type="checkbox"]::after {
+.profile-page input[type="checkbox"]::after,
+.profile-checkbox-scope input[type="checkbox"]::after {
   content: "";
   position: absolute;
   left: 6px;
@@ -4968,37 +5162,46 @@ button.filter-tab {
   transition: transform 0.12s, border-color 0.12s;
   pointer-events: none;
 }
-.profile-page input[type="checkbox"]:checked::after {
+.profile-page input[type="checkbox"]:checked::after,
+.profile-checkbox-scope input[type="checkbox"]:checked::after {
   transform: rotate(45deg) scale(1);
 }
-.profile-page input[type="checkbox"]:hover:not(:disabled) {
+.profile-page input[type="checkbox"]:hover:not(:disabled),
+.profile-checkbox-scope input[type="checkbox"]:hover:not(:disabled) {
   background: var(--profile-control-bg-hover);
   border-color: var(--border2);
 }
-.profile-page input[type="checkbox"]:checked {
+.profile-page input[type="checkbox"]:checked,
+.profile-checkbox-scope input[type="checkbox"]:checked {
   background: var(--profile-control-bg-active);
   border-color: var(--control-border-active);
 }
-.profile-page input[type="checkbox"]:checked.profile-checkbox--suppress-hover:hover:not(:disabled) {
+.profile-page input[type="checkbox"]:checked.profile-checkbox--suppress-hover:hover:not(:disabled),
+.profile-checkbox-scope input[type="checkbox"]:checked.profile-checkbox--suppress-hover:hover:not(:disabled) {
   background: var(--profile-control-bg-active);
   border-color: var(--control-border-active);
 }
-.profile-page input[type="checkbox"]:checked.profile-checkbox--suppress-hover:hover:not(:disabled)::after {
+.profile-page input[type="checkbox"]:checked.profile-checkbox--suppress-hover:hover:not(:disabled)::after,
+.profile-checkbox-scope input[type="checkbox"]:checked.profile-checkbox--suppress-hover:hover:not(:disabled)::after {
   border-color: #3a3a3a;
 }
-.profile-page input[type="checkbox"]:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover) {
+.profile-page input[type="checkbox"]:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover),
+.profile-checkbox-scope input[type="checkbox"]:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover) {
   background: var(--profile-control-bg-hover);
   border-color: var(--border2);
 }
-.profile-page input[type="checkbox"]:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover)::after {
+.profile-page input[type="checkbox"]:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover)::after,
+.profile-checkbox-scope input[type="checkbox"]:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover)::after {
   border-color: var(--border2);
 }
-.profile-page input[type="checkbox"]:focus-visible {
+.profile-page input[type="checkbox"]:focus-visible,
+.profile-checkbox-scope input[type="checkbox"]:focus-visible {
   outline: none;
   border-color: var(--control-border-active);
   box-shadow: none;
 }
-.profile-page input[type="checkbox"]:disabled {
+.profile-page input[type="checkbox"]:disabled,
+.profile-checkbox-scope input[type="checkbox"]:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
@@ -6121,6 +6324,10 @@ button.filter-tab {
     grid-template-columns: minmax(0, 1fr) var(--channel-metric-growth-col);
   }
 
+  .channel-metrics-head span:first-child {
+    grid-column: 1;
+  }
+
   .bar-row.channel-metric-bar .bar-label {
     grid-column: 1 / -1;
     width: auto;
@@ -6128,6 +6335,7 @@ button.filter-tab {
 
   .bar-row.channel-metric-bar .channel-metric-bar-zone {
     grid-column: 1;
+    padding-left: 0;
   }
 
   .bar-row.channel-metric-bar .channel-metric-value {
@@ -6135,8 +6343,15 @@ button.filter-tab {
     justify-self: end;
   }
 
-  .channel-metrics-head span:first-child {
-    grid-column: 1;
+  .analytics-chart-head {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .analytics-chart-card .analytics-chart-head .chart-series-selector {
+    width: 100%;
+    max-width: none;
+    flex: 1 1 100%;
   }
 
   .engagement-grid {

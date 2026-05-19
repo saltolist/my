@@ -8,7 +8,11 @@ import {
   type ChannelMetricSummary,
 } from "@/lib/channelAnalyticsTrend";
 
-export default function ChannelMetricBars({ periodIndex }: { periodIndex: number }) {
+type ChannelMetricBarsProps = {
+  periodIndex: number;
+};
+
+export default function ChannelMetricBars({ periodIndex }: ChannelMetricBarsProps) {
   const { series } = useMemo(() => buildChannelTrendSeries(periodIndex), [periodIndex]);
   const metrics = useMemo(
     () => buildChannelMetricSummaries(series, periodIndex),
@@ -21,6 +25,7 @@ export default function ChannelMetricBars({ periodIndex }: { periodIndex: number
       <div className="channel-metrics-block">
         <div className="channel-metrics-head">
           <span>Метрика</span>
+          <span className="channel-metrics-head-bar" aria-hidden />
           <span>Прирост</span>
         </div>
         {metrics.map((metric) => (
@@ -50,27 +55,27 @@ function ChannelMetricBarRow({ metric }: { metric: ChannelMetricSummary }) {
       <div className="channel-metric-bar-zone">
         <div
           className="bar-track model-usage-track channel-metric-track"
-        tabIndex={0}
-        style={{ "--fill-width": `${fillPercent}%` } as CSSProperties}
-        onMouseEnter={(event) => updateTooltipPosition(event.clientX, event.clientY)}
-        onMouseMove={(event) => updateTooltipPosition(event.clientX, event.clientY)}
-        onMouseLeave={() => setTooltipPos(null)}
-        onFocus={(event) => {
-          const rect = event.currentTarget.getBoundingClientRect();
-          setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top - 12 });
-        }}
-        onBlur={() => setTooltipPos(null)}
-      >
-        <div
-          className="bar-fill"
-          style={
-            {
-              "--fill-width": `${fillPercent}%`,
-              "--bar-color": metric.color,
-              backgroundColor: metric.color,
-            } as CSSProperties
-          }
-        />
+          tabIndex={0}
+          style={{ "--fill-width": `${fillPercent}%` } as CSSProperties}
+          onMouseEnter={(event) => updateTooltipPosition(event.clientX, event.clientY)}
+          onMouseMove={(event) => updateTooltipPosition(event.clientX, event.clientY)}
+          onMouseLeave={() => setTooltipPos(null)}
+          onFocus={(event) => {
+            const rect = event.currentTarget.getBoundingClientRect();
+            setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top - 12 });
+          }}
+          onBlur={() => setTooltipPos(null)}
+        >
+          <div
+            className="bar-fill"
+            style={
+              {
+                "--fill-width": `${fillPercent}%`,
+                "--bar-color": metric.color,
+                backgroundColor: metric.color,
+              } as CSSProperties
+            }
+          />
         </div>
       </div>
       <div className="channel-metric-value">{metric.displayGrowth}</div>
