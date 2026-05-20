@@ -181,9 +181,28 @@ function computePeriodGrowth(metricId: string, values: number[]): number {
 
 function formatGrowthDelta(metricId: string, growth: number) {
   if (isErMetric(metricId)) {
-    return `${growth >= 0 ? "+" : ""}${growth.toFixed(1)} п.п.`;
+    return `${growth >= 0 ? "+" : ""}${growth.toFixed(1)}%`;
   }
   return `+${formatNumber(Math.round(growth))}`;
+}
+
+export type ChannelSummaryCard = {
+  id: string;
+  label: string;
+  value: string;
+  displayGrowth: string;
+};
+
+export function buildChannelSummaryCards(
+  series: TrendSeriesRow[],
+  periodIndex: number,
+): ChannelSummaryCard[] {
+  return buildChannelMetricSummaries(series, periodIndex).map((item) => ({
+    id: item.id,
+    label: item.label,
+    value: formatChannelPostMetricValue(item.id, CHANNEL_CURRENT_TOTALS[item.id] ?? 0),
+    displayGrowth: item.displayGrowth,
+  }));
 }
 
 export function buildChannelMetricSummaries(
@@ -277,7 +296,7 @@ function formatChannelPointGrowthDelta(
       pointIndex > 0 ? (values[pointIndex - 1] ?? 0) / 10 : priorCumulative / 10;
     const delta = current - previous;
     const sign = delta >= 0 ? "+" : "−";
-    return `${sign}${Math.abs(delta).toFixed(1)} п.п.`;
+    return `${sign}${Math.abs(delta).toFixed(1)}%`;
   }
 
   const total = cumulativeChannelValue(values, pointIndex, priorCumulative);

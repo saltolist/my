@@ -91,39 +91,16 @@ export default function AnalyticsScreen() {
       <PageHeader title="Аналитика канала" backTo="home" search={periodToolbar} />
       <div className="analytics-page">
         <div className="analytics-scroll-inner">
-          <div className="stat-grid">
-            <div className="stat-card">
-              <div className="stat-label">Охваты</div>
-              <div className="stat-value">38 200</div>
-              <div className="stat-delta delta-up">↑ +12%</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-label">Подписчики</div>
-              <div className="stat-value">8 412</div>
-              <div className="stat-delta delta-up">↑ +34</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-label">ER</div>
-              <div className="stat-value">4.8%</div>
-              <div className="stat-delta delta-up">↑ +0.3%</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-label">Средний охват</div>
-              <div className="stat-value">4 775</div>
-              <div className="stat-delta delta-up">↑ +9%</div>
-            </div>
-          </div>
-
           <ChannelAnalyticsSection periodIndex={period} />
 
-          <div className="analytics-card">
-            <div className="section-title">Тепловая карта активности</div>
+          <div className="analytics-card platform-analytics-section">
+            <div className="profile-section-title platform-section-title-spaced">Тепловая карта активности</div>
             <div className="analytics-card-subtitle">Средний отклик по дням и времени публикации</div>
             <Heatmap />
           </div>
 
-          <div className="analytics-card">
-            <div className="section-title">Лучшие посты за период</div>
+          <div className="analytics-card platform-analytics-section">
+            <div className="profile-section-title platform-section-title-spaced">Лучшие посты за период</div>
             <table className="top-table analytics-top-posts-table">
               <colgroup>
                 <col className="analytics-top-posts-col-title" />

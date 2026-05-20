@@ -20,9 +20,7 @@ export default function ChannelMetricBars({ periodIndex }: ChannelMetricBarsProp
   );
 
   return (
-    <>
-      <div className="section-title">Прирост по метрикам</div>
-      <div className="channel-metrics-block">
+    <div className="channel-metrics-block">
         <div className="channel-metrics-head">
           <span>Метрика</span>
           <span className="channel-metrics-head-bar" aria-hidden />
@@ -31,8 +29,7 @@ export default function ChannelMetricBars({ periodIndex }: ChannelMetricBarsProp
         {metrics.map((metric) => (
           <ChannelMetricBarRow key={metric.id} metric={metric} />
         ))}
-      </div>
-    </>
+    </div>
   );
 }
 

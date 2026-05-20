@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type CSSProperties } from "react";
 import ChartSeriesSelector from "@/components/charts/ChartSeriesSelector";
 import MultiSeriesTrendChart from "@/components/charts/MultiSeriesTrendChart";
 import ChannelMetricBars from "@/components/analytics/ChannelMetricBars";
 import ChannelReactionsPanel from "@/components/analytics/ChannelReactionsPanel";
 import {
   ANALYTICS_SCREEN_PERIOD_TO_CHART,
+  buildChannelSummaryCards,
   buildChannelTrendSeries,
   formatChannelGrowthPercent,
   formatChannelGrowthPrimary,
@@ -26,19 +27,39 @@ export default function ChannelAnalyticsSection({ periodIndex }: { periodIndex: 
     () => series.map((row) => ({ id: row.id, label: row.label, color: row.color })),
     [series],
   );
+  const summaryCards = useMemo(
+    () => buildChannelSummaryCards(series, periodIndex),
+    [series, periodIndex],
+  );
 
   return (
     <>
-      <div className="analytics-card analytics-chart-card profile-checkbox-scope">
-        <div className="analytics-chart-head">
-          <div className="section-title">Динамика прироста</div>
+      <div className="analytics-card analytics-chart-card platform-analytics-section profile-checkbox-scope">
+        <div className="analytics-card-head">
+          <div className="profile-section-title">Динамика прироста</div>
           <ChartSeriesSelector
+            variant="profile"
             label="Метрики"
             items={selectorItems}
             isVisible={isVisible}
             onVisibleChange={setVisible}
           />
         </div>
+        {summaryCards.length > 0 ? (
+          <div
+            className="model-analytics-summary channel-analytics-summary"
+            style={{ "--summary-cols": series.length } as CSSProperties}
+          >
+            {summaryCards.map((card) => (
+              <div className="mini-metric channel-mini-metric" key={card.id}>
+                <div className="mini-metric-value">{card.value}</div>
+                <div className="channel-mini-metric-caption">
+                  <span className="channel-mini-metric-label">{`${card.label}  ${card.displayGrowth}`}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
         <MultiSeriesTrendChart
           labels={labels}
           series={visibleSeries}
@@ -68,11 +89,17 @@ export default function ChannelAnalyticsSection({ periodIndex }: { periodIndex: 
       </div>
 
       <div className="analytics-metrics-row">
-        <div className="analytics-card">
-          <ChannelMetricBars periodIndex={periodIndex} />
+        <div className="analytics-card platform-analytics-section analytics-metrics-card">
+          <div className="analytics-metrics-card-title">Прирост по метрикам</div>
+          <div className="analytics-metrics-card-body">
+            <ChannelMetricBars periodIndex={periodIndex} />
+          </div>
         </div>
-        <div className="analytics-card channel-reactions-card">
-          <ChannelReactionsPanel />
+        <div className="analytics-card channel-reactions-card platform-analytics-section analytics-metrics-card">
+          <div className="analytics-metrics-card-title">Реакции</div>
+          <div className="analytics-metrics-card-body">
+            <ChannelReactionsPanel />
+          </div>
         </div>
       </div>
     </>
