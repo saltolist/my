@@ -3981,7 +3981,12 @@ button.filter-tab {
 .analytics-dashboard-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr); gap: 16px; align-items: start; }
 .analytics-card-wide { min-width: 0; }
 .analytics-chart-card { width: 100%; overflow: visible; }
-.analytics-chart-card .model-trend-plot { padding-left: 56px; }
+.analytics-chart-card .model-trend-plot:not(.trend-plot--no-y-labels) {
+  padding-left: 56px;
+}
+.analytics-chart-card .model-trend-plot.trend-plot--no-y-labels {
+  padding: 0 34px 0 34px;
+}
 .analytics-chart-card .model-trend-plot .trend-chart { height: 493px; }
 .analytics-metrics-row {
   display: grid;
@@ -4279,6 +4284,12 @@ button.filter-tab {
   padding-top: 0;
   padding-left: var(--trend-plot-left-gutter);
   overflow: visible;
+}
+.trend-plot--no-y-labels,
+.model-trend-plot.trend-plot--no-y-labels {
+  --trend-y-label-inset: 0;
+  --trend-plot-left-gutter: 34px;
+  padding-left: 34px;
 }
 .trend-chart-wrap { position: relative; overflow: visible; }
 .trend-chart { display: block; width: 100%; height: 145px; overflow: visible; }

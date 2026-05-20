@@ -75,8 +75,21 @@ const CHANNEL_CURRENT_TOTALS: Record<string, number> = {
 
 export const ANALYTICS_SCREEN_PERIOD_TO_CHART = [1, 2, 3, 4] as const;
 
-function cumulativeChannelValue(values: number[], pointIndex: number) {
-  return values.slice(0, pointIndex + 1).reduce((sum, item) => sum + item, 0);
+function buildPriorCumulative(seed: number, firstIncrement: number, metricId: string) {
+  if (firstIncrement <= 0) return 0;
+
+  if (isErMetric(metricId)) {
+    const first = firstIncrement / 10;
+    const prior = first * (0.9 + (seed % 6) * 0.012);
+    return Math.max(1, Math.round(prior * 10));
+  }
+
+  return Math.max(1, Math.round(firstIncrement * (0.62 + (seed % 9) * 0.028)));
+}
+
+function cumulativeChannelValue(values: number[], pointIndex: number, priorCumulative = 0) {
+  const inPeriod = values.slice(0, pointIndex + 1).reduce((sum, item) => sum + item, 0);
+  return priorCumulative + inPeriod;
 }
 
 function isErMetric(metricId: string) {
@@ -85,26 +98,39 @@ function isErMetric(metricId: string) {
 }
 
 /**
- * Индекс от начала периода в %: первая точка = 100%,
- * дальше доля накопительного итога к старту (100→150→170 → 100%→150%→170%).
+ * Индекс в % от состояния до начала графика (prior): первая видимая точка
+ * уже отражает прирост за день, поэтому линии не сходятся в одну точку.
  */
-function channelPeriodIndexPercent(metricId: string, values: number[], pointIndex: number): number {
+function channelPeriodIndexPercent(
+  metricId: string,
+  values: number[],
+  pointIndex: number,
+  priorCumulative = 0,
+): number {
   if (isErMetric(metricId)) {
     const current = (values[pointIndex] ?? 0) / 10;
-    const base = (values[0] ?? 0) / 10;
+    const base =
+      priorCumulative > 0 ? priorCumulative / 10 : (values[0] ?? 0) / 10;
     if (base <= 0) return 100;
     return (current / base) * 100;
   }
 
-  const total = cumulativeChannelValue(values, pointIndex);
-  const base = cumulativeChannelValue(values, 0);
+  const total = cumulativeChannelValue(values, pointIndex, priorCumulative);
+  const base =
+    priorCumulative > 0 ? priorCumulative : cumulativeChannelValue(values, 0, 0);
   if (base <= 0) return 100;
   return (total / base) * 100;
 }
 
 /** Ось Y — индекс от старта периода (совпадает с подписью в карточке). */
-export function buildChannelTrendPlotYValues(metricId: string, values: number[]): number[] {
-  return values.map((_, pointIndex) => channelPeriodIndexPercent(metricId, values, pointIndex));
+export function buildChannelTrendPlotYValues(
+  metricId: string,
+  values: number[],
+  priorCumulative = 0,
+): number[] {
+  return values.map((_, pointIndex) =>
+    channelPeriodIndexPercent(metricId, values, pointIndex, priorCumulative),
+  );
 }
 
 export function buildChannelTrendSeries(analyticsPeriodIndex: number): {
@@ -120,13 +146,15 @@ export function buildChannelTrendSeries(analyticsPeriodIndex: number): {
     const seed = hashString(`channel:${metric.id}:${chartPeriod}`);
     const total = Math.max(1, Math.round(metric.base * multiplier));
     const values = buildTrend(seed, total, pointCount);
+    const priorCumulative = buildPriorCumulative(seed, values[0] ?? 0, metric.id);
 
     return {
       id: metric.id,
       label: metric.label,
       color: metric.color,
       values,
-      yValues: buildChannelTrendPlotYValues(metric.id, values),
+      priorCumulative,
+      yValues: buildChannelTrendPlotYValues(metric.id, values, priorCumulative),
     };
   });
 
@@ -201,6 +229,7 @@ function formatChannelMomentCount(
   value: number,
   pointIndex: number,
   values: number[],
+  priorCumulative = 0,
 ): string {
   const metric = CHANNEL_METRICS.find((item) => item.id === metricId);
   if (!metric) return formatNumber(value);
@@ -209,7 +238,7 @@ function formatChannelMomentCount(
     return `ER ${(value / 10).toFixed(1)}%`;
   }
 
-  const total = cumulativeChannelValue(values, pointIndex);
+  const total = cumulativeChannelValue(values, pointIndex, priorCumulative);
   if (!("countForms" in metric)) return formatNumber(total);
 
   return `${formatNumber(total)} ${pluralRu(total, metric.countForms)}`;
@@ -220,8 +249,9 @@ export function formatChannelGrowthPercent(
   value: number,
   pointIndex: number,
   values: number[],
+  priorCumulative = 0,
 ): string {
-  return formatChannelPointGrowthPercent(metricId, value, pointIndex, values);
+  return formatChannelPointGrowthDelta(metricId, value, pointIndex, values, priorCumulative);
 }
 
 export function formatChannelGrowthPrimary(
@@ -229,8 +259,9 @@ export function formatChannelGrowthPrimary(
   value: number,
   pointIndex: number,
   values: number[],
+  priorCumulative = 0,
 ): string {
-  return formatChannelMomentCount(metricId, value, pointIndex, values);
+  return formatChannelMomentCount(metricId, value, pointIndex, values, priorCumulative);
 }
 
 function formatChannelPointGrowthDelta(
@@ -238,30 +269,24 @@ function formatChannelPointGrowthDelta(
   value: number,
   pointIndex: number,
   values: number[],
+  priorCumulative = 0,
 ): string {
-  if (pointIndex <= 0) {
-    return isErMetric(metricId) ? "+0 п.п." : "+0";
-  }
-
   if (isErMetric(metricId)) {
-    const delta = value / 10 - (values[pointIndex - 1] ?? 0) / 10;
+    const current = value / 10;
+    const previous =
+      pointIndex > 0 ? (values[pointIndex - 1] ?? 0) / 10 : priorCumulative / 10;
+    const delta = current - previous;
     const sign = delta >= 0 ? "+" : "−";
     return `${sign}${Math.abs(delta).toFixed(1)} п.п.`;
   }
 
-  const total = cumulativeChannelValue(values, pointIndex);
-  const prevTotal = cumulativeChannelValue(values, pointIndex - 1);
+  const total = cumulativeChannelValue(values, pointIndex, priorCumulative);
+  const prevTotal =
+    pointIndex > 0
+      ? cumulativeChannelValue(values, pointIndex - 1, priorCumulative)
+      : priorCumulative;
   const delta = Math.round(total - prevTotal);
   const sign = delta >= 0 ? "+" : "−";
   return `${sign}${formatNumber(Math.abs(delta))}`;
-}
-
-function formatChannelPointGrowthPercent(
-  metricId: string,
-  value: number,
-  pointIndex: number,
-  values: number[],
-): string {
-  return formatChannelPointGrowthDelta(metricId, value, pointIndex, values);
 }
 

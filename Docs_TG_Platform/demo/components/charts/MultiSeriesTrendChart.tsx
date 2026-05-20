@@ -34,6 +34,8 @@ export type TrendSeriesRow = {
   color: string;
   values: number[];
   yValues?: number[];
+  /** Накопительное значение на момент перед первой точкой графика (пред. день/час). */
+  priorCumulative?: number;
 };
 
 export type TrendChartDot = {
@@ -150,6 +152,7 @@ export type MultiSeriesTrendChartProps = {
   period: number;
   title: string;
   compactAxisLabels?: boolean;
+  showYAxisLabels?: boolean;
   formatAxisValue?: (value: number, scaleMax: number) => string;
   getDotPrimaryLine: (row: TrendSeriesRow, value: number, pointIndex: number) => string;
   getDotGrowthBadge?: (row: TrendSeriesRow, value: number, pointIndex: number) => string;
@@ -173,6 +176,7 @@ export default function MultiSeriesTrendChart({
   period,
   title,
   compactAxisLabels = false,
+  showYAxisLabels = true,
   formatAxisValue = formatTrendNumber,
   getDotPrimaryLine,
   getDotGrowthBadge,
@@ -374,7 +378,9 @@ export default function MultiSeriesTrendChart({
   }, [clusterStripSyncKey, clusterPointer]);
 
   return (
-    <div className="trend-plot model-trend-plot">
+    <div
+      className={`trend-plot model-trend-plot${showYAxisLabels ? "" : " trend-plot--no-y-labels"}`}
+    >
       <div
         ref={chartWrapRef}
         className="trend-chart-wrap"
@@ -534,11 +540,13 @@ export default function MultiSeriesTrendChart({
             </button>
           );
         })}
-        {gridRows.map((row) => (
-          <span key={row.label} className="trend-y-label" style={{ top: `${row.y}%` }}>
-            {row.label}
-          </span>
-        ))}
+        {showYAxisLabels
+          ? gridRows.map((row) => (
+              <span key={row.label} className="trend-y-label" style={{ top: `${row.y}%` }}>
+                {row.label}
+              </span>
+            ))
+          : null}
       </div>
       <div className={`trend-labels${compactAxisLabels ? " trend-labels--hourly" : ""}`}>
         {labels.map((label, index) => (
