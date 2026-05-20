@@ -2,7 +2,7 @@ import { getPeriodChartLabels } from "@/lib/trendChart/periodLabels";
 import { buildTrend, formatNumber, hashString } from "@/lib/trendChart/math";
 import type { TrendSeriesRow } from "@/components/charts/MultiSeriesTrendChart";
 
-const CHANNEL_PERIOD_MULTIPLIERS = [0.24, 1, 2.8, 7.4];
+const CHANNEL_PERIOD_MULTIPLIERS = [0.06, 0.24, 1, 2.8, 7.4];
 
 const CHANNEL_METRICS = [
   {
@@ -73,7 +73,7 @@ const CHANNEL_CURRENT_TOTALS: Record<string, number> = {
   er: 4.8,
 };
 
-export const ANALYTICS_SCREEN_PERIOD_TO_CHART = [1, 2, 3, 4] as const;
+export const ANALYTICS_SCREEN_PERIOD_TO_CHART = [0, 1, 2, 3, 4] as const;
 
 function buildPriorCumulative(seed: number, firstIncrement: number, metricId: string) {
   if (firstIncrement <= 0) return 0;

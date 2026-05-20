@@ -325,6 +325,10 @@ html.sidebar-collapsed {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
+
+  :root[data-theme="system"] :is(.analytics-page, .profile-page) {
+    --content-card-shadow: 0 6px 22px rgba(0, 0, 0, 0.065);
+  }
 }
 html, body {
   height: 100%;
@@ -3933,6 +3937,7 @@ button.filter-tab {
    SCREEN: ANALYTICS
 ════════════════════════════════ */
 .analytics-page {
+  --content-card-shadow: 0 8px 26px rgba(0, 0, 0, 0.22);
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -3940,6 +3945,9 @@ button.filter-tab {
   align-items: center;
   padding-top: var(--hdr);
   min-height: 0;
+}
+:root[data-theme="light"] :is(.analytics-page, .profile-page) {
+  --content-card-shadow: 0 6px 22px rgba(0, 0, 0, 0.065);
 }
 .analytics-scroll-inner {
   width: min(var(--content-w), 100%);
@@ -3978,6 +3986,11 @@ button.filter-tab {
 .delta-up { color: var(--green); } .delta-dn { color: var(--red); }
 .section-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
 .analytics-card { border-radius: var(--block-r); padding: 18px; margin-bottom: 16px; overflow-x: auto; overflow-y: hidden; }
+.analytics-page .analytics-card {
+  overflow-x: auto;
+  overflow-y: visible;
+  box-shadow: var(--content-card-shadow);
+}
 .analytics-card-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 .analytics-chart-head {
   display: flex;
@@ -4938,6 +4951,7 @@ button.filter-tab {
    SCREEN: PROFILE
 ════════════════════════════════ */
 .profile-page {
+  --content-card-shadow: 0 8px 26px rgba(0, 0, 0, 0.22);
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -4945,6 +4959,10 @@ button.filter-tab {
   align-items: center;
   padding-top: var(--hdr);
   min-height: 0;
+}
+.profile-page :is(.profile-section, .profile-channel-actions, .stat-card) {
+  overflow: visible;
+  box-shadow: var(--content-card-shadow);
 }
 .profile-scroll-inner {
   width: min(var(--content-w), 100%);

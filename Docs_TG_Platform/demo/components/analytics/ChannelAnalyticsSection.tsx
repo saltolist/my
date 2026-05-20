@@ -66,7 +66,7 @@ export default function ChannelAnalyticsSection({ periodIndex }: { periodIndex: 
           labels={labels}
           series={visibleSeries}
           period={chartPeriod}
-          compactAxisLabels={chartPeriod === 2 || chartPeriod === 3 || chartPeriod === 4}
+          compactAxisLabels={chartPeriod === 0 || chartPeriod === 2 || chartPeriod === 3 || chartPeriod === 4}
           showYAxisLabels={false}
           title="Динамика прироста по метрикам канала"
           getDotGrowthBadge={(row, value, pointIndex) =>

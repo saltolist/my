@@ -101,14 +101,6 @@ export default function PlatformAnalyticsBlock() {
           </div>
           <div className="model-filter-stack model-filter-stack--with-series">
             <ModelPicker
-              ariaLabel="Период"
-              className="profile-model-picker"
-              value={String(period)}
-              options={PERIODS.map((item, index) => ({ id: String(index), label: item.label }))}
-              placement="down"
-              onChange={(id) => setPeriod(Number(id))}
-            />
-            <ModelPicker
               ariaLabel="Тип модели"
               className="profile-model-picker"
               value={modelType}
@@ -122,6 +114,14 @@ export default function PlatformAnalyticsBlock() {
               items={selectorItems}
               isVisible={isVisible}
               onVisibleChange={setVisible}
+            />
+            <ModelPicker
+              ariaLabel="Период"
+              className="profile-model-picker"
+              value={String(period)}
+              options={PERIODS.map((item, index) => ({ id: String(index), label: item.label }))}
+              placement="down"
+              onChange={(id) => setPeriod(Number(id))}
             />
           </div>
         </div>

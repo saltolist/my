@@ -20,7 +20,7 @@ type TopPostRow = {
   er: number;
 };
 
-const PERIODS = ["7 дней", "30 дней", "90 дней", "Всё время"];
+const PERIODS = ["24 часа", "7 дней", "30 дней", "90 дней", "Всё время"];
 
 const heatmapRows = [
   { day: "Пн", values: [1, 2, 3, 4, 3] },
@@ -67,7 +67,7 @@ const topPosts: TopPostRow[] = [
 
 export default function AnalyticsScreen() {
   const { openPost } = useApp();
-  const [period, setPeriod] = useState(0);
+  const [period, setPeriod] = useState(1);
 
   const periodToolbar = (
     <div className="page-header-analytics-periods" role="tablist" aria-label="Период">
