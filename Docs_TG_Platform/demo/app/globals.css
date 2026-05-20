@@ -141,7 +141,7 @@ html.sidebar-collapsed {
   --glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 14px 36px rgba(0, 0, 0, 0.08);
 
   /* Sidebar: светлое стекло, не холодный серый */
-  --sidebar-glass-overlay:  #ffffff;
+  --sidebar-glass-overlay:  rgba(252, 252, 253, 0.7);
   --sidebar-glass-border: rgba(0, 0, 0, 0.07);
   --sidebar-glass-shine:  rgba(255, 255, 255, 0.55);
   --sidebar-glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.08);
@@ -252,7 +252,7 @@ html.sidebar-collapsed {
     --glass-shine:  rgba(255, 255, 255, 0.85);
     --glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 14px 36px rgba(0, 0, 0, 0.08);
 
-    --sidebar-glass-overlay:  #ffffff;
+    --sidebar-glass-overlay:  rgba(252, 252, 253, 0.7);
     --sidebar-glass-border: rgba(0, 0, 0, 0.07);
     --sidebar-glass-shine:  rgba(255, 255, 255, 0.55);
     --sidebar-glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.08);
@@ -4099,7 +4099,7 @@ button.filter-tab {
 .analytics-metrics-row > .analytics-card.channel-reactions-card {
   width: 248px;
   max-width: 248px;
-  padding: 18px 12px;
+  padding: 18px;
 }
 .analytics-metrics-row > .analytics-card.channel-reactions-card .analytics-metrics-card-body {
   flex: 1 1 auto;
