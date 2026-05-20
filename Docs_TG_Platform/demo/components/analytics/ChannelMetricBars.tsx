@@ -25,6 +25,7 @@ export default function ChannelMetricBars({ periodIndex }: ChannelMetricBarsProp
           <span>Метрика</span>
           <span className="channel-metrics-head-bar" aria-hidden />
           <span>Прирост</span>
+          <span>Количество</span>
         </div>
         {metrics.map((metric) => (
           <ChannelMetricBarRow key={metric.id} metric={metric} />
@@ -78,7 +79,10 @@ function ChannelMetricBarRow({ metric }: { metric: ChannelMetricSummary }) {
           />
         </div>
       </div>
-      <div className="channel-metric-value">{metric.displayGrowth}</div>
+      <div className="channel-metric-value channel-metric-value--growth">{metric.displayGrowth}</div>
+      <div className="channel-metric-value channel-metric-value--quantity">
+        {metric.displayQuantity}
+      </div>
       {tooltipPos && typeof document !== "undefined"
         ? createPortal(
             <div
@@ -87,6 +91,7 @@ function ChannelMetricBarRow({ metric }: { metric: ChannelMetricSummary }) {
             >
               <b>{metric.label}</b>
               <span>Прирост: {metric.displayGrowth}</span>
+              <span>Количество: {metric.displayQuantity}</span>
               <span>Доля за период: {metric.growthShare}%</span>
             </div>,
             document.body,

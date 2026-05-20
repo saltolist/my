@@ -167,6 +167,7 @@ export type ChannelMetricSummary = {
   color: string;
   share: number;
   displayGrowth: string;
+  displayQuantity: string;
   growthShare: number;
 };
 
@@ -235,6 +236,10 @@ export function buildChannelMetricSummaries(
     share: Math.max(4, Math.round((growth / maxGrowth) * 100)),
     growthShare: totalGrowth > 0 ? Math.round((growth / totalGrowth) * 100) : 0,
     displayGrowth: formatGrowthDelta(row.id, growth),
+    displayQuantity: formatChannelPostMetricValue(
+      row.id,
+      CHANNEL_CURRENT_TOTALS[row.id] ?? 0,
+    ),
   }));
 }
 
