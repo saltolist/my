@@ -221,7 +221,7 @@ export default function MultiSeriesTrendChart({
     left?: number;
     bottom: number;
   } | null>(null);
-  const [clusterPointer, setClusterPointer] = useState<{ x: number; dotX: number } | null>(null);
+  const [clusterAnchor, setClusterAnchor] = useState<{ dotX: number } | null>(null);
   const clusterStripRef = useRef<HTMLDivElement>(null);
   const chartTop = 1;
   const chartBottom = 88;
@@ -328,8 +328,8 @@ export default function MultiSeriesTrendChart({
   );
 
   const clusterStripSyncKey =
-    hoveredClusterId && hoveredDotKey && clusterPointer
-      ? `${hoveredClusterId}\u0000${hoveredDotKey}\u0000${clusterPointer.x}\u0000${clusterPointer.dotX}\u0000${chartSizePx.width}\u0000${chartSizePx.height}\u0000${hoveredCluster?.dots.length ?? 0}`
+    hoveredClusterId && hoveredDotKey && clusterAnchor
+      ? `${hoveredClusterId}\u0000${hoveredDotKey}\u0000${clusterAnchor.dotX}\u0000${chartSizePx.width}\u0000${chartSizePx.height}\u0000${hoveredCluster?.dots.length ?? 0}`
       : "";
 
   const hoveredLineHighlights = useMemo(() => {
@@ -374,8 +374,8 @@ export default function MultiSeriesTrendChart({
       const strip = clusterStripRef.current;
       if (!strip) return;
 
-      const pointerX = clusterPointer?.x ?? anchorRect.left + anchorRect.width / 2;
-      const dotX = clusterPointer?.dotX ?? 50;
+      const anchorCenterX = anchorRect.left + anchorRect.width / 2;
+      const dotX = clusterAnchor?.dotX ?? 50;
       const bottom = Math.round(window.innerHeight - anchorRect.top + 10);
       const stripWidth = strip.offsetWidth;
       if (stripWidth === 0) {
@@ -384,7 +384,7 @@ export default function MultiSeriesTrendChart({
       }
 
       const next = {
-        left: computeClusterStripLeft(pointerX, stripWidth, dotX),
+        left: computeClusterStripLeft(anchorCenterX, stripWidth, dotX),
         bottom,
       };
       setClusterStripAnchor((prev) =>
@@ -408,7 +408,7 @@ export default function MultiSeriesTrendChart({
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
     };
-  }, [clusterStripSyncKey, clusterPointer]);
+  }, [clusterStripSyncKey, clusterAnchor]);
 
   return (
     <div
@@ -420,14 +420,14 @@ export default function MultiSeriesTrendChart({
         onMouseLeave={() => {
           setHoveredClusterId(null);
           setHoveredDotKey(null);
-          setClusterPointer(null);
+          setClusterAnchor(null);
           setClusterStripAnchor(null);
         }}
         onBlur={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
             setHoveredClusterId(null);
             setHoveredDotKey(null);
-            setClusterPointer(null);
+            setClusterAnchor(null);
             setClusterStripAnchor(null);
           }
         }}
@@ -511,33 +511,23 @@ export default function MultiSeriesTrendChart({
                 const rect = event.currentTarget.getBoundingClientRect();
                 setHoveredClusterId(dot.clusterId);
                 setHoveredDotKey(trendDotKey(dot));
-                setClusterPointer({ x: event.clientX, dotX: dot.x });
+                setClusterAnchor({ dotX: dot.x });
                 setClusterStripAnchor({
                   bottom: Math.round(window.innerHeight - rect.top + 10),
                 });
-              }}
-              onMouseMove={(event) => {
-                if (dot.clusterSize < 2) return;
-                setClusterPointer({ x: event.clientX, dotX: dot.x });
-                setClusterStripAnchor((prev) =>
-                  prev ? { bottom: prev.bottom, left: undefined } : prev,
-                );
               }}
               onMouseLeave={(event) => {
                 if (!shouldClearTrendDotHover(event)) return;
                 setHoveredClusterId(null);
                 setHoveredDotKey(null);
-                setClusterPointer(null);
+                setClusterAnchor(null);
                 setClusterStripAnchor(null);
               }}
               onFocus={(event) => {
                 const rect = event.currentTarget.getBoundingClientRect();
                 setHoveredClusterId(dot.clusterId);
                 setHoveredDotKey(trendDotKey(dot));
-                setClusterPointer({
-                  x: rect.left + rect.width / 2,
-                  dotX: dot.x,
-                });
+                setClusterAnchor({ dotX: dot.x });
                 setClusterStripAnchor({
                   bottom: Math.round(window.innerHeight - rect.top + 10),
                 });
@@ -546,7 +536,7 @@ export default function MultiSeriesTrendChart({
                 if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
                 setHoveredClusterId(null);
                 setHoveredDotKey(null);
-                setClusterPointer(null);
+                setClusterAnchor(null);
                 setClusterStripAnchor(null);
               }}
             >
@@ -590,7 +580,7 @@ export default function MultiSeriesTrendChart({
       </div>
       {hoveredCluster &&
         hoveredCluster.dots.length > 1 &&
-        clusterPointer &&
+        clusterAnchor &&
         clusterStripAnchor &&
         typeof document !== "undefined" &&
         createPortal(
@@ -598,7 +588,7 @@ export default function MultiSeriesTrendChart({
             ref={clusterStripRef}
             className="trend-tooltip-strip trend-tooltip-strip--fixed"
             style={{
-              left: `${clusterStripAnchor.left ?? clusterPointer.x}px`,
+              left: `${clusterStripAnchor.left ?? 0}px`,
               bottom: `${clusterStripAnchor.bottom}px`,
               opacity: clusterStripAnchor.left == null ? 0 : 1,
             }}
