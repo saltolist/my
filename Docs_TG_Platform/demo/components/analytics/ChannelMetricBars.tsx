@@ -20,16 +20,28 @@ export default function ChannelMetricBars({ periodIndex }: ChannelMetricBarsProp
   );
 
   return (
-    <div className="channel-metrics-block">
-        <div className="channel-metrics-head">
-          <span>Метрика</span>
-          <span className="channel-metrics-head-bar" aria-hidden />
-          <span>Прирост</span>
-          <span>Количество</span>
-        </div>
+    <div
+      className="channel-metrics-block"
+      style={{ "--channel-metric-rows": metrics.length } as CSSProperties}
+    >
+      <div className="channel-metrics-head">
+        <span>Метрика</span>
+        <span className="channel-metrics-head-bar" aria-hidden />
+        <span>Прирост</span>
+        <span>Количество</span>
+      </div>
+      <div
+        className="channel-metrics-rows"
+        style={
+          {
+            gridTemplateRows: `repeat(${metrics.length}, minmax(0, 1fr))`,
+          } as CSSProperties
+        }
+      >
         {metrics.map((metric) => (
           <ChannelMetricBarRow key={metric.id} metric={metric} />
         ))}
+      </div>
     </div>
   );
 }

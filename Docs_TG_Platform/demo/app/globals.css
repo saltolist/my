@@ -4057,7 +4057,7 @@ button.filter-tab {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 248px;
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
   margin-bottom: 16px;
 }
 .analytics-metrics-row > .analytics-card {
@@ -4075,11 +4075,14 @@ button.filter-tab {
   line-height: 1.2;
   padding-bottom: 18px;
 }
-.analytics-metrics-card-body {
-  flex: 0 0 auto;
+.analytics-metrics-row > .analytics-card.analytics-metrics-card:not(.channel-reactions-card)
+  .analytics-metrics-card-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 .analytics-metrics-row > .analytics-card.channel-reactions-card {
-  align-self: stretch;
   width: 248px;
   max-width: 248px;
   padding: 18px 12px;
@@ -4094,15 +4097,28 @@ button.filter-tab {
   --channel-metric-growth-col: 80px;
   --channel-metric-quantity-col: 88px;
   --channel-metric-col-gap: 10px;
+  --channel-metric-rows: 6;
+  --channel-metric-row-gap-min: 10px;
   display: grid;
   grid-template-columns:
     max-content
     minmax(0, 1fr)
     var(--channel-metric-growth-col)
     var(--channel-metric-quantity-col);
+  grid-template-rows: auto minmax(0, 1fr);
   column-gap: var(--channel-metric-col-gap);
-  row-gap: 10px;
-  min-width: 0;
+  row-gap: var(--channel-metric-row-gap-min);
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+.channel-metrics-rows {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-template-rows: repeat(var(--channel-metric-rows, 6), minmax(0, 1fr));
+  row-gap: var(--channel-metric-row-gap-min);
+  min-height: 0;
 }
 .channel-reactions-panel {
   flex: 1 1 auto;
@@ -4640,6 +4656,8 @@ button.filter-tab {
   margin-bottom: 0;
   gap: 0;
   align-items: center;
+  align-self: stretch;
+  min-height: 0;
 }
 .bar-row.channel-metric-bar .bar-label {
   grid-column: 1;
