@@ -4128,7 +4128,7 @@ button.filter-tab {
 .channel-reactions-panel .reaction-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
+  gap: 9px 6px;
   margin-top: 0;
 }
 .channel-reactions-panel .reaction-strip span {
