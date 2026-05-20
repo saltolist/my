@@ -91,11 +91,11 @@ function cappedNiceCeil(rawMax: number, dataMax: number, pad: number) {
 }
 
 export function buildAdaptiveValueScale(values: number[]) {
-  const finite = values.filter((value) => Number.isFinite(value) && value >= 0);
+  const finite = values.filter((value) => Number.isFinite(value));
   const dataMax = finite.length > 0 ? Math.max(...finite) : 0;
   const dataMin = finite.length > 0 ? Math.min(...finite) : 0;
 
-  if (dataMax <= 0) {
+  if (finite.length === 0 || (dataMax <= 0 && dataMin >= 0)) {
     return { min: 0, max: 0.01, span: 0.01 };
   }
 
@@ -112,9 +112,13 @@ export function buildAdaptiveValueScale(values: number[]) {
   const rawMax = dataMax + pad;
   const axisTop = cappedNiceCeil(rawMax, dataMax, pad);
 
-  // Ноль только если данные действительно начинаются у оси; иначе — зум к диапазону.
-  const anchorAtZero = spread <= 0 || dataMin <= dataMax * 0.12;
-  const min = anchorAtZero ? 0 : Math.max(0, dataMin - pad * 0.5);
+  // Ноль на оси, если все значения неотрицательны и близки к нулю; отрицательный прирост — шкала через 0.
+  const anchorAtZero = dataMin >= 0 && (spread <= 0 || dataMin <= dataMax * 0.12);
+  const min = anchorAtZero
+    ? 0
+    : dataMin < 0
+      ? dataMin - pad * 0.5
+      : Math.max(0, dataMin - pad * 0.5);
   const top = Math.max(axisTop, rawMax);
   const span = Math.max(top - min, pad, dataMax * 0.03);
 

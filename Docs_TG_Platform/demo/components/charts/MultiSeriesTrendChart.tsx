@@ -152,8 +152,20 @@ export type MultiSeriesTrendChartProps = {
   compactAxisLabels?: boolean;
   formatAxisValue?: (value: number, scaleMax: number) => string;
   getDotPrimaryLine: (row: TrendSeriesRow, value: number, pointIndex: number) => string;
+  getDotGrowthBadge?: (row: TrendSeriesRow, value: number, pointIndex: number) => string;
   getDotExtraLines?: (row: TrendSeriesRow, value: number, pointIndex: number) => string[];
 };
+
+function TrendTooltipTitle({ label, growth }: { label: string; growth?: string }) {
+  if (!growth) return <b>{label}</b>;
+
+  return (
+    <div className="trend-tooltip-head">
+      <b>{label}</b>
+      <span className="trend-tooltip-growth">{growth}</span>
+    </div>
+  );
+}
 
 export default function MultiSeriesTrendChart({
   labels,
@@ -163,6 +175,7 @@ export default function MultiSeriesTrendChart({
   compactAxisLabels = false,
   formatAxisValue = formatTrendNumber,
   getDotPrimaryLine,
+  getDotGrowthBadge,
   getDotExtraLines,
 }: MultiSeriesTrendChartProps) {
   const [hoveredClusterId, setHoveredClusterId] = useState<string | null>(null);
@@ -507,7 +520,10 @@ export default function MultiSeriesTrendChart({
               </span>
               {dot.clusterSize === 1 && row ? (
                 <span className="trend-tooltip">
-                  <b>{dot.seriesLabel}</b>
+                  <TrendTooltipTitle
+                    label={dot.seriesLabel}
+                    growth={getDotGrowthBadge?.(row, dot.value, dot.pointIndex)}
+                  />
                   <span className="trend-tooltip-period">{dot.periodLabel}</span>
                   <em>{getDotPrimaryLine(row, dot.value, dot.pointIndex)}</em>
                   {dot.extraLines.map((line) => (
@@ -558,7 +574,10 @@ export default function MultiSeriesTrendChart({
                 if (!row) return null;
                 return (
                   <span key={trendDotKey(dot)} className="trend-tooltip trend-tooltip-card">
-                    <b>{dot.seriesLabel}</b>
+                    <TrendTooltipTitle
+                      label={dot.seriesLabel}
+                      growth={getDotGrowthBadge?.(row, dot.value, dot.pointIndex)}
+                    />
                     <span className="trend-tooltip-period">{dot.periodLabel}</span>
                     <em>{getDotPrimaryLine(row, dot.value, dot.pointIndex)}</em>
                     {dot.extraLines.map((line) => (

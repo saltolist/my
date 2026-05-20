@@ -4386,12 +4386,30 @@ button.filter-tab {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.trend-tooltip-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.trend-tooltip-head b {
+  flex: 1;
+  min-width: 0;
+}
+.trend-tooltip-growth {
+  flex-shrink: 0;
+  margin-top: 0;
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
 .trend-tooltip b {
   color: var(--text);
   font-size: 12px;
   font-weight: 650;
 }
-.trend-tooltip span {
+.trend-tooltip > span:not(.trend-tooltip-growth) {
   margin-top: 3px;
   color: var(--text3);
   font-size: 11px;
