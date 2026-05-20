@@ -9,9 +9,11 @@ import {
   ANALYTICS_SCREEN_PERIOD_TO_CHART,
   buildChannelSummaryCards,
   buildChannelTrendSeries,
-  formatChannelGrowthPercent,
+  formatChannelGrowthBadge,
   formatChannelGrowthPrimary,
+  formatChannelPointPercentGrowth,
 } from "@/lib/channelAnalyticsTrend";
+import { formatTrendChartRangeFromStart } from "@/lib/trendChart/periodLabels";
 import { useChartSeriesVisibility } from "@/lib/hooks/useChartSeriesVisibility";
 
 export default function ChannelAnalyticsSection({ periodIndex }: { periodIndex: number }) {
@@ -68,7 +70,7 @@ export default function ChannelAnalyticsSection({ periodIndex }: { periodIndex: 
           showYAxisLabels={false}
           title="Динамика прироста по метрикам канала"
           getDotGrowthBadge={(row, value, pointIndex) =>
-            formatChannelGrowthPercent(
+            formatChannelGrowthBadge(
               row.id,
               value,
               pointIndex,
@@ -80,6 +82,17 @@ export default function ChannelAnalyticsSection({ periodIndex }: { periodIndex: 
             formatChannelGrowthPrimary(
               row.id,
               value,
+              pointIndex,
+              row.values,
+              row.priorCumulative ?? 0,
+            )
+          }
+          getDotRangeFromStartLine={(_, __, pointIndex) =>
+            formatTrendChartRangeFromStart(chartPeriod, pointIndex, labels.length)
+          }
+          getDotPercentGrowthLine={(row, _, pointIndex) =>
+            formatChannelPointPercentGrowth(
+              row.id,
               pointIndex,
               row.values,
               row.priorCumulative ?? 0,

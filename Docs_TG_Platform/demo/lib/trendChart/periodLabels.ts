@@ -182,6 +182,19 @@ export function formatTrendPointPeriod(
   return `${formatTrendRangePart(from, useTime)} — ${formatTrendRangePart(to, useTime)}`;
 }
 
+/** Интервал от начала графика (точка 0) до конца выбранной точки. */
+export function formatTrendChartRangeFromStart(
+  period: number,
+  pointIndex: number,
+  pointCount: number,
+  now = getChartReferenceNow(period),
+) {
+  const start = getTrendPointPeriodBounds(period, 0, pointCount, now);
+  const end = getTrendPointPeriodBounds(period, pointIndex, pointCount, now);
+  const withTime = period === 0 || end.from.toDateString() === end.to.toDateString();
+  return `${formatTrendRangePart(start.from, withTime)} — ${formatTrendRangePart(end.to, withTime)}`;
+}
+
 export function getTrendPointXPercent(index: number, pointCount: number) {
   if (pointCount <= 1) return 50;
   return (index / (pointCount - 1)) * 100;

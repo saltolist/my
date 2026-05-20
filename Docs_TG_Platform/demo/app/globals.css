@@ -4471,12 +4471,16 @@ button.filter-tab {
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
+  margin-bottom: 6px;
 }
 .trend-tooltip-head b {
   flex: 1;
   min-width: 0;
 }
 .trend-tooltip-growth {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
   flex-shrink: 0;
   margin-top: 0;
   color: var(--text2);
@@ -4489,22 +4493,44 @@ button.filter-tab {
   font-size: 12px;
   font-weight: 650;
 }
-.trend-tooltip > span:not(.trend-tooltip-growth) {
+.trend-tooltip > span:not(.trend-tooltip-growth):not(.trend-tooltip-range):not(.trend-tooltip-percent) {
   margin-top: 3px;
   color: var(--text3);
   font-size: 11px;
 }
-.trend-tooltip-period {
+.trend-tooltip-period,
+.trend-tooltip-range {
+  margin-top: 3px;
+  color: var(--text3);
+  font-size: 11px;
   white-space: normal;
   line-height: 1.35;
   overflow: visible;
   text-overflow: clip;
+}
+.trend-tooltip-range {
+  margin-top: 5px;
 }
 .trend-tooltip em {
   margin-top: 5px;
   color: var(--text2);
   font-size: 12px;
   font-style: normal;
+}
+.trend-tooltip-metric {
+  margin-top: 5px;
+  margin-bottom: 6px;
+  color: var(--text2);
+  font-size: 12px;
+  font-style: normal;
+}
+.trend-tooltip-percent {
+  display: block;
+  margin-top: 5px;
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
 }
 .trend-html-dot:hover .trend-tooltip,
 .trend-html-dot:focus-visible .trend-tooltip,

@@ -5,9 +5,11 @@ import MultiSeriesTrendChart from "@/components/charts/MultiSeriesTrendChart";
 import {
   ANALYTICS_SCREEN_PERIOD_TO_CHART,
   buildChannelTrendSeries,
-  formatChannelGrowthPercent,
+  formatChannelGrowthBadge,
   formatChannelGrowthPrimary,
+  formatChannelPointPercentGrowth,
 } from "@/lib/channelAnalyticsTrend";
+import { formatTrendChartRangeFromStart } from "@/lib/trendChart/periodLabels";
 
 export default function ChannelTrendChart({ periodIndex }: { periodIndex: number }) {
   const chartPeriod = ANALYTICS_SCREEN_PERIOD_TO_CHART[periodIndex] ?? 1;
@@ -25,7 +27,7 @@ export default function ChannelTrendChart({ periodIndex }: { periodIndex: number
       showYAxisLabels={false}
       title="Динамика прироста по метрикам канала"
       getDotGrowthBadge={(row, value, pointIndex) =>
-        formatChannelGrowthPercent(
+        formatChannelGrowthBadge(
           row.id,
           value,
           pointIndex,
@@ -35,6 +37,17 @@ export default function ChannelTrendChart({ periodIndex }: { periodIndex: number
       }
       getDotPrimaryLine={(row, value, pointIndex) =>
         formatChannelGrowthPrimary(row.id, value, pointIndex, row.values, row.priorCumulative ?? 0)
+      }
+      getDotRangeFromStartLine={(_, __, pointIndex) =>
+        formatTrendChartRangeFromStart(chartPeriod, pointIndex, labels.length)
+      }
+      getDotPercentGrowthLine={(row, _, pointIndex) =>
+        formatChannelPointPercentGrowth(
+          row.id,
+          pointIndex,
+          row.values,
+          row.priorCumulative ?? 0,
+        )
       }
     />
   );

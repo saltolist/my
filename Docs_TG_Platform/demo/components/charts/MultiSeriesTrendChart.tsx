@@ -156,8 +156,41 @@ export type MultiSeriesTrendChartProps = {
   formatAxisValue?: (value: number, scaleMax: number) => string;
   getDotPrimaryLine: (row: TrendSeriesRow, value: number, pointIndex: number) => string;
   getDotGrowthBadge?: (row: TrendSeriesRow, value: number, pointIndex: number) => string;
+  getDotRangeFromStartLine?: (row: TrendSeriesRow, value: number, pointIndex: number) => string;
+  getDotPercentGrowthLine?: (row: TrendSeriesRow, value: number, pointIndex: number) => string;
   getDotExtraLines?: (row: TrendSeriesRow, value: number, pointIndex: number) => string[];
 };
+
+function TrendTooltipBody({
+  label,
+  growth,
+  periodLabel,
+  primaryLine,
+  rangeFromStart,
+  percentGrowth,
+  extraLines,
+}: {
+  label: string;
+  growth?: string;
+  periodLabel: string;
+  primaryLine: string;
+  rangeFromStart?: string;
+  percentGrowth?: string;
+  extraLines: string[];
+}) {
+  return (
+    <>
+      <TrendTooltipTitle label={label} growth={growth} />
+      <span className="trend-tooltip-period">{periodLabel}</span>
+      <em className="trend-tooltip-metric">{primaryLine}</em>
+      {rangeFromStart ? <span className="trend-tooltip-range">{rangeFromStart}</span> : null}
+      {percentGrowth ? <span className="trend-tooltip-percent">{percentGrowth}</span> : null}
+      {extraLines.map((line) => (
+        <em key={line}>{line}</em>
+      ))}
+    </>
+  );
+}
 
 function TrendTooltipTitle({ label, growth }: { label: string; growth?: string }) {
   if (!growth) return <b>{label}</b>;
@@ -180,6 +213,8 @@ export default function MultiSeriesTrendChart({
   formatAxisValue = formatTrendNumber,
   getDotPrimaryLine,
   getDotGrowthBadge,
+  getDotRangeFromStartLine,
+  getDotPercentGrowthLine,
   getDotExtraLines,
 }: MultiSeriesTrendChartProps) {
   const [hoveredClusterId, setHoveredClusterId] = useState<string | null>(null);
@@ -526,15 +561,15 @@ export default function MultiSeriesTrendChart({
               </span>
               {dot.clusterSize === 1 && row ? (
                 <span className="trend-tooltip">
-                  <TrendTooltipTitle
+                  <TrendTooltipBody
                     label={dot.seriesLabel}
                     growth={getDotGrowthBadge?.(row, dot.value, dot.pointIndex)}
+                    periodLabel={dot.periodLabel}
+                    primaryLine={getDotPrimaryLine(row, dot.value, dot.pointIndex)}
+                    rangeFromStart={getDotRangeFromStartLine?.(row, dot.value, dot.pointIndex)}
+                    percentGrowth={getDotPercentGrowthLine?.(row, dot.value, dot.pointIndex)}
+                    extraLines={dot.extraLines}
                   />
-                  <span className="trend-tooltip-period">{dot.periodLabel}</span>
-                  <em>{getDotPrimaryLine(row, dot.value, dot.pointIndex)}</em>
-                  {dot.extraLines.map((line) => (
-                    <em key={line}>{line}</em>
-                  ))}
                 </span>
               ) : null}
             </button>
@@ -582,15 +617,15 @@ export default function MultiSeriesTrendChart({
                 if (!row) return null;
                 return (
                   <span key={trendDotKey(dot)} className="trend-tooltip trend-tooltip-card">
-                    <TrendTooltipTitle
+                    <TrendTooltipBody
                       label={dot.seriesLabel}
                       growth={getDotGrowthBadge?.(row, dot.value, dot.pointIndex)}
+                      periodLabel={dot.periodLabel}
+                      primaryLine={getDotPrimaryLine(row, dot.value, dot.pointIndex)}
+                      rangeFromStart={getDotRangeFromStartLine?.(row, dot.value, dot.pointIndex)}
+                      percentGrowth={getDotPercentGrowthLine?.(row, dot.value, dot.pointIndex)}
+                      extraLines={dot.extraLines}
                     />
-                    <span className="trend-tooltip-period">{dot.periodLabel}</span>
-                    <em>{getDotPrimaryLine(row, dot.value, dot.pointIndex)}</em>
-                    {dot.extraLines.map((line) => (
-                      <em key={line}>{line}</em>
-                    ))}
                   </span>
                 );
               })}

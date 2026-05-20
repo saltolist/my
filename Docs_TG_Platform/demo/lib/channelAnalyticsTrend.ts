@@ -98,10 +98,10 @@ function isErMetric(metricId: string) {
 }
 
 /**
- * Индекс в % от состояния до начала графика (prior): первая видимая точка
- * уже отражает прирост за день, поэтому линии не сходятся в одну точку.
+ * Индекс от состояния до начала графика (prior): 1 = база, >1 — рост.
+ * Первая видимая точка уже отражает прирост за день, поэтому линии не сходятся в одну точку.
  */
-function channelPeriodIndexPercent(
+function channelPeriodIndexRatio(
   metricId: string,
   values: number[],
   pointIndex: number,
@@ -111,15 +111,15 @@ function channelPeriodIndexPercent(
     const current = (values[pointIndex] ?? 0) / 10;
     const base =
       priorCumulative > 0 ? priorCumulative / 10 : (values[0] ?? 0) / 10;
-    if (base <= 0) return 100;
-    return (current / base) * 100;
+    if (base <= 0) return 1;
+    return current / base;
   }
 
   const total = cumulativeChannelValue(values, pointIndex, priorCumulative);
   const base =
     priorCumulative > 0 ? priorCumulative : cumulativeChannelValue(values, 0, 0);
-  if (base <= 0) return 100;
-  return (total / base) * 100;
+  if (base <= 0) return 1;
+  return total / base;
 }
 
 /** Ось Y — индекс от старта периода (совпадает с подписью в карточке). */
@@ -129,7 +129,7 @@ export function buildChannelTrendPlotYValues(
   priorCumulative = 0,
 ): number[] {
   return values.map((_, pointIndex) =>
-    channelPeriodIndexPercent(metricId, values, pointIndex, priorCumulative),
+    channelPeriodIndexRatio(metricId, values, pointIndex, priorCumulative),
   );
 }
 
@@ -263,7 +263,24 @@ function formatChannelMomentCount(
   return `${formatNumber(total)} ${pluralRu(total, metric.countForms)}`;
 }
 
-export function formatChannelGrowthPercent(
+function formatChannelIndexGrowthPercent(index: number): string {
+  const growth = index - 1;
+  const sign = growth >= 0 ? "+" : "−";
+  return `${sign}${Math.abs(growth * 100).toFixed(1)}%`;
+}
+
+function formatChannelPointGrowthPercentInParens(
+  metricId: string,
+  pointIndex: number,
+  values: number[],
+  priorCumulative = 0,
+): string {
+  const index = channelPeriodIndexRatio(metricId, values, pointIndex, priorCumulative);
+  return formatChannelIndexGrowthPercent(index);
+}
+
+/** Числовой прирост за шаг — строка с названием метрики в тултипе. */
+export function formatChannelGrowthBadge(
   metricId: string,
   value: number,
   pointIndex: number,
@@ -271,6 +288,27 @@ export function formatChannelGrowthPercent(
   priorCumulative = 0,
 ): string {
   return formatChannelPointGrowthDelta(metricId, value, pointIndex, values, priorCumulative);
+}
+
+/** Процентный прирост от базы графика до точки — отдельная строка в тултипе. */
+export function formatChannelPointPercentGrowth(
+  metricId: string,
+  pointIndex: number,
+  values: number[],
+  priorCumulative = 0,
+): string {
+  return formatChannelPointGrowthPercentInParens(metricId, pointIndex, values, priorCumulative);
+}
+
+/** @deprecated Используйте formatChannelGrowthBadge */
+export function formatChannelGrowthPercent(
+  metricId: string,
+  value: number,
+  pointIndex: number,
+  values: number[],
+  priorCumulative = 0,
+): string {
+  return formatChannelGrowthBadge(metricId, value, pointIndex, values, priorCumulative);
 }
 
 export function formatChannelGrowthPrimary(
