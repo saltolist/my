@@ -193,12 +193,10 @@ function TrendTooltipBody({
 }
 
 function TrendTooltipTitle({ label, growth }: { label: string; growth?: string }) {
-  if (!growth) return <b>{label}</b>;
-
   return (
     <div className="trend-tooltip-head">
       <b>{label}</b>
-      <span className="trend-tooltip-growth">{growth}</span>
+      {growth ? <span className="trend-tooltip-growth">{growth}</span> : null}
     </div>
   );
 }
