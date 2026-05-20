@@ -3987,9 +3987,10 @@ button.filter-tab {
 .section-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
 .analytics-card { border-radius: var(--block-r); padding: 18px; margin-bottom: 16px; overflow-x: auto; overflow-y: hidden; }
 .analytics-page .analytics-card {
-  overflow-x: auto;
-  overflow-y: visible;
   box-shadow: var(--content-card-shadow);
+}
+.analytics-page .analytics-chart-card {
+  overflow: visible;
 }
 .analytics-card-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 .analytics-chart-head {
