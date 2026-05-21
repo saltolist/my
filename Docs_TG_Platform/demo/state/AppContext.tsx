@@ -129,7 +129,7 @@ function captureRouteState(s: State): RouteSnapshot {
     currentPostChatId: s.currentPostChatId,
     postMode: s.postMode,
     postViewStack: s.postViewStack.map((x) => ({ ...x })),
-    isEditing: s.isEditing,
+    isEditing: s.screen === "post" && s.isEditing ? false : s.isEditing,
     currentGChatId: s.currentGChatId,
     currentNote: s.currentNote
       ? {
@@ -222,12 +222,20 @@ function patchGlobalChatHistory(
   };
 }
 
+function applyStatePatch(state: State, patch: Partial<State>): State {
+  const next = { ...state, ...patch };
+  if (next.screen !== "post") {
+    next.isEditing = false;
+  }
+  return next;
+}
+
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "SET_SCREEN":
-      return { ...state, screen: action.screen };
+      return applyStatePatch(state, { screen: action.screen });
     case "SET_STATE":
-      return { ...state, ...action.patch };
+      return applyStatePatch(state, action.patch);
     case "UPDATE_POSTS":
       return { ...state, posts: action.posts };
     case "UPDATE_POST":
@@ -607,6 +615,17 @@ const initialState: State = {
 
 export type DirtyKey = "note" | "profile-channel" | "profile-ai" | "profile-prompt" | "profile-telegram";
 
+const POST_EDIT_LEAVE_MSG =
+  "Вы редактируете пост. Покинуть страницу без сохранения?";
+
+function withPostEditDiscarded(cur: State, patch: Partial<State>): Partial<State> {
+  const nextScreen = patch.screen ?? cur.screen;
+  if (cur.screen === "post" && cur.isEditing && nextScreen !== "post") {
+    return { ...patch, isEditing: false };
+  }
+  return patch;
+}
+
 type AppContextValue = {
   state: State;
   dispatch: React.Dispatch<Action>;
@@ -638,6 +657,8 @@ type AppContextValue = {
   profileChannelDirty: boolean;
   profileSettingsDirty: boolean;
   canLeaveCurrentScreen: (next: ScreenId) => boolean;
+  /** Подтверждение ухода из режима редактирования поста (вкладки и стек внутри поста). */
+  confirmDiscardPostEdit: () => boolean;
 };
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -691,10 +712,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
           "Есть несохранённые изменения в профиле. Уйти без сохранения?",
         );
       }
+      if (state.screen === "post" && state.isEditing && next !== "post") {
+        return window.confirm(POST_EDIT_LEAVE_MSG);
+      }
       return true;
     },
-    [state.screen, state.currentNote, noteDirty, profileDirty],
+    [state.screen, state.currentNote, noteDirty, profileDirty, state.isEditing],
   );
+
+  const confirmDiscardPostEdit = useCallback((): boolean => {
+    const cur = stateRef.current;
+    if (cur.screen !== "post" || !cur.isEditing) return true;
+    return window.confirm(POST_EDIT_LEAVE_MSG);
+  }, []);
 
   const navigate = useCallback(
     (screen: ScreenId, opts?: { skipHistory?: boolean; clearHistory?: boolean }) => {
@@ -707,7 +737,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!opts?.skipHistory) {
         navStackRef.current.push(captureRouteState(stateRef.current));
       }
-      dispatch({ type: "SET_SCREEN", screen });
+      const cur = stateRef.current;
+      dispatch({
+        type: "SET_STATE",
+        patch: withPostEditDiscarded(cur, { screen }),
+      });
     },
     [canLeaveCurrentScreen],
   );
@@ -719,7 +753,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const to = fallback ?? "home";
         if (!canLeaveCurrentScreen(to)) return;
         setMobileSidebarOpen(false);
-        dispatch({ type: "SET_SCREEN", screen: to });
+        const cur = stateRef.current;
+        dispatch({
+          type: "SET_STATE",
+          patch: withPostEditDiscarded(cur, { screen: to }),
+        });
         return;
       }
       if (!canLeaveCurrentScreen(snap.screen)) {
@@ -727,7 +765,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return;
       }
       setMobileSidebarOpen(false);
-      dispatch({ type: "SET_STATE", patch: snap });
+      const cur = stateRef.current;
+      dispatch({
+        type: "SET_STATE",
+        patch: withPostEditDiscarded(cur, snap),
+      });
     },
     [canLeaveCurrentScreen],
   );
@@ -738,7 +780,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!canLeaveCurrentScreen(nextScreen)) return;
       setMobileSidebarOpen(false);
       navStackRef.current.push(captureRouteState(stateRef.current));
-      dispatch({ type: "SET_STATE", patch });
+      const cur = stateRef.current;
+      dispatch({ type: "SET_STATE", patch: withPostEditDiscarded(cur, patch) });
     },
     [canLeaveCurrentScreen],
   );
@@ -749,7 +792,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     function onBeforeUnload(e: BeforeUnloadEvent) {
-      if (!noteDirty && !profileDirty) return;
+      const postEditing = stateRef.current.screen === "post" && stateRef.current.isEditing;
+      if (!noteDirty && !profileDirty && !postEditing) return;
       e.preventDefault();
       e.returnValue = "";
     }
@@ -781,6 +825,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const openPost = useCallback(
     (id: number | "new") => {
+      if (!confirmDiscardPostEdit()) return;
       if (!canLeaveCurrentScreen("post")) return;
       setMobileSidebarOpen(false);
       navStackRef.current.push(captureRouteState(stateRef.current));
@@ -820,11 +865,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
       });
     },
-    [canLeaveCurrentScreen],
+    [canLeaveCurrentScreen, confirmDiscardPostEdit],
   );
 
   const openPostComments = useCallback(
     (id: number) => {
+      if (!confirmDiscardPostEdit()) return;
       if (!canLeaveCurrentScreen("post")) return;
       setMobileSidebarOpen(false);
       navStackRef.current.push(captureRouteState(stateRef.current));
@@ -840,7 +886,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
       });
     },
-    [canLeaveCurrentScreen],
+    [canLeaveCurrentScreen, confirmDiscardPostEdit],
   );
 
   const openGChat = useCallback(
@@ -1092,6 +1138,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       profileChannelDirty,
       profileSettingsDirty,
       canLeaveCurrentScreen,
+      confirmDiscardPostEdit,
     }),
     [
       state,
@@ -1119,6 +1166,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       profileChannelDirty,
       profileSettingsDirty,
       canLeaveCurrentScreen,
+      confirmDiscardPostEdit,
     ],
   );
 

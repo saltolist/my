@@ -15,6 +15,7 @@ import Composer from "../composer/Composer";
 import ChatMessage from "../chat/ChatMessage";
 import ChatListCardMenu from "../chat/ChatListCardMenu";
 import NoteListCardMenu from "../note/NoteListCardMenu";
+import { NoteIconAttach } from "../note/NoteHeaderIcons";
 import PostMediaBlock from "../post/PostMediaBlock";
 import { PostReactionPills, PostViewsReposts } from "../feed/PostEngagement";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
@@ -27,8 +28,16 @@ import { buildNoteSnapshot, createNewPostNote, EMPTY_NOTE_SNAPSHOT } from "@/lib
 import type { LocalNote, NoteFile, PostComment, PostMedia, PostMetrics, PostMode } from "@/lib/types";
 
 export default function PostScreen() {
-  const { state, dispatch, navigate, navigateBack, navigateWithState, canLeaveCurrentScreen, sendPost } =
-    useApp();
+  const {
+    state,
+    dispatch,
+    navigate,
+    navigateBack,
+    navigateWithState,
+    canLeaveCurrentScreen,
+    confirmDiscardPostEdit,
+    sendPost,
+  } = useApp();
   const post = postById(state, state.currentPostId);
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const postCardRef = useRef<HTMLDivElement>(null);
@@ -71,6 +80,7 @@ export default function PostScreen() {
   }, [state.postMode, state.isEditing, post?.id, activeChat?.id]);
 
   const pushPostView = (nextMode: PostMode, nextChatId: number | null) => {
+    if (!confirmDiscardPostEdit()) return;
     if (nextMode === state.postMode && nextChatId === state.currentPostChatId) return;
     const stack = [
       ...state.postViewStack,
@@ -109,6 +119,7 @@ export default function PostScreen() {
     });
   };
   const handleBack = () => {
+    if (!confirmDiscardPostEdit()) return;
     if (state.postViewStack.length > 0) {
       const stack = state.postViewStack.slice(0, -1);
       const prev = state.postViewStack[state.postViewStack.length - 1];
@@ -245,7 +256,8 @@ export default function PostScreen() {
                 <>
                   <span
                     className="bc-link"
-                    onClick={() =>
+                    onClick={() => {
+                      if (!confirmDiscardPostEdit()) return;
                       dispatch({
                         type: "SET_STATE",
                         patch: {
@@ -254,8 +266,8 @@ export default function PostScreen() {
                           postViewStack: [],
                           isEditing: false,
                         },
-                      })
-                    }
+                      });
+                    }}
                   >
                     {truncate(postTitle(post), 32)}
                   </span>
@@ -486,85 +498,99 @@ const PostMessageCard = ({
         .filter(Boolean)
         .join(" ")}
     >
-      {isEditing ? (
-        <>
-          {mediaDraft.length > 0 ? (
+      <div className="post-card-body">
+        {isEditing ? (
+          mediaDraft.length > 0 ? (
             <div className="post-msg-media-edit">
               <PostMediaBlock
                 media={mediaDraft}
                 onRemove={(i) => setMediaDraft((arr) => arr.filter((_, j) => j !== i))}
               />
             </div>
-          ) : null}
+          ) : null
+        ) : media.length > 0 ? (
+          <div className="post-card-media">
+            <PostMediaBlock media={media} />
+          </div>
+        ) : null}
+        {isEditing ? (
           <textarea
             ref={taRef}
-            className="post-msg-textarea"
+            className={[
+              "post-card-text",
+              "post-msg-textarea",
+              !draft.trim() ? "empty" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
+            placeholder="Пост пустой — начни писать..."
+            rows={1}
+            spellCheck={false}
+            aria-label="Текст поста"
           />
-          <input
-            type="file"
-            ref={fileRef}
-            style={{ display: "none" }}
-            accept="image/*,video/*"
-            onChange={onPickFile}
+        ) : text ? (
+          <div className="post-card-text">{text}</div>
+        ) : (
+          <div className="post-card-text empty">Пост пустой — начни писать...</div>
+        )}
+        {metrics ? <PostReactionPills reactions={metrics.reactions} /> : null}
+        <div className="post-card-footer">
+          <div className="post-meta">{badge}</div>
+          {metrics ? <PostViewsReposts views={metrics.views} reposts={metrics.reposts} /> : null}
+        </div>
+        {showComments ? (
+          <PostCommentsRow
+            count={comments?.length ?? 0}
+            onClick={
+              !isEditing && onOpenComments
+                ? (e) => {
+                    e.stopPropagation();
+                    onOpenComments();
+                  }
+                : undefined
+            }
           />
-          <div className="post-edit-actions">
+        ) : null}
+      </div>
+    </div>
+    {isEditing ? (
+      <div className="post-msg-actions" aria-label="Редактирование поста">
+        <input
+          type="file"
+          ref={fileRef}
+          style={{ display: "none" }}
+          accept="image/*,video/*"
+          onChange={onPickFile}
+        />
+        <div className="post-edit-toolbar">
+          <div className="msg-user-edit-bar">
             <button
-              className="btn btn-ghost btn-sm"
+              className="note-header-plain-btn note-header-plain-btn--sm note-header-plain-btn--attach"
               onClick={() => fileRef.current?.click()}
               type="button"
+              title="Прикрепить файл"
+              aria-label="Прикрепить файл"
             >
-              🖼 Добавить медиа
+              <NoteIconAttach />
             </button>
-            <div className="post-edit-actions-right">
-              <button className="btn btn-ghost btn-sm" onClick={onCancel} type="button">
-                Отмена
-              </button>
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={() => onSave(draft, mediaDraft)}
-                type="button"
-              >
-                Сохранить
-              </button>
-            </div>
+            <button
+              className="btn btn-primary post-edit-btn"
+              onClick={() => onSave(draft, mediaDraft)}
+              type="button"
+            >
+              Сохранить
+            </button>
+            <button className="btn btn-ghost post-edit-btn" onClick={onCancel} type="button">
+              Отмена
+            </button>
           </div>
-        </>
-      ) : (
-        <div className="post-card-body">
-          {media.length > 0 ? (
-            <div className="post-card-media">
-              <PostMediaBlock media={media} />
-            </div>
-          ) : null}
-          {text ? (
-            <div className="post-card-text">{text}</div>
-          ) : (
-            <div className="post-card-text empty">Пост пустой — начни писать...</div>
-          )}
-          {metrics ? <PostReactionPills reactions={metrics.reactions} /> : null}
-          <div className="post-card-footer">
-            <div className="post-meta">{badge}</div>
-            {metrics ? <PostViewsReposts views={metrics.views} reposts={metrics.reposts} /> : null}
-          </div>
-          {showComments ? (
-            <PostCommentsRow
-              count={comments?.length ?? 0}
-              onClick={
-                onOpenComments
-                  ? (e) => {
-                      e.stopPropagation();
-                      onOpenComments();
-                    }
-                  : undefined
-              }
-            />
-          ) : null}
         </div>
-      )}
-    </div>
-    {!isEditing ? <PostCardToolbar plainText={copyText} onEdit={onStartEdit} /> : null}
+      </div>
+    ) : (
+      <PostCardToolbar plainText={copyText} onEdit={onStartEdit} />
+    )}
     </div>
   );
 };

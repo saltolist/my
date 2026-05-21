@@ -353,7 +353,7 @@ export default function ChatMessage({
                       <button type="button" className="btn btn-ghost btn-sm" onClick={cancelEdit}>
                         Отмена
                       </button>
-                      <button type="button" className="btn btn-sm btn-user-edit-done" onClick={saveEdit}>
+                      <button type="button" className="btn btn-ghost btn-sm btn-user-edit-done" onClick={saveEdit}>
                         Готово
                       </button>
                     </div>

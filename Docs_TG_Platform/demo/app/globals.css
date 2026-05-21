@@ -1332,19 +1332,14 @@ button.nav-item {
 .btn:disabled { opacity: .45; cursor: not-allowed; }
 .btn:disabled:hover { opacity: .45; }
 .btn-primary { background: var(--accent); color: #fff; }
-.btn-user-edit-done {
-  background: var(--bg5);
-  color: var(--text);
-  border: 1px solid var(--border2);
-  font-weight: 600;
+/* «Готово» при редактировании: как btn-ghost, обводка сразу активная */
+.btn-ghost.btn-user-edit-done {
+  border-color: var(--control-border-active);
 }
-.btn-user-edit-done:hover {
-  background: var(--bg4);
-  border-color: var(--border);
+.btn-ghost.btn-user-edit-done:hover {
+  background: color-mix(in srgb, var(--bg4) 82%, #000 18%);
   color: var(--text);
-  opacity: 1;
-}
-.btn.btn-user-edit-done:hover {
+  border-color: var(--control-border-active);
   opacity: 1;
 }
 .btn-ghost { background: var(--bg4); color: var(--text2); border: 1px solid var(--border2); }
@@ -2904,11 +2899,69 @@ button.nav-item {
   outline: none;
   display: block;
 }
-.post-edit-actions {
-  display: flex; gap: 8px; margin-top: 10px;
-  align-items: center; flex-wrap: wrap;
+.post-edit-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  flex-wrap: wrap;
 }
-.post-edit-actions-right { margin-left: auto; display: flex; gap: 8px; }
+.post-edit-toolbar .msg-user-edit-bar {
+  margin-left: auto;
+  gap: 8px;
+  align-items: center;
+}
+.post-edit-toolbar .note-header-plain-btn--attach {
+  width: 22px;
+  height: 22px;
+  transform: none;
+  margin-right: 4px;
+}
+/* Высота как у ai-msg-action-btn (копировать / редактировать) */
+.post-edit-toolbar .post-edit-btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  border-radius: 12px;
+  -webkit-backdrop-filter: var(--profile-control-blur);
+  backdrop-filter: var(--profile-control-blur);
+  opacity: 1;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+}
+.post-edit-toolbar .post-edit-btn:hover {
+  opacity: 1;
+}
+.post-edit-toolbar .btn-ghost.post-edit-btn {
+  background: var(--profile-control-bg);
+  color: var(--text2);
+  border: 1px solid var(--profile-control-border);
+}
+.post-edit-toolbar .btn-ghost.post-edit-btn:hover {
+  background: var(--profile-control-bg-hover);
+  color: var(--text);
+  border-color: var(--control-border-active);
+}
+.post-edit-toolbar .btn-primary.post-edit-btn {
+  background: var(--profile-control-bg);
+  color: #3a3a3a;
+  border: 1px solid color-mix(in srgb, var(--control-border-active) 52%, var(--profile-control-border));
+}
+.post-edit-toolbar .btn-primary.post-edit-btn:hover {
+  background: var(--profile-control-bg-hover);
+  color: color-mix(in srgb, #3a3a3a 58%, #000 42%);
+  border-color: var(--control-border-active);
+}
+.post-msg-textarea.post-card-text.empty::placeholder {
+  color: var(--text3);
+  font-style: italic;
+}
 
 /* post comments */
 .post-comments-body { padding-bottom: 120px; }
@@ -3149,15 +3202,24 @@ button.nav-item {
 .tg-media-remove {
   position: absolute; top: 6px; right: 6px;
   width: 24px; height: 24px;
+  padding: 0;
   border: none; border-radius: 50%;
   background: rgba(0,0,0,.55); color: #fff;
-  font-size: 16px; line-height: 1; cursor: pointer;
+  cursor: pointer;
   display: none;
-  align-items: center; justify-content: center;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   transition: background .12s;
   z-index: 2;
 }
-.tg-media-editable .tg-media-remove { display: flex; }
+.tg-media-remove-icon {
+  display: block;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.tg-media-editable .tg-media-remove { display: inline-flex; }
 .tg-media-remove:hover { background: rgba(0,0,0,.75); }
 
 /* Подстраницы поста (заметки, чаты): скролл на .post-subpage-scroll, не на сетке */
