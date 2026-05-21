@@ -821,6 +821,9 @@ button.nav-item {
   text-transform: uppercase;
   color: var(--text3);
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav-recent-chats-section-label:not(:first-child) {
@@ -856,6 +859,13 @@ button.nav-item {
 }
 .nav-recent-chat-row.active {
   background: var(--nav-active-bg);
+  color: var(--text);
+}
+.nav-recent-chat-row.sub-active {
+  background: var(--nav-hover-bg);
+  color: var(--text);
+}
+.nav-recent-chat-row.sub-active .nav-recent-chat {
   color: var(--text);
 }
 .nav-recent-chat {

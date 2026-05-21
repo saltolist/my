@@ -152,11 +152,6 @@ export default function Sidebar() {
     return null;
   }, [state.screen, state.currentPostId, state.currentNote]);
 
-  const showFeedPostRow =
-    sidebarPostId != null &&
-    (state.screen === "post" ||
-      (state.screen === "note" && state.currentNote != null && !state.currentNote.isGlobal));
-
   const recentChatsModel = useMemo((): RecentChatsModel => {
     const byActivity = (a: RecentRow, b: RecentRow) =>
       b.historyLen - a.historyLen || a.seq - b.seq;
@@ -348,13 +343,25 @@ export default function Sidebar() {
     return state.posts.find((p) => p.id === sidebarPostId) ?? null;
   }, [sidebarPostId, state.posts]);
 
-  const isSidebarPostActive =
+  const showFeedPostRow =
     sidebarPostId != null &&
-    ((state.screen === "post" && state.currentPostId === sidebarPostId) ||
-      (state.screen === "note" &&
-        state.currentNote != null &&
-        !state.currentNote.isGlobal &&
-        state.currentNote.postId === sidebarPostId));
+    (state.screen === "post" || (state.screen === "note" && state.currentNote != null && !state.currentNote.isGlobal));
+
+  // Полностью активна (активный цвет) — только на странице поста
+  const isSidebarPostFullActive =
+    sidebarPostId != null &&
+    state.screen === "post" &&
+    state.currentPostId === sidebarPostId;
+
+  // Приглушённо активна (как hover) — в заметке или чате этого поста
+  const isSidebarPostSubActive =
+    sidebarPostId != null &&
+    !isSidebarPostFullActive &&
+    state.screen === "note" &&
+    state.currentNote != null &&
+    !state.currentNote.isGlobal &&
+    state.currentNote.postId === sidebarPostId;
+
   const feedPostCtxItems = usePostCtxMenuItems(currentPostSidebar);
 
   const openLocalChat = (postId: number, chatId: number) => {
@@ -662,7 +669,7 @@ export default function Sidebar() {
         {showFeedPostRow && currentPostSidebar ? (
           <div className="nav-recent-chats">
             <div
-              className={`nav-recent-chat-row${isSidebarPostActive ? " active" : ""}${
+              className={`nav-recent-chat-row${isSidebarPostFullActive ? " active" : isSidebarPostSubActive ? " sub-active" : ""}${
                 feedPostMenuOpen ? " nav-recent-chat-row--menu" : ""
               }`}
             >
