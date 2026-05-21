@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { autoResize } from "@/lib/helpers";
+import { onComposerShellMouseDown } from "@/lib/composerPointerDown";
 import type { PostComment } from "@/lib/types";
 
 type Props = {
@@ -30,7 +31,7 @@ export default function CommentComposer({ replyTo, onCancelReply, onSubmit }: Pr
   }
 
   return (
-    <div className="input-wrap post-comments-input-wrap">
+    <div className="input-wrap post-comments-input-wrap" onMouseDown={onComposerShellMouseDown}>
       {replyTo ? (
         <div className="comment-reply-banner">
           <span>

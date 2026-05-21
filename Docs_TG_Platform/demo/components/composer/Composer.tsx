@@ -22,6 +22,7 @@ import type { ComposerAttachment, ComposerScope, Post } from "@/lib/types";
 import AttachMenu from "./AttachMenu";
 import ModelPicker, { BrainIcon, SearchIcon } from "./ModelPicker";
 import { formatWebSearchComposerLabel, isWebSearchVisibleForLlm } from "@/lib/composer-config";
+import { onComposerShellMouseDown } from "@/lib/composerPointerDown";
 
 type Props = {
   scope: ComposerScope;
@@ -519,27 +520,29 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
     ) : null;
 
   return (
-    <div className="input-wrap">
+    <div className="input-wrap" onMouseDown={onComposerShellMouseDown}>
       <div
         className="input-box"
         ref={inputBoxRef}
         style={{ ["--composer-max-lines" as string]: String(maxLines) }}
       >
-        <div
-          ref={editorRef}
-          className={`composer-editor${isEmpty ? " is-empty" : ""}`}
-          contentEditable
-          suppressContentEditableWarning
-          role="textbox"
-          aria-multiline="true"
-          aria-label={effectivePlaceholder}
-          data-placeholder={effectivePlaceholder}
-          onInput={onEditorInput}
-          onKeyDown={onKeyDown}
-          onKeyUp={refreshMention}
-          onClick={refreshMention}
-          onPaste={onPaste}
-        />
+        <div className="composer-field">
+          <div
+            ref={editorRef}
+            className={`composer-editor${isEmpty ? " is-empty" : ""}`}
+            contentEditable
+            suppressContentEditableWarning
+            role="textbox"
+            aria-multiline="true"
+            aria-label={effectivePlaceholder}
+            data-placeholder={effectivePlaceholder}
+            onInput={onEditorInput}
+            onKeyDown={onKeyDown}
+            onKeyUp={refreshMention}
+            onClick={refreshMention}
+            onPaste={onPaste}
+          />
+        </div>
         <div className="input-bottom">
           <div className="input-tools">
             <AttachMenu

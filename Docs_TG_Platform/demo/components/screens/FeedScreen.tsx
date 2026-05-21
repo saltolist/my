@@ -8,6 +8,7 @@ import PostCard from "../feed/PostCard";
 import DraftsSection from "../feed/DraftsSection";
 import { autoResize, postTitle, readFileAsMedia } from "@/lib/helpers";
 import AttachMenu from "../composer/AttachMenu";
+import { onComposerShellMouseDown } from "@/lib/composerPointerDown";
 import PostMediaBlock from "../post/PostMediaBlock";
 import type { Post, PostMedia } from "@/lib/types";
 
@@ -127,7 +128,7 @@ export default function FeedScreen() {
             <DraftsSection drafts={drafts} />
           </div>
         </div>
-        <div className="input-wrap">
+        <div className="input-wrap" onMouseDown={onComposerShellMouseDown}>
           <div className="input-box">
             {pendingMedia.length > 0 ? (
               <PostMediaBlock media={pendingMedia} onRemove={removePendingMedia} />
