@@ -617,6 +617,10 @@ export type DirtyKey = "note" | "profile-channel" | "profile-ai" | "profile-prom
 
 const POST_EDIT_LEAVE_MSG =
   "Вы редактируете пост. Покинуть страницу без сохранения?";
+const USER_MSG_EDIT_LEAVE_MSG =
+  "Вы редактируете сообщение. Покинуть без сохранения?";
+
+type UserMessageEditSession = { discard: () => void };
 
 function withPostEditDiscarded(cur: State, patch: Partial<State>): Partial<State> {
   const nextScreen = patch.screen ?? cur.screen;
@@ -659,6 +663,11 @@ type AppContextValue = {
   canLeaveCurrentScreen: (next: ScreenId) => boolean;
   /** Подтверждение ухода из режима редактирования поста (вкладки и стек внутри поста). */
   confirmDiscardPostEdit: () => boolean;
+  registerUserMessageEdit: (discard: () => void) => void;
+  unregisterUserMessageEdit: (discard: () => void) => void;
+  /** Пост и/или сообщение: подтверждение без сброса (сброс — discardPendingEdits). */
+  confirmDiscardAnyEdit: () => boolean;
+  discardPendingEdits: () => void;
 };
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -669,6 +678,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   stateRef.current = state;
   const navStackRef = useRef<RouteSnapshot[]>([]);
   const notePersistRef = useRef<(() => void) | null>(null);
+  const userMessageEditRef = useRef<UserMessageEditSession | null>(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [dirtyMap, setDirtyMap] = useState<Record<DirtyKey, boolean>>({
     note: false,
@@ -713,18 +723,56 @@ export function AppProvider({ children }: { children: ReactNode }) {
         );
       }
       if (state.screen === "post" && state.isEditing && next !== "post") {
-        return window.confirm(POST_EDIT_LEAVE_MSG);
+        if (!window.confirm(POST_EDIT_LEAVE_MSG)) return false;
+      }
+      if (userMessageEditRef.current) {
+        if (!window.confirm(USER_MSG_EDIT_LEAVE_MSG)) return false;
       }
       return true;
     },
     [state.screen, state.currentNote, noteDirty, profileDirty, state.isEditing],
   );
 
+  const discardUserMessageEditSession = useCallback(() => {
+    const session = userMessageEditRef.current;
+    if (!session) return;
+    session.discard();
+    userMessageEditRef.current = null;
+  }, []);
+
+  const registerUserMessageEdit = useCallback((discard: () => void) => {
+    userMessageEditRef.current = { discard };
+  }, []);
+
+  const unregisterUserMessageEdit = useCallback((discard: () => void) => {
+    if (userMessageEditRef.current?.discard === discard) {
+      userMessageEditRef.current = null;
+    }
+  }, []);
+
   const confirmDiscardPostEdit = useCallback((): boolean => {
     const cur = stateRef.current;
-    if (cur.screen !== "post" || !cur.isEditing) return true;
-    return window.confirm(POST_EDIT_LEAVE_MSG);
+    if (cur.screen === "post" && cur.isEditing) {
+      if (!window.confirm(POST_EDIT_LEAVE_MSG)) return false;
+    }
+    return true;
   }, []);
+
+  const confirmDiscardUserMessageEdit = useCallback((): boolean => {
+    if (!userMessageEditRef.current) return true;
+    if (!window.confirm(USER_MSG_EDIT_LEAVE_MSG)) return false;
+    return true;
+  }, []);
+
+  const confirmDiscardAnyEdit = useCallback((): boolean => {
+    if (!confirmDiscardPostEdit()) return false;
+    if (!confirmDiscardUserMessageEdit()) return false;
+    return true;
+  }, [confirmDiscardPostEdit, confirmDiscardUserMessageEdit]);
+
+  const discardPendingEdits = useCallback(() => {
+    discardUserMessageEditSession();
+  }, [discardUserMessageEditSession]);
 
   const navigate = useCallback(
     (screen: ScreenId, opts?: { skipHistory?: boolean; clearHistory?: boolean }) => {
@@ -737,13 +785,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!opts?.skipHistory) {
         navStackRef.current.push(captureRouteState(stateRef.current));
       }
+      discardPendingEdits();
       const cur = stateRef.current;
       dispatch({
         type: "SET_STATE",
         patch: withPostEditDiscarded(cur, { screen }),
       });
     },
-    [canLeaveCurrentScreen],
+    [canLeaveCurrentScreen, discardPendingEdits],
   );
 
   const navigateBack = useCallback(
@@ -753,6 +802,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const to = fallback ?? "home";
         if (!canLeaveCurrentScreen(to)) return;
         setMobileSidebarOpen(false);
+        discardPendingEdits();
         const cur = stateRef.current;
         dispatch({
           type: "SET_STATE",
@@ -765,13 +815,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return;
       }
       setMobileSidebarOpen(false);
+      discardPendingEdits();
       const cur = stateRef.current;
       dispatch({
         type: "SET_STATE",
         patch: withPostEditDiscarded(cur, snap),
       });
     },
-    [canLeaveCurrentScreen],
+    [canLeaveCurrentScreen, discardPendingEdits],
   );
 
   const navigateWithState = useCallback(
@@ -780,10 +831,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!canLeaveCurrentScreen(nextScreen)) return;
       setMobileSidebarOpen(false);
       navStackRef.current.push(captureRouteState(stateRef.current));
+      discardPendingEdits();
       const cur = stateRef.current;
       dispatch({ type: "SET_STATE", patch: withPostEditDiscarded(cur, patch) });
     },
-    [canLeaveCurrentScreen],
+    [canLeaveCurrentScreen, discardPendingEdits],
   );
 
   const pushRouteSnapshot = useCallback(() => {
@@ -793,7 +845,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     function onBeforeUnload(e: BeforeUnloadEvent) {
       const postEditing = stateRef.current.screen === "post" && stateRef.current.isEditing;
-      if (!noteDirty && !profileDirty && !postEditing) return;
+      const msgEditing = !!userMessageEditRef.current;
+      if (!noteDirty && !profileDirty && !postEditing && !msgEditing) return;
       e.preventDefault();
       e.returnValue = "";
     }
@@ -825,10 +878,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const openPost = useCallback(
     (id: number | "new") => {
-      if (!confirmDiscardPostEdit()) return;
       if (!canLeaveCurrentScreen("post")) return;
       setMobileSidebarOpen(false);
       navStackRef.current.push(captureRouteState(stateRef.current));
+      discardPendingEdits();
       if (id === "new") {
         const newPost: Post = {
           id: Date.now(),
@@ -865,15 +918,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
       });
     },
-    [canLeaveCurrentScreen, confirmDiscardPostEdit],
+    [canLeaveCurrentScreen, discardPendingEdits],
   );
 
   const openPostComments = useCallback(
     (id: number) => {
-      if (!confirmDiscardPostEdit()) return;
       if (!canLeaveCurrentScreen("post")) return;
       setMobileSidebarOpen(false);
       navStackRef.current.push(captureRouteState(stateRef.current));
+      discardPendingEdits();
       dispatch({
         type: "SET_STATE",
         patch: {
@@ -886,7 +939,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
       });
     },
-    [canLeaveCurrentScreen, confirmDiscardPostEdit],
+    [canLeaveCurrentScreen, discardPendingEdits],
   );
 
   const openGChat = useCallback(
@@ -894,9 +947,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!canLeaveCurrentScreen("gchat")) return;
       setMobileSidebarOpen(false);
       navStackRef.current.push(captureRouteState(stateRef.current));
+      discardPendingEdits();
       dispatch({ type: "SET_STATE", patch: { currentGChatId: id, screen: "gchat" } });
     },
-    [canLeaveCurrentScreen],
+    [canLeaveCurrentScreen, discardPendingEdits],
   );
 
   const llmLabel = useCallback(
@@ -1139,6 +1193,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       profileSettingsDirty,
       canLeaveCurrentScreen,
       confirmDiscardPostEdit,
+      registerUserMessageEdit,
+      unregisterUserMessageEdit,
+      confirmDiscardAnyEdit,
+      discardPendingEdits,
     }),
     [
       state,
@@ -1167,6 +1225,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       profileSettingsDirty,
       canLeaveCurrentScreen,
       confirmDiscardPostEdit,
+      registerUserMessageEdit,
+      unregisterUserMessageEdit,
+      confirmDiscardAnyEdit,
+      discardPendingEdits,
     ],
   );
 

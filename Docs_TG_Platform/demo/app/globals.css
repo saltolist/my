@@ -1332,16 +1332,6 @@ button.nav-item {
 .btn:disabled { opacity: .45; cursor: not-allowed; }
 .btn:disabled:hover { opacity: .45; }
 .btn-primary { background: var(--accent); color: #fff; }
-/* «Готово» при редактировании: как btn-ghost, обводка сразу активная */
-.btn-ghost.btn-user-edit-done {
-  border-color: var(--control-border-active);
-}
-.btn-ghost.btn-user-edit-done:hover {
-  background: color-mix(in srgb, var(--bg4) 82%, #000 18%);
-  color: var(--text);
-  border-color: var(--control-border-active);
-  opacity: 1;
-}
 .btn-ghost { background: var(--bg4); color: var(--text2); border: 1px solid var(--border2); }
 .btn-ghost.active { background: var(--bg4); color: var(--text); border-color: var(--control-border-active); }
 .btn-ghost.active:hover { opacity: 1; }
@@ -1907,6 +1897,11 @@ button.nav-item {
   color: var(--text3);
 }
 
+.msg-row.user > .msg-user-hover-zone {
+  flex: 0 1 auto;
+  width: fit-content;
+  max-width: 100%;
+}
 .msg-user-hover-zone {
   display: flex;
   flex-direction: column;
@@ -1916,6 +1911,10 @@ button.nav-item {
   max-width: 100%;
   min-width: 0;
 }
+.msg-row.user .msg-user-stack {
+  width: fit-content;
+  max-width: 100%;
+}
 .msg-user-stack {
   display: flex;
   flex-direction: column;
@@ -1923,32 +1922,55 @@ button.nav-item {
   max-width: 100%;
   min-width: 0;
 }
+.msg-row.user .msg-user-bubble-row {
+  width: fit-content;
+  max-width: 100%;
+}
 .msg-user-bubble-row {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
-  gap: 6px;
   max-width: 100%;
   min-width: 0;
 }
+.msg-user-hover-zone--editing .msg-user-bubble-row {
+  align-items: flex-start;
+}
+/* Полоса кнопок слева от пузыря — внутри msg-body, чтобы зона hover и центр совпадали с пузырьком */
+.msg-row.user .msg-body--user-actions {
+  position: relative;
+  --msg-user-actions-w: 68px;
+  padding-left: var(--msg-user-actions-w);
+  box-sizing: border-box;
+}
 .msg-user-side-actions {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--msg-user-actions-w);
+  box-sizing: border-box;
+  padding-right: 6px;
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: flex-end;
   gap: 2px;
   flex-shrink: 0;
+  z-index: 1;
 }
 @media (hover: hover) {
   .msg-user-side-actions {
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.12s ease, visibility 0.12s ease;
+    pointer-events: none;
   }
   .msg-user-hover-zone:hover .msg-user-side-actions,
   .msg-user-hover-zone:focus-within .msg-user-side-actions {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
   }
 }
 @media (hover: none) {
@@ -1960,13 +1982,16 @@ button.nav-item {
 .msg-user-edit-wrap {
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: 8px;
-  width: 100%;
+  width: max-content;
+  max-width: 100%;
   min-width: 0;
 }
 .msg-user-edit {
   display: block;
-  width: 100%;
+  width: auto;
+  max-width: 400px;
   min-width: 0;
   min-height: calc(1.65em + 20px);
   max-height: min(50vh, 360px);
@@ -2004,6 +2029,7 @@ button.nav-item {
 .msg-user-edit-bar {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 8px;
 }
 
@@ -2011,14 +2037,14 @@ button.nav-item {
 /* До max 400px по содержимому; flex-basis 400px давал постоянную ширину при широком чате */
 .msg-row.user .msg-body {
   flex: 0 0 auto;
-  max-width: 400px;
+  max-width: min(400px, 100%);
   width: fit-content;
   min-width: 0;
+  align-self: flex-end;
 }
-.msg-row.user .msg-user-hover-zone--editing .msg-body {
-  width: 400px;
-  max-width: min(400px, 100%);
-  flex: 0 0 auto;
+.msg-row.user .msg-user-edit-bar {
+  width: max-content;
+  max-width: 100%;
 }
 .msg-user-branch-row {
   display: flex;
@@ -2917,8 +2943,9 @@ button.nav-item {
   transform: none;
   margin-right: 4px;
 }
-/* Высота как у ai-msg-action-btn (копировать / редактировать) */
-.post-edit-toolbar .post-edit-btn {
+/* Кнопки «Сохранить» / «Отмена» — пост и редактирование сообщения */
+.post-edit-toolbar .post-edit-btn,
+.msg-user-edit-bar .post-edit-btn {
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
@@ -2935,25 +2962,30 @@ button.nav-item {
   opacity: 1;
   transition: border-color 0.12s, background 0.12s, color 0.12s;
 }
-.post-edit-toolbar .post-edit-btn:hover {
+.post-edit-toolbar .post-edit-btn:hover,
+.msg-user-edit-bar .post-edit-btn:hover {
   opacity: 1;
 }
-.post-edit-toolbar .btn-ghost.post-edit-btn {
+.post-edit-toolbar .btn-ghost.post-edit-btn,
+.msg-user-edit-bar .btn-ghost.post-edit-btn {
   background: var(--profile-control-bg);
   color: var(--text2);
   border: 1px solid var(--profile-control-border);
 }
-.post-edit-toolbar .btn-ghost.post-edit-btn:hover {
+.post-edit-toolbar .btn-ghost.post-edit-btn:hover,
+.msg-user-edit-bar .btn-ghost.post-edit-btn:hover {
   background: var(--profile-control-bg-hover);
   color: var(--text);
   border-color: var(--control-border-active);
 }
-.post-edit-toolbar .btn-primary.post-edit-btn {
+.post-edit-toolbar .btn-primary.post-edit-btn,
+.msg-user-edit-bar .btn-primary.post-edit-btn {
   background: var(--profile-control-bg);
   color: #3a3a3a;
   border: 1px solid color-mix(in srgb, var(--control-border-active) 52%, var(--profile-control-border));
 }
-.post-edit-toolbar .btn-primary.post-edit-btn:hover {
+.post-edit-toolbar .btn-primary.post-edit-btn:hover,
+.msg-user-edit-bar .btn-primary.post-edit-btn:hover {
   background: var(--profile-control-bg-hover);
   color: color-mix(in srgb, #3a3a3a 58%, #000 42%);
   border-color: var(--control-border-active);

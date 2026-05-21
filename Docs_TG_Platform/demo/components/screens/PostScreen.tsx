@@ -35,7 +35,8 @@ export default function PostScreen() {
     navigateBack,
     navigateWithState,
     canLeaveCurrentScreen,
-    confirmDiscardPostEdit,
+    confirmDiscardAnyEdit,
+    discardPendingEdits,
     sendPost,
   } = useApp();
   const post = postById(state, state.currentPostId);
@@ -80,7 +81,8 @@ export default function PostScreen() {
   }, [state.postMode, state.isEditing, post?.id, activeChat?.id]);
 
   const pushPostView = (nextMode: PostMode, nextChatId: number | null) => {
-    if (!confirmDiscardPostEdit()) return;
+    if (!confirmDiscardAnyEdit()) return;
+    discardPendingEdits();
     if (nextMode === state.postMode && nextChatId === state.currentPostChatId) return;
     const stack = [
       ...state.postViewStack,
@@ -119,7 +121,8 @@ export default function PostScreen() {
     });
   };
   const handleBack = () => {
-    if (!confirmDiscardPostEdit()) return;
+    if (!confirmDiscardAnyEdit()) return;
+    discardPendingEdits();
     if (state.postViewStack.length > 0) {
       const stack = state.postViewStack.slice(0, -1);
       const prev = state.postViewStack[state.postViewStack.length - 1];
@@ -257,7 +260,8 @@ export default function PostScreen() {
                   <span
                     className="bc-link"
                     onClick={() => {
-                      if (!confirmDiscardPostEdit()) return;
+                      if (!confirmDiscardAnyEdit()) return;
+                      discardPendingEdits();
                       dispatch({
                         type: "SET_STATE",
                         patch: {

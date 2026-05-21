@@ -26,6 +26,39 @@ function assistantPlainText(message: ChatMessageType): string {
 }
 
 /** Строка для подсказки «какая модель ответила» (LLM ± поиск). */
+const USER_EDIT_MAX_W = 400;
+
+function measureUserEditTextWidth(ta: HTMLTextAreaElement, maxWidth: number): number {
+  const cs = window.getComputedStyle(ta);
+  const mirror = document.createElement("div");
+  mirror.setAttribute("aria-hidden", "true");
+  Object.assign(mirror.style, {
+    position: "absolute",
+    visibility: "hidden",
+    pointerEvents: "none",
+    top: "0",
+    left: "-9999px",
+    boxSizing: "border-box",
+    maxWidth: `${maxWidth}px`,
+    width: "max-content",
+    whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
+    overflowWrap: "anywhere",
+    fontFamily: cs.fontFamily,
+    fontSize: cs.fontSize,
+    fontWeight: cs.fontWeight,
+    lineHeight: cs.lineHeight,
+    letterSpacing: cs.letterSpacing,
+    padding: cs.padding,
+  });
+  const value = ta.value;
+  mirror.textContent = value.length > 0 ? value : " ";
+  document.body.appendChild(mirror);
+  const w = Math.ceil(mirror.getBoundingClientRect().width);
+  mirror.remove();
+  return Math.min(maxWidth, Math.max(48, w + 2));
+}
+
 function modelTooltipText(message: ChatMessageType): string {
   if (message.role !== "ai") return "";
   if (Array.isArray(message.variants) && message.variants.length > 0) {
@@ -103,7 +136,13 @@ export default function ChatMessage({
   /** Показывать «Удалить» в меню только у последнего ответа ассистента в треде. */
   isLastAssistantMessage?: boolean;
 }) {
-  const { dispatch } = useApp();
+  const {
+    dispatch,
+    registerUserMessageEdit,
+    unregisterUserMessageEdit,
+    confirmDiscardAnyEdit,
+    discardPendingEdits,
+  } = useApp();
   const isUser = message.role === "user";
   const userShown = displayUserText(message);
   const [editing, setEditing] = useState(false);
@@ -131,14 +170,26 @@ export default function ChatMessage({
   }, [editing]);
 
   useLayoutEffect(() => {
-    if (!editing) return;
     const ta = taRef.current;
+    const wrap = ta?.closest<HTMLElement>(".msg-user-edit-wrap");
+    if (!editing) {
+      if (ta) ta.style.width = "";
+      if (wrap) wrap.style.width = "";
+      return;
+    }
     if (!ta) return;
+    const bar = wrap?.querySelector<HTMLElement>(".msg-user-edit-bar");
     const cap = 360;
+    const textW = measureUserEditTextWidth(ta, USER_EDIT_MAX_W);
+    ta.style.width = `${textW}px`;
     ta.style.height = "auto";
     const sh = ta.scrollHeight;
     ta.style.height = `${Math.min(sh, cap)}px`;
     ta.style.overflowY = sh > cap ? "auto" : "hidden";
+    if (wrap) {
+      const barW = bar ? Math.ceil(bar.getBoundingClientRect().width) : 0;
+      wrap.style.width = `${Math.min(USER_EDIT_MAX_W, Math.max(textW, barW))}px`;
+    }
   }, [draft, editing]);
 
   let textHtml = (isUser ? userShown : message.text ?? "").replace(/\n/g, "<br>");
@@ -172,16 +223,26 @@ export default function ChatMessage({
     }, 2000);
   }, [userShown]);
 
-  const startEdit = useCallback(() => {
-    if (!ctx) return;
-    setDraft(userShown);
-    setEditing(true);
-  }, [ctx, userShown]);
-
   const cancelEdit = useCallback(() => {
     setEditing(false);
     setDraft(userShown);
   }, [userShown]);
+
+  useEffect(() => {
+    if (!editing || !isUser || !ctx) return;
+    registerUserMessageEdit(cancelEdit);
+    return () => unregisterUserMessageEdit(cancelEdit);
+  }, [editing, isUser, ctx, cancelEdit, registerUserMessageEdit, unregisterUserMessageEdit]);
+
+  const startEdit = useCallback(() => {
+    if (!ctx) return;
+    if (!editing) {
+      if (!confirmDiscardAnyEdit()) return;
+      discardPendingEdits();
+    }
+    setDraft(userShown);
+    setEditing(true);
+  }, [ctx, userShown, editing, confirmDiscardAnyEdit, discardPendingEdits]);
 
   const saveEdit = useCallback(() => {
     if (!ctx) return;
@@ -301,43 +362,43 @@ export default function ChatMessage({
         >
           <div className="msg-user-stack">
             <div className="msg-user-bubble-row">
-              {ctx && !editing ? (
-                <div className="msg-user-side-actions">
-                  <button
-                    type="button"
-                    className="ai-msg-action-btn"
-                    aria-label="Редактировать"
-                    title="Редактировать"
-                    onClick={startEdit}
-                  >
-                    <IcUserEdit />
-                  </button>
-                  <button
-                    type="button"
-                    className={`ai-msg-action-btn${copied ? " on" : ""}`}
-                    aria-label={copied ? "Скопировано" : "Скопировать"}
-                    title={copied ? "Скопировано" : "Скопировать"}
-                    onClick={() => void onCopyUser()}
-                  >
-                    {copied ? (
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        aria-hidden
-                      >
-                        <path d="M20 6 9 17l-5-5" />
-                      </svg>
-                    ) : (
-                      <IcUserCopy />
-                    )}
-                  </button>
-                </div>
-              ) : null}
-              <div className="msg-body">
+              <div className={`msg-body${ctx && !editing ? " msg-body--user-actions" : ""}`}>
+                {ctx && !editing ? (
+                  <div className="msg-user-side-actions">
+                    <button
+                      type="button"
+                      className="ai-msg-action-btn"
+                      aria-label="Редактировать"
+                      title="Редактировать"
+                      onClick={startEdit}
+                    >
+                      <IcUserEdit />
+                    </button>
+                    <button
+                      type="button"
+                      className={`ai-msg-action-btn${copied ? " on" : ""}`}
+                      aria-label={copied ? "Скопировано" : "Скопировать"}
+                      title={copied ? "Скопировано" : "Скопировать"}
+                      onClick={() => void onCopyUser()}
+                    >
+                      {copied ? (
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          aria-hidden
+                        >
+                          <path d="M20 6 9 17l-5-5" />
+                        </svg>
+                      ) : (
+                        <IcUserCopy />
+                      )}
+                    </button>
+                  </div>
+                ) : null}
                 {editing ? (
                   <div className="msg-user-edit-wrap">
                     <textarea
@@ -350,11 +411,15 @@ export default function ChatMessage({
                       aria-label="Текст сообщения"
                     />
                     <div className="msg-user-edit-bar">
-                      <button type="button" className="btn btn-ghost btn-sm" onClick={cancelEdit}>
-                        Отмена
+                      <button
+                        type="button"
+                        className="btn btn-primary post-edit-btn"
+                        onClick={saveEdit}
+                      >
+                        Сохранить
                       </button>
-                      <button type="button" className="btn btn-ghost btn-sm btn-user-edit-done" onClick={saveEdit}>
-                        Готово
+                      <button type="button" className="btn btn-ghost post-edit-btn" onClick={cancelEdit}>
+                        Отмена
                       </button>
                     </div>
                   </div>
