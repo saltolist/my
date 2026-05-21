@@ -28,7 +28,11 @@ function assistantPlainText(message: ChatMessageType): string {
 /** Строка для подсказки «какая модель ответила» (LLM ± поиск). */
 const USER_EDIT_MAX_W = 400;
 
-function measureUserEditTextWidth(ta: HTMLTextAreaElement, maxWidth: number): number {
+function measureUserEditTextWidth(
+  text: string,
+  ta: HTMLTextAreaElement,
+  maxWidth: number,
+): number {
   const cs = window.getComputedStyle(ta);
   const mirror = document.createElement("div");
   mirror.setAttribute("aria-hidden", "true");
@@ -51,8 +55,7 @@ function measureUserEditTextWidth(ta: HTMLTextAreaElement, maxWidth: number): nu
     letterSpacing: cs.letterSpacing,
     padding: cs.padding,
   });
-  const value = ta.value;
-  mirror.textContent = value.length > 0 ? value : " ";
+  mirror.textContent = text.length > 0 ? text : " ";
   document.body.appendChild(mirror);
   const w = Math.ceil(mirror.getBoundingClientRect().width);
   mirror.remove();
@@ -148,8 +151,10 @@ export default function ChatMessage({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(userShown);
   const [copied, setCopied] = useState(false);
+  const [editSession, setEditSession] = useState(0);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const pathKey = ctx ? ctx.path.join("-") : "";
 
   useEffect(() => {
     if (!editing) setDraft(userShown);
@@ -171,26 +176,24 @@ export default function ChatMessage({
 
   useLayoutEffect(() => {
     const ta = taRef.current;
-    const wrap = ta?.closest<HTMLElement>(".msg-user-edit-wrap");
     if (!editing) {
-      if (ta) ta.style.width = "";
-      if (wrap) wrap.style.width = "";
+      if (ta) {
+        ta.style.width = "";
+        ta.style.height = "";
+        ta.style.overflowY = "";
+      }
       return;
     }
     if (!ta) return;
-    const bar = wrap?.querySelector<HTMLElement>(".msg-user-edit-bar");
     const cap = 360;
-    const textW = measureUserEditTextWidth(ta, USER_EDIT_MAX_W);
+    ta.style.width = "0px";
+    const textW = measureUserEditTextWidth(draft, ta, USER_EDIT_MAX_W);
     ta.style.width = `${textW}px`;
     ta.style.height = "auto";
     const sh = ta.scrollHeight;
     ta.style.height = `${Math.min(sh, cap)}px`;
     ta.style.overflowY = sh > cap ? "auto" : "hidden";
-    if (wrap) {
-      const barW = bar ? Math.ceil(bar.getBoundingClientRect().width) : 0;
-      wrap.style.width = `${Math.min(USER_EDIT_MAX_W, Math.max(textW, barW))}px`;
-    }
-  }, [draft, editing]);
+  }, [draft, editing, pathKey, editSession]);
 
   let textHtml = (isUser ? userShown : message.text ?? "").replace(/\n/g, "<br>");
   let aiVariantNav: ReactNode = null;
@@ -241,6 +244,7 @@ export default function ChatMessage({
       discardPendingEdits();
     }
     setDraft(userShown);
+    setEditSession((n) => n + 1);
     setEditing(true);
   }, [ctx, userShown, editing, confirmDiscardAnyEdit, discardPendingEdits]);
 
@@ -400,7 +404,7 @@ export default function ChatMessage({
                   </div>
                 ) : null}
                 {editing ? (
-                  <div className="msg-user-edit-wrap">
+                  <div className="msg-user-edit-wrap" key={editSession}>
                     <textarea
                       ref={taRef}
                       className="msg-user-edit"

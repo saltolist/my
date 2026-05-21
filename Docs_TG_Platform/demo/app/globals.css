@@ -1980,19 +1980,20 @@ button.nav-item {
   }
 }
 .msg-user-edit-wrap {
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 8px;
-  width: max-content;
-  max-width: 100%;
+  width: min-content;
+  max-width: min(400px, 100%);
   min-width: 0;
 }
 .msg-user-edit {
   display: block;
-  width: auto;
+  width: 0;
+  min-width: 48px;
   max-width: 400px;
-  min-width: 0;
+  box-sizing: border-box;
   min-height: calc(1.65em + 20px);
   max-height: min(50vh, 360px);
   resize: none;
@@ -2007,7 +2008,6 @@ button.nav-item {
   box-shadow: none;
   -webkit-appearance: none;
   appearance: none;
-  box-sizing: border-box;
   background: var(--bg3);
   border-radius: var(--post-card-r);
   padding: 10px 14px;
