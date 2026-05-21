@@ -14,6 +14,7 @@ import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/lib/chatPaths
 import Composer from "../composer/Composer";
 import ChatMessage from "../chat/ChatMessage";
 import ChatListCardMenu from "../chat/ChatListCardMenu";
+import NoteCardAiToggle from "../note/NoteCardAiToggle";
 import NoteListCardMenu from "../note/NoteListCardMenu";
 import { NoteIconAttach } from "../note/NoteHeaderIcons";
 import PostMediaBlock from "../post/PostMediaBlock";
@@ -639,17 +640,14 @@ function PostNotes({ search }: { search: string }) {
               <div className="note-card-preview-post">{n.body || "Пустая заметка"}</div>
             </div>
             <div className="note-card-footer">
-              <span className="note-date">{n.date}</span>
-              <button
-                className={`note-ai-toggle${n.ai ? " on" : ""}`}
+              <NoteCardAiToggle
+                ai={n.ai}
                 onClick={(e) => {
                   e.stopPropagation();
                   dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: post.id, noteId: n.id });
                 }}
-                type="button"
-              >
-                {n.ai ? "● ИИ" : "○ ИИ"}
-              </button>
+              />
+              <span className="note-date">{n.date}</span>
             </div>
           </div>
         ))}

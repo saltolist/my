@@ -228,6 +228,10 @@ html.sidebar-collapsed {
   backdrop-filter: none;
   background: var(--bg3);
 }
+:root[data-theme="light"] .note-ai-toggle {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
 :root[data-theme="light"] .profile-page :is(
   .model-picker-dropdown,
   .chart-series-selector-panel
@@ -348,6 +352,10 @@ html.sidebar-collapsed {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     background: var(--bg3);
+  }
+  :root[data-theme="system"] .note-ai-toggle {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
   :root[data-theme="system"] .profile-page :is(
     .model-picker-dropdown,
@@ -3359,8 +3367,21 @@ button.nav-item {
   font-size: 12px; color: var(--text3); line-height: 1.5; overflow: hidden;
   display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical;
 }
-.note-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 8px; }
-.note-date { font-size: 11px; color: var(--text3); }
+.note-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+.note-date {
+  font-size: 11px;
+  color: var(--text3);
+  min-width: 0;
+  flex: 1;
+  line-height: 1.35;
+}
 .note-del { font-size: 13px; color: var(--text3); cursor: pointer; transition: color .15s; }
 .note-del:hover { color: var(--red); }
 .note-card.new-note { border-style: dashed; align-items: center; justify-content: center; gap: 4px; color: var(--text3); }
@@ -4166,7 +4187,13 @@ button.filter-tab {
   font-size: 12px; color: var(--text3); line-height: 1.5; overflow: hidden;
   display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical;
 }
-.note-card-footer-pg { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+.note-card-footer-pg {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-top: auto;
+}
 .note-card-date-pg {
   font-size: 11px;
   color: var(--text3);
@@ -4182,18 +4209,79 @@ button.filter-tab {
 .note-card-date-pg a:hover {
   text-decoration: underline;
 }
+/* Как чекбокс в профиле (22px), вместо галочки — иконка мозга */
 .note-ai-toggle {
-  font-size: 11px; padding: 2px 7px; border-radius: 20px; cursor: pointer;
-  border: 1px solid var(--border2); background: var(--bg4); color: var(--text3);
-  transition: color 0.15s, border-color 0.15s;
+  --note-ai-toggle-size: 22px;
+  --note-ai-toggle-icon: 15px;
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  width: var(--note-ai-toggle-size);
+  height: var(--note-ai-toggle-size);
+  flex-shrink: 0;
+  padding: 0;
+  margin: 0;
+  border: 1px solid var(--profile-control-border);
+  border-radius: var(--rs);
+  background: var(--profile-control-bg);
+  -webkit-backdrop-filter: var(--profile-control-blur);
+  backdrop-filter: var(--profile-control-blur);
+  cursor: pointer;
+  position: relative;
+  overflow: visible;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #3a3a3a;
+  transition: border-color 0.12s, background 0.12s, box-shadow 0.12s, color 0.12s;
 }
-.note-ai-toggle:hover {
-  color: var(--text);
-  border-color: color-mix(in srgb, var(--border2) 65%, #000 35%);
+.note-ai-toggle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 20px;
+  height: 1px;
+  border-radius: 1px;
+  background: currentColor;
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(45deg);
+  opacity: 0;
+  transition: opacity 0.12s ease;
 }
-.note-ai-toggle.on { background: var(--bg4); border-color: var(--control-border-active); color: var(--text); }
-.note-ai-toggle.on:hover {
-  border-color: var(--text);
+.note-ai-toggle .model-icon {
+  width: var(--note-ai-toggle-icon);
+  height: var(--note-ai-toggle-icon);
+  display: block;
+  flex-shrink: 0;
+}
+.note-ai-toggle.off {
+  color: var(--text3);
+  border-color: color-mix(in srgb, var(--border2) 72%, var(--profile-control-border));
+}
+.note-ai-toggle.off::after,
+.note-ai-toggle.on:hover:not(:disabled)::after {
+  opacity: 1;
+}
+.note-ai-toggle:hover:not(:disabled) {
+  background: var(--profile-control-bg-hover);
+  border-color: var(--border2);
+}
+.note-ai-toggle.on {
+  background: var(--profile-control-bg-active);
+  border-color: var(--control-border-active);
+  color: #3a3a3a;
+}
+/* Активный: при наведении — как неактивный (тусклый мозг + штрих) */
+.note-ai-toggle.on:hover:not(:disabled) {
+  background: var(--profile-control-bg-hover);
+  border-color: var(--border2);
+  color: var(--text3);
+}
+.note-ai-toggle:focus-visible {
+  outline: none;
+  border-color: var(--control-border-active);
+  box-shadow: none;
 }
 @media (max-width: 1100px) {
   .notes-grid-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }

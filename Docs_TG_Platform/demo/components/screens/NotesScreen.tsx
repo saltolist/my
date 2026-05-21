@@ -5,6 +5,7 @@ import { useApp } from "@/state/AppContext";
 import { postTitle } from "@/lib/helpers";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
+import NoteCardAiToggle from "../note/NoteCardAiToggle";
 import NoteListCardMenu from "../note/NoteListCardMenu";
 import { buildNoteSnapshot, createNewGlobalNote, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
 import type { GlobalNote, LocalNote, NoteFile } from "@/lib/types";
@@ -179,6 +180,13 @@ export default function NotesScreen() {
                   </div>
                   <div className="note-card-preview">{n.body}</div>
                   <div className="note-card-footer-pg">
+                    <NoteCardAiToggle
+                      ai={n.ai}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleAi(n);
+                      }}
+                    />
                     <span className="note-card-date-pg">
                       {n.date} · {n.isGlobal ? "Глобальная" : "Локальная"}
                       {!n.isGlobal ? (
@@ -195,16 +203,6 @@ export default function NotesScreen() {
                         </>
                       ) : null}
                     </span>
-                    <button
-                        className={`note-ai-toggle${n.ai ? " on" : ""}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleAi(n);
-                        }}
-                        type="button"
-                      >
-                        {n.ai ? "● ИИ" : "○ ИИ"}
-                      </button>
                   </div>
                 </div>
               ))
