@@ -212,6 +212,7 @@ html.sidebar-collapsed {
   .theme-switch-btn,
   .profile-input-explicit,
   .profile-model-picker .model-picker-btn,
+  .model-picker-dropdown,
   .btn,
   input[type="checkbox"],
   .rubric-editor,
@@ -236,13 +237,6 @@ html.sidebar-collapsed {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
-:root[data-theme="light"] .profile-page :is(
-  .model-picker-dropdown,
-  .chart-series-selector-panel
-) {
-  background: var(--profile-select-bg-active);
-}
-
 /* "system" → follow OS preference */
 @media (prefers-color-scheme: light) {
   :root[data-theme="system"] {
@@ -341,33 +335,21 @@ html.sidebar-collapsed {
     .theme-switch-btn,
     .profile-input-explicit,
     .profile-model-picker .model-picker-btn,
+    .model-picker-dropdown,
     .btn,
     input[type="checkbox"],
     .rubric-editor,
     .rubric-item,
     .telegram-step,
     .telegram-sync-card
-  ),
-  :root[data-theme="system"] :is(
-    .model-picker-dropdown,
-    .chart-series-selector-panel,
-    .ctx-dropdown
   ) {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
-    background: var(--bg3);
   }
   :root[data-theme="system"] .note-ai-toggle {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
-  :root[data-theme="system"] .profile-page :is(
-    .model-picker-dropdown,
-    .chart-series-selector-panel
-  ) {
-    background: var(--profile-select-bg-active);
-  }
-
   :root[data-theme="system"] #screen-profile .page-header-profile-tabs .period-tab {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
@@ -5704,13 +5686,11 @@ button.filter-tab {
   border-color: var(--control-border-active);
   box-shadow: none;
 }
-.profile-page .model-picker-dropdown,
-.profile-page .chart-series-selector-panel {
+.profile-page .model-picker-dropdown {
   border: 1px solid var(--profile-control-border);
   background: var(--profile-select-bg-active);
   -webkit-backdrop-filter: var(--profile-control-blur);
   backdrop-filter: var(--profile-control-blur);
-  box-shadow: var(--dropdown-shadow);
 }
 .profile-page .model-picker-dropdown .model-picker-item {
   text-align: center;
