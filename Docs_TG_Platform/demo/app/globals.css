@@ -4268,7 +4268,7 @@ button.filter-tab {
 }
 .note-ai-toggle.off:hover:not(:disabled):not(.note-ai-toggle--suppress-hover) {
   background: var(--profile-control-bg-hover);
-  border-color: var(--border2);
+  border-color: var(--control-border-active);
 }
 .note-ai-toggle.off:hover:not(:disabled):not(.note-ai-toggle--suppress-hover)::after {
   opacity: 0;
@@ -4291,7 +4291,7 @@ button.filter-tab {
 /* Вкл.: hover-превью (тусклый мозг + штрих) — как :checked:hover:not(.profile-checkbox--suppress-hover) */
 .note-ai-toggle.on:hover:not(:disabled):not(.note-ai-toggle--suppress-hover) {
   background: var(--profile-control-bg-hover);
-  border-color: var(--border2);
+  border-color: var(--control-border-active);
   color: var(--text3);
 }
 .note-ai-toggle.on:hover:not(:disabled):not(.note-ai-toggle--suppress-hover)::after {
