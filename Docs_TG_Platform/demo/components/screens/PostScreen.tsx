@@ -3,7 +3,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { postById, useApp } from "@/state/AppContext";
 import {
-  formatPostDateTime,
   postTitle,
   readFileAsMedia,
   truncate,
@@ -24,14 +23,8 @@ import PostStatus from "../feed/PostStatus";
 import PostCardToolbar from "../post/PostCardToolbar";
 import PostCommentsPanel from "../post/PostCommentsPanel";
 import PostCommentsRow from "../post/PostCommentsRow";
-import {
-  MenuIconCancel,
-  MenuIconClock,
-  MenuIconPlus,
-  MenuIconPublish,
-  MenuIconTrash,
-} from "../HeaderMenuIcons";
-import { ContextMenu, type CtxMenuItem } from "../ContextMenu";
+import { ContextMenu } from "../ContextMenu";
+import { usePostCtxMenuItems } from "../post/postCtxMenu";
 import { buildNoteSnapshot, createNewPostNote, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
 import type { LocalNote, NoteFile, PostComment, PostMedia, PostMetrics, PostMode } from "@/lib/types";
 
@@ -48,6 +41,7 @@ export default function PostScreen() {
     sendPost,
   } = useApp();
   const post = postById(state, state.currentPostId);
+  const ctxItems = usePostCtxMenuItems(post);
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const postCardRef = useRef<HTMLDivElement>(null);
   const [showJump, setShowJump] = useState(false);
@@ -122,6 +116,7 @@ export default function PostScreen() {
     if (!canLeaveCurrentScreen("note")) return;
     navigateWithState({
       screen: "note",
+      currentPostId: post.id,
       currentNote: createNewPostNote(post.id),
       noteFrom: "post",
       noteMode: "edit",
@@ -161,73 +156,6 @@ export default function PostScreen() {
       </div>
     );
   }
-
-  const ctxItems: CtxMenuItem[] = [
-    {
-      label: "Новый чат",
-      icon: <MenuIconPlus />,
-      onClick: startNewChat,
-    },
-    {
-      label: "Новая заметка",
-      icon: <MenuIconPlus />,
-      onClick: startNewNote,
-    },
-  ];
-  if (post.status === "draft") {
-    ctxItems.push({
-      label: "Опубликовать",
-      icon: <MenuIconPublish />,
-      onClick: () =>
-        dispatch({
-          type: "UPDATE_POST",
-          postId: post.id,
-          patch: {
-            status: "published",
-            date: formatPostDateTime(),
-            metrics: { views: "0", reposts: 0, reactions: [] },
-          },
-        }),
-    });
-    ctxItems.push({
-      label: "Запланировать",
-      icon: <MenuIconClock />,
-      onClick: () =>
-        dispatch({ type: "UPDATE_POST", postId: post.id, patch: { status: "scheduled", date: "10 мая 20:00" } }),
-    });
-  }
-  if (post.status === "scheduled") {
-    ctxItems.push({
-      label: "Опубликовать",
-      icon: <MenuIconPublish />,
-      onClick: () =>
-        dispatch({
-          type: "UPDATE_POST",
-          postId: post.id,
-          patch: {
-            status: "published",
-            date: formatPostDateTime(),
-            metrics: { views: "0", reposts: 0, reactions: [] },
-          },
-        }),
-    });
-    ctxItems.push({
-      label: "Отменить публикацию",
-      icon: <MenuIconCancel />,
-      onClick: () =>
-        dispatch({ type: "UPDATE_POST", postId: post.id, patch: { status: "draft", created: "сейчас" } }),
-    });
-  }
-  ctxItems.push({
-    label: "Удалить",
-    icon: <MenuIconTrash />,
-    danger: true,
-    onClick: () => {
-      if (!confirm(`Удалить пост «${postTitle(post)}»?`)) return;
-      dispatch({ type: "DELETE_POST", postId: post.id });
-      navigate("feed", { skipHistory: true, clearHistory: true });
-    },
-  });
 
   const postSubPage =
     state.postMode === "comments"
@@ -621,6 +549,7 @@ function PostNotes({ search }: { search: string }) {
     const files: NoteFile[] = Array.isArray(n.files) ? n.files : [];
     navigateWithState({
       screen: "note",
+      currentPostId: post.id,
       currentNote: { ...n, isGlobal: false, postId: post.id, files },
       noteFrom: "post",
       noteMode: "view",

@@ -2,9 +2,11 @@
 
 import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import { ContextMenu } from "@/components/ContextMenu";
+import { usePostCtxMenuItems } from "@/components/post/postCtxMenu";
 import { useApp } from "@/state/AppContext";
 import { buildNoteSnapshot } from "@/lib/noteDraft";
-import type { ScreenId, NoteFile } from "@/lib/types";
+import { postTitle } from "@/lib/helpers";
+import type { NoteFile } from "@/lib/types";
 import {
   NavIconAnalytics,
   NavIconChats,
@@ -31,18 +33,6 @@ function BrandStarIcon() {
     </svg>
   );
 }
-
-const NAV_MAP: Record<string, ScreenId> = {
-  home: "home",
-  feed: "feed",
-  post: "feed",
-  gchat: "chats",
-  note: "notes",
-  chats: "chats",
-  notes: "notes",
-  analytics: "analytics",
-  profile: "profile",
-};
 
 type RecentRow =
   | {
@@ -95,12 +85,22 @@ const SIDEBAR_COLLAPSED_KEY = "tg-demo-sidebar-collapsed";
 const RAIL_MQ = "(min-width: 761px)";
 
 export default function Sidebar() {
-  const { state, navigate, goHome, openGChat, navigateWithState, dispatch } = useApp();
-  const activeNav = NAV_MAP[state.screen];
+  const {
+    state,
+    navigate,
+    goHome,
+    openPost,
+    openGChat,
+    navigateWithState,
+    dispatch,
+    confirmDiscardAnyEdit,
+    discardPendingEdits,
+  } = useApp();
   const [chatsExpanded, setChatsExpanded] = useState(true);
   const [notesExpanded, setNotesExpanded] = useState(false);
   const [recentMenuOpenKey, setRecentMenuOpenKey] = useState<string | null>(null);
   const [recentNotesMenuOpenKey, setRecentNotesMenuOpenKey] = useState<string | null>(null);
+  const [feedPostMenuOpen, setFeedPostMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [railAllowed, setRailAllowed] = useState(false);
 
@@ -139,6 +139,24 @@ export default function Sidebar() {
     }
   }, [railAllowed, sidebarCollapsed]);
 
+  useEffect(() => {
+    if (state.screen === "note") setNotesExpanded(true);
+    if (state.screen === "gchat") setChatsExpanded(true);
+    if (state.screen === "post" && state.postMode === "notes") setNotesExpanded(true);
+  }, [state.screen, state.postMode]);
+
+  const sidebarPostId = useMemo((): number | null => {
+    if (state.screen === "post" && state.currentPostId != null) return state.currentPostId;
+    const note = state.currentNote;
+    if (state.screen === "note" && note && !note.isGlobal) return note.postId;
+    return null;
+  }, [state.screen, state.currentPostId, state.currentNote]);
+
+  const showFeedPostRow =
+    sidebarPostId != null &&
+    (state.screen === "post" ||
+      (state.screen === "note" && state.currentNote != null && !state.currentNote.isGlobal));
+
   const recentChatsModel = useMemo((): RecentChatsModel => {
     const byActivity = (a: RecentRow, b: RecentRow) =>
       b.historyLen - a.historyLen || a.seq - b.seq;
@@ -158,9 +176,7 @@ export default function Sidebar() {
     globalRows.sort(byActivity);
 
     const inPostSpace =
-      state.screen === "post" &&
-      state.currentPostId != null &&
-      state.posts.some((p) => p.id === state.currentPostId);
+      sidebarPostId != null && state.posts.some((p) => p.id === sidebarPostId);
 
     if (!inPostSpace) {
       const allLocal: RecentRow[] = [];
@@ -183,7 +199,7 @@ export default function Sidebar() {
       return { mode: "flat", rows: mixed.slice(0, RECENT_SIDEBAR_MAX) };
     }
 
-    const post = state.posts.find((p) => p.id === state.currentPostId)!;
+    const post = state.posts.find((p) => p.id === sidebarPostId)!;
     const thisPostRows: RecentRow[] = [];
     let tpSeq = 0;
     for (const c of post.chats) {
@@ -231,7 +247,7 @@ export default function Sidebar() {
     const others = othersRows.slice(0, Math.max(0, RECENT_SIDEBAR_MAX - thisPost.length));
 
     return { mode: "grouped", thisPost, others };
-  }, [state.globalChats, state.posts, state.screen, state.currentPostId]);
+  }, [state.globalChats, state.posts, sidebarPostId]);
 
   const recentNotesModel = useMemo((): RecentNotesModel => {
     const noteWeight = (body: string) => body?.length ?? 0;
@@ -254,9 +270,7 @@ export default function Sidebar() {
     globalRows.sort(byActivity);
 
     const inPostSpace =
-      state.screen === "post" &&
-      state.currentPostId != null &&
-      state.posts.some((p) => p.id === state.currentPostId);
+      sidebarPostId != null && state.posts.some((p) => p.id === sidebarPostId);
 
     if (!inPostSpace) {
       const allLocal: RecentNoteRow[] = [];
@@ -279,7 +293,7 @@ export default function Sidebar() {
       return { mode: "flat", rows: mixed.slice(0, RECENT_SIDEBAR_MAX) };
     }
 
-    const post = state.posts.find((p) => p.id === state.currentPostId)!;
+    const post = state.posts.find((p) => p.id === sidebarPostId)!;
     const thisPostRows: RecentNoteRow[] = [];
     let tpSeq = 0;
     for (const n of post.notes) {
@@ -327,7 +341,21 @@ export default function Sidebar() {
     const others = othersRows.slice(0, Math.max(0, RECENT_SIDEBAR_MAX - thisPost.length));
 
     return { mode: "grouped", thisPost, others };
-  }, [state.globalNotes, state.posts, state.screen, state.currentPostId]);
+  }, [state.globalNotes, state.posts, sidebarPostId]);
+
+  const currentPostSidebar = useMemo(() => {
+    if (sidebarPostId == null) return null;
+    return state.posts.find((p) => p.id === sidebarPostId) ?? null;
+  }, [sidebarPostId, state.posts]);
+
+  const isSidebarPostActive =
+    sidebarPostId != null &&
+    ((state.screen === "post" && state.currentPostId === sidebarPostId) ||
+      (state.screen === "note" &&
+        state.currentNote != null &&
+        !state.currentNote.isGlobal &&
+        state.currentNote.postId === sidebarPostId));
+  const feedPostCtxItems = usePostCtxMenuItems(currentPostSidebar);
 
   const openLocalChat = (postId: number, chatId: number) => {
     navigateWithState({
@@ -438,9 +466,10 @@ export default function Sidebar() {
       if (!n || !post) return;
       const files: NoteFile[] = Array.isArray(n.files) ? n.files : [];
       const noteFrom =
-        state.screen === "post" && state.currentPostId === row.postId ? ("post" as const) : ("notes" as const);
+        sidebarPostId != null && row.postId === sidebarPostId ? ("post" as const) : ("notes" as const);
       navigateWithState({
         screen: "note",
+        currentPostId: row.postId,
         currentNote: { ...n, isGlobal: false, postId: row.postId, files },
         noteFrom,
         noteMode: "view",
@@ -536,22 +565,24 @@ export default function Sidebar() {
 
   const openNotesNav = () => {
     if (railAllowed && sidebarCollapsed) setSidebarCollapsed(false);
-    if (activeNav === "notes") {
-      setNotesExpanded((v) => !v);
+    if (state.screen === "post" && state.currentPostId != null) {
+      if (!confirmDiscardAnyEdit()) return;
+      discardPendingEdits();
+      if (state.postMode !== "notes") {
+        dispatch({
+          type: "SET_STATE",
+          patch: { postMode: "notes", isEditing: false },
+        });
+      }
+      setNotesExpanded(true);
       return;
     }
     navigate("notes");
-    if (!notesExpanded) setNotesExpanded(true);
   };
 
   const openChatsNav = () => {
     if (railAllowed && sidebarCollapsed) setSidebarCollapsed(false);
-    if (activeNav === "chats") {
-      setChatsExpanded((v) => !v);
-      return;
-    }
     navigate("chats");
-    if (!chatsExpanded) setChatsExpanded(true);
   };
 
   return (
@@ -610,7 +641,7 @@ export default function Sidebar() {
       <div className="nav-items">
         <button
           type="button"
-          className={`nav-item${activeNav === "home" ? " active" : ""}`}
+          className={`nav-item${state.screen === "home" ? " active" : ""}`}
           onClick={goHome}
           title="Глобальный чат"
           aria-label="Глобальный чат"
@@ -620,15 +651,40 @@ export default function Sidebar() {
           </span>
           <span className="nav-label">Глобальный чат</span>
         </button>
-        <NavItem id="feed" label="Лента" icon={<NavIconFeed />} active={activeNav === "feed"} onClick={() => navigate("feed")} />
+        <NavItem id="feed" label="Лента" icon={<NavIconFeed />} active={state.screen === "feed"} onClick={() => navigate("feed")} />
+        {showFeedPostRow && currentPostSidebar ? (
+          <div className="nav-recent-chats">
+            <div
+              className={`nav-recent-chat-row${isSidebarPostActive ? " active" : ""}${
+                feedPostMenuOpen ? " nav-recent-chat-row--menu" : ""
+              }`}
+            >
+              <button
+                type="button"
+                className="nav-recent-chat"
+                onClick={() => openPost(currentPostSidebar.id)}
+              >
+                <span className="nav-recent-chat-title">{postTitle(currentPostSidebar)}</span>
+              </button>
+              <ContextMenu
+                className="nav-recent-chat-ctx"
+                align="left"
+                portal
+                onOpenChange={setFeedPostMenuOpen}
+                trigger={<span className="nav-recent-chat-dots">⋯</span>}
+                items={feedPostCtxItems}
+              />
+            </div>
+          </div>
+        ) : null}
         <NavItem
           id="analytics"
           label="Аналитика"
           icon={<NavIconAnalytics />}
-          active={activeNav === "analytics"}
+          active={state.screen === "analytics"}
           onClick={() => navigate("analytics")}
         />
-        <div id="nav-notes" className={`nav-item nav-item--chats-row${activeNav === "notes" ? " active" : ""}`}>
+        <div id="nav-notes" className={`nav-item nav-item--chats-row${state.screen === "notes" ? " active" : ""}`}>
           <button type="button" className="nav-item-chats-main" onClick={openNotesNav}>
             <span className="nav-icon">
               <NavIconNotes />
@@ -683,7 +739,7 @@ export default function Sidebar() {
           </div>
         ) : null}
 
-        <div className={`nav-item nav-item--chats-row${activeNav === "chats" ? " active" : ""}`}>
+        <div className={`nav-item nav-item--chats-row${state.screen === "chats" ? " active" : ""}`}>
           <button type="button" className="nav-item-chats-main" onClick={openChatsNav}>
             <span className="nav-icon">
               <NavIconChats />
@@ -744,7 +800,7 @@ export default function Sidebar() {
           id="profile"
           label="Профиль"
           icon={<NavIconProfile />}
-          active={activeNav === "profile"}
+          active={state.screen === "profile"}
           onClick={() => navigate("profile")}
         />
       </div>

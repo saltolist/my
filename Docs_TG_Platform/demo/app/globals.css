@@ -810,7 +810,6 @@ button.nav-item {
   padding: 0 0 6px;
   box-sizing: border-box;
 }
-
 .nav-recent-chats-section-label {
   margin: 0 var(--nav-pill-gutter);
   padding: 8px 4px 4px var(--nav-recent-pad-left);
