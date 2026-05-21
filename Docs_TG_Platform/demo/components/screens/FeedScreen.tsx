@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useApp } from "@/state/AppContext";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import PostCard from "../feed/PostCard";
 import DraftsSection from "../feed/DraftsSection";
+import { buildPublishedFeedDayGroups, sortPostsByPublicationTime } from "@/lib/feedTimeline";
 import { autoResize, postTitle, readFileAsMedia } from "@/lib/helpers";
 import AttachMenu from "../composer/AttachMenu";
 import { onComposerShellMouseDown } from "@/lib/composerPointerDown";
@@ -22,6 +23,13 @@ export default function FeedScreen() {
   const [search, setSearch] = useState("");
   const [feedPostWidth, setFeedPostWidth] = useState<FeedPostWidth>(500);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const feedScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollFeedToBottom = useCallback(() => {
+    const el = feedScrollRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, []);
 
   useEffect(() => {
     if (taRef.current) autoResize(taRef.current, 16);
@@ -32,8 +40,27 @@ export default function FeedScreen() {
     !q ||
     postTitle(p).toLowerCase().includes(q) ||
     (p.text || "").toLowerCase().includes(q);
-  const published = state.posts.filter((p) => p.status === "published" && matchPost(p));
-  const scheduled = state.posts.filter((p) => p.status === "scheduled" && matchPost(p));
+  const published = useMemo(
+    () => state.posts.filter((p) => p.status === "published" && matchPost(p)),
+    [state.posts, q],
+  );
+  const publishedDayGroups = useMemo(() => buildPublishedFeedDayGroups(published), [published]);
+
+  useEffect(() => {
+    if (state.screen !== "feed") return;
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(scrollFeedToBottom);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [state.screen, publishedDayGroups, scrollFeedToBottom]);
+
+  const scheduled = useMemo(
+    () => sortPostsByPublicationTime(
+      state.posts.filter((p) => p.status === "scheduled" && matchPost(p)),
+      "asc",
+    ),
+    [state.posts, q],
+  );
   const drafts = state.posts.filter((p) => p.status === "draft" && matchPost(p));
 
   function submitDraft() {
@@ -102,21 +129,30 @@ export default function FeedScreen() {
         }
       />
       <div className="feed-layout">
-        <div className="feed-scroll" id="feed-scroll">
+        <div className="feed-scroll" id="feed-scroll" ref={feedScrollRef}>
           <div className="feed-inner">
-            <div className="feed-section">
-              <div className="section-label">Опубликованные</div>
-              <div className="feed-section-cards">
-                {published.map((p) => (
-                  <PostCard
-                    key={p.id}
-                    post={p}
-                    onOpen={() => openPost(p.id)}
-                    onOpenComments={() => openPostComments(p.id)}
-                  />
-                ))}
+            {publishedDayGroups.length > 0 ? (
+              <div className="feed-section feed-section--published">
+                <div className="section-label">Опубликованные</div>
+                <div className="feed-section-cards">
+                  {publishedDayGroups.map((group) => (
+                    <div className="feed-day-group" key={group.key}>
+                      <div className="feed-day-marker">
+                        <span>{group.label}</span>
+                      </div>
+                      {group.posts.map((p) => (
+                        <PostCard
+                          key={p.id}
+                          post={p}
+                          onOpen={() => openPost(p.id)}
+                          onOpenComments={() => openPostComments(p.id)}
+                        />
+                      ))}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : null}
             <div className="feed-section">
               <div className="section-label">Отложенные</div>
               <div className="feed-section-cards">

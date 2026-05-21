@@ -2,7 +2,14 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { postById, useApp } from "@/state/AppContext";
-import { postTitle, readFileAsMedia, truncate, chatListUserLine, chatListAssistantLine } from "@/lib/helpers";
+import {
+  formatPostDateTime,
+  postTitle,
+  readFileAsMedia,
+  truncate,
+  chatListUserLine,
+  chatListAssistantLine,
+} from "@/lib/helpers";
 import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/lib/chatPaths";
 import Composer from "../composer/Composer";
 import ChatMessage from "../chat/ChatMessage";
@@ -148,7 +155,11 @@ export default function PostScreen() {
         dispatch({
           type: "UPDATE_POST",
           postId: post.id,
-          patch: { status: "published", date: "сегодня", metrics: { views: "0", reposts: 0, reactions: [] } },
+          patch: {
+            status: "published",
+            date: formatPostDateTime(),
+            metrics: { views: "0", reposts: 0, reactions: [] },
+          },
         }),
     });
     ctxItems.push({
@@ -166,7 +177,11 @@ export default function PostScreen() {
         dispatch({
           type: "UPDATE_POST",
           postId: post.id,
-          patch: { status: "published", date: "сегодня", metrics: { views: "0", reposts: 0, reactions: [] } },
+          patch: {
+            status: "published",
+            date: formatPostDateTime(),
+            metrics: { views: "0", reposts: 0, reactions: [] },
+          },
         }),
     });
     ctxItems.push({

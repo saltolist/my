@@ -88,8 +88,8 @@ export const initialPosts: Post[] = [
   {
     id: 1,
     status: "published",
-    date: "28 апр",
-    rubric: "Психология денег",
+    date: "28 апр · 14:22",
+    rubric: null,
     metrics: {
       views: "5 100",
       reposts: 23,
@@ -197,8 +197,8 @@ export const initialPosts: Post[] = [
   {
     id: 2,
     status: "published",
-    date: "25 апр",
-    rubric: "Разбор",
+    date: "25 апр · 11:10",
+    rubric: null,
     metrics: {
       views: "4 200",
       reposts: 18,
@@ -251,8 +251,8 @@ export const initialPosts: Post[] = [
   {
     id: 5,
     status: "published",
-    date: "22 апр",
-    rubric: "Личный опыт",
+    date: "28 апр · 17:12",
+    rubric: null,
     metrics: {
       views: "1 840",
       reposts: 6,
@@ -273,8 +273,8 @@ export const initialPosts: Post[] = [
   {
     id: 3,
     status: "scheduled",
-    date: "5 мая 19:00",
-    rubric: "Психология денег",
+    date: "5 мая · 19:00",
+    rubric: null,
     text: `Ты уже открыл счёт. Теперь смотришь на кнопку "Купить" — и снова что-то останавливает.
 
 Первая сделка — это особый психологический порог.`,

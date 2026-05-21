@@ -45,6 +45,8 @@ export default function PostCard({
 
   const mediaItems = getPostMediaItems(post);
   const isDraftDnD = post.status === "draft" && !!draftHandleProps;
+  const isTextOnlyPub =
+    mediaItems.length === 0 && (post.status === "published" || post.status === "scheduled");
 
   const draftDragHandle = isDraftDnD && draftHandleProps && (
     <div
@@ -66,7 +68,13 @@ export default function PostCard({
 
   return (
     <div
-      className={isDraftDnD ? "post-card post-card--draft-dnd" : "post-card"}
+      className={[
+        "post-card",
+        isDraftDnD ? "post-card--draft-dnd" : "",
+        isTextOnlyPub ? "post-card--no-media" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       onClick={onOpen}
     >
       {isDraftDnD ? (
@@ -89,16 +97,10 @@ export default function PostCard({
         <div className="post-card-footer">
           <div className="post-meta">
             {statusEl}
-            {post.status === "published" ? (
+            {post.status === "published" && post.date ? (
               <>
                 <span>·</span>
                 <span>{post.date}</span>
-              </>
-            ) : null}
-            {post.rubric ? (
-              <>
-                <span>·</span>
-                <span>{post.rubric}</span>
               </>
             ) : null}
           </div>

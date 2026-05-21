@@ -32,11 +32,30 @@ const RU_MONTHS_3: Record<string, number> = {
   дек: 11,
 };
 
+const RU_MONTHS_FULL = [
+  "января",
+  "февраля",
+  "марта",
+  "апреля",
+  "мая",
+  "июня",
+  "июля",
+  "августа",
+  "сентября",
+  "октября",
+  "ноября",
+  "декабря",
+] as const;
+
+const RU_MONTHS_SHORT = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"] as const;
+
 export function postFreshness(post: Post): number {
   const raw = (post.date || post.created || "").trim().toLowerCase();
   if (!raw) return 0;
   if (/^(только что|сейчас|сегодня)/.test(raw)) return Date.now();
-  const m = raw.match(/(\d{1,2})\s+([а-яё]+)(?:\s+(\d{1,2}):(\d{2}))?/);
+  const m =
+    raw.match(/(\d{1,2})\s+([а-яё]+)\s+(\d{1,2}):(\d{2})/) ||
+    raw.match(/(\d{1,2})\s+([а-яё]+)(?:\s*[·•]\s*(\d{1,2}):(\d{2}))?/);
   if (!m) return 0;
   const day = parseInt(m[1], 10);
   const month = RU_MONTHS_3[m[2].slice(0, 3)];
@@ -45,6 +64,33 @@ export function postFreshness(post: Post): number {
   const hour = m[3] ? parseInt(m[3], 10) : 0;
   const minute = m[4] ? parseInt(m[4], 10) : 0;
   return new Date(year, month, day, hour, minute).getTime();
+}
+
+export function postDayStart(post: Post): number {
+  const ts = postFreshness(post);
+  if (!ts) return 0;
+  const d = new Date(ts);
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+}
+
+export function formatFeedDayLabel(dayStart: number, now = new Date()): string {
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const oneDay = 86_400_000;
+  if (dayStart === todayStart) return "Сегодня";
+  if (dayStart === todayStart - oneDay) return "Вчера";
+  const d = new Date(dayStart);
+  const label = `${d.getDate()} ${RU_MONTHS_FULL[d.getMonth()]}`;
+  if (d.getFullYear() === now.getFullYear()) return label;
+  return `${label} ${d.getFullYear()}`;
+}
+
+/** Дата и время публикации для карточки: «28 апр · 14:22». */
+export function formatPostDateTime(date = new Date()): string {
+  const day = date.getDate();
+  const mon = RU_MONTHS_SHORT[date.getMonth()];
+  const h = String(date.getHours()).padStart(2, "0");
+  const m = String(date.getMinutes()).padStart(2, "0");
+  return `${day} ${mon} · ${h}:${m}`;
 }
 
 export function postStatusIcon(post: Post): string {
