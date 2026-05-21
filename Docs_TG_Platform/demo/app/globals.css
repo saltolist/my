@@ -4270,29 +4270,53 @@ button.filter-tab {
   color: var(--text3);
   border-color: color-mix(in srgb, var(--border2) 72%, var(--profile-control-border));
 }
-.note-ai-toggle.off::after,
-.note-ai-toggle.on:hover:not(:disabled)::after {
+.note-ai-toggle.off::after {
   opacity: 1;
 }
-.note-ai-toggle:hover:not(:disabled) {
+.note-ai-toggle.off:hover:not(:disabled):not(.note-ai-toggle--suppress-hover) {
   background: var(--profile-control-bg-hover);
   border-color: var(--border2);
+}
+.note-ai-toggle.off.note-ai-toggle--suppress-hover:hover:not(:disabled) {
+  background: var(--profile-control-bg);
+  border-color: color-mix(in srgb, var(--border2) 72%, var(--profile-control-border));
+}
+.note-ai-toggle.note-ai-toggle--suppress-hover {
+  transition: none;
+}
+.note-ai-toggle.note-ai-toggle--suppress-hover::after {
+  transition: none;
 }
 .note-ai-toggle.on {
   background: var(--profile-control-bg-active);
   border-color: var(--control-border-active);
   color: #3a3a3a;
 }
-/* Активный: при наведении — как неактивный (тусклый мозг + штрих) */
-.note-ai-toggle.on:hover:not(:disabled) {
+/* Вкл.: hover-превью (тусклый мозг + штрих) — как :checked:hover:not(.profile-checkbox--suppress-hover) */
+.note-ai-toggle.on:hover:not(:disabled):not(.note-ai-toggle--suppress-hover) {
   background: var(--profile-control-bg-hover);
   border-color: var(--border2);
   color: var(--text3);
+}
+.note-ai-toggle.on:hover:not(:disabled):not(.note-ai-toggle--suppress-hover)::after {
+  opacity: 1;
+}
+.note-ai-toggle.on.note-ai-toggle--suppress-hover:hover:not(:disabled) {
+  background: var(--profile-control-bg-active);
+  border-color: var(--control-border-active);
+  color: #3a3a3a;
+}
+.note-ai-toggle.on.note-ai-toggle--suppress-hover:hover:not(:disabled)::after {
+  opacity: 0;
 }
 .note-ai-toggle:focus-visible {
   outline: none;
   border-color: var(--control-border-active);
   box-shadow: none;
+}
+.note-card-page:hover:has(.note-ai-toggle--suppress-hover),
+.note-card:hover:has(.note-ai-toggle--suppress-hover) {
+  border-color: var(--border);
 }
 @media (max-width: 1100px) {
   .notes-grid-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
