@@ -1986,12 +1986,12 @@ button.nav-item {
   gap: 8px;
   width: min-content;
   max-width: min(400px, 100%);
-  min-width: 0;
+  min-width: 200px;
 }
 .msg-user-edit {
   display: block;
   width: 0;
-  min-width: 48px;
+  min-width: 200px;
   max-width: 400px;
   box-sizing: border-box;
   min-height: calc(1.65em + 20px);

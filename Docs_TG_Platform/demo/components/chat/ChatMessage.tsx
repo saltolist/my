@@ -26,6 +26,7 @@ function assistantPlainText(message: ChatMessageType): string {
 }
 
 /** Строка для подсказки «какая модель ответила» (LLM ± поиск). */
+const USER_EDIT_MIN_W = 200;
 const USER_EDIT_MAX_W = 400;
 
 function measureUserEditTextWidth(
@@ -59,7 +60,7 @@ function measureUserEditTextWidth(
   document.body.appendChild(mirror);
   const w = Math.ceil(mirror.getBoundingClientRect().width);
   mirror.remove();
-  return Math.min(maxWidth, Math.max(48, w + 2));
+  return Math.min(maxWidth, Math.max(USER_EDIT_MIN_W, w + 2));
 }
 
 function modelTooltipText(message: ChatMessageType): string {
@@ -266,6 +267,16 @@ export default function ChatMessage({
     setEditing(false);
   }, [ctx, draft, dispatch]);
 
+  const onEditKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        saveEdit();
+      }
+    },
+    [saveEdit],
+  );
+
   const omnichannelEdit =
     ctx?.scope === "gchat" && isOmnichannelChatId(ctx.entityId);
   const userBranchCount = omnichannelEdit ? 0 : (message.userBranches?.length ?? 0);
@@ -410,6 +421,7 @@ export default function ChatMessage({
                       className="msg-user-edit"
                       value={draft}
                       onChange={(e) => setDraft(e.target.value)}
+                      onKeyDown={onEditKeyDown}
                       rows={1}
                       spellCheck={false}
                       aria-label="Текст сообщения"
