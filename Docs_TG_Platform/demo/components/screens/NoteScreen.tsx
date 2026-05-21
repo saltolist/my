@@ -8,6 +8,7 @@ import {
   buildNoteSnapshot,
   draftNoteTitle,
   noteIdentityKey,
+  patchNoteSnapshotAi,
 } from "@/lib/noteDraft";
 import { ContextMenu } from "../ContextMenu";
 import NoteBodyEditor from "../note/NoteBodyEditor";
@@ -34,18 +35,20 @@ export default function NoteScreen() {
     dispatch({ type: "SET_STATE", patch: { screen: dest, currentNote: null, noteMode: "view" } });
   };
 
-  const toggleNoteAi = () => {
-    const next = !note.ai;
+  const setNoteAi = (ai: boolean) => {
+    if (note.ai === ai) return;
     if (note.isNew) {
-      dispatch({ type: "SET_STATE", patch: { currentNote: { ...note, ai: next } } });
+      dispatch({ type: "SET_STATE", patch: { currentNote: { ...note, ai } } });
       return;
     }
     if (note.isGlobal) {
-      dispatch({ type: "UPSERT_GLOBAL_NOTE", note: { ...note, ai: next } });
-      dispatch({ type: "SET_STATE", patch: { currentNote: { ...note, ai: next } } });
+      dispatch({ type: "UPSERT_GLOBAL_NOTE", note: { ...note, ai } });
+      dispatch({ type: "SET_STATE", patch: { currentNote: { ...note, ai } } });
     } else {
-      dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: note.postId, noteId: note.id });
-      dispatch({ type: "SET_STATE", patch: { currentNote: { ...note, ai: next } } });
+      if (note.ai !== ai) {
+        dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: note.postId, noteId: note.id });
+      }
+      dispatch({ type: "SET_STATE", patch: { currentNote: { ...note, ai } } });
     }
   };
 
@@ -66,14 +69,11 @@ export default function NoteScreen() {
           <ContextMenu
             items={[
               {
-                label: note.ai ? "● Учитывать в ИИ" : "○ Учитывать в ИИ",
-                icon: "✦",
-                active: note.ai,
-                onClick: toggleNoteAi,
+                label: note.ai ? "Не учитывать в ИИ" : "Учитывать в ИИ",
+                onClick: () => setNoteAi(!note.ai),
               },
               {
                 label: note.isNew ? "Отменить" : "Удалить заметку",
-                icon: note.isNew ? "✕" : "🗑",
                 danger: !note.isNew,
                 onClick: () => {
                   if (note.isNew) {
@@ -173,6 +173,11 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
     setFiles(nextFiles);
     setBaselineSnapshot(buildNoteSnapshot(note.title, nextBody, note.ai, nextFiles));
   }, [noteKey]); // eslint-disable-line react-hooks/exhaustive-deps -- сброс черновика только при смене заметки
+
+  /* «Учитывать в ИИ» в шапке сохраняется сразу — синхронизируем baseline, не помечая текст грязным */
+  useEffect(() => {
+    setBaselineSnapshot((prev) => patchNoteSnapshotAi(prev, note.ai));
+  }, [note.ai]);
 
   const changed = useMemo(
     () => buildNoteSnapshot(title, body, note.ai, files) !== baselineSnapshot,

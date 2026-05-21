@@ -157,19 +157,16 @@ export default function PostScreen() {
   const ctxItems: CtxMenuItem[] = [
     {
       label: "Новый чат",
-      icon: "✦",
       onClick: startNewChat,
     },
     {
       label: "Новая заметка",
-      icon: "📝",
       onClick: startNewNote,
     },
   ];
   if (post.status === "draft") {
     ctxItems.push({
       label: "Опубликовать",
-      icon: "📢",
       onClick: () =>
         dispatch({
           type: "UPDATE_POST",
@@ -183,7 +180,6 @@ export default function PostScreen() {
     });
     ctxItems.push({
       label: "Запланировать",
-      icon: "🕐",
       onClick: () =>
         dispatch({ type: "UPDATE_POST", postId: post.id, patch: { status: "scheduled", date: "10 мая 20:00" } }),
     });
@@ -191,7 +187,6 @@ export default function PostScreen() {
   if (post.status === "scheduled") {
     ctxItems.push({
       label: "Опубликовать",
-      icon: "📢",
       onClick: () =>
         dispatch({
           type: "UPDATE_POST",
@@ -205,14 +200,12 @@ export default function PostScreen() {
     });
     ctxItems.push({
       label: "Отменить публикацию",
-      icon: "✕",
       onClick: () =>
         dispatch({ type: "UPDATE_POST", postId: post.id, patch: { status: "draft", created: "сейчас" } }),
     });
   }
   ctxItems.push({
     label: "Удалить",
-    icon: "🗑",
     danger: true,
     onClick: () => {
       if (!confirm(`Удалить пост «${postTitle(post)}»?`)) return;

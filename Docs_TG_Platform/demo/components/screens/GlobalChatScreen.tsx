@@ -43,7 +43,6 @@ export default function GlobalChatScreen() {
               items={[
                 {
                   label: "Удалить чат",
-                  icon: "🗑",
                   danger: true,
                   onClick: () => {
                     if (!chat) return;

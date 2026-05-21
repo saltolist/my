@@ -13,6 +13,7 @@ export type CtxMenuItem = {
 };
 
 const DROPDOWN_MIN_W = 200;
+const DROPDOWN_OFFSET = 12;
 
 export function ContextMenu({
   items,
@@ -61,7 +62,7 @@ export function ContextMenu({
       align === "right"
         ? Math.min(window.innerWidth - DROPDOWN_MIN_W - pad, Math.max(pad, r.right - DROPDOWN_MIN_W))
         : Math.max(pad, Math.min(r.left, window.innerWidth - maxMenuW - pad));
-    setPortalPos({ top: r.bottom + 4, left });
+    setPortalPos({ top: r.bottom + DROPDOWN_OFFSET, left });
   }, [open, portal, align]);
 
   useEffect(() => {

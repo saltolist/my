@@ -25,6 +25,17 @@ export function buildNoteSnapshot(title: string, body: string, ai: boolean, file
   });
 }
 
+/** Обновить только флаг «учитывать в ИИ» в снимке (переключатель в меню шапки). */
+export function patchNoteSnapshotAi(snapshot: string, ai: boolean): string {
+  try {
+    const data = JSON.parse(snapshot) as { ai?: boolean };
+    if (data.ai === ai) return snapshot;
+    return JSON.stringify({ ...data, ai });
+  } catch {
+    return snapshot;
+  }
+}
+
 export const EMPTY_NOTE_SNAPSHOT = buildNoteSnapshot("", "", false, []);
 
 export function isNoteImageFile(file: NoteFile): boolean {
