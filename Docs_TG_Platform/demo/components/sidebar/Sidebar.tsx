@@ -651,6 +651,13 @@ export default function Sidebar() {
           </span>
           <span className="nav-label">Глобальный чат</span>
         </button>
+        <NavItem
+          id="analytics"
+          label="Аналитика"
+          icon={<NavIconAnalytics />}
+          active={state.screen === "analytics"}
+          onClick={() => navigate("analytics")}
+        />
         <NavItem id="feed" label="Лента" icon={<NavIconFeed />} active={state.screen === "feed"} onClick={() => navigate("feed")} />
         {showFeedPostRow && currentPostSidebar ? (
           <div className="nav-recent-chats">
@@ -677,13 +684,6 @@ export default function Sidebar() {
             </div>
           </div>
         ) : null}
-        <NavItem
-          id="analytics"
-          label="Аналитика"
-          icon={<NavIconAnalytics />}
-          active={state.screen === "analytics"}
-          onClick={() => navigate("analytics")}
-        />
         <div id="nav-notes" className={`nav-item nav-item--chats-row${state.screen === "notes" ? " active" : ""}`}>
           <button type="button" className="nav-item-chats-main" onClick={openNotesNav}>
             <span className="nav-icon">
