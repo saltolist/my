@@ -15,7 +15,6 @@ import {
   postStatusIcon,
   postStatusLabel,
   postTitle,
-  shortComposerLabel,
   truncate,
 } from "@/lib/helpers";
 import type { ComposerAttachment, ComposerScope, Post } from "@/lib/types";
@@ -557,11 +556,12 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
               <>
                 <ModelPicker
                   ariaLabel="LLM модель"
+                  className="composer-model-picker"
                   icon={<BrainIcon />}
                   value={target?.llmId || ""}
                   options={llmOptions.map((m) => ({
                     id: m.id,
-                    label: shortComposerLabel(`${m.provider} / ${m.model}`),
+                    label: `${m.provider} / ${m.model}`,
                   }))}
                   onChange={(id) => setComposerLlm(scope, id)}
                   disabled={llmOptions.length === 0}
@@ -570,11 +570,12 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
                 />
                 <ModelPicker
                   ariaLabel="Web Search модель"
+                  className="composer-model-picker"
                   icon={<SearchIcon />}
                   value={webValue}
                   options={webOptions.map((m) => ({
                     id: m.id,
-                    label: shortComposerLabel(formatWebSearchComposerLabel(m.provider, m.model)),
+                    label: formatWebSearchComposerLabel(m.provider, m.model),
                   }))}
                   onChange={(id) => setComposerWeb(scope, id)}
                   emptyValue=""

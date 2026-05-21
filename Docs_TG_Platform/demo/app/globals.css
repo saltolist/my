@@ -233,6 +233,9 @@ html.sidebar-collapsed {
   backdrop-filter: none;
   background: var(--bg3);
 }
+:root[data-theme="light"] .model-picker-dropdown--composer {
+  background: color-mix(in srgb, var(--bg3) 88%, #ffffff 12%);
+}
 :root[data-theme="light"] .note-ai-toggle {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
@@ -349,6 +352,9 @@ html.sidebar-collapsed {
   :root[data-theme="system"] .note-ai-toggle {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+  :root[data-theme="system"] .model-picker-dropdown--composer {
+    background: color-mix(in srgb, var(--bg3) 88%, #ffffff 12%);
   }
   :root[data-theme="system"] #screen-profile .page-header-profile-tabs .period-tab {
     -webkit-backdrop-filter: none;
@@ -1865,6 +1871,20 @@ button.nav-item {
   backdrop-filter: var(--glass-filter);
   overflow: hidden;
   box-shadow: var(--dropdown-shadow);
+}
+.model-picker-dropdown--composer {
+  width: fit-content;
+  min-width: max-content;
+  max-width: none;
+  border-color: var(--border2);
+  background: var(--bg3);
+}
+.model-picker-dropdown--composer .model-picker-item {
+  overflow: visible;
+  text-overflow: clip;
+}
+.model-picker-dropdown--composer .model-picker-item.active {
+  color: var(--text);
 }
 .model-picker-section-title {
   padding: 8px 10px 4px;

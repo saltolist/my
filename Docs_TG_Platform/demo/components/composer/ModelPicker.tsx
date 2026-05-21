@@ -43,6 +43,7 @@ export default function ModelPicker({
   const [pos, setPos] = useState<Pos | null>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const isComposerPicker = className?.includes("composer-model-picker");
 
   const updatePos = () => {
     const btn = btnRef.current;
@@ -127,12 +128,24 @@ export default function ModelPicker({
         ? createPortal(
             <div
               ref={dropdownRef}
-              className="model-picker-dropdown"
+              className={`model-picker-dropdown${isComposerPicker ? " model-picker-dropdown--composer" : ""}`}
               role="listbox"
               style={
                 pos.mode === "down"
-                  ? { top: pos.top, left: pos.left, minWidth: pos.width }
-                  : { bottom: pos.bottom, left: pos.left, minWidth: pos.width }
+                  ? {
+                      top: pos.top,
+                      left: pos.left,
+                      ...(isComposerPicker
+                        ? { width: "max-content", minWidth: pos.width, maxWidth: "none" }
+                        : { minWidth: pos.width }),
+                    }
+                  : {
+                      bottom: pos.bottom,
+                      left: pos.left,
+                      ...(isComposerPicker
+                        ? { width: "max-content", minWidth: pos.width, maxWidth: "none" }
+                        : { minWidth: pos.width }),
+                    }
               }
             >
               {emptyValue !== undefined && emptyLabel ? (
