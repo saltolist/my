@@ -24,6 +24,13 @@ import PostStatus from "../feed/PostStatus";
 import PostCardToolbar from "../post/PostCardToolbar";
 import PostCommentsPanel from "../post/PostCommentsPanel";
 import PostCommentsRow from "../post/PostCommentsRow";
+import {
+  MenuIconCancel,
+  MenuIconClock,
+  MenuIconPlus,
+  MenuIconPublish,
+  MenuIconTrash,
+} from "../HeaderMenuIcons";
 import { ContextMenu, type CtxMenuItem } from "../ContextMenu";
 import { buildNoteSnapshot, createNewPostNote, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
 import type { LocalNote, NoteFile, PostComment, PostMedia, PostMetrics, PostMode } from "@/lib/types";
@@ -158,16 +165,19 @@ export default function PostScreen() {
   const ctxItems: CtxMenuItem[] = [
     {
       label: "Новый чат",
+      icon: <MenuIconPlus />,
       onClick: startNewChat,
     },
     {
       label: "Новая заметка",
+      icon: <MenuIconPlus />,
       onClick: startNewNote,
     },
   ];
   if (post.status === "draft") {
     ctxItems.push({
       label: "Опубликовать",
+      icon: <MenuIconPublish />,
       onClick: () =>
         dispatch({
           type: "UPDATE_POST",
@@ -181,6 +191,7 @@ export default function PostScreen() {
     });
     ctxItems.push({
       label: "Запланировать",
+      icon: <MenuIconClock />,
       onClick: () =>
         dispatch({ type: "UPDATE_POST", postId: post.id, patch: { status: "scheduled", date: "10 мая 20:00" } }),
     });
@@ -188,6 +199,7 @@ export default function PostScreen() {
   if (post.status === "scheduled") {
     ctxItems.push({
       label: "Опубликовать",
+      icon: <MenuIconPublish />,
       onClick: () =>
         dispatch({
           type: "UPDATE_POST",
@@ -201,12 +213,14 @@ export default function PostScreen() {
     });
     ctxItems.push({
       label: "Отменить публикацию",
+      icon: <MenuIconCancel />,
       onClick: () =>
         dispatch({ type: "UPDATE_POST", postId: post.id, patch: { status: "draft", created: "сейчас" } }),
     });
   }
   ctxItems.push({
     label: "Удалить",
+    icon: <MenuIconTrash />,
     danger: true,
     onClick: () => {
       if (!confirm(`Удалить пост «${postTitle(post)}»?`)) return;

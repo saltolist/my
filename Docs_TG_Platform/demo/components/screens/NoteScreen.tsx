@@ -10,6 +10,7 @@ import {
   noteIdentityKey,
   patchNoteSnapshotAi,
 } from "@/lib/noteDraft";
+import { MenuIconBrain, MenuIconBrainOff, MenuIconCancel, MenuIconTrash } from "../HeaderMenuIcons";
 import { ContextMenu } from "../ContextMenu";
 import NoteBodyEditor from "../note/NoteBodyEditor";
 import NoteFilesPanel from "../note/NoteFilesPanel";
@@ -70,10 +71,12 @@ export default function NoteScreen() {
             items={[
               {
                 label: note.ai ? "Не учитывать в ИИ" : "Учитывать в ИИ",
+                icon: note.ai ? <MenuIconBrainOff /> : <MenuIconBrain />,
                 onClick: () => setNoteAi(!note.ai),
               },
               {
                 label: note.isNew ? "Отменить" : "Удалить заметку",
+                icon: note.isNew ? <MenuIconCancel /> : <MenuIconTrash />,
                 danger: !note.isNew,
                 onClick: () => {
                   if (note.isNew) {

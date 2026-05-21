@@ -1385,6 +1385,15 @@ button.nav-item {
   transition: all .15s; line-height: 1;
 }
 .ctx-btn:hover { background: var(--bg4); border-color: var(--border2); color: var(--text2); }
+.page-header .ctx-btn:hover,
+.page-header .ctx-btn:focus-visible,
+.post-hdr .ctx-btn:hover,
+.post-hdr .ctx-btn:focus-visible,
+.note-shell-header .ctx-btn:hover,
+.note-shell-header .ctx-btn:focus-visible {
+  background: transparent;
+  border-color: transparent;
+}
 .ctx-dropdown {
   display: none;
   position: absolute;
@@ -1425,9 +1434,8 @@ button.nav-item {
   justify-content: center;
   flex-shrink: 0;
   width: 22px;
-  color: var(--text3);
+  color: inherit;
 }
-.ctx-item:hover .ctx-item-icon { color: var(--text2); }
 .ctx-item-label { flex: 1; min-width: 0; }
 .ctx-item:hover {
   background: color-mix(in srgb, var(--bg4) 72%, transparent);
@@ -1441,7 +1449,9 @@ button.nav-item {
   color: var(--accent);
 }
 .ctx-item.danger { color: var(--red); }
+.ctx-item.danger .ctx-item-icon { color: var(--red); }
 .ctx-item.danger:hover { background: rgba(232,90,90,.08); }
+.ctx-item.danger:hover .ctx-item-icon { color: var(--red); }
 .ctx-item.disabled { color: var(--text3); cursor: default; }
 .ctx-item.disabled:hover { background: transparent; color: var(--text3); }
 .attach-dropdown {

@@ -6,6 +6,7 @@ import { isOmnichannelChat, isOmnichannelChatId } from "@/lib/omnichannel";
 import { globalChatById, useApp } from "@/state/AppContext";
 import Composer from "../composer/Composer";
 import ChatMessage from "../chat/ChatMessage";
+import { MenuIconTrash } from "../HeaderMenuIcons";
 import { ContextMenu } from "../ContextMenu";
 
 export default function GlobalChatScreen() {
@@ -43,6 +44,7 @@ export default function GlobalChatScreen() {
               items={[
                 {
                   label: "Удалить чат",
+                  icon: <MenuIconTrash />,
                   danger: true,
                   onClick: () => {
                     if (!chat) return;
