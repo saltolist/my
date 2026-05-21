@@ -241,10 +241,7 @@ export default function PostScreen() {
                   <span className="bc-sep">/</span>
                   <span className="crumb-current">{postSubPage}</span>
                 </>
-              ) : state.postMode === "chat" &&
-                state.currentPostChatId != null &&
-                activeChat &&
-                flatMessages.length > 0 ? (
+              ) : state.postMode === "chat" && state.currentPostChatId != null && activeChat ? (
                 <>
                   <span
                     className="bc-link"
@@ -265,14 +262,9 @@ export default function PostScreen() {
                   <span className="bc-sep">/</span>
                   <span className="crumb-current">{truncate(activeChat.title, 32)}</span>
                 </>
-              ) : state.postMode === "chat" && state.currentPostChatId != null && activeChat ? (
-                <>
-                  <span className="bc-sep">/</span>
-                  <span className="crumb-current">{truncate(activeChat.title, 32)}</span>
-                </>
-              ) : state.postMode !== "chat" ? (
+              ) : (
                 <span className="crumb-current">{truncate(postTitle(post), 38)}</span>
-              ) : null}
+              )}
             </div>
           </div>
           {showListHeaderSearch ? (
