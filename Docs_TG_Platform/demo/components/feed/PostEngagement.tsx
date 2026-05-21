@@ -1,6 +1,7 @@
 "use client";
 
 import type { PostMetrics } from "@/lib/types";
+import { RepostIcon, ViewsEyeIcon } from "./PostMetricIcons";
 
 export function PostReactionPills({ reactions }: { reactions: PostMetrics["reactions"] }) {
   if (!reactions.length) return null;
@@ -30,14 +31,14 @@ export function PostViewsReposts({
   return (
     <div className="post-metrics-views-reposts">
       <span className="post-metric-item" title="Просмотры">
-        <span className="post-metric-ico" aria-hidden>
-          👁
+        <span className="post-metric-ico post-metric-ico--views" aria-hidden>
+          <ViewsEyeIcon />
         </span>
         {views}
       </span>
       <span className="post-metric-item" title="Репосты">
-        <span className="post-metric-ico" aria-hidden>
-          ↗
+        <span className="post-metric-ico post-metric-ico--repost" aria-hidden>
+          <RepostIcon />
         </span>
         {reposts}
       </span>
@@ -51,7 +52,7 @@ export function PostViewsReposts({
             onOpenComments();
           }}
         >
-          <span className="post-metric-ico" aria-hidden>
+          <span className="post-metric-ico post-metric-ico--emoji" aria-hidden>
             💬
           </span>
           {comments}

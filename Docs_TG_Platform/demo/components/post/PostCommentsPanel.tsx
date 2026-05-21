@@ -49,20 +49,35 @@ export default function PostCommentsPanel({
     <>
       <div className="post-body post-comments-body" ref={scrollRef}>
         <div className="post-body-inner">
-          <div className="post-msg-card post-msg-card--readonly post-msg-card--with-comments" ref={postCardRef}>
-            {media.length > 0 ? (
-              <div className="post-msg-media">
-                <PostMediaBlock media={media} />
-              </div>
-            ) : null}
-            <div className="post-msg-text">{post.text || "Пост пустой"}</div>
-            {metrics ? <PostReactionPills reactions={metrics.reactions} /> : null}
-            <div className="post-msg-card-tail">
-              <div className="post-status-row">
-                {badge}
-                <div className="post-status-row-right">
-                  {metrics ? <PostViewsReposts views={metrics.views} reposts={metrics.reposts} /> : null}
+          <div
+            className={[
+              "post-msg-card",
+              "post-msg-card--readonly",
+              "post-msg-card--with-comments",
+              media.length === 0 &&
+              (post.status === "published" || post.status === "scheduled")
+                ? "post-card--no-media"
+                : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            ref={postCardRef}
+          >
+            <div className="post-card-body">
+              {media.length > 0 ? (
+                <div className="post-card-media">
+                  <PostMediaBlock media={media} />
                 </div>
+              ) : null}
+              {post.text ? (
+                <div className="post-card-text">{post.text}</div>
+              ) : (
+                <div className="post-card-text empty">Пост пустой</div>
+              )}
+              {metrics ? <PostReactionPills reactions={metrics.reactions} /> : null}
+              <div className="post-card-footer">
+                <div className="post-meta">{badge}</div>
+                {metrics ? <PostViewsReposts views={metrics.views} reposts={metrics.reposts} /> : null}
               </div>
               <PostCardCommentsSection
                 comments={comments}

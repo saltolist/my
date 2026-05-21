@@ -18,6 +18,8 @@ import NoteListCardMenu from "../note/NoteListCardMenu";
 import PostMediaBlock from "../post/PostMediaBlock";
 import { PostReactionPills, PostViewsReposts } from "../feed/PostEngagement";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
+import PostStatus from "../feed/PostStatus";
+import PostCardToolbar from "../post/PostCardToolbar";
 import PostCommentsPanel from "../post/PostCommentsPanel";
 import PostCommentsRow from "../post/PostCommentsRow";
 import { ContextMenu, type CtxMenuItem } from "../ContextMenu";
@@ -51,18 +53,21 @@ export default function PostScreen() {
     }
     const sync = () => {
       if (!chatScrollRef.current || !postCardRef.current) return;
-      const sr = chatScrollRef.current.getBoundingClientRect();
-      const cr = postCardRef.current.getBoundingClientRect();
       const hdr = chatScrollRef.current
         .closest(".screen")
         ?.querySelector<HTMLElement>(".post-hdr");
-      const hdrH = hdr?.getBoundingClientRect().height ?? 0;
-      setShowJump(cr.bottom < sr.top + hdrH + 8);
+      const revealLine = hdr?.getBoundingClientRect().bottom ?? chatScrollRef.current.getBoundingClientRect().top;
+      const cr = postCardRef.current.getBoundingClientRect();
+      setShowJump(cr.bottom < revealLine + 4);
     };
     sync();
     const el = chatScrollRef.current;
-    el?.addEventListener("scroll", sync);
-    return () => el?.removeEventListener("scroll", sync);
+    el?.addEventListener("scroll", sync, { passive: true });
+    window.addEventListener("resize", sync);
+    return () => {
+      el?.removeEventListener("scroll", sync);
+      window.removeEventListener("resize", sync);
+    };
   }, [state.postMode, state.isEditing, post?.id, activeChat?.id]);
 
   const pushPostView = (nextMode: PostMode, nextChatId: number | null) => {
@@ -236,7 +241,10 @@ export default function PostScreen() {
                   <span className="bc-sep">/</span>
                   <span className="crumb-current">{postSubPage}</span>
                 </>
-              ) : state.postMode === "chat" && state.currentPostChatId != null && activeChat ? (
+              ) : state.postMode === "chat" &&
+                state.currentPostChatId != null &&
+                activeChat &&
+                flatMessages.length > 0 ? (
                 <>
                   <span
                     className="bc-link"
@@ -257,9 +265,14 @@ export default function PostScreen() {
                   <span className="bc-sep">/</span>
                   <span className="crumb-current">{truncate(activeChat.title, 32)}</span>
                 </>
-              ) : (
+              ) : state.postMode === "chat" && state.currentPostChatId != null && activeChat ? (
+                <>
+                  <span className="bc-sep">/</span>
+                  <span className="crumb-current">{truncate(activeChat.title, 32)}</span>
+                </>
+              ) : state.postMode !== "chat" ? (
                 <span className="crumb-current">{truncate(postTitle(post), 38)}</span>
-              )}
+              ) : null}
             </div>
           </div>
           {showListHeaderSearch ? (
@@ -346,6 +359,10 @@ export default function PostScreen() {
                 metrics={post.status === "published" && post.metrics ? post.metrics : null}
                 comments={post.status === "published" ? (post.comments ?? []) : undefined}
                 onOpenComments={() => pushPostView("comments", state.currentPostChatId)}
+                isTextOnlyNoMedia={
+                  mediaItems.length === 0 &&
+                  (post.status === "published" || post.status === "scheduled")
+                }
               />
               {flatMessages.map(({ message: m, path }, i) => (
                 <ChatMessage
@@ -388,14 +405,7 @@ export default function PostScreen() {
 
 function badgeForPost(post: ReturnType<typeof postById> | null) {
   if (!post) return null;
-  if (post.status === "published") return <span className="status-badge badge-pub">● Опубликован</span>;
-  if (post.status === "scheduled")
-    return (
-      <span className="status-badge badge-sch">
-        ◷ Отложено · {post.date}
-      </span>
-    );
-  return <span className="status-badge badge-dft">✏ Черновик</span>;
+  return <PostStatus post={post} />;
 }
 
 const PostMessageCard = ({
@@ -410,11 +420,13 @@ const PostMessageCard = ({
   metrics,
   comments,
   onOpenComments,
+  isTextOnlyNoMedia,
 }: {
   ref: React.RefObject<HTMLDivElement | null>;
   isEditing: boolean;
   text: string;
   media: PostMedia[];
+  isTextOnlyNoMedia?: boolean;
   onStartEdit: () => void;
   onCancel: () => void;
   onSave: (t: string, media: PostMedia[]) => void;
@@ -468,11 +480,19 @@ const PostMessageCard = ({
     e.target.value = "";
   }
 
+  const copyText = text.trim() || "";
+
   return (
+    <div className="post-msg-block" id="post-msg-card">
     <div
-      className={`post-msg-card${showComments ? " post-msg-card--with-comments" : ""}`}
-      id="post-msg-card"
       ref={ref}
+      className={[
+        "post-msg-card",
+        showComments ? "post-msg-card--with-comments" : "",
+        isTextOnlyNoMedia ? "post-card--no-media" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       {isEditing ? (
         <>
@@ -520,42 +540,39 @@ const PostMessageCard = ({
           </div>
         </>
       ) : (
-        <>
+        <div className="post-card-body">
           {media.length > 0 ? (
-            <div className="post-msg-media">
+            <div className="post-card-media">
               <PostMediaBlock media={media} />
             </div>
           ) : null}
-          <div className="post-msg-text">
-            {text || <span style={{ color: "var(--text3)" }}>Пост пустой — начни писать...</span>}
-          </div>
+          {text ? (
+            <div className="post-card-text">{text}</div>
+          ) : (
+            <div className="post-card-text empty">Пост пустой — начни писать...</div>
+          )}
           {metrics ? <PostReactionPills reactions={metrics.reactions} /> : null}
-          <div className="post-msg-card-tail">
-            <div className="post-status-row">
-              {badge}
-              <div className="post-status-row-right">
-                {metrics ? <PostViewsReposts views={metrics.views} reposts={metrics.reposts} /> : null}
-                <button className="edit-trigger-btn" onClick={onStartEdit} type="button">
-                  ✏ Редактировать
-                </button>
-              </div>
-            </div>
-            {showComments ? (
-              <PostCommentsRow
-                count={comments?.length ?? 0}
-                onClick={
-                  onOpenComments
-                    ? (e) => {
-                        e.stopPropagation();
-                        onOpenComments();
-                      }
-                    : undefined
-                }
-              />
-            ) : null}
+          <div className="post-card-footer">
+            <div className="post-meta">{badge}</div>
+            {metrics ? <PostViewsReposts views={metrics.views} reposts={metrics.reposts} /> : null}
           </div>
-        </>
+          {showComments ? (
+            <PostCommentsRow
+              count={comments?.length ?? 0}
+              onClick={
+                onOpenComments
+                  ? (e) => {
+                      e.stopPropagation();
+                      onOpenComments();
+                    }
+                  : undefined
+              }
+            />
+          ) : null}
+        </div>
       )}
+    </div>
+    {!isEditing ? <PostCardToolbar plainText={copyText} onEdit={onStartEdit} /> : null}
     </div>
   );
 };

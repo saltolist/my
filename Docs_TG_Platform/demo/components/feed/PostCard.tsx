@@ -3,6 +3,7 @@
 import { getPostMediaItems } from "@/lib/helpers";
 import type { Post } from "@/lib/types";
 import PostMediaBlock from "../post/PostMediaBlock";
+import PostStatus from "./PostStatus";
 import PostCommentsRow from "../post/PostCommentsRow";
 import { PostReactionPills, PostViewsReposts } from "./PostEngagement";
 
@@ -22,26 +23,7 @@ export default function PostCard({
     onDragEnd?: (e: React.DragEvent) => void;
   };
 }) {
-  let statusEl: React.ReactNode;
-  if (post.status === "published") {
-    statusEl = (
-      <span className="post-status">
-        <span className="dot-g">●</span> Опубликован
-      </span>
-    );
-  } else if (post.status === "scheduled") {
-    statusEl = (
-      <span className="post-status">
-        <span className="dot-o">◷</span> Отложено · {post.date}
-      </span>
-    );
-  } else {
-    statusEl = (
-      <span className="post-status">
-        <span className="dot-gr">✏</span> Черновик · создан {post.created}
-      </span>
-    );
-  }
+  const statusEl = <PostStatus post={post} />;
 
   const mediaItems = getPostMediaItems(post);
   const isDraftDnD = post.status === "draft" && !!draftHandleProps;
@@ -95,15 +77,7 @@ export default function PostCard({
           <PostReactionPills reactions={post.metrics.reactions} />
         ) : null}
         <div className="post-card-footer">
-          <div className="post-meta">
-            {statusEl}
-            {post.status === "published" && post.date ? (
-              <>
-                <span>·</span>
-                <span>{post.date}</span>
-              </>
-            ) : null}
-          </div>
+          <div className="post-meta">{statusEl}</div>
           {post.status === "published" && post.metrics ? (
             <PostViewsReposts views={post.metrics.views} reposts={post.metrics.reposts} />
           ) : null}

@@ -2,7 +2,7 @@
 
 const REACTIONS = [
   { emoji: "🔥", count: 412 },
-  { emoji: "❤", count: 134 },
+  { emoji: "❤️", count: 134 },
   { emoji: "👍", count: 222 },
   { emoji: "🤔", count: 34 },
 ];

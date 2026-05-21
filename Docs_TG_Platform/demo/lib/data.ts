@@ -95,7 +95,7 @@ export const initialPosts: Post[] = [
       reposts: 23,
       reactions: [
         { emoji: "🔥", count: 412 },
-        { emoji: "❤", count: 89 },
+        { emoji: "❤️", count: 89 },
         { emoji: "👍", count: 56 },
         { emoji: "🤔", count: 34 },
         { emoji: "👏", count: 21 },
@@ -204,7 +204,7 @@ export const initialPosts: Post[] = [
       reposts: 18,
       reactions: [
         { emoji: "👍", count: 142 },
-        { emoji: "❤", count: 38 },
+        { emoji: "❤️", count: 38 },
         { emoji: "📌", count: 15 },
         { emoji: "🎯", count: 9 },
       ],
@@ -259,7 +259,7 @@ export const initialPosts: Post[] = [
       reactions: [
         { emoji: "👍", count: 24 },
         { emoji: "💡", count: 11 },
-        { emoji: "❤", count: 7 },
+        { emoji: "❤️", count: 7 },
       ],
     },
     text: `Держал кэш три месяца «на случай просадки». Просадка пришла — и я всё равно не купил.
