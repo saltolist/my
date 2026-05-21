@@ -347,20 +347,25 @@ export default function Sidebar() {
     sidebarPostId != null &&
     (state.screen === "post" || (state.screen === "note" && state.currentNote != null && !state.currentNote.isGlobal));
 
-  // Полностью активна (активный цвет) — только на странице поста
+  // Полностью активна — на странице поста, но не внутри конкретного чата или заметки
   const isSidebarPostFullActive =
     sidebarPostId != null &&
     state.screen === "post" &&
-    state.currentPostId === sidebarPostId;
+    state.currentPostId === sidebarPostId &&
+    !(state.postMode === "chat" && state.currentPostChatId != null);
 
-  // Приглушённо активна (как hover) — в заметке или чате этого поста
+  // Приглушённо активна (как hover) — в чате или заметке этого поста
   const isSidebarPostSubActive =
     sidebarPostId != null &&
     !isSidebarPostFullActive &&
-    state.screen === "note" &&
-    state.currentNote != null &&
-    !state.currentNote.isGlobal &&
-    state.currentNote.postId === sidebarPostId;
+    ((state.screen === "post" &&
+      state.currentPostId === sidebarPostId &&
+      state.postMode === "chat" &&
+      state.currentPostChatId != null) ||
+      (state.screen === "note" &&
+        state.currentNote != null &&
+        !state.currentNote.isGlobal &&
+        state.currentNote.postId === sidebarPostId));
 
   const feedPostCtxItems = usePostCtxMenuItems(currentPostSidebar);
 

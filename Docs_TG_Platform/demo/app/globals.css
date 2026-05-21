@@ -22,7 +22,8 @@
   --nav-w-rail: 86px;
   /* Сайдбар: актив = пузырёк user-сообщения; hover — светлее */
   --nav-active-bg: var(--bg3);
-  --nav-hover-bg: color-mix(in srgb, var(--bg3) 62%, #ffffff 38%);
+  --nav-hover-bg: var(--bg3);
+  --nav-sub-active-bg: color-mix(in srgb, var(--bg3) 62%, #ffffff 38%);
   /* Ячейка иконки в сайдбаре и те же отступы слева у списка чатов */
   --nav-icon-slot: 28px;
   --nav-icon-art: 18px;
@@ -862,7 +863,7 @@ button.nav-item {
   color: var(--text);
 }
 .nav-recent-chat-row.sub-active {
-  background: var(--nav-hover-bg);
+  background: var(--nav-sub-active-bg);
   color: var(--text);
 }
 .nav-recent-chat-row.sub-active .nav-recent-chat {
