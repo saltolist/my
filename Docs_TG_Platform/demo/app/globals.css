@@ -207,7 +207,6 @@ html.sidebar-collapsed {
   .theme-switch-btn,
   .profile-input-explicit,
   .profile-model-picker .model-picker-btn,
-  .model-picker-dropdown,
   .btn,
   input[type="checkbox"],
   .rubric-editor,
@@ -218,6 +217,20 @@ html.sidebar-collapsed {
 :root[data-theme="light"] #screen-profile .page-header-profile-tabs .period-tab {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
+}
+:root[data-theme="light"] :is(
+  .model-picker-dropdown,
+  .chart-series-selector-panel
+) {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: var(--bg3);
+}
+:root[data-theme="light"] .profile-page :is(
+  .model-picker-dropdown,
+  .chart-series-selector-panel
+) {
+  background: var(--profile-select-bg-active);
 }
 
 /* "system" → follow OS preference */
@@ -318,7 +331,6 @@ html.sidebar-collapsed {
     .theme-switch-btn,
     .profile-input-explicit,
     .profile-model-picker .model-picker-btn,
-    .model-picker-dropdown,
     .btn,
     input[type="checkbox"],
     .rubric-editor,
@@ -326,6 +338,21 @@ html.sidebar-collapsed {
     .telegram-step,
     .telegram-sync-card
   ),
+  :root[data-theme="system"] :is(
+    .model-picker-dropdown,
+    .chart-series-selector-panel
+  ) {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--bg3);
+  }
+  :root[data-theme="system"] .profile-page :is(
+    .model-picker-dropdown,
+    .chart-series-selector-panel
+  ) {
+    background: var(--profile-select-bg-active);
+  }
+
   :root[data-theme="system"] #screen-profile .page-header-profile-tabs .period-tab {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
@@ -1797,12 +1824,15 @@ button.nav-item {
 .model-picker-dropdown {
   position: fixed;
   max-width: 280px;
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  border-radius: 10px;
-  padding: 4px;
-  box-shadow: var(--dropdown-shadow);
   z-index: 1000;
+  padding: 4px;
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+  overflow: hidden;
+  box-shadow: var(--dropdown-shadow);
 }
 .model-picker-section-title {
   padding: 8px 10px 4px;
@@ -1831,8 +1861,14 @@ button.nav-item {
 .model-picker-item + .model-picker-item {
   margin-top: 3px;
 }
-.model-picker-item:hover { background: var(--bg5); color: var(--text); }
-.model-picker-item.active { background: var(--bg5); color: var(--accent); }
+.model-picker-item:hover {
+  background: color-mix(in srgb, var(--bg5) 72%, transparent);
+  color: var(--text);
+}
+.model-picker-item.active {
+  background: color-mix(in srgb, var(--bg5) 82%, transparent);
+  color: var(--accent);
+}
 .input-tools {
   display: inline-flex; align-items: center; gap: 6px;
   background: transparent; border-radius: 0;
@@ -4445,12 +4481,21 @@ button.filter-tab {
   max-height: min(320px, calc(100vh - 24px));
   overflow: auto;
   padding: 6px;
-  border: 1px solid var(--profile-control-border);
+  border: 1px solid var(--glass-border);
   border-radius: var(--rs);
-  background: var(--profile-select-bg-active);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
   box-shadow: var(--dropdown-shadow);
-  -webkit-backdrop-filter: var(--profile-control-blur);
-  backdrop-filter: var(--profile-control-blur);
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) transparent;
+}
+.chart-series-selector-panel::-webkit-scrollbar {
+  width: 5px;
+}
+.chart-series-selector-panel::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 3px;
 }
 .chart-series-selector-item {
   display: flex;
@@ -5502,11 +5547,13 @@ button.filter-tab {
   border-color: var(--control-border-active);
   box-shadow: none;
 }
-.profile-page .model-picker-dropdown {
-  background: var(--profile-select-bg-active);
+.profile-page .model-picker-dropdown,
+.profile-page .chart-series-selector-panel {
   border: 1px solid var(--profile-control-border);
+  background: var(--profile-select-bg-active);
   -webkit-backdrop-filter: var(--profile-control-blur);
   backdrop-filter: var(--profile-control-blur);
+  box-shadow: var(--dropdown-shadow);
 }
 .profile-page .model-picker-dropdown .model-picker-item {
   text-align: center;
