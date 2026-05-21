@@ -4288,6 +4288,9 @@ button.filter-tab {
   background: var(--profile-control-bg-hover);
   border-color: var(--border2);
 }
+.note-ai-toggle.off:hover:not(:disabled):not(.note-ai-toggle--suppress-hover)::after {
+  opacity: 0;
+}
 .note-ai-toggle.off.note-ai-toggle--suppress-hover:hover:not(:disabled) {
   background: var(--profile-control-bg);
   border-color: color-mix(in srgb, var(--border2) 72%, var(--profile-control-border));
