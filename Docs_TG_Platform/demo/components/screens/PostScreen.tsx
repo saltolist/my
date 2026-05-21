@@ -350,7 +350,9 @@ export default function PostScreen() {
           <Composer scope="post" onSubmit={sendPost} />
         </>
       ) : state.postMode === "chats" ? (
-        <PostChats search={listSearch} onOpenChat={openLocalChat} />
+        <div className="post-subpage-scroll">
+          <PostChats search={listSearch} onOpenChat={openLocalChat} />
+        </div>
       ) : state.postMode === "comments" ? (
         <PostCommentsPanel
           post={post}
@@ -361,7 +363,9 @@ export default function PostScreen() {
           media={mediaItems}
         />
       ) : (
-        <PostNotes search={listSearch} />
+        <div className="post-subpage-scroll">
+          <PostNotes search={listSearch} />
+        </div>
       )}
     </>
   );

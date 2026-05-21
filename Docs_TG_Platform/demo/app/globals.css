@@ -75,6 +75,7 @@
   /* Theme-aware overlays / shadows / scrollbar tints */
   --shadow-strong:    0 8px 24px rgba(0,0,0,.35);
   --shadow-focus:     0 10px 28px rgba(0,0,0,.40);
+  --content-card-shadow: 0 8px 26px rgba(0, 0, 0, 0.22);
   --inset-edge:       inset 0 0 0 1px rgba(255,255,255,.05);
   --scroll-thumb:     rgba(255,255,255,0.18);
   --scroll-thumb-hover: rgba(255,255,255,0.32);
@@ -129,6 +130,7 @@ html.sidebar-collapsed {
 
   --shadow-strong:    0 8px 24px rgba(0,0,0,.10);
   --shadow-focus:     0 10px 28px rgba(0,0,0,.14);
+  --content-card-shadow: 0 6px 22px rgba(0, 0, 0, 0.065);
   --inset-edge:       inset 0 0 0 1px rgba(0,0,0,.04);
   --scroll-thumb:     rgba(0,0,0,0.18);
   --scroll-thumb-hover: rgba(0,0,0,0.34);
@@ -241,6 +243,7 @@ html.sidebar-collapsed {
 
     --shadow-strong:    0 8px 24px rgba(0,0,0,.10);
     --shadow-focus:     0 10px 28px rgba(0,0,0,.14);
+    --content-card-shadow: 0 6px 22px rgba(0, 0, 0, 0.065);
     --inset-edge:       inset 0 0 0 1px rgba(0,0,0,.04);
     --scroll-thumb:     rgba(0,0,0,0.18);
     --scroll-thumb-hover: rgba(0,0,0,0.34);
@@ -325,10 +328,6 @@ html.sidebar-collapsed {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
-
-  :root[data-theme="system"] :is(.analytics-page, .profile-page) {
-    --content-card-shadow: 0 6px 22px rgba(0, 0, 0, 0.065);
-  }
 }
 html, body {
   height: 100%;
@@ -346,39 +345,49 @@ html, body {
 /* ── Custom thin scrollbar for main scroll containers (WebKit) ── */
 .gchat-messages::-webkit-scrollbar,
 .post-body::-webkit-scrollbar,
+.post-subpage-scroll::-webkit-scrollbar,
 .feed-scroll::-webkit-scrollbar,
 .analytics-page::-webkit-scrollbar,
-.profile-page::-webkit-scrollbar {
+.profile-page::-webkit-scrollbar,
+.notes-page::-webkit-scrollbar {
   width: var(--sb-w);
   height: var(--sb-w);
 }
 .gchat-messages::-webkit-scrollbar-track,
 .post-body::-webkit-scrollbar-track,
+.post-subpage-scroll::-webkit-scrollbar-track,
 .feed-scroll::-webkit-scrollbar-track,
 .analytics-page::-webkit-scrollbar-track,
-.profile-page::-webkit-scrollbar-track {
+.profile-page::-webkit-scrollbar-track,
+.notes-page::-webkit-scrollbar-track {
   background: transparent;
 }
 .gchat-messages::-webkit-scrollbar-thumb,
 .post-body::-webkit-scrollbar-thumb,
+.post-subpage-scroll::-webkit-scrollbar-thumb,
 .feed-scroll::-webkit-scrollbar-thumb,
 .analytics-page::-webkit-scrollbar-thumb,
-.profile-page::-webkit-scrollbar-thumb {
+.profile-page::-webkit-scrollbar-thumb,
+.notes-page::-webkit-scrollbar-thumb {
   background: var(--scroll-thumb);
   border-radius: 999px;
 }
 .gchat-messages::-webkit-scrollbar-thumb:hover,
 .post-body::-webkit-scrollbar-thumb:hover,
+.post-subpage-scroll::-webkit-scrollbar-thumb:hover,
 .feed-scroll::-webkit-scrollbar-thumb:hover,
 .analytics-page::-webkit-scrollbar-thumb:hover,
-.profile-page::-webkit-scrollbar-thumb:hover {
+.profile-page::-webkit-scrollbar-thumb:hover,
+.notes-page::-webkit-scrollbar-thumb:hover {
   background: var(--scroll-thumb-hover);
 }
 .gchat-messages::-webkit-scrollbar-corner,
 .post-body::-webkit-scrollbar-corner,
+.post-subpage-scroll::-webkit-scrollbar-corner,
 .feed-scroll::-webkit-scrollbar-corner,
 .analytics-page::-webkit-scrollbar-corner,
-.profile-page::-webkit-scrollbar-corner {
+.profile-page::-webkit-scrollbar-corner,
+.notes-page::-webkit-scrollbar-corner {
   background: transparent;
 }
 
@@ -2418,7 +2427,8 @@ button.nav-item {
   transition: border-color .15s, background .15s;
   display: flex; align-items: flex-start; gap: 10px;
   width: var(--feed-post-w); max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
+  box-shadow: var(--content-card-shadow);
 }
 .post-card.post-card--draft-dnd {
   flex-direction: column;
@@ -2805,7 +2815,8 @@ button.nav-item {
 .post-msg-card {
   background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--post-card-r);
   padding: 3px 16px 14px;
-  overflow: hidden;
+  overflow: visible;
+  box-shadow: var(--content-card-shadow);
 }
 .post-msg-text { font-size: 14px; line-height: 1.7; color: var(--text); white-space: pre-wrap; margin-bottom: 10px; }
 .post-msg-textarea {
@@ -3084,9 +3095,25 @@ button.nav-item {
 .tg-media-editable .tg-media-remove { display: flex; }
 .tg-media-remove:hover { background: rgba(0,0,0,.75); }
 
+/* Подстраницы поста (заметки, чаты): скролл на .post-subpage-scroll, не на сетке */
+.post-subpage-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: var(--hdr);
+}
 /* notes grid in post */
-.notes-grid { flex: 1; overflow-y: auto; padding: calc(18px + var(--hdr)) 0 20px; display: none; }
-.notes-grid.visible { display: flex; justify-content: center; }
+.notes-grid {
+  width: 100%;
+  padding: 18px 0 20px;
+  display: none;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.notes-grid.visible { display: flex; }
 .notes-grid-inner {
   width: min(var(--composer-w), 100%);
   display: flex;
@@ -3107,6 +3134,7 @@ button.nav-item {
   background: var(--bg2); border: 1px solid var(--border); border-radius: var(--post-card-r);
   padding: 12px; cursor: pointer; transition: border-color .15s;
   height: 200px; display: flex; flex-direction: column;
+  box-shadow: var(--content-card-shadow);
 }
 .note-card:hover { border-color: var(--border2); }
 .note-card-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
@@ -3124,8 +3152,14 @@ button.nav-item {
 .notes-grid-inner > .empty { width: 100%; }
 
 /* chats list in post space (same width as notes grid) */
-.post-chats { flex: 1; overflow-y: auto; padding: calc(18px + var(--hdr)) 0 20px; display: none; }
-.post-chats.visible { display: flex; justify-content: center; }
+.post-chats {
+  width: 100%;
+  padding: 18px 0 20px;
+  display: none;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.post-chats.visible { display: flex; }
 .post-chats-inner {
   width: min(var(--composer-w), 100%);
   display: flex;
@@ -3686,8 +3720,9 @@ a.note-file-item:hover {
   margin-bottom: 8px;
   cursor: pointer;
   transition: border-color 0.15s;
-  overflow: hidden;
+  overflow: visible;
   min-width: 0;
+  box-shadow: var(--content-card-shadow);
 }
 /* Иконка по центру полосы; ширина полосы = 35px + боковые --chat-card-icon-side */
 .chat-card-icon-rail {
@@ -3822,7 +3857,15 @@ a.note-file-item:hover {
 /* ════════════════════════════════
    SCREEN: NOTES LIST
 ════════════════════════════════ */
-.notes-page { flex: 1; display: flex; flex-direction: column; overflow: hidden; align-items: center; padding-top: var(--hdr); }
+.notes-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  align-items: center;
+  padding-top: var(--hdr);
+  min-height: 0;
+}
 .notes-toolbar {
   width: min(var(--content-w), 100%);
   padding: 12px 0 0; flex-shrink: 0;
@@ -3835,7 +3878,11 @@ a.note-file-item:hover {
 }
 .notes-filter-row {
   width: min(var(--content-w), 100%);
-  display: flex; align-items: center; gap: 8px; padding: 14px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 0 0;
+  flex-shrink: 0;
 }
 .notes-new-note-btn { margin-left: auto; }
 .filter-tab {
@@ -3866,14 +3913,21 @@ button.filter-tab {
 .filter-spacer { flex: 1; }
 .notes-grid-page {
   width: min(var(--content-w), 100%);
-  flex: 1; overflow-y: auto; padding: 14px 0 20px;
+  flex: none;
+  padding: 14px 0 20px;
+  box-sizing: border-box;
 }
-.notes-grid-layout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.notes-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
 .note-card-page {
   background: var(--bg2); border: 1px solid var(--border); border-radius: var(--post-card-r);
   padding: 16px; cursor: pointer; transition: border-color .15s;
   display: flex; flex-direction: column; gap: 8px;
   height: 200px;
+  box-shadow: var(--content-card-shadow);
 }
 .note-card-page:hover { border-color: var(--border2); }
 .note-card-page-head {
@@ -3937,7 +3991,6 @@ button.filter-tab {
    SCREEN: ANALYTICS
 ════════════════════════════════ */
 .analytics-page {
-  --content-card-shadow: 0 8px 26px rgba(0, 0, 0, 0.22);
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -3945,9 +3998,6 @@ button.filter-tab {
   align-items: center;
   padding-top: var(--hdr);
   min-height: 0;
-}
-:root[data-theme="light"] :is(.analytics-page, .profile-page) {
-  --content-card-shadow: 0 6px 22px rgba(0, 0, 0, 0.065);
 }
 .analytics-scroll-inner {
   width: min(var(--content-w), 100%);
@@ -4953,7 +5003,6 @@ button.filter-tab {
    SCREEN: PROFILE
 ════════════════════════════════ */
 .profile-page {
-  --content-card-shadow: 0 8px 26px rgba(0, 0, 0, 0.22);
   flex: 1;
   display: flex;
   flex-direction: column;
