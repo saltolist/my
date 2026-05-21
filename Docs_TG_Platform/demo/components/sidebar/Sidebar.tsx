@@ -534,6 +534,26 @@ export default function Sidebar() {
 
   const railActive = railAllowed && sidebarCollapsed;
 
+  const openNotesNav = () => {
+    if (railAllowed && sidebarCollapsed) setSidebarCollapsed(false);
+    if (activeNav === "notes") {
+      setNotesExpanded((v) => !v);
+      return;
+    }
+    navigate("notes");
+    if (!notesExpanded) setNotesExpanded(true);
+  };
+
+  const openChatsNav = () => {
+    if (railAllowed && sidebarCollapsed) setSidebarCollapsed(false);
+    if (activeNav === "chats") {
+      setChatsExpanded((v) => !v);
+      return;
+    }
+    navigate("chats");
+    if (!chatsExpanded) setChatsExpanded(true);
+  };
+
   return (
     <nav id="sidebar" className={railActive ? "sidebar--collapsed" : undefined}>
       <div className="sidebar-header">
@@ -609,7 +629,7 @@ export default function Sidebar() {
           onClick={() => navigate("analytics")}
         />
         <div id="nav-notes" className={`nav-item nav-item--chats-row${activeNav === "notes" ? " active" : ""}`}>
-          <button type="button" className="nav-item-chats-main" onClick={() => navigate("notes")}>
+          <button type="button" className="nav-item-chats-main" onClick={openNotesNav}>
             <span className="nav-icon">
               <NavIconNotes />
             </span>
@@ -664,7 +684,7 @@ export default function Sidebar() {
         ) : null}
 
         <div className={`nav-item nav-item--chats-row${activeNav === "chats" ? " active" : ""}`}>
-          <button type="button" className="nav-item-chats-main" onClick={() => navigate("chats")}>
+          <button type="button" className="nav-item-chats-main" onClick={openChatsNav}>
             <span className="nav-icon">
               <NavIconChats />
             </span>
