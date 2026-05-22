@@ -101,16 +101,8 @@ export default function PostScreen() {
     });
     setListSearch("");
   };
-  const goToAllNotes = () => {
-    if (!confirmDiscardAnyEdit()) return;
-    discardPendingEdits();
-    navigate("notes");
-  };
-  const goToAllChats = () => {
-    if (!confirmDiscardAnyEdit()) return;
-    discardPendingEdits();
-    navigate("chats");
-  };
+  const goToPostNotes = () => pushPostView("notes", null);
+  const goToPostChats = () => pushPostView("chats", null);
   const openPostView = () => {
     if (state.postMode === "chat") return;
     pushPostView("chat", state.currentPostChatId);
@@ -259,7 +251,7 @@ export default function PostScreen() {
             <div className="post-mode-cluster">
               <button
                 className="btn btn-ghost btn-sm post-mode-btn"
-                onClick={goToAllNotes}
+                onClick={goToPostNotes}
                 type="button"
               >
                 Заметки
@@ -268,7 +260,7 @@ export default function PostScreen() {
             <div className="post-mode-cluster">
               <button
                 className="btn btn-ghost btn-sm post-mode-btn"
-                onClick={goToAllChats}
+                onClick={goToPostChats}
                 type="button"
               >
                 Чаты
