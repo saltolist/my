@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useApp } from "@/state/AppContext";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
@@ -16,6 +16,10 @@ import type { Post, PostMedia } from "@/lib/types";
 const FEED_POST_WIDTHS = [500, 390, 270] as const;
 type FeedPostWidth = (typeof FEED_POST_WIDTHS)[number];
 
+/** Позиция скролла ленты между визитами (экран остаётся смонтированным). */
+let feedScrollTopMemory = 0;
+let feedDidInitialScrollToBottom = false;
+
 export default function FeedScreen() {
   const { state, dispatch, openPost, openPostComments } = useApp();
   const [draft, setDraft] = useState("");
@@ -24,12 +28,6 @@ export default function FeedScreen() {
   const [feedPostWidth, setFeedPostWidth] = useState<FeedPostWidth>(500);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const feedScrollRef = useRef<HTMLDivElement>(null);
-
-  const scrollFeedToBottom = useCallback(() => {
-    const el = feedScrollRef.current;
-    if (!el) return;
-    el.scrollTop = el.scrollHeight;
-  }, []);
 
   useEffect(() => {
     if (taRef.current) autoResize(taRef.current, 16);
@@ -47,12 +45,33 @@ export default function FeedScreen() {
   const publishedDayGroups = useMemo(() => buildPublishedFeedDayGroups(published), [published]);
 
   useEffect(() => {
-    if (state.screen !== "feed") return;
-    const id = requestAnimationFrame(() => {
-      requestAnimationFrame(scrollFeedToBottom);
-    });
+    const el = feedScrollRef.current;
+    if (!el || state.screen !== "feed") return;
+    const onScroll = () => {
+      feedScrollTopMemory = el.scrollTop;
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [state.screen]);
+
+  const applyFeedScroll = (el: HTMLDivElement) => {
+    if (!feedDidInitialScrollToBottom) {
+      el.scrollTop = el.scrollHeight;
+      feedScrollTopMemory = el.scrollTop;
+      feedDidInitialScrollToBottom = true;
+      return;
+    }
+    const max = Math.max(0, el.scrollHeight - el.clientHeight);
+    el.scrollTop = Math.min(feedScrollTopMemory, max);
+  };
+
+  useLayoutEffect(() => {
+    const el = feedScrollRef.current;
+    if (!el || state.screen !== "feed") return;
+    applyFeedScroll(el);
+    const id = requestAnimationFrame(() => applyFeedScroll(el));
     return () => cancelAnimationFrame(id);
-  }, [state.screen, publishedDayGroups, scrollFeedToBottom]);
+  }, [state.screen]);
 
   const scheduled = useMemo(
     () => sortPostsByPublicationTime(
