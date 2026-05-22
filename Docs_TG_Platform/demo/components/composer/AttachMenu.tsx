@@ -2,9 +2,26 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { NoteIconAttach, NoteIconImage } from "@/components/note/NoteHeaderIcons";
 import { useApp, postById } from "@/state/AppContext";
 import { getPostMediaItems, isImageMedia, isVideoMedia, postTitle } from "@/lib/helpers";
 import type { ComposerAttachment, Post, PostMedia } from "@/lib/types";
+
+function AttachMenuIconAttach() {
+  return (
+    <span className="attach-item-icon" aria-hidden>
+      <NoteIconAttach size={18} />
+    </span>
+  );
+}
+
+function AttachMenuIconImage() {
+  return (
+    <span className="attach-item-icon" aria-hidden>
+      <NoteIconImage size={18} />
+    </span>
+  );
+}
 
 export type AttachScope = "home" | "gchat" | "post" | "feed";
 
@@ -245,7 +262,7 @@ function HomeScopeMenu({
     <>
       <div className="ctx-item" onClick={onPickFile}>
         <span className="attach-item-label">
-          <span className="attach-item-icon">📎</span>
+          <AttachMenuIconAttach />
           Прикрепить файл
         </span>
       </div>
@@ -259,7 +276,7 @@ function HomeScopeMenu({
           }}
         >
           <span className="attach-item-label">
-            <span className="attach-item-icon">🖼</span>
+            <AttachMenuIconImage />
             Медиа из прикреплённых постов
           </span>
           <span className="attach-chevron">›</span>
@@ -321,7 +338,7 @@ function PostScopeMenu({
           }}
         >
           <span className="attach-item-label">
-            <span className="attach-item-icon">🖼</span>
+            <AttachMenuIconImage />
             Медиа из поста
           </span>
           <span className="attach-chevron">›</span>
@@ -341,7 +358,12 @@ function PostScopeMenu({
           ) : null}
         </div>
       ) : (
-        <div className="ctx-item disabled">🖼 В посте нет медиа</div>
+        <div className="ctx-item disabled">
+          <span className="attach-item-label">
+            <AttachMenuIconImage />
+            В посте нет медиа
+          </span>
+        </div>
       )}
       {hasAttachedPosts ? (
         <div
@@ -352,7 +374,7 @@ function PostScopeMenu({
           }}
         >
           <span className="attach-item-label">
-            <span className="attach-item-icon">🖼</span>
+            <AttachMenuIconImage />
             Медиа из прикреплённых постов
           </span>
           <span className="attach-chevron">›</span>
@@ -377,8 +399,10 @@ function PostScopeMenu({
         </div>
       ) : null}
       <div className="ctx-item" onClick={onPickFile}>
-        <span className="attach-item-icon">📎</span>
-        Загрузить с компьютера
+        <span className="attach-item-label">
+          <AttachMenuIconAttach />
+          Загрузить с компьютера
+        </span>
       </div>
     </>
   );
@@ -424,7 +448,11 @@ function MediaThumbInner({ media }: { media: PostMedia }) {
   if (isVideoMedia(media) && media.url) {
     return <video className="attach-media-thumb-img" src={media.url} muted playsInline preload="metadata" />;
   }
-  return <span className="attach-media-thumb-doc" aria-hidden="true">📎</span>;
+  return (
+    <span className="attach-media-thumb-doc" aria-hidden="true">
+      <NoteIconAttach size={22} />
+    </span>
+  );
 }
 
 type AttachedMediaItem = { postId: number; media: PostMedia; postTitle: string };

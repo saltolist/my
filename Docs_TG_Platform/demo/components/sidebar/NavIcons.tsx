@@ -44,6 +44,11 @@ export function NavIconFeed({ outerStrokeWidth = 2, strokeWidth = 2, ...props }:
   );
 }
 
+/** Разметка иконки «Лента» для DOM-чипов (contenteditable). */
+export function feedNavIconSvgMarkup(size = 14, outerStrokeWidth = 2, strokeWidth = 2): string {
+  return `<svg class="inline-chip-feed-svg" viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2.5" width="16" height="19" rx="2.5" stroke-width="${outerStrokeWidth}"></rect><rect x="7.5" y="6" width="9" height="5.5" rx="1.5"></rect><line x1="7.5" y1="15" x2="15.5" y2="15"></line><line x1="7.5" y1="18" x2="13" y2="18"></line></svg>`;
+}
+
 /** Аналитика — столбчатая диаграмма */
 export function NavIconAnalytics(props: IconProps) {
   return (

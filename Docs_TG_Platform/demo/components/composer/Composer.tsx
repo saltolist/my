@@ -10,9 +10,10 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { useApp } from "@/state/AppContext";
+import { feedNavIconSvgMarkup } from "@/components/sidebar/NavIcons";
 import {
+  attachmentPostTitle,
   postFreshness,
-  postStatusIcon,
   postStatusLabel,
   postTitle,
   truncate,
@@ -51,19 +52,18 @@ function nextAttachId(): string {
 }
 
 function chipIcon(att: ComposerAttachment): string {
-  if (att.kind === "post") return "📝";
   if (att.kind === "file") return "📎";
   return "🖼";
 }
 
 function chipLabel(att: ComposerAttachment): string {
-  if (att.kind === "post") return `@${att.title}`;
+  if (att.kind === "post") return att.title;
   if (att.kind === "file") return att.name;
   return `${att.postTitle} · ${att.media}`;
 }
 
 function serializeChip(att: ComposerAttachment): string {
-  if (att.kind === "post") return `@${att.title}`;
+  if (att.kind === "post") return `Пост «${att.title}»`;
   if (att.kind === "file") return `Прикрепил файл: ${att.name}`;
   return `Прикрепил медиа из поста «${att.postTitle}»: ${att.media}`;
 }
@@ -148,7 +148,11 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
 
     const icon = document.createElement("span");
     icon.className = "inline-chip-icon";
-    icon.textContent = chipIcon(att);
+    if (att.kind === "post") {
+      icon.innerHTML = feedNavIconSvgMarkup(14);
+    } else {
+      icon.textContent = chipIcon(att);
+    }
     el.appendChild(icon);
 
     const label = document.createElement("span");
@@ -332,7 +336,7 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
       id: nextAttachId(),
       kind: "post",
       postId: post.id,
-      title: postTitle(post),
+      title: attachmentPostTitle(post),
     });
     const parent = textNode.parentNode;
     if (!parent) return;
@@ -362,7 +366,7 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
         id: chip.getAttribute("data-attach-id") as string,
         kind: "post",
         postId: post.id,
-        title: postTitle(post),
+        title: attachmentPostTitle(post),
       },
     ]);
     setMention(null);
@@ -508,7 +512,6 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
             onMouseEnter={() => setMentionIndex(i)}
             onClick={() => pickMention(p)}
           >
-            <span className="mention-item-icon">{postStatusIcon(p)}</span>
             <span className="mention-item-body">
               <span className="mention-item-title">{truncate(postTitle(p), 48)}</span>
               <span className="mention-item-meta">{postStatusLabel(p)}</span>

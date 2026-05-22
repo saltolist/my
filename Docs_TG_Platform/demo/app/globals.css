@@ -1462,13 +1462,20 @@ button.nav-item {
   right: auto;
   bottom: auto;
   left: auto;
-  min-width: 240px;
-  max-width: 280px;
+  width: max-content;
+  min-width: 200px;
+  max-width: min(420px, calc(100vw - 16px));
   padding: 4px;
   overflow: visible;
   z-index: 1000;
 }
-.attach-dropdown .ctx-item { border-radius: 6px; }
+.attach-dropdown .ctx-item {
+  border-radius: 6px;
+  align-items: flex-start;
+}
+.attach-dropdown .attach-parent {
+  align-items: center;
+}
 .icon-btn.attach-btn {
   border-radius: 50%;
   padding: 0;
@@ -1482,17 +1489,23 @@ button.nav-item {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 .attach-item-icon {
   display: inline-flex;
   width: 18px;
+  height: 18px;
+  align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  color: var(--text2);
+}
+.attach-item-icon svg {
+  display: block;
 }
 .attach-parent {
   position: relative;
@@ -1576,8 +1589,13 @@ button.nav-item {
   display: block;
 }
 .attach-media-thumb-doc {
-  font-size: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text2);
+}
+.attach-media-thumb-doc svg {
+  display: block;
 }
 @media (max-width: 720px) {
   .attach-dropdown {
@@ -1631,13 +1649,6 @@ button.nav-item {
 .mention-item.active {
   background: var(--bg4);
   color: var(--text);
-}
-.mention-item-icon {
-  display: inline-flex;
-  width: 18px;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-top: 1px;
 }
 .mention-item-body {
   display: flex;
@@ -1765,8 +1776,19 @@ button.nav-item {
   border-color: rgba(91,143,249,.55);
 }
 .inline-chip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  width: 14px;
+  height: 14px;
   font-size: 12px;
+  color: var(--text2);
+}
+.inline-chip-icon svg {
+  display: block;
+  width: 14px;
+  height: 14px;
 }
 .inline-chip-label {
   overflow: hidden;

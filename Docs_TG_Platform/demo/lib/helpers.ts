@@ -20,6 +20,11 @@ export function postTitle(post: Post): string {
   return base;
 }
 
+/** Заголовок поста для чипа в composer (без @ и без даты). */
+export function attachmentPostTitle(post: Pick<Post, "text">): string {
+  return extractTitle(post.text) || "(без названия)";
+}
+
 const RU_MONTHS_3: Record<string, number> = {
   янв: 0,
   фев: 1,
