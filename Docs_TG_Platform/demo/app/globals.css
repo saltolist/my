@@ -6012,13 +6012,18 @@ button.filter-tab {
   background: var(--profile-control-bg-active);
   border-color: var(--control-border-active);
 }
+/* Вкл. после клика: тёмная обводка (#484848), пока курсор на чекбоксе */
 .profile-page input[type="checkbox"]:checked.profile-checkbox--suppress-hover:hover:not(:disabled),
-.profile-checkbox-scope input[type="checkbox"]:checked.profile-checkbox--suppress-hover:hover:not(:disabled) {
+.profile-checkbox-scope input[type="checkbox"]:checked.profile-checkbox--suppress-hover:hover:not(:disabled),
+.profile-page input[type="checkbox"]:checked.profile-checkbox--suppress-hover:active:not(:disabled),
+.profile-checkbox-scope input[type="checkbox"]:checked.profile-checkbox--suppress-hover:active:not(:disabled) {
   background: var(--profile-control-bg-active);
-  border-color: var(--control-border-active);
+  border-color: #484848;
 }
 .profile-page input[type="checkbox"]:checked.profile-checkbox--suppress-hover:hover:not(:disabled)::after,
-.profile-checkbox-scope input[type="checkbox"]:checked.profile-checkbox--suppress-hover:hover:not(:disabled)::after {
+.profile-checkbox-scope input[type="checkbox"]:checked.profile-checkbox--suppress-hover:hover:not(:disabled)::after,
+.profile-page input[type="checkbox"]:checked.profile-checkbox--suppress-hover:active:not(:disabled)::after,
+.profile-checkbox-scope input[type="checkbox"]:checked.profile-checkbox--suppress-hover:active:not(:disabled)::after {
   border-color: #3a3a3a;
 }
 .profile-page input[type="checkbox"]:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover),
