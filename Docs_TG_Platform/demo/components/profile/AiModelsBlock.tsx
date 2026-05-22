@@ -324,9 +324,7 @@ function ModelRow({
           <ProfileCheckbox
             disabled={!hasProvider}
             checked={hasProvider && model.active}
-            onChange={(e) =>
-              onChange({ active: e.target.checked, includeInMulti: e.target.checked && model.includeInMulti })
-            }
+            onChange={(e) => onChange({ active: e.target.checked })}
           />
           Активна
         </label>
