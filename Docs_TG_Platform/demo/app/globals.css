@@ -4487,9 +4487,15 @@ button.filter-tab {
 .note-ai-toggle.off:hover:not(:disabled):not(.note-ai-toggle--suppress-hover)::after {
   opacity: 0;
 }
-.note-ai-toggle.off.note-ai-toggle--suppress-hover:hover:not(:disabled) {
+/* Выкл. после клика по вкл.: чуть темнее обводка, пока курсор на кнопке */
+.note-ai-toggle.off.note-ai-toggle--suppress-hover:hover:not(:disabled),
+.note-ai-toggle.off.note-ai-toggle--suppress-hover:active:not(:disabled) {
   background: var(--profile-control-bg);
-  border-color: color-mix(in srgb, var(--border2) 72%, var(--profile-control-border));
+  border-color: color-mix(
+    in srgb,
+    var(--control-border-active) 38%,
+    color-mix(in srgb, var(--border2) 72%, var(--profile-control-border))
+  );
 }
 .note-ai-toggle.note-ai-toggle--suppress-hover {
   transition: none;
@@ -4511,12 +4517,15 @@ button.filter-tab {
 .note-ai-toggle.on:hover:not(:disabled):not(.note-ai-toggle--suppress-hover)::after {
   opacity: 1;
 }
-.note-ai-toggle.on.note-ai-toggle--suppress-hover:hover:not(:disabled) {
+/* Вкл. после клика по выкл.: тёмная обводка, пока курсор на кнопке */
+.note-ai-toggle.on.note-ai-toggle--suppress-hover:hover:not(:disabled),
+.note-ai-toggle.on.note-ai-toggle--suppress-hover:active:not(:disabled) {
   background: var(--profile-control-bg-active);
-  border-color: var(--control-border-active);
+  border-color: #484848;
   color: #3a3a3a;
 }
-.note-ai-toggle.on.note-ai-toggle--suppress-hover:hover:not(:disabled)::after {
+.note-ai-toggle.on.note-ai-toggle--suppress-hover:hover:not(:disabled)::after,
+.note-ai-toggle.on.note-ai-toggle--suppress-hover:active:not(:disabled)::after {
   opacity: 0;
 }
 .note-ai-toggle:focus-visible {
