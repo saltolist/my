@@ -1022,11 +1022,13 @@ button.nav-item {
     inset 0 1px 0 var(--glass-shine),
     var(--glass-shadow);
   flex-shrink: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  position: relative;
   z-index: 5;
+}
+/* Скролл только под шапкой: экран — колонка, шапка в потоке, тело flex:1 */
+.screen > .page-header,
+.screen > .post-hdr {
+  flex-shrink: 0;
 }
 .page-header h2,
 .breadcrumb {
@@ -2592,7 +2594,7 @@ button.nav-item {
   min-height: 0;
   min-width: 0;
   overflow-y: auto;
-  padding: calc(16px + var(--hdr)) 20px 90px 20px;
+  padding: 16px 20px 90px 20px;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -2646,7 +2648,7 @@ button.nav-item {
   min-height: 0;
   min-width: 0;
   overflow-y: auto;
-  padding: calc(24px + var(--hdr) - 30px) 20px 90px 20px;
+  padding: 24px 20px 90px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3605,7 +3607,7 @@ button.nav-item {
    SCREEN: NOTE PAGE
 ════════════════════════════════ */
 .note-page {
-  flex: 1; overflow-y: auto; padding: calc(20px + var(--hdr)) 24px 28px;
+  flex: 1; overflow-y: auto; padding: 20px 24px 28px;
   display: flex; justify-content: center; align-items: flex-start;
 }
 .note-layout {
@@ -4127,7 +4129,7 @@ a.note-file-item:hover {
    SCREEN: CHATS LIST
 ════════════════════════════════ */
 .chats-scroll {
-  flex: 1; overflow-y: auto; padding: calc(20px + var(--hdr)) 24px 20px;
+  flex: 1; overflow-y: auto; padding: 20px 24px 20px;
   display: flex; justify-content: center;
 }
 .chats-scroll-inner { width: min(var(--content-w), 100%); }
@@ -4291,7 +4293,6 @@ a.note-file-item:hover {
   flex-direction: column;
   overflow-y: auto;
   align-items: center;
-  padding-top: var(--hdr);
   min-height: 0;
 }
 .notes-toolbar {
@@ -4518,7 +4519,6 @@ button.filter-tab {
   flex-direction: column;
   overflow-y: auto;
   align-items: center;
-  padding-top: var(--hdr);
   min-height: 0;
 }
 .analytics-scroll-inner {
@@ -5539,7 +5539,6 @@ button.filter-tab {
   flex-direction: column;
   overflow-y: auto;
   align-items: center;
-  padding-top: var(--hdr);
   min-height: 0;
 }
 .profile-page :is(.profile-section, .profile-channel-actions, .stat-card) {
@@ -7026,7 +7025,7 @@ button.filter-tab {
   }
 
   .note-page {
-    padding: calc(16px + var(--hdr)) 12px 18px;
+    padding: 16px 12px 18px;
   }
 
   .note-shell {
