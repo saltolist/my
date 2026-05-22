@@ -152,7 +152,17 @@ export default function ChartSeriesSelector({
               onMouseDown={(event) => event.stopPropagation()}
             >
               {items.map((item) => (
-                <label key={item.id} className="profile-checkbox-label chart-series-selector-item">
+                <label
+                  key={item.id}
+                  className="profile-checkbox-label chart-series-selector-item"
+                  onMouseLeave={(event) => {
+                    const related = event.relatedTarget as Node | null;
+                    if (related && event.currentTarget.contains(related)) return;
+                    event.currentTarget
+                      .querySelector<HTMLInputElement>("input.chart-series-selector-checkbox")
+                      ?.classList.remove("profile-checkbox--suppress-hover");
+                  }}
+                >
                   <ProfileCheckbox
                     className="chart-series-selector-checkbox"
                     checked={isVisible(item.id)}
