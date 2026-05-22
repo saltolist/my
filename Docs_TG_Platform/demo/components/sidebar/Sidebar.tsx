@@ -577,18 +577,6 @@ export default function Sidebar() {
 
   const openNotesNav = () => {
     if (railAllowed && sidebarCollapsed) setSidebarCollapsed(false);
-    if (state.screen === "post" && state.currentPostId != null) {
-      if (!confirmDiscardAnyEdit()) return;
-      discardPendingEdits();
-      if (state.postMode !== "notes") {
-        dispatch({
-          type: "SET_STATE",
-          patch: { postMode: "notes", isEditing: false },
-        });
-      }
-      setNotesExpanded(true);
-      return;
-    }
     navigate("notes");
   };
 
