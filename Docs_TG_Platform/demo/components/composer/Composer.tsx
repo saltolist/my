@@ -130,9 +130,36 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
     const el = editorRef.current;
     if (!el) return true;
     if (el.querySelector(".inline-chip")) return false;
-    const text = (el.textContent || "").replace(/\u200b/g, "").trim();
+    const text = (el.textContent || "")
+      .replace(/[\u200b\u00a0]/g, "")
+      .replace(/\s/g, "")
+      .trim();
     return text.length === 0;
   }, []);
+
+  const pruneOrphanComposerSpaces = useCallback((editor: HTMLElement) => {
+    Array.from(editor.childNodes).forEach((node) => {
+      if (node.nodeType !== Node.TEXT_NODE) return;
+      const raw = node.textContent || "";
+      if (raw.replace(/[\u200b\u00a0\s]/g, "").length === 0) node.remove();
+    });
+  }, []);
+
+  const syncEmptyEditorDom = useCallback(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    pruneOrphanComposerSpaces(editor);
+    if (!isEditorEmpty()) return;
+    editor.innerHTML = "";
+    editor.focus();
+    const sel = window.getSelection();
+    if (!sel) return;
+    const range = document.createRange();
+    range.setStart(editor, 0);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }, [isEditorEmpty, pruneOrphanComposerSpaces]);
 
   const refreshIsEmpty = useCallback(() => {
     setIsEmpty(isEditorEmpty());
@@ -181,9 +208,26 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
     const editor = editorRef.current;
     if (!editor) return;
     const chip = editor.querySelector(`[data-attach-id="${CSS.escape(id)}"]`);
-    if (chip) chip.remove();
+    if (chip) {
+      const next = chip.nextSibling;
+      const prev = chip.previousSibling;
+      chip.remove();
+      if (next?.nodeType === Node.TEXT_NODE) {
+        const t = next.textContent || "";
+        if (t.replace(/[\u200b\u00a0\s]/g, "").length === 0) next.remove();
+      }
+      if (prev?.nodeType === Node.TEXT_NODE) {
+        const t = prev.textContent || "";
+        if (t.replace(/[\u200b\u00a0\s]/g, "").length === 0) prev.remove();
+      }
+    }
     setAttachments((prev) => prev.filter((a) => a.id !== id));
+    pruneOrphanComposerSpaces(editor);
     refreshIsEmpty();
+    requestAnimationFrame(() => {
+      syncEmptyEditorDom();
+      refreshIsEmpty();
+    });
   }
 
   function detectMentionFromSelection(): MentionState {

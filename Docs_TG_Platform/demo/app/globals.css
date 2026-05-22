@@ -1796,6 +1796,9 @@ button.nav-item {
   white-space: nowrap;
   max-width: 280px;
 }
+.inline-chip[data-attach-kind="post"] .inline-chip-remove {
+  margin-left: -4px;
+}
 .inline-chip-remove {
   display: inline-flex;
   align-items: center;
