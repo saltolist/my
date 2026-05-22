@@ -557,7 +557,7 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
             onClick={() => pickMention(p)}
           >
             <span className="mention-item-body">
-              <span className="mention-item-title">{truncate(postTitle(p), 48)}</span>
+              <span className="mention-item-title">{truncate(attachmentPostTitle(p), 48)}</span>
               <span className="mention-item-meta">{postStatusLabel(p)}</span>
             </span>
           </div>
