@@ -1,6 +1,9 @@
 "use client";
 
-const REACTIONS = [
+import { PostReactionPills } from "@/components/feed/PostEngagement";
+import type { PostReaction } from "@/lib/types";
+
+const REACTIONS: PostReaction[] = [
   { emoji: "🔥", count: 412 },
   { emoji: "❤️", count: 134 },
   { emoji: "👍", count: 222 },
@@ -9,14 +12,8 @@ const REACTIONS = [
 
 export default function ChannelReactionsPanel() {
   return (
-    <div className="channel-reactions-panel">
-      <div className="reaction-strip" aria-label="Популярные реакции">
-        {REACTIONS.map((item) => (
-          <span key={item.emoji}>
-            {item.emoji} {item.count}
-          </span>
-        ))}
-      </div>
+    <div className="channel-reactions-panel" aria-label="Популярные реакции">
+      <PostReactionPills reactions={REACTIONS} />
     </div>
   );
 }

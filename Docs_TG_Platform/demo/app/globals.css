@@ -4677,6 +4677,7 @@ button.filter-tab {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   min-height: 0;
 }
 .channel-metrics-block {
@@ -4707,26 +4708,14 @@ button.filter-tab {
   min-height: 0;
 }
 .channel-reactions-panel {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
+  align-self: flex-start;
   min-width: 0;
-  min-height: 0;
+  max-width: 100%;
 }
-.channel-reactions-panel .reaction-strip {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 9px 6px;
-  margin-top: 0;
-}
-.channel-reactions-panel .reaction-strip span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  padding: 5px 4px;
-  font-size: 11px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.channel-reactions-panel .post-reactions-row {
+  width: fit-content;
+  max-width: 100%;
 }
 .channel-metrics-head {
   display: grid;
