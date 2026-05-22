@@ -1921,6 +1921,174 @@ button.nav-item {
   background: color-mix(in srgb, var(--bg5) 82%, transparent);
   color: var(--accent);
 }
+/* ── Schedule modal backdrop + shell ── */
+.schedule-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, #000 48%, transparent);
+}
+.schedule-modal {
+  width: min(360px, calc(100vw - 24px));
+  border-radius: 16px;
+  border: 1px solid var(--border2);
+  background: var(--bg2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  padding: 18px 16px 14px;
+}
+.schedule-modal-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.schedule-modal-selected {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  margin-bottom: 14px;
+}
+.schedule-modal-actions {
+  margin-top: 4px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Calendar grid ── */
+.sched-cal { margin-bottom: 2px; }
+.sched-cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.sched-cal-nav-btn {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg4); border: none; border-radius: 7px;
+  color: var(--text2); font-size: 18px; line-height: 1;
+  cursor: pointer;
+  transition: background .13s, color .13s;
+  flex-shrink: 0;
+}
+.sched-cal-nav-btn:hover:not(:disabled) { background: var(--bg5); color: var(--text); }
+.sched-cal-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.sched-cal-month {
+  font-size: 13px; font-weight: 600; color: var(--text);
+  letter-spacing: 0.01em;
+}
+.sched-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.sched-cal-dname {
+  font-size: 10px; font-weight: 600;
+  color: var(--text3);
+  text-align: center;
+  padding: 2px 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.sched-cal-cell {
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: var(--text2);
+  border: 1px solid transparent; background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .12s, color .12s, border-color .12s;
+  font-family: inherit;
+}
+.sched-cal-cell:hover:not(:disabled):not(.sched-cal-cell--sel) {
+  background: var(--profile-control-bg-hover);
+  color: color-mix(in srgb, #3a3a3a 58%, #000 42%);
+}
+.sched-cal-cell--planned {
+  font-weight: 700;
+  color: var(--text) !important;
+}
+.sched-cal-cell--sel {
+  background: var(--bg4);
+  color: var(--text) !important;
+  border-color: transparent;
+  font-weight: 700;
+}
+.sched-cal-cell--past { color: var(--text3); cursor: not-allowed; opacity: 0.45; }
+.sched-cal-cell--empty { pointer-events: none; }
+
+/* ── Time picker ── */
+.sched-time {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0 10px;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+.sched-time-label {
+  font-size: 13px; color: var(--text2); flex: 1;
+  white-space: nowrap;
+}
+.sched-time-picker {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sched-time-unit {
+  position: relative;
+  display: inline-flex;
+}
+.sched-time-input {
+  width: 52px; height: 32px;
+  padding-left: 8px;
+  padding-right: 18px;
+  font-size: 17px; font-weight: 600;
+  color: var(--text2);
+  background: var(--profile-control-bg);
+  border: 1px solid var(--border2);
+  border-radius: 8px; outline: none;
+  font-family: inherit;
+  -moz-appearance: textfield;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.sched-time-input::-webkit-outer-spin-button,
+.sched-time-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.sched-time-input:focus {
+  color: #3a3a3a;
+  background: var(--profile-control-bg);
+  border: 1px solid color-mix(in srgb, var(--control-border-active) 52%, var(--profile-control-border));
+}
+.sched-time-arrows {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+.sched-time-btn {
+  width: 15px; height: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; border: none; border-radius: 3px;
+  color: var(--text3); font-size: 7px;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+  line-height: 1;
+}
+.sched-time-btn:hover { background: var(--bg5); color: var(--text); }
+.sched-time-colon {
+  font-size: 22px; font-weight: 600; color: var(--text3);
+  padding-bottom: 2px;
+  align-self: center;
+  margin: 0 2px;
+}
 .input-tools {
   display: inline-flex; align-items: center; gap: 6px;
   background: transparent; border-radius: 0;
@@ -3031,7 +3199,7 @@ button.nav-item {
   transform: none;
   margin-right: 4px;
 }
-/* Кнопки «Сохранить» / «Отмена» — пост и редактирование сообщения */
+/* Кнопки «Сохранить» / «Отмена» — пост, редактирование сообщения и модалка */
 .post-edit-toolbar .post-edit-btn,
 .msg-user-edit-bar .post-edit-btn {
   box-sizing: border-box;

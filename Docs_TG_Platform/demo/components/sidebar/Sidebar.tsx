@@ -367,7 +367,7 @@ export default function Sidebar() {
         !state.currentNote.isGlobal &&
         state.currentNote.postId === sidebarPostId));
 
-  const feedPostCtxItems = usePostCtxMenuItems(currentPostSidebar);
+  const { items: feedPostCtxItems, modal: scheduleModal } = usePostCtxMenuItems(currentPostSidebar);
 
   const openLocalChat = (postId: number, chatId: number) => {
     navigateWithState({
@@ -598,7 +598,8 @@ export default function Sidebar() {
   };
 
   return (
-    <nav id="sidebar" className={railActive ? "sidebar--collapsed" : undefined}>
+    <>
+      <nav id="sidebar" className={railActive ? "sidebar--collapsed" : undefined}>
       <div className="sidebar-header">
         {railAllowed ? (
           railActive ? (
@@ -816,7 +817,9 @@ export default function Sidebar() {
           onClick={() => navigate("profile")}
         />
       </div>
-    </nav>
+      </nav>
+      {scheduleModal}
+    </>
   );
 }
 

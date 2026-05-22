@@ -41,7 +41,7 @@ export default function PostScreen() {
     sendPost,
   } = useApp();
   const post = postById(state, state.currentPostId);
-  const ctxItems = usePostCtxMenuItems(post);
+  const { items: ctxItems, modal: ctxModal } = usePostCtxMenuItems(post);
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const postCardRef = useRef<HTMLDivElement>(null);
   const [showJump, setShowJump] = useState(false);
@@ -276,6 +276,7 @@ export default function PostScreen() {
               ← Назад
             </button>
             <ContextMenu items={ctxItems} />
+            {ctxModal}
           </div>
         </div>
       </div>
@@ -305,7 +306,7 @@ export default function PostScreen() {
                 onOpenComments={() => pushPostView("comments", state.currentPostChatId)}
                 isTextOnlyNoMedia={
                   mediaItems.length === 0 &&
-                  (post.status === "published" || post.status === "scheduled")
+                  (post.status === "published" || post.status === "scheduled" || post.status === "draft")
                 }
               />
               {flatMessages.map(({ message: m, path }, i) => (

@@ -13,7 +13,11 @@ export function extractTitle(text: string | undefined | null): string {
 }
 
 export function postTitle(post: Post): string {
-  return extractTitle(post.text) || "(без названия)";
+  const base = extractTitle(post.text) || "(без названия)";
+  if (post.status === "scheduled" && post.date) {
+    return `${base} · ${post.date}`;
+  }
+  return base;
 }
 
 const RU_MONTHS_3: Record<string, number> = {
@@ -47,23 +51,44 @@ const RU_MONTHS_FULL = [
   "декабря",
 ] as const;
 
-const RU_MONTHS_SHORT = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"] as const;
+/** Сокращения месяца в родительном падеже (после числа: «22 мая»). */
+const RU_MONTHS_SHORT_GENITIVE = [
+  "янв",
+  "фев",
+  "мар",
+  "апр",
+  "мая",
+  "июн",
+  "июл",
+  "авг",
+  "сен",
+  "окт",
+  "ноя",
+  "дек",
+] as const;
+
+/** Парсит строку даты поста: «28 апр · 14:22». */
+export function parsePostDateTime(raw: string | undefined | null): Date | null {
+  const s = (raw || "").trim().toLowerCase();
+  if (!s) return null;
+  const m =
+    s.match(/(\d{1,2})\s+([а-яё]+)\s+(\d{1,2}):(\d{2})/) ||
+    s.match(/(\d{1,2})\s+([а-яё]+)(?:\s*[·•]\s*(\d{1,2}):(\d{2}))?/);
+  if (!m) return null;
+  const day = parseInt(m[1], 10);
+  const month = RU_MONTHS_3[m[2].slice(0, 3)];
+  if (month === undefined) return null;
+  const year = new Date().getFullYear();
+  const hour = m[3] ? parseInt(m[3], 10) : 0;
+  const minute = m[4] ? parseInt(m[4], 10) : 0;
+  return new Date(year, month, day, hour, minute);
+}
 
 export function postFreshness(post: Post): number {
   const raw = (post.date || post.created || "").trim().toLowerCase();
   if (!raw) return 0;
   if (/^(только что|сейчас|сегодня)/.test(raw)) return Date.now();
-  const m =
-    raw.match(/(\d{1,2})\s+([а-яё]+)\s+(\d{1,2}):(\d{2})/) ||
-    raw.match(/(\d{1,2})\s+([а-яё]+)(?:\s*[·•]\s*(\d{1,2}):(\d{2}))?/);
-  if (!m) return 0;
-  const day = parseInt(m[1], 10);
-  const month = RU_MONTHS_3[m[2].slice(0, 3)];
-  if (month === undefined) return 0;
-  const year = new Date().getFullYear();
-  const hour = m[3] ? parseInt(m[3], 10) : 0;
-  const minute = m[4] ? parseInt(m[4], 10) : 0;
-  return new Date(year, month, day, hour, minute).getTime();
+  return parsePostDateTime(raw)?.getTime() ?? 0;
 }
 
 export function postDayStart(post: Post): number {
@@ -84,10 +109,10 @@ export function formatFeedDayLabel(dayStart: number, now = new Date()): string {
   return `${label} ${d.getFullYear()}`;
 }
 
-/** Дата и время публикации для карточки: «28 апр · 14:22». */
+/** Дата и время публикации для карточки: «28 апр · 14:22» (месяц в родительном падеже). */
 export function formatPostDateTime(date = new Date()): string {
   const day = date.getDate();
-  const mon = RU_MONTHS_SHORT[date.getMonth()];
+  const mon = RU_MONTHS_SHORT_GENITIVE[date.getMonth()];
   const h = String(date.getHours()).padStart(2, "0");
   const m = String(date.getMinutes()).padStart(2, "0");
   return `${day} ${mon} · ${h}:${m}`;
