@@ -5066,23 +5066,23 @@ button.filter-tab {
   padding-left: 0;
   padding-right: var(--channel-metric-col-gap);
 }
-.channel-metrics-table .cmt-growth,
-.channel-metrics-table .cmt-quantity,
-.channel-metrics-table thead th.cmt-growth,
-.channel-metrics-table thead th.cmt-quantity {
+.channel-metrics-table:not(.channel-metrics-table--mobile) .cmt-growth,
+.channel-metrics-table:not(.channel-metrics-table--mobile) .cmt-quantity,
+.channel-metrics-table:not(.channel-metrics-table--mobile) thead th.cmt-growth,
+.channel-metrics-table:not(.channel-metrics-table--mobile) thead th.cmt-quantity {
   white-space: nowrap;
   text-align: right;
   padding-left: var(--channel-metric-col-gap);
 }
-.channel-metrics-table--mobile .cmt-growth,
-.channel-metrics-table--mobile .cmt-quantity,
 .channel-metrics-table--mobile thead th.cmt-growth,
-.channel-metrics-table--mobile thead th.cmt-quantity {
-  width: 1%;
+.channel-metrics-table--mobile thead th.cmt-quantity,
+.channel-metrics-table--mobile tbody td.cmt-growth,
+.channel-metrics-table--mobile tbody td.cmt-quantity {
+  white-space: nowrap;
 }
 .channel-metrics-table--mobile {
   --channel-metric-growth-col: 72px;
-  --channel-metric-quantity-col: 80px;
+  --channel-metric-quantity-col: 88px;
   table-layout: fixed;
 }
 .channel-metrics-table--mobile .cmt-col-metric {
@@ -5093,6 +5093,19 @@ button.filter-tab {
 }
 .channel-metrics-table--mobile .cmt-col-quantity {
   width: var(--channel-metric-quantity-col);
+}
+.channel-metrics-table--mobile .cmt-metric {
+  padding-right: 8px;
+}
+.channel-metrics-table--mobile thead th.cmt-growth,
+.channel-metrics-table--mobile thead th.cmt-quantity {
+  padding: 0 0 2px;
+  text-align: right;
+}
+.channel-metrics-table--mobile tbody td.cmt-growth,
+.channel-metrics-table--mobile tbody td.cmt-quantity {
+  padding: 0;
+  text-align: right;
 }
 .channel-reactions-panel {
   flex: 0 1 auto;
