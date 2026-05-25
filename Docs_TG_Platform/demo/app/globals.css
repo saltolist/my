@@ -7748,6 +7748,79 @@ button.filter-tab {
     grid-column: 3;
   }
 
+  /* Прирост по метрикам / типы моделей: точка вместо цветной полосы */
+  #screen-analytics .channel-metrics-head .channel-metrics-head-bar,
+  #screen-profile .platform-analytics-section .model-usage-head .model-usage-head-bar,
+  #screen-analytics .bar-row.channel-metric-bar .channel-metric-bar-zone,
+  #screen-profile .bar-row.model-usage-bar > .bar-track {
+    display: none;
+  }
+
+  #screen-profile .platform-analytics-section .model-usage-grid {
+    grid-template-columns: minmax(0, 1fr) max-content max-content max-content;
+    column-gap: 8px;
+  }
+
+  #screen-profile .platform-analytics-section .model-usage-head > span:nth-child(3) {
+    grid-column: 2;
+  }
+
+  #screen-profile .platform-analytics-section .model-usage-head > span:nth-child(4) {
+    grid-column: 3;
+  }
+
+  #screen-profile .platform-analytics-section .model-usage-head > span:nth-child(5) {
+    grid-column: 4;
+  }
+
+  #screen-profile .bar-row.model-usage-bar > .bar-label {
+    grid-column: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  #screen-profile .bar-row.model-usage-bar > .model-row-metric--calls {
+    grid-column: 2;
+  }
+
+  #screen-profile .bar-row.model-usage-bar > .model-row-metric--tokens {
+    grid-column: 3;
+  }
+
+  #screen-profile .bar-row.model-usage-bar > .model-row-metric--cost {
+    grid-column: 4;
+  }
+
+  #screen-analytics .bar-row.channel-metric-bar .bar-label,
+  #screen-profile .bar-row.model-usage-bar > .bar-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  #screen-analytics .bar-row.channel-metric-bar .bar-label {
+    grid-column: 1;
+  }
+
+  #screen-analytics .bar-row.channel-metric-bar .bar-label::before,
+  #screen-profile .bar-row.model-usage-bar > .bar-label::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bar-row-color, var(--accent));
+    flex-shrink: 0;
+  }
+
+  #screen-analytics .bar-row.channel-metric-bar .bar-label:focus-visible {
+    outline: none;
+    border-radius: 4px;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+
   .analytics-chart-head,
   .analytics-card-head {
     flex-wrap: wrap;

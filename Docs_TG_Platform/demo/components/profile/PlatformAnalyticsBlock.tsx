@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState, type CSSProperties, type FocusEvent, type MouseEvent } from "react";
 import { createPortal } from "react-dom";
 import ChartSeriesSelector from "@/components/charts/ChartSeriesSelector";
 import ModelPicker from "@/components/composer/ModelPicker";
@@ -240,29 +240,41 @@ function ModelUsageBar({
     setTooltipPos({ x: clientX, y: anchorY });
   };
 
+  const isMobile = useMobile760();
+  const tooltipHandlers = {
+    onMouseEnter: (event: MouseEvent<HTMLElement>) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      updateTooltipPosition(event.clientX, rect.top);
+    },
+    onMouseMove: (event: MouseEvent<HTMLElement>) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      updateTooltipPosition(event.clientX, rect.top);
+    },
+    onMouseLeave: () => setTooltipPos(null),
+    onFocus: (event: FocusEvent<HTMLElement>) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top });
+    },
+    onBlur: () => setTooltipPos(null),
+  };
+
   return (
-    <div className="bar-row model-usage-bar">
-      <div className="bar-label">
+    <div
+      className="bar-row model-usage-bar"
+      style={{ "--bar-row-color": model.color } as CSSProperties}
+    >
+      <div
+        className="bar-label"
+        tabIndex={isMobile ? 0 : undefined}
+        {...(isMobile ? tooltipHandlers : {})}
+      >
         <span>{model.label}</span>
       </div>
       <div
         className="bar-track model-usage-track"
-        tabIndex={0}
+        tabIndex={isMobile ? undefined : 0}
         style={{ "--fill-width": `${Math.max(fillShare, 4)}%` } as CSSProperties}
-        onMouseEnter={(event) => {
-          const rect = event.currentTarget.getBoundingClientRect();
-          updateTooltipPosition(event.clientX, rect.top);
-        }}
-        onMouseMove={(event) => {
-          const rect = event.currentTarget.getBoundingClientRect();
-          updateTooltipPosition(event.clientX, rect.top);
-        }}
-        onMouseLeave={() => setTooltipPos(null)}
-        onFocus={(event) => {
-          const rect = event.currentTarget.getBoundingClientRect();
-          setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top });
-        }}
-        onBlur={() => setTooltipPos(null)}
+        {...(isMobile ? {} : tooltipHandlers)}
       >
         <div
           className={`bar-fill ${model.type}`}

@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState, type CSSProperties, type FocusEvent, type MouseEvent } from "react";
 import { createPortal } from "react-dom";
 import {
   buildChannelMetricSummaries,
   buildChannelTrendSeries,
   type ChannelMetricSummary,
 } from "@/lib/channelAnalyticsTrend";
+import { useMobile760 } from "@/lib/hooks/useMobile760";
 
 type ChannelMetricBarsProps = {
   periodIndex: number;
@@ -47,6 +48,7 @@ export default function ChannelMetricBars({ periodIndex }: ChannelMetricBarsProp
 }
 
 function ChannelMetricBarRow({ metric }: { metric: ChannelMetricSummary }) {
+  const isMobile = useMobile760();
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const fillPercent = Math.max(4, metric.growthShare);
 
@@ -54,30 +56,41 @@ function ChannelMetricBarRow({ metric }: { metric: ChannelMetricSummary }) {
     setTooltipPos({ x: clientX, y: anchorY });
   };
 
+  const tooltipHandlers = {
+    onMouseEnter: (event: MouseEvent<HTMLElement>) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      updateTooltipPosition(event.clientX, rect.top);
+    },
+    onMouseMove: (event: MouseEvent<HTMLElement>) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      updateTooltipPosition(event.clientX, rect.top);
+    },
+    onMouseLeave: () => setTooltipPos(null),
+    onFocus: (event: FocusEvent<HTMLElement>) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top });
+    },
+    onBlur: () => setTooltipPos(null),
+  };
+
   return (
-    <div className="bar-row channel-metric-bar">
-      <div className="bar-label">
+    <div
+      className="bar-row channel-metric-bar"
+      style={{ "--bar-row-color": metric.color } as CSSProperties}
+    >
+      <div
+        className="bar-label"
+        tabIndex={isMobile ? 0 : undefined}
+        {...(isMobile ? tooltipHandlers : {})}
+      >
         <span>{metric.label}</span>
       </div>
       <div className="channel-metric-bar-zone">
         <div
           className="bar-track model-usage-track channel-metric-track"
-          tabIndex={0}
+          tabIndex={isMobile ? undefined : 0}
           style={{ "--fill-width": `${fillPercent}%` } as CSSProperties}
-          onMouseEnter={(event) => {
-            const rect = event.currentTarget.getBoundingClientRect();
-            updateTooltipPosition(event.clientX, rect.top);
-          }}
-          onMouseMove={(event) => {
-            const rect = event.currentTarget.getBoundingClientRect();
-            updateTooltipPosition(event.clientX, rect.top);
-          }}
-          onMouseLeave={() => setTooltipPos(null)}
-          onFocus={(event) => {
-            const rect = event.currentTarget.getBoundingClientRect();
-            setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top });
-          }}
-          onBlur={() => setTooltipPos(null)}
+          {...(isMobile ? {} : tooltipHandlers)}
         >
           <div
             className="bar-fill"
