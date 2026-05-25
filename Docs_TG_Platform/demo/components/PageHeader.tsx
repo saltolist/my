@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useApp } from "@/state/AppContext";
 import type { ScreenId } from "@/lib/types";
 import PageHeaderMenuButton from "./PageHeaderMenuButton";
+import PageHeaderOverflow, { type PageHeaderOverflowItem } from "./PageHeaderOverflow";
 
 type Props = {
   title?: ReactNode;
@@ -12,7 +13,11 @@ type Props = {
   onBack?: () => void;
   backLabel?: string;
   search?: ReactNode;
+  /** На мобильной — в одной строке с названием, не на всю ширину */
+  mobileSelect?: ReactNode;
   actions?: ReactNode;
+  /** На мобильной — одно меню вместо ряда кнопок в `actions` */
+  overflowItems?: PageHeaderOverflowItem[];
 };
 
 export default function PageHeader({
@@ -22,7 +27,9 @@ export default function PageHeader({
   onBack,
   backLabel = "← Назад",
   search,
+  mobileSelect,
   actions,
+  overflowItems,
 }: Props) {
   const { navigateBack } = useApp();
   const handleBack = onBack ?? (backTo ? () => navigateBack(backTo) : undefined);
@@ -32,15 +39,30 @@ export default function PageHeader({
         <PageHeaderMenuButton />
         {title ? <h2>{title}</h2> : null}
         {left}
+        {mobileSelect ? (
+          <div className="page-header-toolbar-slot">{mobileSelect}</div>
+        ) : null}
       </div>
       <div className="page-header-center">{search}</div>
       <div className="page-header-right">
-        {handleBack ? (
-          <button className="btn btn-ghost btn-sm" onClick={handleBack} type="button">
-            {backLabel}
-          </button>
+        <div className="page-header-actions--desktop">
+          {handleBack ? (
+            <button
+              className="btn btn-ghost btn-sm page-header-back-btn"
+              onClick={handleBack}
+              type="button"
+            >
+              {backLabel}
+            </button>
+          ) : null}
+          {actions}
+        </div>
+        {overflowItems && overflowItems.length > 0 ? (
+          <PageHeaderOverflow
+            className="page-header-actions--mobile"
+            items={overflowItems}
+          />
         ) : null}
-        {actions}
       </div>
     </div>
   );

@@ -20,6 +20,7 @@ import PostMediaBlock from "../post/PostMediaBlock";
 import { PostReactionPills, PostViewsReposts } from "../feed/PostEngagement";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import PageHeaderMenuButton from "../PageHeaderMenuButton";
+import PageHeaderOverflow from "../PageHeaderOverflow";
 import PostStatus from "../feed/PostStatus";
 import PostCardToolbar from "../post/PostCardToolbar";
 import PostCommentsPanel from "../post/PostCommentsPanel";
@@ -142,21 +143,6 @@ export default function PostScreen() {
     navigateBack("feed");
   };
 
-  if (!post) {
-    return (
-      <div className="post-hdr">
-        <div className="post-hdr-top">
-          <div className="page-header-left">
-            <PageHeaderMenuButton />
-            <button className="btn btn-ghost btn-sm" onClick={() => navigateBack("feed")} type="button">
-              ← Назад
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const postSubPage =
     state.postMode === "comments"
       ? "Комментарии"
@@ -165,6 +151,76 @@ export default function PostScreen() {
         : state.postMode === "chats"
           ? "Чаты"
           : null;
+
+  const postHeaderOverflowItems = useMemo(
+    () => {
+      if (!post) return [];
+      return [
+        {
+          label: "Заметки",
+          onClick: goToPostNotes,
+          hidden: state.postMode === "notes",
+        },
+        {
+          label: "Чаты",
+          onClick: goToPostChats,
+          hidden: state.postMode === "chats",
+        },
+        {
+          label: "↑ К посту",
+          onClick: () => chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }),
+          hidden: !showJump || state.postMode !== "chat",
+        },
+        {
+          label: "+ Новая заметка",
+          onClick: startNewNote,
+          hidden: state.postMode !== "notes",
+        },
+        {
+          label: "+ Новый чат",
+          onClick: startNewChat,
+          hidden: state.postMode !== "chats",
+        },
+        ...ctxItems.map((item) => ({
+          label: item.label,
+          onClick: item.onClick,
+          icon: item.icon,
+          danger: item.danger,
+          disabled: item.disabled,
+        })),
+      ];
+    },
+    [
+      ctxItems,
+      goToPostChats,
+      goToPostNotes,
+      post,
+      showJump,
+      startNewChat,
+      startNewNote,
+      state.postMode,
+    ],
+  );
+
+  if (!post) {
+    return (
+      <div className="post-hdr">
+        <div className="post-hdr-top">
+          <div className="page-header-left">
+            <PageHeaderMenuButton />
+            <button
+              className="btn btn-ghost btn-sm page-header-back-btn"
+              onClick={() => navigateBack("feed")}
+              type="button"
+            >
+              ← Назад
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const showListHeaderSearch = postSubPage != null;
   const listSearchPlaceholder =
     state.postMode === "comments"
@@ -229,12 +285,20 @@ export default function PostScreen() {
                   onChange={(e) => setListSearch(e.target.value)}
                 />
                 {state.postMode === "notes" ? (
-                  <button className="post-new-note-btn" onClick={startNewNote} type="button">
+                  <button
+                    className="post-new-note-btn page-header-toolbar--desktop"
+                    onClick={startNewNote}
+                    type="button"
+                  >
                     + Новая заметка
                   </button>
                 ) : null}
                 {state.postMode === "chats" ? (
-                  <button className="post-new-chat-btn" onClick={startNewChat} type="button">
+                  <button
+                    className="post-new-chat-btn page-header-toolbar--desktop"
+                    onClick={startNewChat}
+                    type="button"
+                  >
                     + Новый чат
                   </button>
                 ) : null}
@@ -244,39 +308,45 @@ export default function PostScreen() {
           <div
             className={`page-header-right${showJump ? " post-hdr-has-reveal" : ""}`}
           >
-            <button
-              className={`jump-post-btn${showJump ? " visible" : ""}`}
-              onClick={() => chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
-              type="button"
-            >
-              ↑ К посту
-            </button>
-            <div className="post-mode-cluster">
+            <div className="page-header-actions--desktop">
               <button
-                className="btn btn-ghost btn-sm post-mode-btn"
-                onClick={goToPostNotes}
+                className={`jump-post-btn${showJump ? " visible" : ""}`}
+                onClick={() => chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
                 type="button"
               >
-                Заметки
+                ↑ К посту
               </button>
-            </div>
-            <div className="post-mode-cluster">
+              <div className="post-mode-cluster">
+                <button
+                  className="btn btn-ghost btn-sm post-mode-btn"
+                  onClick={goToPostNotes}
+                  type="button"
+                >
+                  Заметки
+                </button>
+              </div>
+              <div className="post-mode-cluster">
+                <button
+                  className="btn btn-ghost btn-sm post-mode-btn"
+                  onClick={goToPostChats}
+                  type="button"
+                >
+                  Чаты
+                </button>
+              </div>
               <button
-                className="btn btn-ghost btn-sm post-mode-btn"
-                onClick={goToPostChats}
+                className="btn btn-ghost btn-sm post-back-btn"
+                onClick={handleBack}
                 type="button"
               >
-                Чаты
+                ← Назад
               </button>
+              <ContextMenu items={ctxItems} />
             </div>
-            <button
-              className="btn btn-ghost btn-sm post-back-btn"
-              onClick={handleBack}
-              type="button"
-            >
-              ← Назад
-            </button>
-            <ContextMenu items={ctxItems} />
+            <PageHeaderOverflow
+              className="page-header-actions--mobile"
+              items={postHeaderOverflowItems}
+            />
             {ctxModal}
           </div>
         </div>

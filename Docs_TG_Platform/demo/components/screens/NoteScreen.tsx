@@ -22,13 +22,8 @@ import { useFitTitleSize } from "@/lib/use-fit-title";
 export default function NoteScreen() {
   const { state, dispatch, navigate, navigateBack, openPost, setDirty } = useApp();
   const note = state.currentNote;
-
-  if (!note) {
-    return <PageHeader title="Заметка" backTo="notes" />;
-  }
-
   const backFallback = state.noteFrom === "post" ? "post" : "notes";
-  const parentPost = !note.isGlobal ? postById(state, note.postId) : null;
+  const parentPost = note && !note.isGlobal ? postById(state, note.postId) : null;
 
   const discardNewNote = () => {
     setDirty("note", false);
@@ -37,6 +32,7 @@ export default function NoteScreen() {
   };
 
   const setNoteAi = (ai: boolean) => {
+    if (!note) return;
     if (note.ai === ai) return;
     if (note.isNew) {
       dispatch({ type: "SET_STATE", patch: { currentNote: { ...note, ai } } });
@@ -53,10 +49,48 @@ export default function NoteScreen() {
     }
   };
 
+  const noteHeaderMenuItems = useMemo(
+    () => {
+      if (!note) return [];
+      return [
+      {
+        label: note.ai ? "Не учитывать в ИИ" : "Учитывать в ИИ",
+        icon: note.ai ? <MenuIconBrainOff /> : <MenuIconBrain />,
+        onClick: () => setNoteAi(!note.ai),
+      },
+      {
+        label: note.isNew ? "Отменить" : "Удалить заметку",
+        icon: note.isNew ? <MenuIconCancel /> : <MenuIconTrash />,
+        danger: !note.isNew,
+        onClick: () => {
+          if (note.isNew) {
+            discardNewNote();
+            return;
+          }
+          if (!confirm(`Удалить заметку «${note.title}»?`)) return;
+          if (note.isGlobal) {
+            dispatch({ type: "DELETE_GLOBAL_NOTE", noteId: note.id });
+            navigate("notes", { skipHistory: true });
+          } else {
+            dispatch({ type: "DELETE_POST_NOTE", postId: note.postId, noteId: note.id });
+            navigate("post", { skipHistory: true });
+          }
+        },
+      },
+    ];
+    },
+    [discardNewNote, dispatch, navigate, note, setNoteAi],
+  );
+
+  if (!note) {
+    return <PageHeader title="Заметка" backTo="notes" />;
+  }
+
   return (
     <>
       <PageHeader
         backTo={backFallback}
+        overflowItems={noteHeaderMenuItems}
         left={
           <NoteBreadcrumb
             note={note}
@@ -66,36 +100,7 @@ export default function NoteScreen() {
             onOpenPost={openPost}
           />
         }
-        actions={
-          <ContextMenu
-            items={[
-              {
-                label: note.ai ? "Не учитывать в ИИ" : "Учитывать в ИИ",
-                icon: note.ai ? <MenuIconBrainOff /> : <MenuIconBrain />,
-                onClick: () => setNoteAi(!note.ai),
-              },
-              {
-                label: note.isNew ? "Отменить" : "Удалить заметку",
-                icon: note.isNew ? <MenuIconCancel /> : <MenuIconTrash />,
-                danger: !note.isNew,
-                onClick: () => {
-                  if (note.isNew) {
-                    discardNewNote();
-                    return;
-                  }
-                  if (!confirm(`Удалить заметку «${note.title}»?`)) return;
-                  if (note.isGlobal) {
-                    dispatch({ type: "DELETE_GLOBAL_NOTE", noteId: note.id });
-                    navigate("notes", { skipHistory: true });
-                  } else {
-                    dispatch({ type: "DELETE_POST_NOTE", postId: note.postId, noteId: note.id });
-                    navigate("post", { skipHistory: true });
-                  }
-                },
-              },
-            ]}
-          />
-        }
+        actions={<ContextMenu items={noteHeaderMenuItems} />}
       />
       <div className="note-page" id="note-page-body">
         <NoteWorkspace note={note} />

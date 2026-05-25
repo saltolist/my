@@ -12,6 +12,7 @@ import ChatsScreen from "./screens/ChatsScreen";
 import NotesScreen from "./screens/NotesScreen";
 import AnalyticsScreen from "./screens/AnalyticsScreen";
 import ProfileScreen from "./screens/ProfileScreen";
+import MobileBackGesture from "./MobileBackGesture";
 
 function AppShell() {
   const { state, mobileSidebarOpen, setMobileSidebarOpen } = useApp();
@@ -30,6 +31,7 @@ function AppShell() {
 
   return (
     <div id="app">
+      <MobileBackGesture />
       <div className="mobile-sidebar-backdrop" onClick={() => setMobileSidebarOpen(false)} />
       <Sidebar />
       <div id="main">

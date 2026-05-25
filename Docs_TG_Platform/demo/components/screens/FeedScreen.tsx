@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperti
 import { useApp } from "@/state/AppContext";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
+import PageHeaderSelect from "../PageHeaderSelect";
 import PostCard from "../feed/PostCard";
 import DraftsSection from "../feed/DraftsSection";
 import { buildPublishedFeedDayGroups, sortPostsByPublicationTime } from "@/lib/feedTimeline";
@@ -112,6 +113,18 @@ export default function FeedScreen() {
       <PageHeader
         title="Лента"
         backTo="home"
+        mobileSelect={
+          <PageHeaderSelect
+            ariaLabel="Ширина карточки поста"
+            value={String(feedPostWidth)}
+            options={[
+              { value: "500", label: "Компьютер" },
+              { value: "390", label: "Планшет" },
+              { value: "270", label: "Телефон" },
+            ]}
+            onChange={(v) => setFeedPostWidth(Number(v) as FeedPostWidth)}
+          />
+        }
         search={
           <div className="page-header-feed-search-row">
             <PageHeaderSearchInput
@@ -120,7 +133,7 @@ export default function FeedScreen() {
               onChange={(e) => setSearch(e.target.value)}
             />
             <div
-              className="feed-post-width-toggles"
+              className="feed-post-width-toggles page-header-toolbar--desktop"
               role="radiogroup"
               aria-label="Ширина карточки поста в ленте"
             >

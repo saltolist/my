@@ -5,6 +5,7 @@ import { useApp } from "@/state/AppContext";
 import { postTitle } from "@/lib/helpers";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
+import PageHeaderSelect from "../PageHeaderSelect";
 import NoteCardAiToggle from "../note/NoteCardAiToggle";
 import NoteListCardMenu from "../note/NoteListCardMenu";
 import { buildNoteSnapshot, createNewGlobalNote, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
@@ -90,6 +91,23 @@ export default function NotesScreen() {
       <PageHeader
         title="Заметки"
         backTo="home"
+        mobileSelect={
+          <PageHeaderSelect
+            ariaLabel="Область заметок"
+            value={scope}
+            options={[
+              { value: "all", label: "Все" },
+              { value: "global", label: "Глобальные" },
+              { value: "local", label: "Локальные" },
+            ]}
+            onChange={(v) =>
+              dispatch({
+                type: "SET_STATE",
+                patch: { noteScope: v as typeof scope },
+              })
+            }
+          />
+        }
         search={
           <div className="page-header-search-tools-row">
             <PageHeaderSearchInput
@@ -97,7 +115,11 @@ export default function NotesScreen() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <div className="notes-scope-tabs" role="tablist" aria-label="Область заметок">
+            <div
+              className="notes-scope-tabs page-header-toolbar--desktop"
+              role="tablist"
+              aria-label="Область заметок"
+            >
               <div
                 role="tab"
                 aria-selected={scope === "all"}

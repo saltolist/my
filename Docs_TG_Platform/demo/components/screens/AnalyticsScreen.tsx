@@ -8,6 +8,7 @@ import {
   formatChannelPostMetricValue,
 } from "@/lib/channelAnalyticsTrend";
 import PageHeader from "../PageHeader";
+import PageHeaderSelect from "../PageHeaderSelect";
 
 type TopPostRow = {
   id: number;
@@ -70,7 +71,11 @@ export default function AnalyticsScreen() {
   const [period, setPeriod] = useState(1);
 
   const periodToolbar = (
-    <div className="page-header-analytics-periods" role="tablist" aria-label="Период">
+    <div
+      className="page-header-analytics-periods page-header-toolbar--desktop"
+      role="tablist"
+      aria-label="Период"
+    >
       {PERIODS.map((p, i) => (
         <button
           key={p}
@@ -88,7 +93,19 @@ export default function AnalyticsScreen() {
 
   return (
     <>
-      <PageHeader title="Аналитика канала" backTo="home" search={periodToolbar} />
+      <PageHeader
+        title="Аналитика канала"
+        backTo="home"
+        mobileSelect={
+          <PageHeaderSelect
+            ariaLabel="Период аналитики"
+            value={String(period)}
+            options={PERIODS.map((p, i) => ({ value: String(i), label: p }))}
+            onChange={(v) => setPeriod(Number(v))}
+          />
+        }
+        search={periodToolbar}
+      />
       <div className="analytics-page">
         <div className="analytics-scroll-inner">
           <ChannelAnalyticsSection periodIndex={period} />

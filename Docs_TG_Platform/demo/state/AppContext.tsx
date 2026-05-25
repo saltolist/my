@@ -28,6 +28,7 @@ import {
   VARIANT_TAILS,
 } from "@/lib/composer-config";
 import { getGlobalReply, getPostReply } from "@/lib/replies";
+import { postViewBackTitle, routeSnapshotTitle } from "@/lib/routeLabels";
 import { postTitle, truncate } from "@/lib/helpers";
 import {
   appendToActiveHistory,
@@ -682,6 +683,12 @@ type AppContextValue = {
 
   navigate: (screen: ScreenId, opts?: { skipHistory?: boolean; clearHistory?: boolean }) => void;
   navigateBack: (fallback?: ScreenId) => void;
+  /** Есть ли запись в истории (стек навигации или подраздел поста). */
+  canNavigateBack: () => boolean;
+  /** Заголовок экрана, на который вернёт «назад». */
+  getPreviousRouteTitle: () => string | null;
+  /** Возврат по истории без fallback-переходов (для свайпа). */
+  popNavigationHistory: () => boolean;
   navigateWithState: (patch: Partial<State>) => void;
   /** Записать текущий маршрут в стек без смены экрана (например, перед несколькими dispatch подряд). */
   pushRouteSnapshot: () => void;
@@ -888,6 +895,63 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
     [canLeaveCurrentScreen, commitNavigationPatch, discardPendingEdits],
   );
+
+  const canNavigateBack = useCallback((): boolean => {
+    const s = stateRef.current;
+    if (s.screen === "home") return false;
+    if (s.screen === "post" && s.postViewStack.length > 0) return true;
+    return navStackRef.current.length > 0;
+  }, []);
+
+  const getPreviousRouteTitle = useCallback((): string | null => {
+    const s = stateRef.current;
+    if (s.screen === "post" && s.postViewStack.length > 0) {
+      const prev = s.postViewStack[s.postViewStack.length - 1];
+      return postViewBackTitle(prev.mode);
+    }
+    const snap = navStackRef.current[navStackRef.current.length - 1];
+    if (!snap) return null;
+    return routeSnapshotTitle(snap, s.posts);
+  }, []);
+
+  const popNavigationHistory = useCallback((): boolean => {
+    const s = stateRef.current;
+    if (!canNavigateBack()) return false;
+    if (!confirmDiscardAnyEdit()) return false;
+    discardPendingEdits();
+    setMobileSidebarOpen(false);
+
+    if (s.screen === "post" && s.postViewStack.length > 0) {
+      const stack = s.postViewStack.slice(0, -1);
+      const prev = s.postViewStack[s.postViewStack.length - 1];
+      dispatch({
+        type: "SET_STATE",
+        patch: {
+          postViewStack: stack,
+          postMode: prev.mode,
+          currentPostChatId: prev.chatId,
+          isEditing: false,
+        },
+      });
+      return true;
+    }
+
+    const snap = navStackRef.current.pop();
+    if (!snap) return false;
+    if (!canLeaveCurrentScreen(snap.screen)) {
+      navStackRef.current.push(snap);
+      return false;
+    }
+    commitNavigationPatch(snap);
+    return true;
+  }, [
+    canNavigateBack,
+    canLeaveCurrentScreen,
+    commitNavigationPatch,
+    confirmDiscardAnyEdit,
+    discardPendingEdits,
+    dispatch,
+  ]);
 
   const navigateWithState = useCallback(
     (patch: Partial<State>) => {
@@ -1225,6 +1289,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setMobileSidebarOpen,
       navigate,
       navigateBack,
+      canNavigateBack,
+      getPreviousRouteTitle,
+      popNavigationHistory,
       navigateWithState,
       pushRouteSnapshot,
       goHome,
@@ -1258,6 +1325,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       mobileSidebarOpen,
       navigate,
       navigateBack,
+      canNavigateBack,
+      getPreviousRouteTitle,
+      popNavigationHistory,
       navigateWithState,
       pushRouteSnapshot,
       goHome,

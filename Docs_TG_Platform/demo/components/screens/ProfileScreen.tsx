@@ -8,6 +8,7 @@ import TelegramBlock from "../profile/TelegramBlock";
 import ThemeBlock from "../profile/ThemeBlock";
 import PlatformAnalyticsBlock from "../profile/PlatformAnalyticsBlock";
 import PageHeader from "../PageHeader";
+import PageHeaderSelect from "../PageHeaderSelect";
 import { useApp } from "@/state/AppContext";
 
 const PROFILE_TABS = ["Настройки", "Канал", "Аналитика платформы"] as const;
@@ -42,7 +43,11 @@ export default function ProfileScreen() {
   };
 
   const profileTabToolbar = (
-    <div className="page-header-profile-tabs" role="tablist" aria-label="Раздел профиля">
+    <div
+      className="page-header-profile-tabs page-header-toolbar--desktop"
+      role="tablist"
+      aria-label="Раздел профиля"
+    >
       {PROFILE_TABS.map((label, i) => (
         <button
           key={label}
@@ -60,7 +65,19 @@ export default function ProfileScreen() {
 
   return (
     <>
-      <PageHeader title="Профиль канала" backTo="home" search={profileTabToolbar} />
+      <PageHeader
+        title="Профиль канала"
+        backTo="home"
+        mobileSelect={
+          <PageHeaderSelect
+            ariaLabel="Раздел профиля"
+            value={String(tab)}
+            options={PROFILE_TABS.map((label, i) => ({ value: String(i), label }))}
+            onChange={(v) => switchTab(Number(v))}
+          />
+        }
+        search={profileTabToolbar}
+      />
       <div className="profile-page">
         <div className="profile-scroll-inner">
           <ChannelTab active={channelTabActive} />

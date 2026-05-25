@@ -5,6 +5,7 @@ import { useApp } from "@/state/AppContext";
 import { postTitle, chatListUserLine, chatListAssistantLine } from "@/lib/helpers";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
+import PageHeaderSelect from "../PageHeaderSelect";
 import ChatListCardMenu from "../chat/ChatListCardMenu";
 import { NavIconChats, NavIconFeed, NavIconSend } from "@/components/sidebar/NavIcons";
 import { isOmnichannelChat } from "@/lib/omnichannel";
@@ -125,6 +126,18 @@ export default function ChatsScreen() {
       <PageHeader
         title="Чаты"
         backTo="home"
+        mobileSelect={
+          <PageHeaderSelect
+            ariaLabel="Область чатов"
+            value={tab}
+            options={[
+              { value: "all", label: "Все" },
+              { value: "global", label: "Глобальные" },
+              { value: "local", label: "Локальные" },
+            ]}
+            onChange={(v) => setTab(v as typeof tab)}
+          />
+        }
         search={
           <div className="page-header-search-tools-row">
             <PageHeaderSearchInput
@@ -132,7 +145,11 @@ export default function ChatsScreen() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <div className="chats-tabs" role="tablist" aria-label="Область чатов">
+            <div
+              className="chats-tabs page-header-toolbar--desktop"
+              role="tablist"
+              aria-label="Область чатов"
+            >
               <div
                 role="tab"
                 aria-selected={tab === "all"}

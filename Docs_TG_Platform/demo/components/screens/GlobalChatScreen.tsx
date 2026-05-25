@@ -9,6 +9,7 @@ import ChatMessage from "../chat/ChatMessage";
 import { MenuIconTrash } from "../HeaderMenuIcons";
 import { ContextMenu } from "../ContextMenu";
 import PageHeaderMenuButton from "../PageHeaderMenuButton";
+import PageHeaderOverflow from "../PageHeaderOverflow";
 
 export default function GlobalChatScreen() {
   const { state, navigate, navigateBack, dispatch, sendGChat } = useApp();
@@ -38,26 +39,45 @@ export default function GlobalChatScreen() {
         </div>
         <div className="page-header-center" aria-hidden="true" />
         <div className="page-header-right">
-          <button className="btn btn-ghost btn-sm" onClick={() => navigateBack("chats")} type="button">
-            ← Назад
-          </button>
-          {omnichannel ? null : (
-            <ContextMenu
-              items={[
-                {
-                  label: "Удалить чат",
-                  icon: <MenuIconTrash />,
-                  danger: true,
-                  onClick: () => {
-                    if (!chat) return;
-                    if (!confirm(`Удалить чат «${chat.title}»?`)) return;
-                    dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: chat.id });
-                    navigate("chats", { skipHistory: true });
+          <div className="page-header-actions--desktop">
+            <button className="btn btn-ghost btn-sm" onClick={() => navigateBack("chats")} type="button">
+              ← Назад
+            </button>
+            {omnichannel ? null : (
+              <ContextMenu
+                items={[
+                  {
+                    label: "Удалить чат",
+                    icon: <MenuIconTrash />,
+                    danger: true,
+                    onClick: () => {
+                      if (!chat) return;
+                      if (!confirm(`Удалить чат «${chat.title}»?`)) return;
+                      dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: chat.id });
+                      navigate("chats", { skipHistory: true });
+                    },
                   },
+                ]}
+              />
+            )}
+          </div>
+          <PageHeaderOverflow
+            className="page-header-actions--mobile"
+            items={[
+              {
+                label: "Удалить чат",
+                icon: <MenuIconTrash />,
+                danger: true,
+                hidden: omnichannel || !chat,
+                onClick: () => {
+                  if (!chat) return;
+                  if (!confirm(`Удалить чат «${chat.title}»?`)) return;
+                  dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: chat.id });
+                  navigate("chats", { skipHistory: true });
                 },
-              ]}
-            />
-          )}
+              },
+            ]}
+          />
         </div>
       </div>
       <div className="gchat-layout">
