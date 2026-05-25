@@ -8,6 +8,7 @@ import Composer from "../composer/Composer";
 import ChatMessage from "../chat/ChatMessage";
 import { MenuIconTrash } from "../HeaderMenuIcons";
 import { ContextMenu } from "../ContextMenu";
+import PageHeaderMenuButton from "../PageHeaderMenuButton";
 
 export default function GlobalChatScreen() {
   const { state, navigate, navigateBack, dispatch, sendGChat } = useApp();
@@ -26,6 +27,7 @@ export default function GlobalChatScreen() {
     <>
       <div className="page-header">
         <div className="page-header-left">
+          <PageHeaderMenuButton />
           <div className="breadcrumb">
             <span className="bc-link" onClick={() => navigateBack("chats")}>
               Чаты

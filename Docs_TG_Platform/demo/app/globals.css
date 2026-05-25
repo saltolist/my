@@ -568,7 +568,6 @@ html, body {
 
 /* ── Layout ── */
 #app { display: flex; height: 100vh; }
-.mobile-topbar,
 .mobile-sidebar-backdrop {
   display: none;
 }
@@ -1184,6 +1183,47 @@ button.nav-item {
   gap: 10px;
   min-width: 0;
   justify-self: start;
+}
+.page-header-menu-btn {
+  display: none;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text2);
+  box-sizing: border-box;
+  cursor: pointer;
+  font-family: var(--font);
+  -webkit-appearance: none;
+  appearance: none;
+  transition: color 0.12s;
+}
+.page-header-menu-btn-icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.page-header-home-brand {
+  display: none;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#screen-home > .page-header {
+  display: none;
 }
 .page-header-left .breadcrumb { flex: 1; min-width: 0; }
 .page-header-center {
@@ -6801,25 +6841,30 @@ button.filter-tab {
     padding-right: 16px;
   }
 
-  .input-bottom {
+  #screen-post .input-bottom,
+  .feed-screen-wrap .input-bottom {
     align-items: flex-start;
     flex-wrap: wrap;
   }
 
-  .composer-mode {
+  #screen-post .composer-mode,
+  .feed-screen-wrap .composer-mode {
     flex: 1 1 260px;
   }
 
-  .model-picker {
+  #screen-post .model-picker,
+  .feed-screen-wrap .model-picker {
     flex: 1 1 140px;
     min-width: 128px;
   }
-  .model-picker-btn {
+  #screen-post .model-picker-btn,
+  .feed-screen-wrap .model-picker-btn {
     width: 100%;
     max-width: none;
   }
 
-  .send-btn {
+  #screen-post .send-btn,
+  .feed-screen-wrap .send-btn {
     margin-left: 0;
   }
 
@@ -6857,7 +6902,6 @@ button.filter-tab {
     --content-w: 100%;
     --composer-w: 100%;
     --hdr: 52px;
-    --mobile-topbar-h: 54px;
   }
 
   html,
@@ -6870,70 +6914,29 @@ button.filter-tab {
     height: 100dvh;
   }
 
-  .mobile-topbar {
-    position: fixed;
-    inset: 0 0 auto 0;
-    z-index: 700;
-    height: var(--mobile-topbar-h);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 12px;
-    background: rgba(22,22,22,.96);
-    border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(10px);
-  }
-
-  .mobile-menu-btn,
-  .mobile-brand {
-    border: none;
-    background: transparent;
-    color: var(--text);
-    cursor: pointer;
-    font-family: var(--font);
-  }
-
-  .mobile-menu-btn {
-    width: 34px;
-    height: 34px;
-    border-radius: var(--rs);
+  .page-header-menu-btn {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: var(--text2);
+    min-width: 44px;
+    min-height: 44px;
+    margin: 0 -6px;
+    padding: 12px;
   }
 
-  .mobile-menu-btn:hover {
-    background: var(--bg4);
+  .page-header-menu-btn:hover {
     color: var(--text);
   }
 
-  .mobile-brand {
-    min-width: 0;
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    font-size: 14px;
-    font-weight: 700;
+  #screen-home > .page-header {
+    display: grid;
   }
 
-  .mobile-brand-mark {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
+  .page-header-home-brand {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    background: linear-gradient(135deg, var(--accent), var(--purple));
-    color: #fff;
-    font-size: 12px;
   }
 
   .mobile-sidebar-backdrop {
     position: fixed;
-    inset: var(--mobile-topbar-h) 0 0 0;
+    inset: 0;
     z-index: 590;
     display: block;
     background: rgba(0,0,0,.42);
@@ -6949,7 +6952,7 @@ button.filter-tab {
 
   #sidebar {
     position: fixed;
-    top: var(--mobile-topbar-h);
+    top: 0;
     left: 0;
     bottom: 0;
     z-index: 600;
@@ -7043,10 +7046,16 @@ button.filter-tab {
   #main {
     height: 100dvh;
     min-height: 0;
-    padding-top: var(--mobile-topbar-h);
+    padding-top: 0;
   }
 
-  .page-header {
+  #screen-home > .page-header .page-header-center,
+  #screen-home > .page-header .page-header-right {
+    display: none;
+  }
+
+  .page-header,
+  .post-hdr {
     padding: 0 12px;
     column-gap: 8px;
   }
@@ -7069,9 +7078,50 @@ button.filter-tab {
     padding-right: 10px;
   }
 
-  .input-wrap {
+  #screen-post .input-wrap,
+  .feed-screen-wrap .input-wrap {
     padding: 12px;
     margin-top: -66px;
+  }
+
+  #screen-post .input-tools,
+  .feed-screen-wrap .input-tools {
+    order: 1;
+  }
+
+  #screen-post .composer-mode,
+  .feed-screen-wrap .composer-mode {
+    order: 3;
+    flex: 1 0 100%;
+    width: 100%;
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  #screen-post .composer-model-picker {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+  }
+
+  #screen-post .composer-model-picker .model-picker-btn {
+    width: 100%;
+    max-width: none;
+    font-size: 11px;
+    height: 28px;
+    padding: 0 8px 0 10px;
+  }
+
+  #screen-post .send-btn,
+  .feed-screen-wrap .send-btn {
+    order: 2;
+    margin-left: auto;
+  }
+
+  #screen-post .model-picker,
+  .feed-screen-wrap .model-picker {
+    min-width: 0;
+    flex: 1 1 0;
   }
 
   .post-body,
@@ -7081,33 +7131,110 @@ button.filter-tab {
     padding-right: 12px;
   }
 
+  /* Главная и чаты: та же карточка composer, что на полноэкранной версии */
+  #screen-home .input-wrap,
+  #screen-gchat .input-wrap {
+    padding: 18px 12px 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  #screen-gchat .input-wrap {
+    margin-top: -84px;
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    background: var(--input-wrap-grad);
+    isolation: isolate;
+  }
+
+  #screen-gchat .input-wrap::before,
+  #screen-gchat .input-wrap::after {
+    content: "";
+  }
+
   #screen-home .input-wrap {
-    padding-left: 12px;
-    padding-right: 12px;
+    margin-top: 0;
+    position: static;
+    background: transparent;
   }
 
-  .input-box {
+  #screen-home .input-wrap::before,
+  #screen-home .input-wrap::after {
+    content: none;
+  }
+
+  #screen-home .input-box,
+  #screen-gchat .input-box {
     width: 100%;
+    max-width: 100%;
+    min-height: 95px;
+    padding: 20px;
+    border-radius: 22px;
+    background: var(--bg2);
+    box-shadow: var(--inset-edge), var(--shadow-strong);
   }
 
-  .input-tools {
-    order: 1;
+  #screen-gchat .input-box {
+    padding-top: 15px;
   }
 
-  .composer-mode {
-    order: 3;
-    flex: 1 0 100%;
-    width: 100%;
+  #screen-home .input-bottom,
+  #screen-gchat .input-bottom {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 10px;
+    width: calc(100% + 10px);
+    margin: auto -5px -5px;
   }
 
-  .send-btn {
-    order: 2;
+  #screen-home .input-tools,
+  #screen-gchat .input-tools,
+  #screen-home .composer-mode,
+  #screen-gchat .composer-mode,
+  #screen-home .send-btn,
+  #screen-gchat .send-btn {
+    order: unset;
+  }
+
+  #screen-home .composer-mode,
+  #screen-gchat .composer-mode {
+    display: inline-flex;
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  #screen-home .send-btn,
+  #screen-gchat .send-btn {
     margin-left: auto;
   }
 
-  .model-picker {
-    min-width: 0;
+  #screen-home .composer-model-picker,
+  #screen-gchat .composer-model-picker {
     flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+  }
+
+  #screen-home .composer-model-picker .model-picker-btn,
+  #screen-gchat .composer-model-picker .model-picker-btn {
+    width: 100%;
+    max-width: none;
+    height: 28px;
+    padding: 0 8px 0 10px;
+    font-size: 11px;
+    gap: 6px;
+  }
+
+  #screen-home .composer-model-picker .model-picker-icon,
+  #screen-gchat .composer-model-picker .model-picker-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
   }
 
   .home-layout {
@@ -7491,8 +7618,33 @@ button.filter-tab {
     font-size: 16px;
   }
 
-  .model-picker {
+  .profile-page .model-picker,
+  .analytics-chart-card .model-picker {
     flex-basis: 100%;
+  }
+
+  #screen-home .composer-mode,
+  #screen-gchat .composer-mode,
+  #screen-post .composer-mode {
+    flex-wrap: nowrap;
+  }
+
+  #screen-home .composer-model-picker,
+  #screen-gchat .composer-model-picker,
+  #screen-post .composer-model-picker {
+    flex: 1 1 0;
+    min-width: 0;
+    flex-basis: auto;
+  }
+
+  #screen-home .composer-model-picker .model-picker-btn,
+  #screen-gchat .composer-model-picker .model-picker-btn,
+  #screen-post .composer-model-picker .model-picker-btn {
+    width: 100%;
+    max-width: none;
+    font-size: 11px;
+    height: 28px;
+    padding: 0 8px 0 10px;
   }
 
   .gchat-messages,

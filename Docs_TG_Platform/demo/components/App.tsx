@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { AppProvider, useApp } from "@/state/AppContext";
 import Sidebar from "./sidebar/Sidebar";
-import MobileTopbar from "./sidebar/MobileTopbar";
 import HomeScreen from "./screens/HomeScreen";
 import GlobalChatScreen from "./screens/GlobalChatScreen";
 import FeedScreen from "./screens/FeedScreen";
@@ -31,7 +30,6 @@ function AppShell() {
 
   return (
     <div id="app">
-      <MobileTopbar />
       <div className="mobile-sidebar-backdrop" onClick={() => setMobileSidebarOpen(false)} />
       <Sidebar />
       <div id="main">

@@ -32,6 +32,18 @@ export function formatWebSearchComposerLabel(provider: string, model: string): s
   return `${provider} / ${model}`;
 }
 
+/** Короткая подпись на кнопке селектора (меню — полный formatWebSearchComposerLabel). */
+export function formatWebSearchComposerButtonLabel(provider: string, model: string): string {
+  if (isOpenAiWebSearchModel(provider, model)) {
+    return "responses-api + web search";
+  }
+  return model;
+}
+
+export function formatLlmComposerButtonLabel(model: string): string {
+  return model;
+}
+
 export function isWebSearchVisibleForLlm(
   web: { provider: string; model: string },
   llm: { provider: string } | undefined,

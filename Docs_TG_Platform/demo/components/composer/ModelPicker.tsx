@@ -19,6 +19,8 @@ type Props = {
   ariaLabel?: string;
   placement?: "up" | "down";
   className?: string;
+  /** Подпись на кнопке; пункты меню — из options/sections.label */
+  buttonLabelFormatter?: (opt: ModelOption) => string;
 };
 
 type Pos =
@@ -38,6 +40,7 @@ export default function ModelPicker({
   ariaLabel,
   placement = "up",
   className,
+  buttonLabelFormatter,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<Pos | null>(null);
@@ -89,9 +92,13 @@ export default function ModelPicker({
   const flatOptions = sections ? sections.flatMap((s) => s.options) : options;
   const isEmpty = emptyValue !== undefined && value === emptyValue;
   const selected = !isEmpty ? flatOptions.find((o) => o.id === value) : null;
-  const label =
-    selected?.label ??
-    (isEmpty && emptyLabel ? emptyLabel : placeholderLabel ?? "Выбрать");
+  const label = selected
+    ? buttonLabelFormatter
+      ? buttonLabelFormatter(selected)
+      : selected.label
+    : isEmpty && emptyLabel
+      ? emptyLabel
+      : placeholderLabel ?? "Выбрать";
   const isDisabled = disabled || (flatOptions.length === 0 && emptyValue === undefined);
 
   return (

@@ -19,6 +19,7 @@ import { NoteIconAttach } from "../note/NoteHeaderIcons";
 import PostMediaBlock from "../post/PostMediaBlock";
 import { PostReactionPills, PostViewsReposts } from "../feed/PostEngagement";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
+import PageHeaderMenuButton from "../PageHeaderMenuButton";
 import PostStatus from "../feed/PostStatus";
 import PostCardToolbar from "../post/PostCardToolbar";
 import PostCommentsPanel from "../post/PostCommentsPanel";
@@ -146,6 +147,7 @@ export default function PostScreen() {
       <div className="post-hdr">
         <div className="post-hdr-top">
           <div className="page-header-left">
+            <PageHeaderMenuButton />
             <button className="btn btn-ghost btn-sm" onClick={() => navigateBack("feed")} type="button">
               ← Назад
             </button>
@@ -176,6 +178,7 @@ export default function PostScreen() {
       <div className={`post-hdr${showListHeaderSearch ? " post-hdr--with-search" : ""}`}>
         <div className="post-hdr-top">
           <div className="page-header-left">
+            <PageHeaderMenuButton />
             <div className="breadcrumb">
               <span className="bc-link" onClick={() => navigate("feed")}>
                 Лента

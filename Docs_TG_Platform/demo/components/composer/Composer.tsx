@@ -21,7 +21,12 @@ import {
 import type { ComposerAttachment, ComposerScope, Post } from "@/lib/types";
 import AttachMenu from "./AttachMenu";
 import ModelPicker, { BrainIcon, SearchIcon } from "./ModelPicker";
-import { formatWebSearchComposerLabel, isWebSearchVisibleForLlm } from "@/lib/composer-config";
+import {
+  formatLlmComposerButtonLabel,
+  formatWebSearchComposerButtonLabel,
+  formatWebSearchComposerLabel,
+  isWebSearchVisibleForLlm,
+} from "@/lib/composer-config";
 import { onComposerShellMouseDown } from "@/lib/composerPointerDown";
 
 type Props = {
@@ -610,6 +615,10 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
                     id: m.id,
                     label: `${m.provider} / ${m.model}`,
                   }))}
+                  buttonLabelFormatter={(opt) => {
+                    const m = llmOptions.find((row) => row.id === opt.id);
+                    return m ? formatLlmComposerButtonLabel(m.model) : opt.label;
+                  }}
                   onChange={(id) => setComposerLlm(scope, id)}
                   disabled={llmOptions.length === 0}
                   placeholderLabel="Нет LLM моделей"
@@ -624,6 +633,12 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
                     id: m.id,
                     label: formatWebSearchComposerLabel(m.provider, m.model),
                   }))}
+                  buttonLabelFormatter={(opt) => {
+                    const m = webOptions.find((row) => row.id === opt.id);
+                    return m
+                      ? formatWebSearchComposerButtonLabel(m.provider, m.model)
+                      : opt.label;
+                  }}
                   onChange={(id) => setComposerWeb(scope, id)}
                   emptyValue=""
                   emptyLabel="Нет"

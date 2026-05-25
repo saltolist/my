@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useApp } from "@/state/AppContext";
 import type { ScreenId } from "@/lib/types";
+import PageHeaderMenuButton from "./PageHeaderMenuButton";
 
 type Props = {
   title?: ReactNode;
@@ -28,6 +29,7 @@ export default function PageHeader({
   return (
     <div className="page-header">
       <div className="page-header-left">
+        <PageHeaderMenuButton />
         {title ? <h2>{title}</h2> : null}
         {left}
       </div>
