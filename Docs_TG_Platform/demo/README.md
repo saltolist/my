@@ -32,16 +32,39 @@ NEXT_PUBLIC_BASE_PATH=/<repo>/Docs_TG_Platform/demo npm run build
 
 `next.config.ts` подхватит `basePath` и `assetPrefix` из переменной окружения.
 
+## Маршруты (URL)
+
+Каждый экран — отдельный путь (статический HTML в `out/` для GitHub Pages):
+
+| URL | Экран |
+|-----|--------|
+| `/` | Главная |
+| `/feed/` | Лента |
+| `/chats/` | Чаты |
+| `/notes/` | Заметки |
+| `/analytics/` | Аналитика |
+| `/profile/` | Профиль |
+| `/gchat/[id]/` | Глобальный чат |
+| `/post/[id]/` | Пост (чат) |
+| `/post/[id]/comments/` | Комментарии |
+| `/post/[id]/notes/` | Заметки поста |
+| `/post/[id]/chats/` | Чаты поста |
+| `/note/global/[id]/` | Глобальная заметка |
+| `/note/post/[postId]/[noteId]/` | Заметка поста |
+| `/note/new/` | Новая заметка |
+
+После сборки `scripts/copy-404.mjs` копирует `index.html` в `404.html` — fallback для неизвестных URL на GitHub Pages (новые посты с runtime-id и т.п.).
+
 ## Структура проекта
 
 ```
 demo/
 ├── app/
+│   ├── (shell)/             ← layout + страницы по маршрутам
 │   ├── globals.css          ← все стили платформы (verbatim)
-│   ├── layout.tsx
-│   └── page.tsx             ← рендерит <App />
+│   └── layout.tsx
 ├── components/
-│   ├── App.tsx              ← shell + переключение экранов
+│   ├── AppShell.tsx         ← сайдбар + main + RouteSync
 │   ├── ContextMenu.tsx      ← переиспользуемое меню «•••»
 │   ├── PageHeader.tsx       ← единая шапка (заголовок/крошки + поиск + back + ••• справа)
 │   ├── chat/

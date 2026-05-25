@@ -18,17 +18,21 @@ import NoteHeaderToolbar from "../note/NoteHeaderToolbar";
 import PageHeader from "../PageHeader";
 import type { ActiveNote, NoteFile } from "@/lib/types";
 import { useFitTitleSize } from "@/lib/use-fit-title";
+import { routes } from "@/lib/routes";
 
 export default function NoteScreen() {
-  const { state, dispatch, navigate, navigateBack, openPost, setDirty } = useApp();
+  const { state, dispatch, navigate, navigateBack, openPost, goToHref, setDirty } = useApp();
   const note = state.currentNote;
   const backFallback = state.noteFrom === "post" ? "post" : "notes";
   const parentPost = note && !note.isGlobal ? postById(state, note.postId) : null;
 
   const discardNewNote = () => {
     setDirty("note", false);
-    const dest = state.noteFrom === "post" ? "post" : "notes";
-    dispatch({ type: "SET_STATE", patch: { screen: dest, currentNote: null, noteMode: "view" } });
+    if (state.noteFrom === "post" && note && !note.isGlobal) {
+      goToHref(routes.postNotes(note.postId), { replace: true });
+    } else {
+      goToHref(routes.notes(), { replace: true });
+    }
   };
 
   const setNoteAi = (ai: boolean) => {
@@ -70,16 +74,16 @@ export default function NoteScreen() {
           if (!confirm(`Удалить заметку «${note.title}»?`)) return;
           if (note.isGlobal) {
             dispatch({ type: "DELETE_GLOBAL_NOTE", noteId: note.id });
-            navigate("notes", { skipHistory: true });
+            goToHref(routes.notes(), { replace: true });
           } else {
             dispatch({ type: "DELETE_POST_NOTE", postId: note.postId, noteId: note.id });
-            navigate("post", { skipHistory: true });
+            goToHref(routes.postNotes(note.postId), { replace: true });
           }
         },
       },
     ];
     },
-    [discardNewNote, dispatch, navigate, note, setNoteAi],
+    [discardNewNote, dispatch, goToHref, note, setNoteAi],
   );
 
   if (!note) {
@@ -97,7 +101,7 @@ export default function NoteScreen() {
             parentPost={parentPost}
             onNavigateNotes={() => navigateBack("notes")}
             onNavigateFeed={() => navigate("feed")}
-            onOpenPost={openPost}
+            onOpenPost={() => parentPost && openPost(parentPost.id)}
           />
         }
         actions={<ContextMenu items={noteHeaderMenuItems} />}
@@ -156,7 +160,7 @@ function NoteBreadcrumb({
 }
 
 function NoteWorkspace({ note }: { note: ActiveNote }) {
-  const { state, dispatch, navigate, setDirty, registerNotePersist } = useApp();
+  const { state, dispatch, setDirty, registerNotePersist, goToHref } = useApp();
   const noteKey = noteIdentityKey(note);
   const isView = state.noteMode === "view" && !note.isNew;
 
@@ -311,7 +315,10 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
     e.target.value = "";
   };
 
-  const openPost = () => navigate("post");
+  const openParentPost = () => {
+    if (!note || note.isGlobal) return;
+    goToHref(routes.post(note.postId));
+  };
   const focusBodyFromTitle = () => {
     if (isView) setEditMode();
     setBodyFocusRequest((request) => request + 1);
@@ -354,7 +361,7 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
           {!note.isGlobal ? (
             <div className="note-local-info">
               📌 Локальная &nbsp;•&nbsp;{" "}
-              <a onClick={openPost}>→ пост</a>
+              <a onClick={openParentPost}>→ пост</a>
             </div>
           ) : null}
           <NoteBodyEditor

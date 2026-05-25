@@ -2,6 +2,7 @@
 
 import { ContextMenu, type CtxMenuItem } from "@/components/ContextMenu";
 import { useApp } from "@/state/AppContext";
+import { routes } from "@/lib/routes";
 import MessageTrashIcon from "../chat/MessageTrashIcon";
 import MessageRenameIcon from "../chat/MessageRenameIcon";
 
@@ -20,7 +21,7 @@ type Props =
   | { isGlobal: false; postId: number; noteId: number; title: string };
 
 export default function NoteListCardMenu(props: Props) {
-  const { dispatch, navigate, state } = useApp();
+  const { dispatch, goToHref, state } = useApp();
   const { title } = props;
 
   const items: CtxMenuItem[] = [
@@ -56,7 +57,7 @@ export default function NoteListCardMenu(props: Props) {
           dispatch({ type: "DELETE_GLOBAL_NOTE", noteId: props.noteId });
           const cur = state.currentNote;
           if (state.screen === "note" && cur?.isGlobal === true && cur.id === props.noteId) {
-            navigate("notes", { skipHistory: true });
+            goToHref(routes.notes(), { replace: true });
           }
         } else {
           dispatch({ type: "DELETE_POST_NOTE", postId: props.postId, noteId: props.noteId });
@@ -68,7 +69,12 @@ export default function NoteListCardMenu(props: Props) {
             cur.postId === props.postId &&
             cur.id === props.noteId
           ) {
-            navigate(state.noteFrom === "post" ? "post" : "notes", { skipHistory: true });
+            goToHref(
+              state.noteFrom === "post"
+                ? routes.postNotes(props.postId)
+                : routes.notes(),
+              { replace: true },
+            );
           }
         }
       },

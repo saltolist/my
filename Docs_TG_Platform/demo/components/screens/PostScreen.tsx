@@ -27,7 +27,7 @@ import PostCommentsPanel from "../post/PostCommentsPanel";
 import PostCommentsRow from "../post/PostCommentsRow";
 import { ContextMenu } from "../ContextMenu";
 import { usePostCtxMenuItems } from "../post/postCtxMenu";
-import { buildNoteSnapshot, createNewPostNote, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
+import { routes } from "@/lib/routes";
 import type { LocalNote, NoteFile, PostComment, PostMedia, PostMetrics, PostMode } from "@/lib/types";
 
 export default function PostScreen() {
@@ -36,7 +36,7 @@ export default function PostScreen() {
     dispatch,
     navigate,
     navigateBack,
-    navigateWithState,
+    goToHref,
     canLeaveCurrentScreen,
     confirmDiscardAnyEdit,
     discardPendingEdits,
@@ -85,22 +85,11 @@ export default function PostScreen() {
   }, [state.postMode, state.isEditing, post?.id, activeChat?.id]);
 
   const pushPostView = (nextMode: PostMode, nextChatId: number | null) => {
+    if (!post) return;
     if (!confirmDiscardAnyEdit()) return;
     discardPendingEdits();
     if (nextMode === state.postMode && nextChatId === state.currentPostChatId) return;
-    const stack = [
-      ...state.postViewStack,
-      { mode: state.postMode, chatId: state.currentPostChatId },
-    ];
-    dispatch({
-      type: "SET_STATE",
-      patch: {
-        postViewStack: stack,
-        postMode: nextMode,
-        currentPostChatId: nextChatId,
-        isEditing: false,
-      },
-    });
+    goToHref(routes.postSub(post.id, nextMode, nextChatId));
     setListSearch("");
   };
   const goToPostNotes = () => pushPostView("notes", null);
@@ -113,33 +102,9 @@ export default function PostScreen() {
   const startNewChat = () => pushPostView("chat", null);
   const startNewNote = () => {
     if (!post) return;
-    if (!canLeaveCurrentScreen("note")) return;
-    navigateWithState({
-      screen: "note",
-      currentPostId: post.id,
-      currentNote: createNewPostNote(post.id),
-      noteFrom: "post",
-      noteMode: "edit",
-      noteSavedSnapshot: EMPTY_NOTE_SNAPSHOT,
-    });
+    goToHref(routes.noteNew("post", post.id));
   };
   const handleBack = () => {
-    if (!confirmDiscardAnyEdit()) return;
-    discardPendingEdits();
-    if (state.postViewStack.length > 0) {
-      const stack = state.postViewStack.slice(0, -1);
-      const prev = state.postViewStack[state.postViewStack.length - 1];
-      dispatch({
-        type: "SET_STATE",
-        patch: {
-          postViewStack: stack,
-          postMode: prev.mode,
-          currentPostChatId: prev.chatId,
-          isEditing: false,
-        },
-      });
-      return;
-    }
     navigateBack("feed");
   };
 
@@ -608,7 +573,7 @@ const PostMessageCard = ({
 };
 
 function PostNotes({ search }: { search: string }) {
-  const { state, dispatch, navigateWithState } = useApp();
+  const { state, dispatch, goToHref } = useApp();
   const post = postById(state, state.currentPostId);
   if (!post) return null;
 
@@ -618,15 +583,7 @@ function PostNotes({ search }: { search: string }) {
   );
 
   const openNote = (n: LocalNote) => {
-    const files: NoteFile[] = Array.isArray(n.files) ? n.files : [];
-    navigateWithState({
-      screen: "note",
-      currentPostId: post.id,
-      currentNote: { ...n, isGlobal: false, postId: post.id, files },
-      noteFrom: "post",
-      noteMode: "view",
-      noteSavedSnapshot: buildNoteSnapshot(n.title, n.body, n.ai, files),
-    });
+    goToHref(routes.notePost(post.id, n.id));
   };
 
   return (

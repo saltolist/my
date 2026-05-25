@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { usePathname } from "next/navigation";
 import { useApp } from "@/state/AppContext";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
@@ -23,6 +24,8 @@ let feedDidInitialScrollToBottom = false;
 
 export default function FeedScreen() {
   const { state, dispatch, openPost, openPostComments } = useApp();
+  const pathname = usePathname() ?? "/";
+  const onFeed = pathname === "/feed/" || pathname === "/feed";
   const [draft, setDraft] = useState("");
   const [pendingMedia, setPendingMedia] = useState<PostMedia[]>([]);
   const [search, setSearch] = useState("");
@@ -47,13 +50,13 @@ export default function FeedScreen() {
 
   useEffect(() => {
     const el = feedScrollRef.current;
-    if (!el || state.screen !== "feed") return;
+    if (!el || !onFeed) return;
     const onScroll = () => {
       feedScrollTopMemory = el.scrollTop;
     };
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
-  }, [state.screen]);
+  }, [onFeed]);
 
   const applyFeedScroll = (el: HTMLDivElement) => {
     if (!feedDidInitialScrollToBottom) {
@@ -68,11 +71,11 @@ export default function FeedScreen() {
 
   useLayoutEffect(() => {
     const el = feedScrollRef.current;
-    if (!el || state.screen !== "feed") return;
+    if (!el || !onFeed) return;
     applyFeedScroll(el);
     const id = requestAnimationFrame(() => applyFeedScroll(el));
     return () => cancelAnimationFrame(id);
-  }, [state.screen]);
+  }, [onFeed]);
 
   const scheduled = useMemo(
     () => sortPostsByPublicationTime(

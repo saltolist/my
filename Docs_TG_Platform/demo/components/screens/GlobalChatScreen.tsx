@@ -10,9 +10,10 @@ import { MenuIconTrash } from "../HeaderMenuIcons";
 import { ContextMenu } from "../ContextMenu";
 import PageHeaderMenuButton from "../PageHeaderMenuButton";
 import PageHeaderOverflow from "../PageHeaderOverflow";
+import { routes } from "@/lib/routes";
 
 export default function GlobalChatScreen() {
-  const { state, navigate, navigateBack, dispatch, sendGChat } = useApp();
+  const { state, navigateBack, goToHref, dispatch, sendGChat } = useApp();
   const chat = globalChatById(state, state.currentGChatId);
   const omnichannel = chat ? isOmnichannelChat(chat) : isOmnichannelChatId(state.currentGChatId);
   const messagesRef = useRef<HTMLDivElement>(null);
@@ -54,7 +55,7 @@ export default function GlobalChatScreen() {
                       if (!chat) return;
                       if (!confirm(`Удалить чат «${chat.title}»?`)) return;
                       dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: chat.id });
-                      navigate("chats", { skipHistory: true });
+                      goToHref(routes.chats(), { replace: true });
                     },
                   },
                 ]}
@@ -73,7 +74,7 @@ export default function GlobalChatScreen() {
                   if (!chat) return;
                   if (!confirm(`Удалить чат «${chat.title}»?`)) return;
                   dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: chat.id });
-                  navigate("chats", { skipHistory: true });
+                  goToHref(routes.chats(), { replace: true });
                 },
               },
             ]}

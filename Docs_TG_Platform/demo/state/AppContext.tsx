@@ -11,6 +11,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   initialAiProfileConfig,
   initialChannelProfileConfig,
@@ -28,7 +29,16 @@ import {
   VARIANT_TAILS,
 } from "@/lib/composer-config";
 import { getGlobalReply, getPostReply } from "@/lib/replies";
-import { postViewBackTitle, routeSnapshotTitle } from "@/lib/routeLabels";
+import {
+  canPathGoBack,
+  getBackTitleForPath,
+  getParentPath,
+  routes,
+  screenFromPath,
+  screenToHref,
+  statePatchToHref,
+} from "@/lib/routes";
+import { POST_NEW_SLUG } from "@/lib/staticParams";
 import { postTitle, truncate } from "@/lib/helpers";
 import {
   appendToActiveHistory,
@@ -690,8 +700,8 @@ type AppContextValue = {
   /** Возврат по истории без fallback-переходов (для свайпа). */
   popNavigationHistory: () => boolean;
   navigateWithState: (patch: Partial<State>) => void;
-  /** Записать текущий маршрут в стек без смены экрана (например, перед несколькими dispatch подряд). */
-  pushRouteSnapshot: () => void;
+  /** Переход по URL (с проверкой несохранённых правок). */
+  goToHref: (href: string, opts?: { replace?: boolean }) => boolean;
   goHome: () => void;
   openPost: (id: number | "new") => void;
   openPostComments: (id: number) => void;
@@ -726,10 +736,11 @@ type AppContextValue = {
 const AppContext = createContext<AppContextValue | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
   const [state, dispatch] = useReducer(reducer, initialState);
   const stateRef = useRef(state);
   stateRef.current = state;
-  const navStackRef = useRef<RouteSnapshot[]>([]);
   const notePersistRef = useRef<(() => void) | null>(null);
   const userMessageEditRef = useRef<UserMessageEditSession | null>(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -857,117 +868,109 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [clearProfileDirtyFlags, setDirty],
   );
 
+  const goToHref = useCallback(
+    (href: string, opts?: { replace?: boolean }): boolean => {
+      const pathOnly = href.split("?")[0] ?? href;
+      const nextScreen = screenFromPath(pathOnly);
+      if (!canLeaveCurrentScreen(nextScreen)) return false;
+      setMobileSidebarOpen(false);
+      discardPendingEdits();
+      if (opts?.replace) router.replace(href);
+      else router.push(href);
+      return true;
+    },
+    [canLeaveCurrentScreen, discardPendingEdits, router],
+  );
+
   const navigate = useCallback(
     (screen: ScreenId, opts?: { skipHistory?: boolean; clearHistory?: boolean }) => {
-      if (!canLeaveCurrentScreen(screen)) return;
-      if (screen === stateRef.current.screen) return;
-      setMobileSidebarOpen(false);
-      if (opts?.clearHistory) {
-        navStackRef.current = [];
-      }
-      if (!opts?.skipHistory) {
-        navStackRef.current.push(captureRouteState(stateRef.current));
-      }
-      discardPendingEdits();
-      commitNavigationPatch({ screen });
+      void opts?.clearHistory;
+      const href = screenToHref(screen);
+      const curPath = pathname.endsWith("/") ? pathname : `${pathname}/`;
+      if (href === curPath && screen === stateRef.current.screen) return;
+      goToHref(href, { replace: opts?.skipHistory });
     },
-    [canLeaveCurrentScreen, commitNavigationPatch, discardPendingEdits],
+    [goToHref, pathname],
   );
 
   const navigateBack = useCallback(
     (fallback?: ScreenId) => {
-      const snap = navStackRef.current.pop();
-      if (!snap) {
-        const to = fallback ?? "home";
-        if (!canLeaveCurrentScreen(to)) return;
-        setMobileSidebarOpen(false);
-        discardPendingEdits();
-        commitNavigationPatch({ screen: to });
-        return;
-      }
-      if (!canLeaveCurrentScreen(snap.screen)) {
-        navStackRef.current.push(snap);
-        return;
-      }
-      setMobileSidebarOpen(false);
+      if (!confirmDiscardAnyEdit()) return;
       discardPendingEdits();
-      commitNavigationPatch(snap);
+      setMobileSidebarOpen(false);
+      const parent = getParentPath(pathname);
+      if (parent) {
+        router.push(parent);
+        return;
+      }
+      const to = screenToHref(fallback ?? "home");
+      if (!canLeaveCurrentScreen(fallback ?? "home")) return;
+      router.push(to);
     },
-    [canLeaveCurrentScreen, commitNavigationPatch, discardPendingEdits],
+    [
+      canLeaveCurrentScreen,
+      confirmDiscardAnyEdit,
+      discardPendingEdits,
+      pathname,
+      router,
+    ],
   );
 
   const canNavigateBack = useCallback((): boolean => {
-    const s = stateRef.current;
-    if (s.screen === "home") return false;
-    if (s.screen === "post" && s.postViewStack.length > 0) return true;
-    return navStackRef.current.length > 0;
-  }, []);
+    return canPathGoBack(pathname);
+  }, [pathname]);
 
   const getPreviousRouteTitle = useCallback((): string | null => {
-    const s = stateRef.current;
-    if (s.screen === "post" && s.postViewStack.length > 0) {
-      const prev = s.postViewStack[s.postViewStack.length - 1];
-      return postViewBackTitle(prev.mode);
-    }
-    const snap = navStackRef.current[navStackRef.current.length - 1];
-    if (!snap) return null;
-    return routeSnapshotTitle(snap, s.posts);
-  }, []);
+    return getBackTitleForPath(pathname, stateRef.current.posts);
+  }, [pathname]);
 
   const popNavigationHistory = useCallback((): boolean => {
-    const s = stateRef.current;
     if (!canNavigateBack()) return false;
     if (!confirmDiscardAnyEdit()) return false;
     discardPendingEdits();
     setMobileSidebarOpen(false);
-
-    if (s.screen === "post" && s.postViewStack.length > 0) {
-      const stack = s.postViewStack.slice(0, -1);
-      const prev = s.postViewStack[s.postViewStack.length - 1];
-      dispatch({
-        type: "SET_STATE",
-        patch: {
-          postViewStack: stack,
-          postMode: prev.mode,
-          currentPostChatId: prev.chatId,
-          isEditing: false,
-        },
-      });
+    const parent = getParentPath(pathname);
+    if (parent) {
+      router.push(parent);
       return true;
     }
-
-    const snap = navStackRef.current.pop();
-    if (!snap) return false;
-    if (!canLeaveCurrentScreen(snap.screen)) {
-      navStackRef.current.push(snap);
-      return false;
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return true;
     }
-    commitNavigationPatch(snap);
+    router.push(routes.home());
     return true;
   }, [
     canNavigateBack,
-    canLeaveCurrentScreen,
-    commitNavigationPatch,
     confirmDiscardAnyEdit,
     discardPendingEdits,
-    dispatch,
+    pathname,
+    router,
   ]);
 
   const navigateWithState = useCallback(
     (patch: Partial<State>) => {
       const nextScreen = patch.screen ?? stateRef.current.screen;
       if (!canLeaveCurrentScreen(nextScreen)) return;
+      const href = statePatchToHref(patch, stateRef.current);
+      const routeOnly =
+        patch.screen != null ||
+        patch.currentPostId != null ||
+        patch.currentGChatId != null ||
+        patch.postMode != null ||
+        patch.currentNote != null;
+      if (!href || !routeOnly) {
+        setMobileSidebarOpen(false);
+        discardPendingEdits();
+        commitNavigationPatch(patch);
+        return;
+      }
       setMobileSidebarOpen(false);
-      navStackRef.current.push(captureRouteState(stateRef.current));
       discardPendingEdits();
-      commitNavigationPatch(patch);
+      router.push(href);
     },
-    [canLeaveCurrentScreen, commitNavigationPatch, discardPendingEdits],
+    [canLeaveCurrentScreen, commitNavigationPatch, discardPendingEdits, router],
   );
-
-  const pushRouteSnapshot = useCallback(() => {
-    navStackRef.current.push(captureRouteState(stateRef.current));
-  }, []);
 
   useEffect(() => {
     function onBeforeUnload(e: BeforeUnloadEvent) {
@@ -1005,70 +1008,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const openPost = useCallback(
     (id: number | "new") => {
-      if (!canLeaveCurrentScreen("post")) return;
-      setMobileSidebarOpen(false);
-      navStackRef.current.push(captureRouteState(stateRef.current));
-      discardPendingEdits();
-      if (id === "new") {
-        const newPost: Post = {
-          id: Date.now(),
-          status: "draft",
-          created: "только что",
-          rubric: null,
-          text: "",
-          notes: [],
-          chats: [],
-        };
-        dispatch({ type: "UPDATE_POSTS", posts: [...stateRef.current.posts, newPost] });
-        commitNavigationPatch({
-          currentPostId: newPost.id,
-          currentPostChatId: null,
-          postMode: "chat",
-          postViewStack: [],
-          isEditing: false,
-          screen: "post",
-        });
-        return;
-      }
-      commitNavigationPatch({
-        currentPostId: id,
-        currentPostChatId: null,
-        postMode: "chat",
-        postViewStack: [],
-        isEditing: false,
-        screen: "post",
-      });
+      const href = id === "new" ? routes.post(POST_NEW_SLUG) : routes.post(id);
+      goToHref(href);
     },
-    [canLeaveCurrentScreen, commitNavigationPatch, discardPendingEdits],
+    [goToHref],
   );
 
   const openPostComments = useCallback(
     (id: number) => {
-      if (!canLeaveCurrentScreen("post")) return;
-      setMobileSidebarOpen(false);
-      navStackRef.current.push(captureRouteState(stateRef.current));
-      discardPendingEdits();
-      commitNavigationPatch({
-        currentPostId: id,
-        currentPostChatId: null,
-        postMode: "comments",
-        postViewStack: [],
-        isEditing: false,
-        screen: "post",
-      });
+      goToHref(routes.postComments(id));
     },
-    [canLeaveCurrentScreen, commitNavigationPatch, discardPendingEdits],
+    [goToHref],
   );
 
   const openGChat = useCallback(
     (id: string) => {
-      if (!canLeaveCurrentScreen("gchat")) return;
-      setMobileSidebarOpen(false);
-      navStackRef.current.push(captureRouteState(stateRef.current));
-      discardPendingEdits();
-      commitNavigationPatch({ currentGChatId: id, screen: "gchat" });
+      goToHref(routes.gchat(id));
     },
-    [canLeaveCurrentScreen, commitNavigationPatch, discardPendingEdits],
+    [goToHref],
   );
 
   const llmLabel = useCallback(
@@ -1206,7 +1163,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!assertLlm("home")) return false;
       if (!canLeaveCurrentScreen("gchat")) return false;
       setMobileSidebarOpen(false);
-      navStackRef.current.push(captureRouteState(stateRef.current));
       const id = "gc" + Date.now();
       const newChat: GlobalChat = {
         id,
@@ -1216,14 +1172,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         history: [{ role: "user", text }],
       };
       dispatch({ type: "ADD_GLOBAL_CHAT", chat: newChat });
-      dispatch({ type: "SET_STATE", patch: { currentGChatId: id, screen: "gchat" } });
+      goToHref(routes.gchat(id));
       setTimeout(() => {
         const reply = buildAiMessage(getGlobalReply(text), "home");
         dispatch({ type: "PUSH_GLOBAL_CHAT", chatId: id, message: reply });
       }, 900);
       return true;
     },
-    [assertLlm, buildAiMessage, canLeaveCurrentScreen],
+    [assertLlm, buildAiMessage, canLeaveCurrentScreen, goToHref],
   );
 
   const sendGChat = useCallback(
@@ -1293,7 +1249,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       getPreviousRouteTitle,
       popNavigationHistory,
       navigateWithState,
-      pushRouteSnapshot,
+      goToHref,
       goHome,
       openPost,
       openPostComments,
@@ -1329,7 +1285,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       getPreviousRouteTitle,
       popNavigationHistory,
       navigateWithState,
-      pushRouteSnapshot,
+      goToHref,
       goHome,
       openPost,
       openPostComments,

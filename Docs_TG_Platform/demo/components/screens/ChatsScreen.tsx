@@ -9,6 +9,7 @@ import PageHeaderSelect from "../PageHeaderSelect";
 import ChatListCardMenu from "../chat/ChatListCardMenu";
 import { NavIconChats, NavIconFeed, NavIconSend } from "@/components/sidebar/NavIcons";
 import { isOmnichannelChat } from "@/lib/omnichannel";
+import { routes } from "@/lib/routes";
 import type { ChatMessage, ChatsTab } from "@/lib/types";
 
 type LocalChatRow = {
@@ -22,7 +23,7 @@ type LocalChatRow = {
 };
 
 export default function ChatsScreen() {
-  const { state, dispatch, openGChat, navigateWithState } = useApp();
+  const { state, dispatch, openGChat, goToHref } = useApp();
   const tab = state.chatsTab;
   const [search, setSearch] = useState("");
 
@@ -89,16 +90,7 @@ export default function ChatsScreen() {
         key={`${row.postId}-${row.chatId}`}
         className="chat-card"
         title={`Пост: ${row.postTitle}`}
-        onClick={() =>
-          navigateWithState({
-            currentPostId: row.postId,
-            currentPostChatId: row.chatId,
-            postMode: "chat",
-            postViewStack: [],
-            isEditing: false,
-            screen: "post",
-          })
-        }
+        onClick={() => goToHref(routes.post(row.postId, row.chatId))}
       >
         <div className="chat-card-icon-rail" aria-hidden>
           <NavIconFeed strokeWidth={1.5} outerStrokeWidth={1.5} />

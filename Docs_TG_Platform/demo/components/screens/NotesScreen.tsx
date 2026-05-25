@@ -8,7 +8,8 @@ import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import PageHeaderSelect from "../PageHeaderSelect";
 import NoteCardAiToggle from "../note/NoteCardAiToggle";
 import NoteListCardMenu from "../note/NoteListCardMenu";
-import { buildNoteSnapshot, createNewGlobalNote, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
+import { buildNoteSnapshot, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
+import { routes } from "@/lib/routes";
 import type { GlobalNote, LocalNote, NoteFile } from "@/lib/types";
 
 type AnyNote =
@@ -16,7 +17,7 @@ type AnyNote =
   | (LocalNote & { isGlobal: false; postId: number; postTitle: string });
 
 export default function NotesScreen() {
-  const { state, dispatch, navigateWithState, openPost, pushRouteSnapshot, canLeaveCurrentScreen } = useApp();
+  const { state, dispatch, openPost, goToHref } = useApp();
   const [search, setSearch] = useState("");
   const scope = state.noteScope;
   const filter = state.noteFilter;
@@ -43,23 +44,9 @@ export default function NotesScreen() {
 
   const openNote = (n: AnyNote) => {
     if (n.isGlobal) {
-      const files: NoteFile[] = Array.isArray(n.files) ? n.files : [];
-      navigateWithState({
-        screen: "note",
-        currentNote: { ...n, files },
-        noteFrom: "notes",
-        noteMode: "view",
-        noteSavedSnapshot: buildNoteSnapshot(n.title, n.body, n.ai, files),
-      });
+      goToHref(routes.noteGlobal(n.id as string));
     } else {
-      const files: NoteFile[] = Array.isArray(n.files) ? n.files : [];
-      navigateWithState({
-        screen: "note",
-        currentNote: { ...n, isGlobal: false, postId: n.postId, files },
-        noteFrom: "notes",
-        noteMode: "view",
-        noteSavedSnapshot: buildNoteSnapshot(n.title, n.body, n.ai, files),
-      });
+      goToHref(routes.notePost(n.postId, n.id as number));
     }
   };
 
@@ -72,18 +59,7 @@ export default function NotesScreen() {
   };
 
   const newGlobal = () => {
-    if (!canLeaveCurrentScreen("note")) return;
-    pushRouteSnapshot();
-    dispatch({
-      type: "SET_STATE",
-      patch: {
-        screen: "note",
-        currentNote: createNewGlobalNote(),
-        noteFrom: "notes",
-        noteMode: "edit",
-        noteSavedSnapshot: EMPTY_NOTE_SNAPSHOT,
-      },
-    });
+    goToHref(routes.noteNew("notes"));
   };
 
   return (

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import { parseAppPath, routes, screenFromPath } from "@/lib/routes";
 import { ContextMenu } from "@/components/ContextMenu";
 import { usePostCtxMenuItems } from "@/components/post/postCtxMenu";
 import { useApp } from "@/state/AppContext";
@@ -91,11 +93,14 @@ export default function Sidebar() {
     goHome,
     openPost,
     openGChat,
-    navigateWithState,
+    goToHref,
     dispatch,
     confirmDiscardAnyEdit,
     discardPendingEdits,
   } = useApp();
+  const pathname = usePathname() ?? "/";
+  const route = parseAppPath(pathname);
+  const screen = screenFromPath(pathname);
   const [chatsExpanded, setChatsExpanded] = useState(true);
   const [notesExpanded, setNotesExpanded] = useState(false);
   const [recentMenuOpenKey, setRecentMenuOpenKey] = useState<string | null>(null);
@@ -140,17 +145,17 @@ export default function Sidebar() {
   }, [railAllowed, sidebarCollapsed]);
 
   useEffect(() => {
-    if (state.screen === "note") setNotesExpanded(true);
-    if (state.screen === "gchat") setChatsExpanded(true);
-    if (state.screen === "post" && state.postMode === "notes") setNotesExpanded(true);
-  }, [state.screen, state.postMode]);
+    if (screen === "note") setNotesExpanded(true);
+    if (screen === "gchat") setChatsExpanded(true);
+    if (screen === "post" && route.postMode === "notes") setNotesExpanded(true);
+  }, [screen, route.postMode]);
 
   const sidebarPostId = useMemo((): number | null => {
-    if (state.screen === "post" && state.currentPostId != null) return state.currentPostId;
+    if (screen === "post" && route.postId != null) return route.postId;
     const note = state.currentNote;
-    if (state.screen === "note" && note && !note.isGlobal) return note.postId;
+    if (screen === "note" && note && !note.isGlobal) return note.postId;
     return null;
-  }, [state.screen, state.currentPostId, state.currentNote]);
+  }, [screen, route.postId, state.currentNote]);
 
   const recentChatsModel = useMemo((): RecentChatsModel => {
     const byActivity = (a: RecentRow, b: RecentRow) =>
@@ -345,12 +350,12 @@ export default function Sidebar() {
 
   const showFeedPostRow =
     sidebarPostId != null &&
-    (state.screen === "post" || (state.screen === "note" && state.currentNote != null && !state.currentNote.isGlobal));
+    (screen === "post" || (screen === "note" && state.currentNote != null && !state.currentNote.isGlobal));
 
   // Полностью активна — на странице поста, но не внутри конкретного чата или заметки
   const isSidebarPostFullActive =
     sidebarPostId != null &&
-    state.screen === "post" &&
+    screen === "post" &&
     state.currentPostId === sidebarPostId &&
     !(state.postMode === "chat" && state.currentPostChatId != null);
 
@@ -358,11 +363,11 @@ export default function Sidebar() {
   const isSidebarPostSubActive =
     sidebarPostId != null &&
     !isSidebarPostFullActive &&
-    ((state.screen === "post" &&
+    ((screen === "post" &&
       state.currentPostId === sidebarPostId &&
       state.postMode === "chat" &&
       state.currentPostChatId != null) ||
-      (state.screen === "note" &&
+      (screen === "note" &&
         state.currentNote != null &&
         !state.currentNote.isGlobal &&
         state.currentNote.postId === sidebarPostId));
@@ -370,23 +375,16 @@ export default function Sidebar() {
   const { items: feedPostCtxItems, modal: scheduleModal } = usePostCtxMenuItems(currentPostSidebar);
 
   const openLocalChat = (postId: number, chatId: number) => {
-    navigateWithState({
-      currentPostId: postId,
-      currentPostChatId: chatId,
-      postMode: "chat",
-      postViewStack: [],
-      isEditing: false,
-      screen: "post",
-    });
+    goToHref(routes.post(postId, chatId));
   };
 
   const isRecentActive = (row: RecentRow) => {
     if (row.kind === "global") {
-      return state.screen === "gchat" && state.currentGChatId === row.id;
+      return screen === "gchat" && route.gchatId === row.id;
     }
     return (
-      state.screen === "post" &&
-      state.currentPostId === row.postId &&
+      screen === "post" &&
+      route.postId === row.postId &&
       state.currentPostChatId === row.chatId
     );
   };
@@ -443,8 +441,8 @@ export default function Sidebar() {
               if (!window.confirm(`Удалить чат «${row.title}»?`)) return;
               if (row.kind === "global") {
                 dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: row.id });
-                if (state.screen === "gchat" && state.currentGChatId === row.id) {
-                  navigate("chats", { skipHistory: true });
+                if (screen === "gchat" && route.gchatId === row.id) {
+                  goToHref(routes.chats(), { replace: true });
                 }
               } else {
                 dispatch({
@@ -465,13 +463,7 @@ export default function Sidebar() {
       const n = state.globalNotes.find((x) => x.id === row.id);
       if (!n) return;
       const files: NoteFile[] = Array.isArray(n.files) ? n.files : [];
-      navigateWithState({
-        screen: "note",
-        currentNote: { ...n, isGlobal: true, files },
-        noteFrom: "notes",
-        noteMode: "view",
-        noteSavedSnapshot: buildNoteSnapshot(n.title, n.body, n.ai, files),
-      });
+      goToHref(routes.noteGlobal(row.id));
     } else {
       const post = state.posts.find((p) => p.id === row.postId);
       const n = post?.notes.find((x) => x.id === row.noteId);
@@ -479,19 +471,12 @@ export default function Sidebar() {
       const files: NoteFile[] = Array.isArray(n.files) ? n.files : [];
       const noteFrom =
         sidebarPostId != null && row.postId === sidebarPostId ? ("post" as const) : ("notes" as const);
-      navigateWithState({
-        screen: "note",
-        currentPostId: row.postId,
-        currentNote: { ...n, isGlobal: false, postId: row.postId, files },
-        noteFrom,
-        noteMode: "view",
-        noteSavedSnapshot: buildNoteSnapshot(n.title, n.body, n.ai, files),
-      });
+      goToHref(routes.notePost(row.postId, row.noteId));
     }
   };
 
   const isRecentNoteActive = (row: RecentNoteRow) => {
-    if (state.screen !== "note" || !state.currentNote) return false;
+    if (screen !== "note" || !state.currentNote) return false;
     if (row.kind === "global") {
       return state.currentNote.isGlobal === true && state.currentNote.id === row.id;
     }
@@ -550,20 +535,20 @@ export default function Sidebar() {
               if (row.kind === "global") {
                 dispatch({ type: "DELETE_GLOBAL_NOTE", noteId: row.id });
                 const cur = state.currentNote;
-                if (state.screen === "note" && cur?.isGlobal === true && cur.id === row.id) {
-                  navigate("notes", { skipHistory: true });
+                if (screen === "note" && cur?.isGlobal === true && cur.id === row.id) {
+                  goToHref(routes.notes(), { replace: true });
                 }
               } else {
                 dispatch({ type: "DELETE_POST_NOTE", postId: row.postId, noteId: row.noteId });
                 const cur = state.currentNote;
                 if (
-                  state.screen === "note" &&
+                  screen === "note" &&
                   cur &&
                   cur.isGlobal === false &&
                   cur.postId === row.postId &&
                   cur.id === row.noteId
                 ) {
-                  navigate("notes", { skipHistory: true });
+                  goToHref(routes.notes(), { replace: true });
                 }
               }
             },
@@ -642,7 +627,7 @@ export default function Sidebar() {
       <div className="nav-items">
         <button
           type="button"
-          className={`nav-item${state.screen === "home" ? " active" : ""}`}
+          className={`nav-item${screen === "home" ? " active" : ""}`}
           onClick={goHome}
           title="Глобальный чат"
           aria-label="Глобальный чат"
@@ -656,10 +641,10 @@ export default function Sidebar() {
           id="analytics"
           label="Аналитика"
           icon={<NavIconAnalytics />}
-          active={state.screen === "analytics"}
+          active={screen === "analytics"}
           onClick={() => navigate("analytics")}
         />
-        <NavItem id="feed" label="Лента" icon={<NavIconFeed />} active={state.screen === "feed"} onClick={() => navigate("feed")} />
+        <NavItem id="feed" label="Лента" icon={<NavIconFeed />} active={screen === "feed"} onClick={() => navigate("feed")} />
         {showFeedPostRow && currentPostSidebar ? (
           <div className="nav-recent-chats">
             <div
@@ -685,7 +670,7 @@ export default function Sidebar() {
             </div>
           </div>
         ) : null}
-        <div id="nav-notes" className={`nav-item nav-item--chats-row${state.screen === "notes" ? " active" : ""}`}>
+        <div id="nav-notes" className={`nav-item nav-item--chats-row${screen === "notes" ? " active" : ""}`}>
           <button type="button" className="nav-item-chats-main" onClick={openNotesNav}>
             <span className="nav-icon">
               <NavIconNotes />
@@ -740,7 +725,7 @@ export default function Sidebar() {
           </div>
         ) : null}
 
-        <div className={`nav-item nav-item--chats-row${state.screen === "chats" ? " active" : ""}`}>
+        <div className={`nav-item nav-item--chats-row${screen === "chats" ? " active" : ""}`}>
           <button type="button" className="nav-item-chats-main" onClick={openChatsNav}>
             <span className="nav-icon">
               <NavIconChats />
@@ -801,7 +786,7 @@ export default function Sidebar() {
           id="profile"
           label="Профиль"
           icon={<NavIconProfile />}
-          active={state.screen === "profile"}
+          active={screen === "profile"}
           onClick={() => navigate("profile")}
         />
       </div>
