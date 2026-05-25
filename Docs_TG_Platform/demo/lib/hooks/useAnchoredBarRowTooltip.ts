@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "re
 
 /** Мобильный тултип: открытие по тапу/клику, закрытие повторным тапом или тапом вне строки. */
 export function useAnchoredBarRowTooltip(isMobile: boolean) {
-  const rowRef = useRef<HTMLDivElement>(null);
+  const rowRef = useRef<HTMLTableRowElement | HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export function useAnchoredBarRowTooltip(isMobile: boolean) {
           event.stopPropagation();
           toggleOpen();
         },
-        onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => {
+        onKeyDown: (event: KeyboardEvent<HTMLElement>) => {
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             toggleOpen();
