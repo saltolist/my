@@ -31,31 +31,35 @@
   --composer-w: 720px;
   /* Базовая ширина только поля поиска в шапке (лента / чаты / заметки); рядом — тумблеры */
   --page-header-search-w: 350px;
-  /* Полупрозрачные контролы шапки (тот же серый тон, что у --bg3 / --border2) */
-  --page-header-control-bg: color-mix(in srgb, var(--bg3) 62%, transparent);
-  --page-header-control-bg-hover: color-mix(in srgb, var(--bg4) 66%, transparent);
-  --page-header-control-bg-focus: color-mix(in srgb, var(--bg4) 72%, transparent);
-  --page-header-control-border: color-mix(in srgb, var(--border2) 58%, transparent);
-  /* Профиль: серые полупрозрачные контролы с размытием */
+  /* Поля и контролы — тот же тон, что карточка composer (.input-box → --bg2) */
+  --page-header-control-bg: var(--bg2);
+  --page-header-control-bg-hover: var(--bg3);
+  --page-header-control-bg-focus: var(--bg3);
+  --page-header-control-border: var(--border2);
+  --profile-control-fg: var(--text);
+  --profile-control-fg-muted: var(--text2);
+  --profile-field-border: var(--border2);
+  --profile-field-shadow: var(--inset-edge);
+  /* Профиль: фон секций не трогаем; интерактив — сплошной --bg2 */
   --profile-block-bg: color-mix(in srgb, var(--bg4) 43%, transparent);
-  --profile-control-bg: color-mix(in srgb, var(--bg3) 36%, transparent);
-  --profile-control-bg-hover: color-mix(in srgb, var(--bg4) 39%, transparent);
-  --profile-control-bg-active: color-mix(in srgb, var(--bg4) 43%, transparent);
-  --profile-field-bg: #ffffff;
-  --profile-field-bg-hover: #ffffff;
-  --profile-field-bg-active: #ffffff;
-  --profile-select-bg: var(--profile-control-bg);
-  --profile-select-bg-hover: var(--profile-control-bg-hover);
-  --profile-select-bg-active: var(--profile-control-bg-active);
-  --profile-control-border: color-mix(in srgb, var(--border2) 60%, transparent);
-  --profile-control-blur: blur(14px) saturate(165%);
+  --profile-control-bg: var(--bg2);
+  --profile-control-bg-hover: var(--bg3);
+  --profile-control-bg-active: var(--bg3);
+  --profile-field-bg: var(--bg2);
+  --profile-field-bg-hover: var(--bg3);
+  --profile-field-bg-active: var(--bg3);
+  --profile-select-bg: var(--bg2);
+  --profile-select-bg-hover: var(--bg3);
+  --profile-select-bg-active: var(--bg3);
+  --profile-control-border: var(--border2);
+  --profile-control-blur: none;
   --profile-green-border: color-mix(in srgb, var(--green) 38%, var(--profile-control-border));
   --profile-green-card-border: color-mix(in srgb, var(--green) 32%, var(--profile-control-border));
   --profile-green-number-bg: color-mix(in srgb, var(--green) 22%, var(--profile-control-bg-hover));
   --profile-telegram-card-bg: var(--profile-control-bg);
   --profile-r: 15px;
-  /* Активный контур: чуть темнее обычного (solid, от --border2) */
-  --control-border-active: color-mix(in srgb, var(--border2) 72%, #000 28%);
+  /* Активный контур полей и контролов */
+  --control-border-active: var(--border2);
   /* Ширина карточки поста в ленте (переопределяется с экрана ленты) */
   --feed-post-w: 500px;
   /* Иконки статуса и метрик в подвале карточки — высота строки = размер иконки */
@@ -63,6 +67,9 @@
   /* Ряд картинок в заметке: до 3 шт., равные доли ширины, потолок на ячейку */
   --note-embed-image-max-w: 400px;
   --note-embed-image-gap: 8px;
+  --reaction-pill-bg: var(--bg3);
+  --reaction-pill-border: var(--border);
+  --reaction-pill-fg: var(--text2);
   --input-focus-ring: rgba(91, 143, 249, 0.45);
   --heatmap-tint-source: #5b8ff9;
   --heatmap-tint: var(--accent);
@@ -107,6 +114,116 @@
     radial-gradient(105% 92% at -15% 108%, rgba(155, 124, 219, 0.22) 0%, rgba(155, 124, 219, 0.06) 38%, transparent 56%),
     radial-gradient(70% 50% at 45% 42%, rgba(255, 255, 255, 0.045) 0%, transparent 62%),
     linear-gradient(168deg, #171a2a 0%, #12141c 30%, var(--bg) 52%, #0c0d12 100%);
+}
+
+/* Явная тёмная тема — те же токены контролов (фон страниц/блоков без изменений) */
+:root[data-theme="dark"] {
+  --page-header-control-bg: var(--bg2);
+  --page-header-control-bg-hover: var(--bg3);
+  --page-header-control-bg-focus: var(--bg3);
+  --page-header-control-border: var(--border2);
+  --profile-control-fg: var(--text);
+  --profile-control-fg-muted: var(--text2);
+  --profile-field-border: var(--border2);
+  --profile-field-shadow: var(--inset-edge);
+  --profile-control-bg: var(--bg2);
+  --profile-control-bg-hover: var(--bg3);
+  --profile-control-bg-active: var(--bg3);
+  --profile-field-bg: var(--bg2);
+  --profile-field-bg-hover: var(--bg3);
+  --profile-field-bg-active: var(--bg3);
+  --profile-select-bg: var(--bg2);
+  --profile-select-bg-hover: var(--bg3);
+  --profile-select-bg-active: var(--bg3);
+  --profile-control-border: var(--border2);
+  --profile-control-blur: none;
+  --profile-telegram-card-bg: var(--bg2);
+  --control-border-active: var(--border2);
+  --reaction-pill-bg: color-mix(in srgb, var(--bg3) 82%, var(--bg4));
+  --reaction-pill-border: var(--border);
+  --reaction-pill-fg: var(--text2);
+}
+
+/* Тёмная тема: селекторы и кнопки-таблетки на --bg2 (как composer) */
+:root[data-theme="dark"] :is(
+  .model-picker-btn,
+  .period-tab,
+  .filter-tab,
+  .btn-ghost,
+  .chip,
+  .sched-cal-nav-btn,
+  .sched-time-input
+) {
+  background: var(--bg2);
+  border-color: var(--border2);
+}
+:root[data-theme="dark"] :is(
+  .model-picker-btn:hover:not(:disabled),
+  .period-tab:hover,
+  .filter-tab:hover,
+  .btn-ghost:hover:not(:disabled),
+  .chip:hover,
+  .sched-cal-nav-btn:hover:not(:disabled)
+) {
+  background: var(--bg3);
+  color: var(--text);
+}
+:root[data-theme="dark"] :is(.period-tab.active, .filter-tab.active) {
+  background: var(--bg3);
+  border-color: var(--control-border-active);
+  color: var(--text);
+}
+:root[data-theme="dark"] .model-picker.is-open > .model-picker-btn {
+  background: var(--bg3);
+  border-color: var(--accent);
+  color: var(--text);
+}
+:root[data-theme="dark"] .model-picker-dropdown--composer {
+  background: var(--bg2);
+  border-color: var(--border2);
+}
+:root[data-theme="dark"] .chart-series-selector-panel--profile,
+:root[data-theme="dark"] .profile-page .model-picker-dropdown {
+  background: var(--bg2);
+  border-color: var(--border2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:root[data-theme="dark"] .note-ai-toggle {
+  color: var(--text2);
+}
+:root[data-theme="dark"] .note-ai-toggle.on,
+:root[data-theme="dark"] .note-ai-toggle.on.note-ai-toggle--suppress-hover:hover:not(:disabled) {
+  color: var(--text);
+}
+:root[data-theme="dark"] .profile-page input[type="checkbox"]::after {
+  border-color: var(--text2);
+}
+:root[data-theme="dark"] .sched-cal-cell:hover:not(:disabled):not(.sched-cal-cell--sel) {
+  background: var(--bg3);
+  color: var(--text);
+}
+:root[data-theme="dark"] .sched-time-input:focus {
+  color: var(--text);
+  background: var(--bg3);
+}
+:root[data-theme="dark"] .model-type-tab {
+  background: var(--bg2);
+}
+:root[data-theme="dark"] .model-type-tab.active {
+  background: var(--bg3);
+}
+:root[data-theme="dark"] .platform-filter-select:hover,
+:root[data-theme="dark"] .platform-filter-select:focus {
+  background: var(--bg3);
+}
+
+/* Реакции: без «светящихся» голубых пилюль на тёмных карточках */
+:root[data-theme="dark"] .post-reaction-pill {
+  --reaction-pill-shadow: var(--inset-edge);
+}
+:root[data-theme="dark"] .post-reaction-emoji {
+  filter: saturate(0.88) brightness(0.92);
 }
 
 html.sidebar-collapsed {
@@ -155,7 +272,20 @@ html.sidebar-collapsed {
   --sidebar-glass-shine:  rgba(255, 255, 255, 0.55);
   --sidebar-glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.08);
 
+  --page-header-control-bg: color-mix(in srgb, var(--bg3) 62%, transparent);
+  --page-header-control-bg-hover: color-mix(in srgb, var(--bg4) 66%, transparent);
+  --page-header-control-bg-focus: color-mix(in srgb, var(--bg4) 72%, transparent);
+  --page-header-control-border: color-mix(in srgb, var(--border2) 58%, transparent);
+
+  --reaction-pill-bg: rgb(225, 238, 246);
+  --reaction-pill-border: transparent;
+  --reaction-pill-fg: rgb(65, 135, 200);
+
   --profile-block-bg: #ffffff;
+  --profile-control-fg: #3a3a3a;
+  --profile-control-fg-muted: #3a3a3a;
+  --profile-field-border: color-mix(in srgb, var(--text2) 44%, #fff 56%);
+  --profile-field-shadow: none;
   --profile-control-bg: var(--page-header-control-bg);
   --profile-control-bg-hover: var(--page-header-control-bg-hover);
   --profile-control-bg-active: var(--page-header-control-bg-focus);
@@ -282,7 +412,20 @@ html.sidebar-collapsed {
     --sidebar-glass-shine:  rgba(255, 255, 255, 0.55);
     --sidebar-glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.08);
 
+    --page-header-control-bg: color-mix(in srgb, var(--bg3) 62%, transparent);
+    --page-header-control-bg-hover: color-mix(in srgb, var(--bg4) 66%, transparent);
+    --page-header-control-bg-focus: color-mix(in srgb, var(--bg4) 72%, transparent);
+    --page-header-control-border: color-mix(in srgb, var(--border2) 58%, transparent);
+
+    --reaction-pill-bg: rgb(225, 238, 246);
+    --reaction-pill-border: transparent;
+    --reaction-pill-fg: rgb(65, 135, 200);
+
     --profile-block-bg: #ffffff;
+    --profile-control-fg: #3a3a3a;
+    --profile-control-fg-muted: #3a3a3a;
+    --profile-field-border: color-mix(in srgb, var(--text2) 44%, #fff 56%);
+    --profile-field-shadow: none;
     --profile-control-bg: var(--page-header-control-bg);
     --profile-control-bg-hover: var(--page-header-control-bg-hover);
     --profile-control-bg-active: var(--page-header-control-bg-focus);
@@ -2034,7 +2177,7 @@ button.nav-item {
 }
 .sched-cal-cell:hover:not(:disabled):not(.sched-cal-cell--sel) {
   background: var(--profile-control-bg-hover);
-  color: color-mix(in srgb, #3a3a3a 58%, #000 42%);
+  color: var(--profile-control-fg);
 }
 .sched-cal-cell--planned {
   font-weight: 700;
@@ -2087,9 +2230,9 @@ button.nav-item {
 .sched-time-input::-webkit-outer-spin-button,
 .sched-time-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .sched-time-input:focus {
-  color: #3a3a3a;
-  background: var(--profile-control-bg);
-  border: 1px solid color-mix(in srgb, var(--control-border-active) 52%, var(--profile-control-border));
+  color: var(--profile-control-fg);
+  background: var(--profile-control-bg-active);
+  border: 1px solid var(--control-border-active);
 }
 .sched-time-arrows {
   position: absolute;
@@ -2956,11 +3099,12 @@ button.nav-item {
   gap: 5px;
   padding: 4px 10px 4px 8px;
   border-radius: 999px;
-  background: rgb(225, 238, 246);
-  border: none;
+  background: var(--reaction-pill-bg);
+  border: 1px solid var(--reaction-pill-border);
   line-height: 1;
   font-weight: 600;
   user-select: none;
+  box-shadow: var(--reaction-pill-shadow, none);
 }
 .post-reaction-emoji {
   display: block;
@@ -2980,7 +3124,7 @@ button.nav-item {
   line-height: 14px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: rgb(65, 135, 200);
+  color: var(--reaction-pill-fg);
 }
 .post-metrics-views-reposts {
   display: inline-flex;
@@ -3264,13 +3408,13 @@ button.nav-item {
 .post-edit-toolbar .btn-primary.post-edit-btn,
 .msg-user-edit-bar .btn-primary.post-edit-btn {
   background: var(--profile-control-bg);
-  color: #3a3a3a;
-  border: 1px solid color-mix(in srgb, var(--control-border-active) 52%, var(--profile-control-border));
+  color: var(--profile-control-fg);
+  border: 1px solid var(--control-border-active);
 }
 .post-edit-toolbar .btn-primary.post-edit-btn:hover,
 .msg-user-edit-bar .btn-primary.post-edit-btn:hover {
   background: var(--profile-control-bg-hover);
-  color: color-mix(in srgb, #3a3a3a 58%, #000 42%);
+  color: var(--profile-control-fg);
   border-color: var(--control-border-active);
 }
 .post-msg-textarea.post-card-text.empty::placeholder {
@@ -4450,7 +4594,7 @@ button.filter-tab {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #3a3a3a;
+  color: var(--profile-control-fg-muted);
   transition: border-color 0.12s, background 0.12s, box-shadow 0.12s, color 0.12s;
 }
 .note-ai-toggle::after {
@@ -4506,7 +4650,7 @@ button.filter-tab {
 .note-ai-toggle.on {
   background: var(--profile-control-bg-active);
   border-color: var(--control-border-active);
-  color: #3a3a3a;
+  color: var(--profile-control-fg);
 }
 /* Вкл.: hover-превью (тусклый мозг + штрих) — как :checked:hover:not(.profile-checkbox--suppress-hover) */
 .note-ai-toggle.on:hover:not(:disabled):not(.note-ai-toggle--suppress-hover) {
@@ -4521,8 +4665,8 @@ button.filter-tab {
 .note-ai-toggle.on.note-ai-toggle--suppress-hover:hover:not(:disabled),
 .note-ai-toggle.on.note-ai-toggle--suppress-hover:active:not(:disabled) {
   background: var(--profile-control-bg-active);
-  border-color: #484848;
-  color: #3a3a3a;
+  border-color: color-mix(in srgb, var(--border2) 55%, #000 45%);
+  color: var(--profile-control-fg);
 }
 .note-ai-toggle.on.note-ai-toggle--suppress-hover:hover:not(:disabled)::after,
 .note-ai-toggle.on.note-ai-toggle--suppress-hover:active:not(:disabled)::after {
@@ -4788,10 +4932,11 @@ button.filter-tab {
   align-items: center;
   width: 100%;
   height: 36px;
-  border: 1px solid color-mix(in srgb, var(--text2) 44%, #fff 56%);
+  border: 1px solid var(--profile-field-border);
   border-radius: var(--rs);
   background: var(--profile-select-bg);
   color: var(--text2);
+  box-shadow: var(--profile-field-shadow);
   font: 13px/1.2 var(--font);
   padding: 0 34px 0 12px;
   cursor: pointer;
@@ -4953,10 +5098,11 @@ button.filter-tab {
 .platform-filter-select {
   width: 100%;
   height: 36px;
-  border: 1px solid color-mix(in srgb, var(--text2) 44%, #fff 56%);
+  border: 1px solid var(--profile-field-border);
   border-radius: var(--rs);
   background: var(--profile-select-bg);
   color: var(--text2);
+  box-shadow: var(--profile-field-shadow);
   font: 13px/1.2 var(--font);
   padding: 0 34px 0 12px;
   -webkit-appearance: none;
@@ -4982,7 +5128,7 @@ button.filter-tab {
 }
 .model-type-tab {
   border: 1px solid var(--border2);
-  background: var(--bg4);
+  background: var(--profile-select-bg);
   color: var(--text3);
   border-radius: 999px;
   cursor: pointer;
@@ -5000,7 +5146,7 @@ button.filter-tab {
 }
 .model-analytics-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
 .platform-analytics-section .model-analytics-summary .mini-metric {
-  border: 1px solid color-mix(in srgb, var(--text2) 44%, #fff 56%);
+  border: 1px solid var(--profile-field-border);
 }
 .platform-analytics-section .model-analytics-summary .mini-metric::before {
   background: var(--profile-field-bg);
@@ -5272,7 +5418,14 @@ button.filter-tab {
 .mini-metric-value { color: var(--text); font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 .mini-metric-label { color: var(--text3); font-size: 12px; }
 .reaction-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-.reaction-strip span { background: var(--bg3); border: 1px solid var(--border); border-radius: 999px; color: var(--text2); font-size: 12px; padding: 5px 9px; }
+.reaction-strip span {
+  background: var(--reaction-pill-bg);
+  border: 1px solid var(--reaction-pill-border);
+  border-radius: 999px;
+  color: var(--reaction-pill-fg);
+  font-size: 12px;
+  padding: 5px 9px;
+}
 .heatmap { display: grid; gap: 6px; }
 .heatmap-head,
 .heatmap-row { display: grid; grid-template-columns: 28px repeat(5, minmax(0, 1fr)); gap: 6px; align-items: center; }
@@ -5839,23 +5992,24 @@ button.filter-tab {
 }
 .profile-input-explicit {
   background: var(--profile-field-bg);
-  border: 1px solid color-mix(in srgb, var(--text2) 44%, #fff 56%);
-  color: color-mix(in srgb, var(--text2) 88%, #fff 12%);
+  border: 1px solid var(--profile-field-border);
+  color: var(--profile-control-fg-muted);
+  box-shadow: var(--profile-field-shadow);
   -webkit-backdrop-filter: var(--profile-control-blur);
   backdrop-filter: var(--profile-control-blur);
   transition: border-color .12s, background .12s, box-shadow .12s, color .12s;
 }
 .profile-input-explicit::placeholder { color: var(--text3); }
 .profile-input-explicit:hover:not(:disabled) {
-  background: var(--profile-field-bg);
-  color: #3a3a3a;
+  background: var(--profile-field-bg-hover);
+  color: var(--profile-control-fg);
   border-color: var(--control-border-active);
 }
 .profile-input-explicit:focus {
-  background: var(--profile-field-bg);
-  color: #3a3a3a;
+  background: var(--profile-field-bg-active);
+  color: var(--profile-control-fg);
   border-color: var(--control-border-active);
-  box-shadow: none;
+  box-shadow: var(--profile-field-shadow);
 }
 .profile-model-key-input,
 .profile-model-key-input:hover:not(:disabled),
@@ -5897,7 +6051,8 @@ button.filter-tab {
   font-size: 14px;
   padding: 0 12px 0 14px;
   background: var(--profile-select-bg);
-  border: 1px solid color-mix(in srgb, var(--text2) 44%, #fff 56%);
+  border: 1px solid var(--profile-field-border);
+  box-shadow: var(--profile-field-shadow);
   -webkit-backdrop-filter: var(--profile-control-blur);
   backdrop-filter: var(--profile-control-blur);
   transition: background .15s, border-color .15s, color .15s, box-shadow .15s;
@@ -5962,12 +6117,12 @@ button.filter-tab {
 }
 .profile-page .btn-primary:not(:disabled) {
   background: var(--profile-control-bg);
-  color: #3a3a3a;
+  color: var(--profile-control-fg);
   border-color: var(--control-border-active);
 }
 .profile-page .btn-primary:not(:disabled):hover {
   background: var(--profile-control-bg-hover);
-  color: color-mix(in srgb, #3a3a3a 58%, #000 42%);
+  color: var(--profile-control-fg);
   border-color: var(--control-border-active);
   opacity: 1;
 }
@@ -6007,7 +6162,7 @@ button.filter-tab {
   top: 2px;
   width: 5px;
   height: 10px;
-  border: solid #3a3a3a;
+  border: solid var(--profile-control-fg);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg) scale(0);
   transform-origin: center;
@@ -6034,13 +6189,13 @@ button.filter-tab {
 .profile-page input[type="checkbox"]:checked.profile-checkbox--suppress-hover:active:not(:disabled),
 .profile-checkbox-scope input[type="checkbox"]:checked.profile-checkbox--suppress-hover:active:not(:disabled) {
   background: var(--profile-control-bg-active);
-  border-color: #484848;
+  border-color: color-mix(in srgb, var(--border2) 55%, #000 45%);
 }
 .profile-page input[type="checkbox"]:checked.profile-checkbox--suppress-hover:hover:not(:disabled)::after,
 .profile-checkbox-scope input[type="checkbox"]:checked.profile-checkbox--suppress-hover:hover:not(:disabled)::after,
 .profile-page input[type="checkbox"]:checked.profile-checkbox--suppress-hover:active:not(:disabled)::after,
 .profile-checkbox-scope input[type="checkbox"]:checked.profile-checkbox--suppress-hover:active:not(:disabled)::after {
-  border-color: #3a3a3a;
+  border-color: var(--profile-control-fg);
 }
 .profile-page input[type="checkbox"]:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover),
 .profile-checkbox-scope input[type="checkbox"]:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover) {
@@ -6054,10 +6209,10 @@ button.filter-tab {
 /* Настройки: только вкл. — при hover темнеет обводка (как сразу после включения) */
 .profile-panel--settings input[type="checkbox"]:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover) {
   background: var(--profile-control-bg-active);
-  border-color: #484848;
+  border-color: color-mix(in srgb, var(--border2) 55%, #000 45%);
 }
 .profile-panel--settings input[type="checkbox"]:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover)::after {
-  border-color: #3a3a3a;
+  border-color: var(--profile-control-fg);
 }
 .profile-page input[type="checkbox"]:focus-visible,
 .profile-checkbox-scope input[type="checkbox"]:focus-visible {
@@ -6234,7 +6389,8 @@ button.filter-tab {
   padding: 14px 16px;
   margin-bottom: 0;
   background: var(--profile-field-bg);
-  border: 1px solid color-mix(in srgb, var(--text2) 44%, #fff 56%);
+  border: 1px solid var(--profile-field-border);
+  box-shadow: var(--profile-field-shadow);
   -webkit-backdrop-filter: var(--profile-control-blur);
   backdrop-filter: var(--profile-control-blur);
   transition: border-color .12s, background .12s, box-shadow .12s;
@@ -6313,7 +6469,7 @@ button.filter-tab {
   height: 1px;
   margin: 0 -16px;
   width: calc(100% + 32px);
-  background: color-mix(in srgb, var(--text2) 44%, #fff 56%);
+  background: var(--profile-field-border);
   transition: background .12s;
 }
 .rubric-editor:hover .rubric-note-divider,
@@ -6329,7 +6485,7 @@ button.filter-tab {
   border: none;
   outline: none;
   background: transparent;
-  color: color-mix(in srgb, var(--text2) 88%, #fff 12%);
+  color: var(--profile-control-fg-muted);
   font-family: var(--font);
   resize: none;
   overflow: hidden;
@@ -6339,7 +6495,7 @@ button.filter-tab {
 .rubric-editor:hover .rubric-note-description,
 .rubric-editor:focus-within .rubric-note-title,
 .rubric-editor:focus-within .rubric-note-description {
-  color: #3a3a3a;
+  color: var(--profile-control-fg);
 }
 .rubric-note-title {
   min-height: 34px;
