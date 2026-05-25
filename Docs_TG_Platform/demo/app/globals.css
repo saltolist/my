@@ -7755,7 +7755,7 @@ button.filter-tab {
   }
 
   .bar-row.channel-metric-bar .bar-label {
-    grid-column: 1 / -1;
+    grid-column: 1;
     width: auto;
   }
 
@@ -7817,10 +7817,100 @@ button.filter-tab {
     grid-column: 1;
   }
 
-  #screen-analytics .bar-row.channel-metric-bar .bar-label:focus-visible {
+  #screen-analytics .bar-row.channel-metric-bar:focus-visible {
     outline: none;
+  }
+
+  #screen-analytics .bar-row.channel-metric-bar:focus-visible .bar-label-text-clip {
     border-radius: 4px;
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+
+  #screen-analytics .analytics-page,
+  #screen-profile .profile-page {
+    scrollbar-gutter: stable;
+  }
+
+  #screen-profile .bar-row.model-usage-bar:focus-visible {
+    outline: none;
+  }
+
+  #screen-profile .bar-row.model-usage-bar:focus-visible .bar-label-text-clip {
+    border-radius: 4px;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+
+  #screen-analytics .bar-row.channel-metric-bar .channel-metric-value--growth {
+    min-width: var(--channel-metric-growth-col);
+  }
+
+  #screen-analytics .bar-row.channel-metric-bar .channel-metric-value--quantity {
+    min-width: var(--channel-metric-quantity-col);
+  }
+
+  #screen-profile .bar-row.model-usage-bar > .model-row-metric {
+    min-width: max-content;
+  }
+
+  #screen-analytics .analytics-scroll-inner,
+  #screen-profile .profile-scroll-inner {
+    overflow-x: clip;
+  }
+
+  #screen-analytics
+    .analytics-metrics-row
+    > .analytics-card.analytics-metrics-card:not(.channel-reactions-card) {
+    overflow: visible;
+  }
+
+  #screen-analytics
+    .analytics-metrics-row
+    > .analytics-card.analytics-metrics-card:not(.channel-reactions-card)
+    .analytics-metrics-card-body {
+    overflow: visible;
+  }
+
+  #screen-analytics .channel-metrics-block,
+  #screen-analytics .channel-metrics-rows,
+  #screen-profile .platform-analytics-section .model-usage-grid {
+    overflow: visible;
+  }
+
+  #screen-analytics .bar-row.channel-metric-bar,
+  #screen-profile .bar-row.model-usage-bar {
+    position: relative;
+  }
+
+  #screen-analytics .bar-row.channel-metric-bar.bar-row--tooltip-open,
+  #screen-profile .bar-row.model-usage-bar.bar-row--tooltip-open {
+    z-index: 2;
+  }
+
+  #screen-analytics .bar-row.channel-metric-bar .bar-label,
+  #screen-profile .bar-row.model-usage-bar > .bar-label {
+    position: relative;
+    overflow: visible;
+  }
+
+  #screen-analytics .bar-row.channel-metric-bar .bar-label-text-clip,
+  #screen-profile .bar-row.model-usage-bar > .bar-label > .bar-label-text-clip {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .model-usage-tooltip.model-usage-tooltip--anchored-row {
+    position: absolute;
+    left: calc(8px + 8px + 8px);
+    top: 0;
+    max-width: min(280px, calc(100vw - 24px));
+    transform: translate3d(0, calc(-100% - 8px), 0);
+    z-index: 3;
+    pointer-events: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
   .analytics-chart-head,

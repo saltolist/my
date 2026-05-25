@@ -116,7 +116,7 @@ export default function AnalyticsScreen() {
         }
         search={periodToolbar}
       />
-      <div className="analytics-page">
+      <div className="analytics-page" id="screen-analytics">
         <div className="analytics-scroll-inner">
           <ChannelAnalyticsSection periodIndex={period} />
 

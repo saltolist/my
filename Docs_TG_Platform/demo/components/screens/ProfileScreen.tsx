@@ -78,7 +78,7 @@ export default function ProfileScreen() {
         }
         search={profileTabToolbar}
       />
-      <div className="profile-page">
+      <div className="profile-page" id="screen-profile">
         <div className="profile-scroll-inner">
           <ChannelTab active={channelTabActive} />
 

@@ -10,6 +10,7 @@ import { useApp } from "@/state/AppContext";
 import type { AiProfileConfig, LlmModel } from "@/lib/types";
 import { formatTrendDollar } from "@/lib/trendChart/math";
 import { getPeriodChartLabels, MOBILE_CHART_MAX_POINTS } from "@/lib/trendChart/periodLabels";
+import { useAnchoredBarRowTooltip } from "@/lib/hooks/useAnchoredBarRowTooltip";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 
 const PERIODS = [
@@ -223,6 +224,27 @@ function getTrendPointCost(model: ModelUsage, index: number) {
 }
 
 
+function ModelUsageTooltipBody({
+  model,
+  callsShare,
+  tokensShare,
+  costShare,
+}: {
+  model: ModelUsage;
+  callsShare: number;
+  tokensShare: number;
+  costShare: number;
+}) {
+  return (
+    <>
+      <b>{model.label}</b>
+      <span>Запросы: {callsShare}%</span>
+      <span>Токены: {tokensShare}%</span>
+      <span>Стоимость: {costShare}%</span>
+    </>
+  );
+}
+
 function ModelUsageBar({
   model,
   totals,
@@ -230,51 +252,60 @@ function ModelUsageBar({
   model: ModelUsage;
   totals: ReturnType<typeof summarizeModelUsage>;
 }) {
-  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const isMobile = useMobile760();
+  const { rowRef, open, mobileHandlers } = useAnchoredBarRowTooltip(isMobile);
+  const [desktopTooltipPos, setDesktopTooltipPos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const callsShare = totals.calls > 0 ? Math.round((model.calls / totals.calls) * 100) : 0;
   const tokensShare = totals.tokens > 0 ? Math.round((model.tokens / totals.tokens) * 100) : 0;
   const costShare = totals.cost > 0 ? Math.round((model.cost / totals.cost) * 100) : 0;
   const fillShare = Math.round((callsShare + tokensShare + costShare) / 3);
 
-  const updateTooltipPosition = (clientX: number, anchorY: number) => {
-    setTooltipPos({ x: clientX, y: anchorY });
-  };
-
-  const isMobile = useMobile760();
-  const tooltipHandlers = {
+  const desktopTooltipHandlers = {
     onMouseEnter: (event: MouseEvent<HTMLElement>) => {
       const rect = event.currentTarget.getBoundingClientRect();
-      updateTooltipPosition(event.clientX, rect.top);
+      setDesktopTooltipPos({ x: event.clientX, y: rect.top });
     },
     onMouseMove: (event: MouseEvent<HTMLElement>) => {
       const rect = event.currentTarget.getBoundingClientRect();
-      updateTooltipPosition(event.clientX, rect.top);
+      setDesktopTooltipPos({ x: event.clientX, y: rect.top });
     },
-    onMouseLeave: () => setTooltipPos(null),
+    onMouseLeave: () => setDesktopTooltipPos(null),
     onFocus: (event: FocusEvent<HTMLElement>) => {
       const rect = event.currentTarget.getBoundingClientRect();
-      setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top });
+      setDesktopTooltipPos({ x: rect.left + rect.width / 2, y: rect.top });
     },
-    onBlur: () => setTooltipPos(null),
+    onBlur: () => setDesktopTooltipPos(null),
   };
 
   return (
     <div
-      className="bar-row model-usage-bar"
+      ref={rowRef}
+      className={`bar-row model-usage-bar${open && isMobile ? " bar-row--tooltip-open" : ""}`}
       style={{ "--bar-row-color": model.color } as CSSProperties}
+      tabIndex={isMobile ? 0 : undefined}
+      aria-expanded={isMobile ? open : undefined}
+      {...(isMobile ? mobileHandlers : {})}
     >
-      <div
-        className="bar-label"
-        tabIndex={isMobile ? 0 : undefined}
-        {...(isMobile ? tooltipHandlers : {})}
-      >
-        <span>{model.label}</span>
+      <div className="bar-label">
+        <span className="bar-label-text-clip">{model.label}</span>
+        {isMobile && open ? (
+          <div className="model-usage-tooltip model-usage-tooltip--anchored-row">
+            <ModelUsageTooltipBody
+              model={model}
+              callsShare={callsShare}
+              tokensShare={tokensShare}
+              costShare={costShare}
+            />
+          </div>
+        ) : null}
       </div>
       <div
         className="bar-track model-usage-track"
         tabIndex={isMobile ? undefined : 0}
         style={{ "--fill-width": `${Math.max(fillShare, 4)}%` } as CSSProperties}
-        {...(isMobile ? {} : tooltipHandlers)}
+        {...(isMobile ? {} : desktopTooltipHandlers)}
       >
         <div
           className={`bar-fill ${model.type}`}
@@ -284,16 +315,18 @@ function ModelUsageBar({
       <div className="model-row-metric model-row-metric--calls">{formatNumber(model.calls)}</div>
       <div className="model-row-metric model-row-metric--tokens">{formatCompact(model.tokens)}</div>
       <div className="model-row-metric model-row-metric--cost">${model.cost.toFixed(2)}</div>
-      {tooltipPos && typeof document !== "undefined"
+      {!isMobile && desktopTooltipPos && typeof document !== "undefined"
         ? createPortal(
             <div
               className="model-usage-tooltip"
-              style={{ left: tooltipPos.x, top: tooltipPos.y }}
+              style={{ left: desktopTooltipPos.x, top: desktopTooltipPos.y }}
             >
-              <b>{model.label}</b>
-              <span>Запросы: {callsShare}%</span>
-              <span>Токены: {tokensShare}%</span>
-              <span>Стоимость: {costShare}%</span>
+              <ModelUsageTooltipBody
+                model={model}
+                callsShare={callsShare}
+                tokensShare={tokensShare}
+                costShare={costShare}
+              />
             </div>,
             document.body,
           )

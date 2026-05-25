@@ -7,6 +7,7 @@ import {
   buildChannelTrendSeries,
   type ChannelMetricSummary,
 } from "@/lib/channelAnalyticsTrend";
+import { useAnchoredBarRowTooltip } from "@/lib/hooks/useAnchoredBarRowTooltip";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 
 type ChannelMetricBarsProps = {
@@ -47,50 +48,66 @@ export default function ChannelMetricBars({ periodIndex }: ChannelMetricBarsProp
   );
 }
 
+function ChannelMetricTooltipBody({ metric }: { metric: ChannelMetricSummary }) {
+  return (
+    <>
+      <b>{metric.label}</b>
+      <span>
+        Прирост: {metric.displayGrowth} {metric.displayGrowthRelativePercent}
+      </span>
+      <span>Количество: {metric.displayQuantity}</span>
+    </>
+  );
+}
+
 function ChannelMetricBarRow({ metric }: { metric: ChannelMetricSummary }) {
   const isMobile = useMobile760();
-  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const { rowRef, open, mobileHandlers } = useAnchoredBarRowTooltip(isMobile);
+  const [desktopTooltipPos, setDesktopTooltipPos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const fillPercent = metric.barFillPercent;
 
-  const updateTooltipPosition = (clientX: number, anchorY: number) => {
-    setTooltipPos({ x: clientX, y: anchorY });
-  };
-
-  const tooltipHandlers = {
+  const desktopTooltipHandlers = {
     onMouseEnter: (event: MouseEvent<HTMLElement>) => {
       const rect = event.currentTarget.getBoundingClientRect();
-      updateTooltipPosition(event.clientX, rect.top);
+      setDesktopTooltipPos({ x: event.clientX, y: rect.top });
     },
     onMouseMove: (event: MouseEvent<HTMLElement>) => {
       const rect = event.currentTarget.getBoundingClientRect();
-      updateTooltipPosition(event.clientX, rect.top);
+      setDesktopTooltipPos({ x: event.clientX, y: rect.top });
     },
-    onMouseLeave: () => setTooltipPos(null),
+    onMouseLeave: () => setDesktopTooltipPos(null),
     onFocus: (event: FocusEvent<HTMLElement>) => {
       const rect = event.currentTarget.getBoundingClientRect();
-      setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top });
+      setDesktopTooltipPos({ x: rect.left + rect.width / 2, y: rect.top });
     },
-    onBlur: () => setTooltipPos(null),
+    onBlur: () => setDesktopTooltipPos(null),
   };
 
   return (
     <div
-      className="bar-row channel-metric-bar"
+      ref={rowRef}
+      className={`bar-row channel-metric-bar${open && isMobile ? " bar-row--tooltip-open" : ""}`}
       style={{ "--bar-row-color": metric.color } as CSSProperties}
+      tabIndex={isMobile ? 0 : undefined}
+      aria-expanded={isMobile ? open : undefined}
+      {...(isMobile ? mobileHandlers : {})}
     >
-      <div
-        className="bar-label"
-        tabIndex={isMobile ? 0 : undefined}
-        {...(isMobile ? tooltipHandlers : {})}
-      >
-        <span>{metric.label}</span>
+      <div className="bar-label">
+        <span className="bar-label-text-clip">{metric.label}</span>
+        {isMobile && open ? (
+          <div className="model-usage-tooltip model-usage-tooltip--anchored-row">
+            <ChannelMetricTooltipBody metric={metric} />
+          </div>
+        ) : null}
       </div>
       <div className="channel-metric-bar-zone">
         <div
           className="bar-track model-usage-track channel-metric-track"
           tabIndex={isMobile ? undefined : 0}
           style={{ "--fill-width": `${fillPercent}%` } as CSSProperties}
-          {...(isMobile ? {} : tooltipHandlers)}
+          {...(isMobile ? {} : desktopTooltipHandlers)}
         >
           <div
             className="bar-fill"
@@ -108,17 +125,13 @@ function ChannelMetricBarRow({ metric }: { metric: ChannelMetricSummary }) {
       <div className="channel-metric-value channel-metric-value--quantity">
         {metric.displayQuantity}
       </div>
-      {tooltipPos && typeof document !== "undefined"
+      {!isMobile && desktopTooltipPos && typeof document !== "undefined"
         ? createPortal(
             <div
               className="model-usage-tooltip"
-              style={{ left: tooltipPos.x, top: tooltipPos.y }}
+              style={{ left: desktopTooltipPos.x, top: desktopTooltipPos.y }}
             >
-              <b>{metric.label}</b>
-              <span>
-                Прирост: {metric.displayGrowth} {metric.displayGrowthRelativePercent}
-              </span>
-              <span>Количество: {metric.displayQuantity}</span>
+              <ChannelMetricTooltipBody metric={metric} />
             </div>,
             document.body,
           )
