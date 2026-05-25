@@ -1,5 +1,6 @@
 export const TREND_CHART_WIDTH = 264;
 export const TREND_CHART_HEIGHT_PX = 493;
+export const MOBILE_TREND_CHART_HEIGHT_PX = Math.round(TREND_CHART_HEIGHT_PX / 2);
 export const TREND_DOT_CORE_DIAMETER_PX = 7.5;
 export const TREND_DOT_CLUSTER_FALLBACK_WIDTH_PX = 720;
 

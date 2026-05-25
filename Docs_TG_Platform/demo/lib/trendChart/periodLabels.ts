@@ -3,7 +3,49 @@ const LAST_7_DAYS_POINTS = 7;
 const LAST_30_DAYS_POINTS = 30;
 const LAST_90_DAYS_POINTS = 30;
 const LAST_90_DAYS_STEP = 3;
+const LAST_90_DAYS_SPAN = LAST_90_DAYS_POINTS * LAST_90_DAYS_STEP;
 const PLATFORM_LIFETIME_MONTHS = 6;
+
+/** Максимум точек на оси X в мобильной версии графиков */
+export const MOBILE_CHART_MAX_POINTS = 8;
+
+export type PeriodChartLabelOptions = {
+  maxPoints?: number;
+};
+
+export function getFullPeriodPointCount(period: number): number {
+  if (period === 0) return LAST_24_HOURS_POINTS;
+  if (period === 1) return LAST_7_DAYS_POINTS;
+  if (period === 2) return LAST_30_DAYS_POINTS;
+  if (period === 3) return LAST_90_DAYS_POINTS;
+  if (period === 4) return PLATFORM_LIFETIME_MONTHS;
+  return 0;
+}
+
+function isReducedChartPointCount(period: number, pointCount: number): boolean {
+  const full = getFullPeriodPointCount(period);
+  return full > 0 && pointCount > 0 && pointCount < full;
+}
+
+/** Индекс точки на усечённой оси → диапазон в полном периоде (0 … totalUnits − 1). */
+function displayIndexToSpan(
+  pointIndex: number,
+  pointCount: number,
+  totalUnits: number,
+): { start: number; end: number } {
+  if (totalUnits <= 1 || pointCount <= 1) {
+    return { start: 0, end: Math.max(0, totalUnits - 1) };
+  }
+  const start = Math.round((pointIndex / (pointCount - 1)) * (totalUnits - 1));
+  const end =
+    pointIndex >= pointCount - 1
+      ? totalUnits - 1
+      : Math.max(
+          start,
+          Math.round(((pointIndex + 1) / (pointCount - 1)) * (totalUnits - 1)) - 1,
+        );
+  return { start, end };
+}
 
 function formatAxisDateLabel(date: Date) {
   const day = String(date.getDate()).padStart(2, "0");
@@ -92,13 +134,65 @@ function buildAllTimeChartLabels(now = getChartReferenceNow(4)) {
   });
 }
 
-export function getPeriodChartLabels(period: number) {
-  if (period === 0) return buildLast24HoursChartLabels();
-  if (period === 1) return buildLast7DaysChartLabels();
-  if (period === 2) return buildLast30DaysChartLabels();
-  if (period === 3) return buildLast90DaysChartLabels();
-  if (period === 4) return buildAllTimeChartLabels();
+function buildReducedPeriodChartLabels(period: number, maxPoints: number) {
+  const now = getChartReferenceNow(period);
+
+  if (period === 0) {
+    const total = LAST_24_HOURS_POINTS;
+    const count = Math.min(maxPoints, total);
+    const end = new Date(now);
+    end.setMinutes(0, 0, 0);
+    return Array.from({ length: count }, (_, index) => {
+      const { start } = displayIndexToSpan(index, count, total);
+      const hour = new Date(end);
+      hour.setHours(hour.getHours() - (total - 1 - start));
+      return formatAxisHourLabel(hour);
+    });
+  }
+
+  if (period === 1) {
+    return buildLast7DaysChartLabels(now);
+  }
+
+  if (period === 2) {
+    const total = LAST_30_DAYS_POINTS;
+    const count = Math.min(maxPoints, total);
+    const periodStart = startOfDay(addDays(now, -(total - 1)));
+    return Array.from({ length: count }, (_, index) => {
+      const { start } = displayIndexToSpan(index, count, total);
+      return formatAxisDateLabel(addDays(periodStart, start));
+    });
+  }
+
+  if (period === 3) {
+    const total = LAST_90_DAYS_SPAN;
+    const count = Math.min(maxPoints, LAST_90_DAYS_POINTS);
+    const periodStart = startOfDay(addDays(now, -(total - 1)));
+    return Array.from({ length: count }, (_, index) => {
+      const { start } = displayIndexToSpan(index, count, total);
+      return formatAxisDateLabel(addDays(periodStart, start));
+    });
+  }
+
+  if (period === 4) {
+    return buildAllTimeChartLabels(now);
+  }
+
   return [];
+}
+
+export function getPeriodChartLabels(period: number, options?: PeriodChartLabelOptions) {
+  const fullCount = getFullPeriodPointCount(period);
+  const maxPoints = options?.maxPoints;
+  if (!maxPoints || fullCount <= maxPoints) {
+    if (period === 0) return buildLast24HoursChartLabels();
+    if (period === 1) return buildLast7DaysChartLabels();
+    if (period === 2) return buildLast30DaysChartLabels();
+    if (period === 3) return buildLast90DaysChartLabels();
+    if (period === 4) return buildAllTimeChartLabels();
+    return [];
+  }
+  return buildReducedPeriodChartLabels(period, maxPoints);
 }
 
 /** Stable anchor for SSR/hydration and chart bounds (no live clock in tooltips). */
@@ -136,6 +230,18 @@ function getTrendPointPeriodBounds(
 
   switch (period) {
     case 0: {
+      if (isReducedChartPointCount(0, pointCount)) {
+        const total = LAST_24_HOURS_POINTS;
+        const end = new Date(now);
+        end.setMinutes(0, 0, 0);
+        const { start, end: hourEnd } = displayIndexToSpan(pointIndex, pointCount, total);
+        const from = new Date(end);
+        from.setHours(from.getHours() - (total - 1 - start));
+        const to = new Date(end);
+        to.setHours(to.getHours() - (total - 1 - hourEnd));
+        to.setHours(to.getHours() + 1);
+        return { from, to };
+      }
       const end = new Date(now);
       const from = new Date(end);
       from.setHours(from.getHours() - (pointCount - 1 - pointIndex));
@@ -149,11 +255,27 @@ function getTrendPointPeriodBounds(
       return { from, to: endOfDay(day) };
     }
     case 2: {
+      if (isReducedChartPointCount(2, pointCount)) {
+        const total = LAST_30_DAYS_POINTS;
+        const periodStart = startOfDay(addDays(now, -(total - 1)));
+        const { start, end } = displayIndexToSpan(pointIndex, pointCount, total);
+        const from = startOfDay(addDays(periodStart, start));
+        const to = endOfDay(addDays(periodStart, end));
+        return { from, to };
+      }
       const day = addDays(now, -(pointCount - 1 - pointIndex));
       const from = startOfDay(day);
       return { from, to: endOfDay(day) };
     }
     case 3: {
+      if (isReducedChartPointCount(3, pointCount)) {
+        const total = LAST_90_DAYS_SPAN;
+        const periodStart = startOfDay(addDays(now, -(total - 1)));
+        const { start, end } = displayIndexToSpan(pointIndex, pointCount, total);
+        const from = startOfDay(addDays(periodStart, start));
+        const to = endOfDay(addDays(periodStart, end));
+        return { from, to };
+      }
       const periodStart = startOfDay(addDays(now, -(pointCount * LAST_90_DAYS_STEP - 1)));
       const from = startOfDay(addDays(periodStart, pointIndex * LAST_90_DAYS_STEP));
       const to = endOfDay(addDays(from, LAST_90_DAYS_STEP - 1));
@@ -195,7 +317,17 @@ export function formatTrendChartRangeFromStart(
   return `${formatTrendRangePart(start.from, withTime)} — ${formatTrendRangePart(end.to, withTime)}`;
 }
 
-export function getTrendPointXPercent(index: number, pointCount: number) {
+/** Отступ крайних точек/подписей от края plot (%), чтобы линия и точки совпадали и не резались. */
+export const TREND_POINT_EDGE_INSET_PERCENT = 2.5;
+
+export function getTrendPointXPercent(
+  index: number,
+  pointCount: number,
+  edgeInsetPercent = TREND_POINT_EDGE_INSET_PERCENT,
+) {
   if (pointCount <= 1) return 50;
-  return (index / (pointCount - 1)) * 100;
+  const t = index / (pointCount - 1);
+  const inset = Math.max(0, Math.min(edgeInsetPercent, 40));
+  const span = 100 - 2 * inset;
+  return inset + t * span;
 }

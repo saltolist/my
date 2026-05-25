@@ -29,6 +29,7 @@
   --nav-icon-art: 18px;
   --content-w: 1160px;
   --composer-w: 720px;
+  --model-trend-chart-height: 493px;
   /* Базовая ширина только поля поиска в шапке (лента / чаты / заметки); рядом — тумблеры */
   --page-header-search-w: 350px;
   /* Поля и контролы — тот же тон, что карточка composer (.input-box → --bg2) */
@@ -4924,10 +4925,10 @@ button.filter-tab {
   margin-bottom: 14px;
   grid-template-columns: repeat(var(--summary-cols, 6), minmax(0, 1fr));
 }
-.analytics-chart-card .channel-analytics-summary .channel-mini-metric-caption {
-  width: 100%;
+.analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-value {
+  margin-bottom: 4px;
 }
-.analytics-chart-card .channel-analytics-summary .channel-mini-metric-label {
+.analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-label {
   color: var(--text3);
   font-size: 12px;
   line-height: 1.25;
@@ -4963,7 +4964,7 @@ button.filter-tab {
 .analytics-chart-card .model-trend-plot.trend-plot--no-y-labels {
   padding: 0 34px 0 34px;
 }
-.analytics-chart-card .model-trend-plot .trend-chart { height: 493px; }
+.analytics-chart-card .model-trend-plot .trend-chart { height: var(--model-trend-chart-height); }
 .analytics-metrics-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 248px;
@@ -5321,7 +5322,7 @@ button.filter-tab {
 }
 .trend-chart-wrap { position: relative; overflow: visible; }
 .trend-chart { display: block; width: 100%; height: 145px; overflow: visible; }
-.model-trend-plot .trend-chart { height: 493px; }
+.model-trend-plot .trend-chart { height: var(--model-trend-chart-height); }
 .trend-y-label {
   position: absolute;
   left: calc(-1 * var(--trend-y-label-inset, 44px));
@@ -5841,10 +5842,6 @@ button.filter-tab {
 @media (max-width: 980px) {
   .stat-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .channel-analytics-summary {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 
   .analytics-dashboard-grid {
@@ -7045,6 +7042,7 @@ button.filter-tab {
     --composer-w: 100%;
     --composer-mobile-gutter: 8px;
     --hdr: 52px;
+    --model-trend-chart-height: 246px;
   }
 
   html,
@@ -7687,10 +7685,6 @@ button.filter-tab {
     gap: 0;
   }
 
-  .trend-chart {
-    height: 130px;
-  }
-
   .bar-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 56px;
@@ -7872,21 +7866,178 @@ button.filter-tab {
   }
 
   #screen-analytics .analytics-chart-card {
-    overflow-x: hidden;
+    overflow-x: visible;
   }
 
   #screen-analytics .analytics-chart-card .model-trend-plot,
-  #screen-analytics .analytics-chart-card .trend-chart-wrap {
-    overflow: hidden;
+  #screen-analytics .analytics-chart-card .trend-chart-wrap,
+  #screen-profile .platform-analytics-section .model-trend-plot,
+  #screen-profile .platform-analytics-section .trend-chart-wrap {
+    overflow: visible;
     max-width: 100%;
   }
 
-  #screen-analytics .analytics-chart-card .channel-analytics-summary {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  /* Графики на мобильной: чуть уже карточки (не 34px), чтобы не резать крайние точки и даты */
+  :root {
+    --mobile-trend-chart-inset-x: 14px;
   }
 
-  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric-label {
+  /* Аналитика канала: без оси Y */
+  #screen-analytics .analytics-chart-card .model-trend-plot.trend-plot--no-y-labels {
+    --trend-plot-left-gutter: 0;
+    padding: 4px var(--mobile-trend-chart-inset-x, 14px) 0;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Профиль: колонка под подписи Y + боковой inset под крайние точки */
+  #screen-profile .platform-analytics-section .model-trend-plot:not(.trend-plot--no-y-labels) {
+    --trend-y-label-inset: 36px;
+    --trend-plot-left-gutter: 36px;
+    padding: 4px var(--mobile-trend-chart-inset-x, 14px) 0 36px;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #screen-profile .platform-analytics-section .trend-plot.model-trend-plot:not(.trend-plot--no-y-labels) {
+    padding-top: 4px;
+  }
+
+  #screen-profile .platform-analytics-section .trend-y-label {
+    left: calc(-1 * var(--trend-y-label-inset, 36px));
+    transform: translateY(-50%);
+    transform-origin: right center;
+    text-align: right;
+    font-size: 9px;
+    max-width: calc(var(--trend-y-label-inset, 36px) - 4px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #screen-analytics .analytics-chart-card .trend-labels,
+  #screen-profile .platform-analytics-section .trend-labels {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+  }
+
+  /* Аналитика канала: заголовок и селектор метрик в одну строку */
+  #screen-analytics .analytics-chart-card .analytics-card-head {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  #screen-analytics .analytics-chart-card .analytics-card-head .profile-section-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 15px;
+  }
+
+  #screen-analytics .analytics-chart-card .analytics-card-head .chart-series-selector,
+  #screen-analytics .analytics-chart-card .analytics-card-head .chart-series-selector--profile {
+    flex: 0 1 auto;
+    width: auto;
+    max-width: 48%;
+    min-width: 0;
+  }
+
+  #screen-analytics .analytics-chart-card .analytics-card-head .chart-series-selector--profile .model-picker-btn {
+    width: 100%;
+    max-width: 100%;
+    font-size: 11px;
+    height: 32px;
+    padding: 0 8px;
+  }
+
+  #screen-analytics
+    .analytics-chart-card
+    .analytics-card-head
+    .chart-series-selector--profile
+    .model-picker-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Профиль: три селектора в ряд между заголовком и карточками (как ширина карточек) */
+  #screen-profile .platform-analytics-section .analytics-card-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  #screen-profile .platform-analytics-section .analytics-card-head > div:first-child {
+    width: 100%;
+  }
+
+  #screen-profile .platform-analytics-section .model-filter-stack.model-filter-stack--with-series {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  #screen-profile .platform-analytics-section .model-filter-stack--with-series .profile-model-picker,
+  #screen-profile .platform-analytics-section .model-filter-stack--with-series .chart-series-selector--profile {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  #screen-profile .platform-analytics-section .model-filter-stack--with-series .model-picker-btn {
+    width: 100%;
+    font-size: 11px;
+    height: 32px;
+    padding: 0 6px;
+  }
+
+  #screen-profile .platform-analytics-section .model-filter-stack--with-series .model-picker-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #screen-analytics .analytics-chart-card .channel-analytics-summary,
+  #screen-profile .platform-analytics-section .model-analytics-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric,
+  #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    min-height: 0;
+    padding: 8px;
+    border-radius: calc(var(--block-r) - 4px);
+  }
+
+  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-value,
+  #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric-value {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 0;
+    line-height: 1.15;
+  }
+
+  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-label,
+  #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric-label {
     white-space: normal;
+    font-size: 9px;
+    line-height: 1.2;
   }
 
   #screen-analytics .channel-metrics-block {
@@ -7970,8 +8121,14 @@ button.filter-tab {
     grid-template-columns: 1fr;
   }
 
-  .channel-analytics-summary {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric,
+  #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric {
+    padding: 7px;
+  }
+
+  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-value,
+  #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric-value {
+    font-size: 13px;
   }
 
   .bar-row {

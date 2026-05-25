@@ -146,12 +146,15 @@ export function buildChannelTrendPlotYValues(
   );
 }
 
-export function buildChannelTrendSeries(analyticsPeriodIndex: number): {
+export function buildChannelTrendSeries(
+  analyticsPeriodIndex: number,
+  options?: { maxPoints?: number },
+): {
   labels: string[];
   series: TrendSeriesRow[];
 } {
   const chartPeriod = ANALYTICS_SCREEN_PERIOD_TO_CHART[analyticsPeriodIndex] ?? 1;
-  const labels = getPeriodChartLabels(chartPeriod);
+  const labels = getPeriodChartLabels(chartPeriod, { maxPoints: options?.maxPoints });
   const multiplier = CHANNEL_PERIOD_MULTIPLIERS[analyticsPeriodIndex] ?? 1;
   const pointCount = labels.length;
 

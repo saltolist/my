@@ -9,7 +9,8 @@ import { useChartSeriesVisibility } from "@/lib/hooks/useChartSeriesVisibility";
 import { useApp } from "@/state/AppContext";
 import type { AiProfileConfig, LlmModel } from "@/lib/types";
 import { formatTrendDollar } from "@/lib/trendChart/math";
-import { getPeriodChartLabels } from "@/lib/trendChart/periodLabels";
+import { getPeriodChartLabels, MOBILE_CHART_MAX_POINTS } from "@/lib/trendChart/periodLabels";
+import { useMobile760 } from "@/lib/hooks/useMobile760";
 
 const PERIODS = [
   { label: "24 часа", multiplier: 0.06 },
@@ -50,10 +51,17 @@ const MODEL_LINE_COLORS = [
 
 export default function PlatformAnalyticsBlock() {
   const { state } = useApp();
+  const isMobile = useMobile760();
   const [period, setPeriod] = useState(2);
   const [modelType, setModelType] = useState<ModelFilterId>("all");
 
-  const chartLabels = useMemo(() => getPeriodChartLabels(period), [period]);
+  const chartLabels = useMemo(
+    () =>
+      getPeriodChartLabels(period, {
+        maxPoints: isMobile ? MOBILE_CHART_MAX_POINTS : undefined,
+      }),
+    [period, isMobile],
+  );
   const modelUsage = useMemo(
     () => buildModelUsage(state.aiProfileConfig, PERIODS[period].multiplier, chartLabels.length),
     [state.aiProfileConfig, period, chartLabels.length],

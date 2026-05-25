@@ -13,14 +13,22 @@ import {
   formatChannelGrowthPrimary,
   formatChannelPointPercentGrowth,
 } from "@/lib/channelAnalyticsTrend";
-import { formatTrendChartRangeFromStart } from "@/lib/trendChart/periodLabels";
+import {
+  MOBILE_CHART_MAX_POINTS,
+  formatTrendChartRangeFromStart,
+} from "@/lib/trendChart/periodLabels";
 import { useChartSeriesVisibility } from "@/lib/hooks/useChartSeriesVisibility";
+import { useMobile760 } from "@/lib/hooks/useMobile760";
 
 export default function ChannelAnalyticsSection({ periodIndex }: { periodIndex: number }) {
+  const isMobile = useMobile760();
   const chartPeriod = ANALYTICS_SCREEN_PERIOD_TO_CHART[periodIndex] ?? 1;
   const { labels, series } = useMemo(
-    () => buildChannelTrendSeries(periodIndex),
-    [periodIndex],
+    () =>
+      buildChannelTrendSeries(periodIndex, {
+        maxPoints: isMobile ? MOBILE_CHART_MAX_POINTS : undefined,
+      }),
+    [periodIndex, isMobile],
   );
   const seriesIds = useMemo(() => series.map((row) => row.id), [series]);
   const { isVisible, setVisible, filterSeries } = useChartSeriesVisibility(seriesIds);
@@ -55,9 +63,7 @@ export default function ChannelAnalyticsSection({ periodIndex }: { periodIndex: 
             {summaryCards.map((card) => (
               <div className="mini-metric channel-mini-metric" key={card.id}>
                 <div className="mini-metric-value">{card.value}</div>
-                <div className="channel-mini-metric-caption">
-                  <span className="channel-mini-metric-label">{`${card.label}  ${card.displayGrowth}`}</span>
-                </div>
+                <div className="mini-metric-label">{`${card.label}  ${card.displayGrowth}`}</div>
               </div>
             ))}
           </div>

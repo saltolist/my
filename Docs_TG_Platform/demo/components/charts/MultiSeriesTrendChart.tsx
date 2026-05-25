@@ -237,7 +237,10 @@ export default function MultiSeriesTrendChart({
   const chartRows = series.map((row) => {
     const points = labels.map((_, i) => {
       const yValue = row.yValues?.[i] ?? row.values[i] ?? 0;
-      const x = labels.length === 1 ? 132 : (TREND_CHART_WIDTH / (labels.length - 1)) * i;
+      const x =
+        labels.length === 1
+          ? TREND_CHART_WIDTH / 2
+          : (getTrendPointXPercent(i, labels.length) / 100) * TREND_CHART_WIDTH;
       const y = valueToChartY(yValue, valueScale, chartBottom, chartHeight);
       return { x, y };
     });
