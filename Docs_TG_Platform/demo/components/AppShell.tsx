@@ -4,7 +4,6 @@ import { Suspense, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useApp } from "@/state/AppContext";
 import Sidebar from "./sidebar/Sidebar";
-import MobileBackGesture from "./MobileBackGesture";
 import RouteSync from "./RouteSync";
 import { screenFromPath } from "@/lib/routes";
 
@@ -40,7 +39,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div id="app">
       <RouteSyncGate />
-      <MobileBackGesture />
       <div
         className="mobile-sidebar-backdrop"
         onClick={() => setMobileSidebarOpen(false)}

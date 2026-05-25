@@ -30,8 +30,6 @@ import {
 } from "@/lib/composer-config";
 import { getGlobalReply, getPostReply } from "@/lib/replies";
 import {
-  canPathGoBack,
-  getBackTitleForPath,
   getParentPath,
   routes,
   screenFromPath,
@@ -693,12 +691,6 @@ type AppContextValue = {
 
   navigate: (screen: ScreenId, opts?: { skipHistory?: boolean; clearHistory?: boolean }) => void;
   navigateBack: (fallback?: ScreenId) => void;
-  /** Есть ли запись в истории (стек навигации или подраздел поста). */
-  canNavigateBack: () => boolean;
-  /** Заголовок экрана, на который вернёт «назад». */
-  getPreviousRouteTitle: () => string | null;
-  /** Возврат по истории без fallback-переходов (для свайпа). */
-  popNavigationHistory: () => boolean;
   navigateWithState: (patch: Partial<State>) => void;
   /** Переход по URL (с проверкой несохранённых правок). */
   goToHref: (href: string, opts?: { replace?: boolean }) => boolean;
@@ -898,6 +890,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!confirmDiscardAnyEdit()) return;
       discardPendingEdits();
       setMobileSidebarOpen(false);
+      if (typeof window !== "undefined" && window.history.length > 1) {
+        router.back();
+        return;
+      }
       const parent = getParentPath(pathname);
       if (parent) {
         router.push(parent);
@@ -915,38 +911,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       router,
     ],
   );
-
-  const canNavigateBack = useCallback((): boolean => {
-    return canPathGoBack(pathname);
-  }, [pathname]);
-
-  const getPreviousRouteTitle = useCallback((): string | null => {
-    return getBackTitleForPath(pathname, stateRef.current.posts);
-  }, [pathname]);
-
-  const popNavigationHistory = useCallback((): boolean => {
-    if (!canNavigateBack()) return false;
-    if (!confirmDiscardAnyEdit()) return false;
-    discardPendingEdits();
-    setMobileSidebarOpen(false);
-    const parent = getParentPath(pathname);
-    if (parent) {
-      router.push(parent);
-      return true;
-    }
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-      return true;
-    }
-    router.push(routes.home());
-    return true;
-  }, [
-    canNavigateBack,
-    confirmDiscardAnyEdit,
-    discardPendingEdits,
-    pathname,
-    router,
-  ]);
 
   const navigateWithState = useCallback(
     (patch: Partial<State>) => {
@@ -1245,9 +1209,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setMobileSidebarOpen,
       navigate,
       navigateBack,
-      canNavigateBack,
-      getPreviousRouteTitle,
-      popNavigationHistory,
       navigateWithState,
       goToHref,
       goHome,
@@ -1281,9 +1242,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       mobileSidebarOpen,
       navigate,
       navigateBack,
-      canNavigateBack,
-      getPreviousRouteTitle,
-      popNavigationHistory,
       navigateWithState,
       goToHref,
       goHome,

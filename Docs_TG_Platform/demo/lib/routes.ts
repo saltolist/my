@@ -4,8 +4,6 @@ import {
   createNewPostNote,
   EMPTY_NOTE_SNAPSHOT,
 } from "@/lib/noteDraft";
-import { postTitle, truncate } from "@/lib/helpers";
-import { postViewBackTitle, routeSnapshotTitle } from "@/lib/routeLabels";
 import type {
   ActiveNote,
   GlobalChat,
@@ -199,29 +197,6 @@ export function getParentPath(pathname: string): string | null {
 
 export function canPathGoBack(pathname: string): boolean {
   return getParentPath(pathname) != null;
-}
-
-export function parsedToRouteSnapshot(
-  parsed: ParsedAppPath,
-  posts: Post[],
-): Parameters<typeof routeSnapshotTitle>[0] {
-  return {
-    screen: parsed.screen,
-    currentPostId: parsed.postId,
-    postMode: parsed.postMode,
-    currentGChatId: parsed.gchatId,
-  };
-}
-
-export function getBackTitleForPath(pathname: string, posts: Post[]): string | null {
-  const parent = getParentPath(pathname);
-  if (!parent) return null;
-  const parsed = parseAppPath(pathname);
-  if (parsed.screen === "post" && parsed.postMode !== "chat") {
-    return postViewBackTitle("chat");
-  }
-  const parentParsed = parseAppPath(parent);
-  return routeSnapshotTitle(parsedToRouteSnapshot(parentParsed, posts), posts);
 }
 
 type RouteData = {
