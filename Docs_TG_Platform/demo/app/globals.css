@@ -5599,6 +5599,30 @@ button.filter-tab {
   grid-column: 1;
   min-width: 0;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bar-row.channel-metric-bar .bar-label::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bar-row-color, var(--accent));
+  flex-shrink: 0;
+}
+.bar-row.model-usage-bar > .bar-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bar-row.model-usage-bar > .bar-label::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bar-row-color, var(--accent));
+  flex-shrink: 0;
 }
 .bar-row.channel-metric-bar .channel-metric-bar-zone {
   grid-column: 2;
@@ -7775,10 +7799,6 @@ button.filter-tab {
 
   #screen-profile .bar-row.model-usage-bar > .bar-label {
     grid-column: 1;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
   }
 
   #screen-profile .bar-row.model-usage-bar > .model-row-metric--calls {
@@ -7793,26 +7813,8 @@ button.filter-tab {
     grid-column: 4;
   }
 
-  #screen-analytics .bar-row.channel-metric-bar .bar-label,
-  #screen-profile .bar-row.model-usage-bar > .bar-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-  }
-
   #screen-analytics .bar-row.channel-metric-bar .bar-label {
     grid-column: 1;
-  }
-
-  #screen-analytics .bar-row.channel-metric-bar .bar-label::before,
-  #screen-profile .bar-row.model-usage-bar > .bar-label::before {
-    content: "";
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--bar-row-color, var(--accent));
-    flex-shrink: 0;
   }
 
   #screen-analytics .bar-row.channel-metric-bar .bar-label:focus-visible {

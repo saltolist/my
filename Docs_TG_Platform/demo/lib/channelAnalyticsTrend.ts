@@ -181,10 +181,12 @@ export type ChannelMetricSummary = {
   id: string;
   label: string;
   color: string;
-  share: number;
   displayGrowth: string;
+  /** Доля прироста от количества для тултипа, например «(5.9%)». */
+  displayGrowthRelativePercent: string;
   displayQuantity: string;
-  growthShare: number;
+  /** Ширина полосы: прирост за период относительно текущего количества, %. */
+  barFillPercent: number;
 };
 
 function computePeriodGrowth(metricId: string, values: number[]): number {
@@ -201,6 +203,12 @@ function formatGrowthDelta(metricId: string, growth: number) {
     return `${growth >= 0 ? "+" : ""}${growth.toFixed(1)}%`;
   }
   return `+${formatNumber(Math.round(growth))}`;
+}
+
+function formatGrowthRelativeToQuantityPercent(growth: number, quantity: number) {
+  if (quantity <= 0) return "(0%)";
+  const percent = (growth / quantity) * 100;
+  return `(${percent.toFixed(1)}%)`;
 }
 
 export type ChannelSummaryCard = {
@@ -242,21 +250,25 @@ export function buildChannelMetricSummaries(
     return { row, growth };
   });
 
-  const maxGrowth = Math.max(...rows.map((item) => item.growth), 1);
-  const totalGrowth = rows.reduce((sum, item) => sum + item.growth, 0);
+  return rows.map(({ row, growth }) => {
+    const quantity = CHANNEL_CURRENT_TOTALS[row.id] ?? 0;
+    const growthToQuantityPercent =
+      quantity > 0 ? (growth / quantity) * 100 : 0;
+    const barFillPercent = Math.min(
+      100,
+      Math.max(4, Math.round(growthToQuantityPercent)),
+    );
 
-  return rows.map(({ row, growth }) => ({
-    id: row.id,
-    label: row.label,
-    color: row.color,
-    share: Math.max(4, Math.round((growth / maxGrowth) * 100)),
-    growthShare: totalGrowth > 0 ? Math.round((growth / totalGrowth) * 100) : 0,
-    displayGrowth: formatGrowthDelta(row.id, growth),
-    displayQuantity: formatChannelPostMetricValue(
-      row.id,
-      CHANNEL_CURRENT_TOTALS[row.id] ?? 0,
-    ),
-  }));
+    return {
+      id: row.id,
+      label: row.label,
+      color: row.color,
+      barFillPercent,
+      displayGrowth: formatGrowthDelta(row.id, growth),
+      displayGrowthRelativePercent: formatGrowthRelativeToQuantityPercent(growth, quantity),
+      displayQuantity: formatChannelPostMetricValue(row.id, quantity),
+    };
+  });
 }
 
 export function formatChannelPostMetricValue(metricId: string, value: number): string {

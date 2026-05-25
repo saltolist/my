@@ -50,7 +50,7 @@ export default function ChannelMetricBars({ periodIndex }: ChannelMetricBarsProp
 function ChannelMetricBarRow({ metric }: { metric: ChannelMetricSummary }) {
   const isMobile = useMobile760();
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
-  const fillPercent = Math.max(4, metric.growthShare);
+  const fillPercent = metric.barFillPercent;
 
   const updateTooltipPosition = (clientX: number, anchorY: number) => {
     setTooltipPos({ x: clientX, y: anchorY });
@@ -115,9 +115,10 @@ function ChannelMetricBarRow({ metric }: { metric: ChannelMetricSummary }) {
               style={{ left: tooltipPos.x, top: tooltipPos.y }}
             >
               <b>{metric.label}</b>
-              <span>Прирост: {metric.displayGrowth}</span>
+              <span>
+                Прирост: {metric.displayGrowth} {metric.displayGrowthRelativePercent}
+              </span>
               <span>Количество: {metric.displayQuantity}</span>
-              <span>Доля за период: {metric.growthShare}%</span>
             </div>,
             document.body,
           )
