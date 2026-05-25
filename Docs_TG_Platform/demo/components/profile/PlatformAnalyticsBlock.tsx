@@ -9,7 +9,11 @@ import { useChartSeriesVisibility } from "@/lib/hooks/useChartSeriesVisibility";
 import { useApp } from "@/state/AppContext";
 import type { AiProfileConfig, LlmModel } from "@/lib/types";
 import { formatTrendDollar } from "@/lib/trendChart/math";
-import { getPeriodChartLabels, MOBILE_CHART_MAX_POINTS } from "@/lib/trendChart/periodLabels";
+import {
+  getPeriodChartLabels,
+  MOBILE_CHART_MAX_POINTS,
+  MOBILE_TREND_POINT_EDGE_INSET_PERCENT,
+} from "@/lib/trendChart/periodLabels";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 
 const PERIODS = [
@@ -146,6 +150,7 @@ export default function PlatformAnalyticsBlock() {
           series={visibleCostTrendSeries}
           period={period}
           compactAxisLabels={period === 0 || period === 2 || period === 3}
+          pointEdgeInsetPercent={isMobile ? MOBILE_TREND_POINT_EDGE_INSET_PERCENT : 0}
           title={chartTitle}
           formatAxisValue={formatTrendDollar}
           getDotPrimaryLine={(_, value) => `${formatNumber(value)} запросов`}

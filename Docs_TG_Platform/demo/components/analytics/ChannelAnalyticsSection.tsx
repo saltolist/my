@@ -15,6 +15,7 @@ import {
 } from "@/lib/channelAnalyticsTrend";
 import {
   MOBILE_CHART_MAX_POINTS,
+  MOBILE_TREND_POINT_EDGE_INSET_PERCENT,
   formatTrendChartRangeFromStart,
 } from "@/lib/trendChart/periodLabels";
 import { useChartSeriesVisibility } from "@/lib/hooks/useChartSeriesVisibility";
@@ -74,6 +75,7 @@ export default function ChannelAnalyticsSection({ periodIndex }: { periodIndex: 
           period={chartPeriod}
           compactAxisLabels={chartPeriod === 0 || chartPeriod === 2 || chartPeriod === 3 || chartPeriod === 4}
           showYAxisLabels={false}
+          pointEdgeInsetPercent={isMobile ? MOBILE_TREND_POINT_EDGE_INSET_PERCENT : 0}
           title="Динамика прироста по метрикам канала"
           getDotGrowthBadge={(row, value, pointIndex) =>
             formatChannelGrowthBadge(

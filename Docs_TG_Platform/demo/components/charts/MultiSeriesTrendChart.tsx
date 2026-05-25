@@ -153,6 +153,8 @@ export type MultiSeriesTrendChartProps = {
   title: string;
   compactAxisLabels?: boolean;
   showYAxisLabels?: boolean;
+  /** Доля отступа крайних точек от края plot (%); на десктопе 0. */
+  pointEdgeInsetPercent?: number;
   formatAxisValue?: (value: number, scaleMax: number) => string;
   getDotPrimaryLine: (row: TrendSeriesRow, value: number, pointIndex: number) => string;
   getDotGrowthBadge?: (row: TrendSeriesRow, value: number, pointIndex: number) => string;
@@ -208,6 +210,7 @@ export default function MultiSeriesTrendChart({
   title,
   compactAxisLabels = false,
   showYAxisLabels = true,
+  pointEdgeInsetPercent = 0,
   formatAxisValue = formatTrendNumber,
   getDotPrimaryLine,
   getDotGrowthBadge,
@@ -240,7 +243,8 @@ export default function MultiSeriesTrendChart({
       const x =
         labels.length === 1
           ? TREND_CHART_WIDTH / 2
-          : (getTrendPointXPercent(i, labels.length) / 100) * TREND_CHART_WIDTH;
+          : (getTrendPointXPercent(i, labels.length, pointEdgeInsetPercent) / 100) *
+            TREND_CHART_WIDTH;
       const y = valueToChartY(yValue, valueScale, chartBottom, chartHeight);
       return { x, y };
     });
@@ -249,7 +253,7 @@ export default function MultiSeriesTrendChart({
       const value = row.values[i] ?? 0;
       const yValue = row.yValues?.[i] ?? value;
       return {
-        x: getTrendPointXPercent(i, labels.length),
+        x: getTrendPointXPercent(i, labels.length, pointEdgeInsetPercent),
         y: valueToChartY(yValue, valueScale, chartBottom, chartHeight),
         value,
         label,
@@ -576,7 +580,10 @@ export default function MultiSeriesTrendChart({
       </div>
       <div className={`trend-labels${compactAxisLabels ? " trend-labels--hourly" : ""}`}>
         {labels.map((label, index) => (
-          <span key={`${label}-${index}`} style={{ left: `${getTrendPointXPercent(index, labels.length)}%` }}>
+          <span
+            key={`${label}-${index}`}
+            style={{ left: `${getTrendPointXPercent(index, labels.length, pointEdgeInsetPercent)}%` }}
+          >
             {label}
           </span>
         ))}

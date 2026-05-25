@@ -317,13 +317,13 @@ export function formatTrendChartRangeFromStart(
   return `${formatTrendRangePart(start.from, withTime)} — ${formatTrendRangePart(end.to, withTime)}`;
 }
 
-/** Отступ крайних точек/подписей от края plot (%), чтобы линия и точки совпадали и не резались. */
-export const TREND_POINT_EDGE_INSET_PERCENT = 2.5;
+/** Отступ крайних точек на мобильной (%), чтобы линия и точки не резались у края. */
+export const MOBILE_TREND_POINT_EDGE_INSET_PERCENT = 2.5;
 
 export function getTrendPointXPercent(
   index: number,
   pointCount: number,
-  edgeInsetPercent = TREND_POINT_EDGE_INSET_PERCENT,
+  edgeInsetPercent = 0,
 ) {
   if (pointCount <= 1) return 50;
   const t = index / (pointCount - 1);
