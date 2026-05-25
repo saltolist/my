@@ -8021,7 +8021,7 @@ button.filter-tab {
     justify-content: center;
     gap: 4px;
     min-height: 0;
-    padding: 8px;
+    padding: 8px 6px 8px 10px;
     border-radius: calc(var(--block-r) - 4px);
   }
 
@@ -8123,7 +8123,7 @@ button.filter-tab {
 
   #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric,
   #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric {
-    padding: 7px;
+    padding: 7px 5px 7px 9px;
   }
 
   #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-value,
