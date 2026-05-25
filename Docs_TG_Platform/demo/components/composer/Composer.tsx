@@ -49,6 +49,7 @@ type MentionPos =
 const MAX_MENTION_RESULTS = 8;
 
 const DEFAULT_PLACEHOLDER = "Сообщение... введите @ чтобы прикрепить пост";
+const NARROW_PLACEHOLDER = "Сообщение… @ — прикрепить пост";
 
 let attachCounter = 0;
 function nextAttachId(): string {
@@ -99,7 +100,17 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
     target?.webId && webOptions.some((m) => m.id === target.webId) ? target.webId : "";
   const isMulti = cfg.multiResponseEnabled;
 
-  const effectivePlaceholder = placeholder || DEFAULT_PLACEHOLDER;
+  const [narrowComposer, setNarrowComposer] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 760px)");
+    const sync = () => setNarrowComposer(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  const effectivePlaceholder =
+    placeholder || (narrowComposer ? NARROW_PLACEHOLDER : DEFAULT_PLACEHOLDER);
 
   const attachedPostIds = useMemo(
     () =>
@@ -150,13 +161,9 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
     });
   }, []);
 
-  const syncEmptyEditorDom = useCallback(() => {
+  const placeCaretAtStart = useCallback(() => {
     const editor = editorRef.current;
     if (!editor) return;
-    pruneOrphanComposerSpaces(editor);
-    if (!isEditorEmpty()) return;
-    editor.innerHTML = "";
-    editor.focus();
     const sel = window.getSelection();
     if (!sel) return;
     const range = document.createRange();
@@ -164,7 +171,25 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
     range.collapse(true);
     sel.removeAllRanges();
     sel.addRange(range);
-  }, [isEditorEmpty, pruneOrphanComposerSpaces]);
+  }, []);
+
+  const syncEmptyEditorDom = useCallback(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    pruneOrphanComposerSpaces(editor);
+    if (!isEditorEmpty()) return;
+    editor.innerHTML = "";
+    editor.focus();
+    placeCaretAtStart();
+  }, [isEditorEmpty, pruneOrphanComposerSpaces, placeCaretAtStart]);
+
+  const normalizeEmptyEditorFocus = useCallback(() => {
+    const editor = editorRef.current;
+    if (!editor || !isEditorEmpty()) return;
+    pruneOrphanComposerSpaces(editor);
+    if (editor.innerHTML) editor.innerHTML = "";
+    requestAnimationFrame(placeCaretAtStart);
+  }, [isEditorEmpty, pruneOrphanComposerSpaces, placeCaretAtStart]);
 
   const refreshIsEmpty = useCallback(() => {
     setIsEmpty(isEditorEmpty());
@@ -462,6 +487,7 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
       }
     }
     if (e.key === "Enter" && !e.shiftKey) {
+      if (narrowComposer) return;
       e.preventDefault();
       submit();
       return;
@@ -588,9 +614,13 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
             aria-label={effectivePlaceholder}
             data-placeholder={effectivePlaceholder}
             onInput={onEditorInput}
+            onFocus={normalizeEmptyEditorFocus}
             onKeyDown={onKeyDown}
             onKeyUp={refreshMention}
-            onClick={refreshMention}
+            onClick={() => {
+              normalizeEmptyEditorFocus();
+              refreshMention();
+            }}
             onPaste={onPaste}
           />
         </div>

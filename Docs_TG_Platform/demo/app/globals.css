@@ -1925,17 +1925,28 @@ button.nav-item {
   font-family: var(--font);
   font-size: 14px;
   line-height: 1.5;
-  min-height: 22px;
+  min-height: calc(1.5em + 2px);
   max-height: calc(var(--composer-max-lines, 10) * 1.5em + 4px);
   overflow-y: auto;
   word-break: break-word;
   white-space: pre-wrap;
   cursor: text;
 }
+.composer-editor.is-empty {
+  position: relative;
+}
 .composer-editor.is-empty::before {
   content: attr(data-placeholder);
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
   color: var(--text3);
   pointer-events: none;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .inline-chip {
   display: inline-flex;
@@ -2835,8 +2846,9 @@ button.nav-item {
 }
 #screen-home .input-wrap::before,
 #screen-home .input-wrap::after { content: none; }
-#screen-home .composer-editor {
-  min-height: 44px;
+#screen-home .composer-editor,
+#screen-gchat .composer-editor {
+  min-height: calc(3em + 2px);
 }
 
 /* ════════════════════════════════
@@ -6896,11 +6908,39 @@ button.filter-tab {
   }
 }
 
+/* iOS/Android: при font-size < 16px браузер увеличивает страницу при фокусе в поле */
+@media (hover: none) and (pointer: coarse) {
+  textarea,
+  select,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="range"]):not([type="color"]):not([type="image"]),
+  .composer-editor,
+  .profile-input,
+  .profile-input-explicit,
+  .telegram-input,
+  .post-msg-textarea,
+  .msg-user-edit,
+  .note-body-line-edit,
+  .notes-search,
+  .page-header-search {
+    font-size: 16px;
+  }
+
+  .platform-filter-select {
+    font: 16px/1.2 var(--font);
+  }
+
+  /* Плейсхолдер не в потоке — не раздувает высоту; 14px не триггерит zoom (фокус в editor 16px) */
+  .composer-editor.is-empty::before {
+    font-size: 14px;
+  }
+}
+
 @media (max-width: 760px) {
   :root {
     --nav-w: 0px;
     --content-w: 100%;
     --composer-w: 100%;
+    --composer-mobile-gutter: 8px;
     --hdr: 52px;
   }
 
@@ -6973,14 +7013,14 @@ button.filter-tab {
     overflow-y: auto;
     transform: translateX(-102%);
     transition: transform 0.2s ease;
-    box-shadow:
-      inset 0 1px 0 var(--sidebar-glass-shine),
-      var(--sidebar-glass-shadow),
-      18px 0 34px rgba(0, 0, 0, 0.36);
+    box-shadow: none;
   }
 
   body.mobile-sidebar-open #sidebar {
     transform: translateX(0);
+    box-shadow:
+      inset 0 1px 0 var(--sidebar-glass-shine),
+      var(--sidebar-glass-shadow);
   }
 
   .sidebar-header {
@@ -7020,6 +7060,12 @@ button.filter-tab {
     padding: 12px 16px 12px var(--nav-pad-left);
     font-size: 14px;
     text-align: left;
+  }
+
+  /* Не наследовать padding .nav-item — иначе двойной отступ с .nav-item-chats-main */
+  .nav-item.nav-item--chats-row {
+    padding: 0;
+    gap: 0;
   }
 
   .nav-item-chats-main {
@@ -7134,9 +7180,12 @@ button.filter-tab {
   /* Главная и чаты: та же карточка composer, что на полноэкранной версии */
   #screen-home .input-wrap,
   #screen-gchat .input-wrap {
-    padding: 18px 12px 20px;
+    padding: 14px var(--composer-mobile-gutter) 18px;
     display: flex;
     justify-content: center;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
   }
 
   #screen-gchat .input-wrap {
@@ -7238,7 +7287,12 @@ button.filter-tab {
   }
 
   .home-layout {
-    padding: 24px 12px 20px;
+    padding: 24px var(--composer-mobile-gutter) 20px;
+    align-items: stretch;
+  }
+
+  #screen-home .input-wrap {
+    align-self: stretch;
   }
 
   .home-logo {
