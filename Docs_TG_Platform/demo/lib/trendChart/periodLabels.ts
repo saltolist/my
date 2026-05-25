@@ -317,9 +317,6 @@ export function formatTrendChartRangeFromStart(
   return `${formatTrendRangePart(start.from, withTime)} — ${formatTrendRangePart(end.to, withTime)}`;
 }
 
-/** Отступ крайних точек на мобильной (%), чтобы линия и точки не резались у края. */
-export const MOBILE_TREND_POINT_EDGE_INSET_PERCENT = 2.5;
-
 export function getTrendPointXPercent(
   index: number,
   pointCount: number,
