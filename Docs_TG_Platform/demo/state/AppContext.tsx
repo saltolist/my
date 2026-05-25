@@ -40,6 +40,7 @@ import {
   setActiveUserBranch,
 } from "@/lib/chatPaths";
 import { isOmnichannelChatId, syncOmnichannelGlobalChats } from "@/lib/omnichannel";
+import { buildProfileDiscardPatch } from "@/lib/profileDiscard";
 import type {
   ActiveNote,
   AiProfileConfig,
@@ -630,6 +631,49 @@ function withPostEditDiscarded(cur: State, patch: Partial<State>): Partial<State
   return patch;
 }
 
+function withProfileEditsDiscarded(cur: State, patch: Partial<State>): Partial<State> {
+  const nextScreen = patch.screen ?? cur.screen;
+  if (cur.screen !== "profile" || nextScreen === "profile") return patch;
+  return { ...patch, ...buildProfileDiscardPatch(cur) };
+}
+
+function withNoteEditsDiscarded(cur: State, patch: Partial<State>): Partial<State> {
+  const nextScreen = patch.screen ?? cur.screen;
+  if (cur.screen !== "note" || nextScreen === "note" || !cur.currentNote) return patch;
+  return { ...patch, currentNote: null, noteMode: "view" };
+}
+
+function applyTelegramSyncToPatch(cur: State, patch: Partial<State>): Partial<State> {
+  if (!patch.telegramProfileConfig) return patch;
+  const synced = withTelegramOmnichannelSync(
+    { ...cur, ...patch } as State,
+    patch.telegramProfileConfig,
+  );
+  return {
+    ...patch,
+    telegramProfileConfig: synced.telegramProfileConfig,
+    globalChats: synced.globalChats,
+    currentGChatId: synced.currentGChatId,
+  };
+}
+
+function buildNavigationPatch(cur: State, patch: Partial<State>): Partial<State> {
+  return applyTelegramSyncToPatch(
+    cur,
+    withNoteEditsDiscarded(
+      cur,
+      withProfileEditsDiscarded(cur, withPostEditDiscarded(cur, patch)),
+    ),
+  );
+}
+
+const PROFILE_DIRTY_KEYS: DirtyKey[] = [
+  "profile-channel",
+  "profile-ai",
+  "profile-prompt",
+  "profile-telegram",
+];
+
 type AppContextValue = {
   state: State;
   dispatch: React.Dispatch<Action>;
@@ -668,6 +712,8 @@ type AppContextValue = {
   /** Пост и/или сообщение: подтверждение без сброса (сброс — discardPendingEdits). */
   confirmDiscardAnyEdit: () => boolean;
   discardPendingEdits: () => void;
+  /** Сброс несохранённых правок профиля к последним сохранённым снимкам. */
+  discardProfileEdits: () => void;
 };
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -774,6 +820,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
     discardUserMessageEditSession();
   }, [discardUserMessageEditSession]);
 
+  const clearProfileDirtyFlags = useCallback(() => {
+    setDirtyMap((prev) => {
+      const next = { ...prev };
+      for (const key of PROFILE_DIRTY_KEYS) next[key] = false;
+      return next;
+    });
+  }, []);
+
+  const discardProfileEdits = useCallback(() => {
+    const cur = stateRef.current;
+    dispatch({
+      type: "SET_STATE",
+      patch: applyTelegramSyncToPatch(cur, buildProfileDiscardPatch(cur)),
+    });
+    clearProfileDirtyFlags();
+  }, [clearProfileDirtyFlags]);
+
+  const commitNavigationPatch = useCallback(
+    (patch: Partial<State>) => {
+      const cur = stateRef.current;
+      const nextScreen = patch.screen ?? cur.screen;
+      const leavingProfile = cur.screen === "profile" && nextScreen !== "profile";
+      const leavingNote = cur.screen === "note" && nextScreen !== "note";
+      dispatch({ type: "SET_STATE", patch: buildNavigationPatch(cur, patch) });
+      if (leavingProfile) clearProfileDirtyFlags();
+      if (leavingNote) setDirty("note", false);
+    },
+    [clearProfileDirtyFlags, setDirty],
+  );
+
   const navigate = useCallback(
     (screen: ScreenId, opts?: { skipHistory?: boolean; clearHistory?: boolean }) => {
       if (!canLeaveCurrentScreen(screen)) return;
@@ -786,13 +862,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         navStackRef.current.push(captureRouteState(stateRef.current));
       }
       discardPendingEdits();
-      const cur = stateRef.current;
-      dispatch({
-        type: "SET_STATE",
-        patch: withPostEditDiscarded(cur, { screen }),
-      });
+      commitNavigationPatch({ screen });
     },
-    [canLeaveCurrentScreen, discardPendingEdits],
+    [canLeaveCurrentScreen, commitNavigationPatch, discardPendingEdits],
   );
 
   const navigateBack = useCallback(
@@ -803,11 +875,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (!canLeaveCurrentScreen(to)) return;
         setMobileSidebarOpen(false);
         discardPendingEdits();
-        const cur = stateRef.current;
-        dispatch({
-          type: "SET_STATE",
-          patch: withPostEditDiscarded(cur, { screen: to }),
-        });
+        commitNavigationPatch({ screen: to });
         return;
       }
       if (!canLeaveCurrentScreen(snap.screen)) {
@@ -816,13 +884,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       setMobileSidebarOpen(false);
       discardPendingEdits();
-      const cur = stateRef.current;
-      dispatch({
-        type: "SET_STATE",
-        patch: withPostEditDiscarded(cur, snap),
-      });
+      commitNavigationPatch(snap);
     },
-    [canLeaveCurrentScreen, discardPendingEdits],
+    [canLeaveCurrentScreen, commitNavigationPatch, discardPendingEdits],
   );
 
   const navigateWithState = useCallback(
@@ -832,10 +896,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setMobileSidebarOpen(false);
       navStackRef.current.push(captureRouteState(stateRef.current));
       discardPendingEdits();
-      const cur = stateRef.current;
-      dispatch({ type: "SET_STATE", patch: withPostEditDiscarded(cur, patch) });
+      commitNavigationPatch(patch);
     },
-    [canLeaveCurrentScreen, discardPendingEdits],
+    [canLeaveCurrentScreen, commitNavigationPatch, discardPendingEdits],
   );
 
   const pushRouteSnapshot = useCallback(() => {
@@ -893,32 +956,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
           chats: [],
         };
         dispatch({ type: "UPDATE_POSTS", posts: [...stateRef.current.posts, newPost] });
-        dispatch({
-          type: "SET_STATE",
-          patch: {
-            currentPostId: newPost.id,
-            currentPostChatId: null,
-            postMode: "chat",
-            postViewStack: [],
-            isEditing: false,
-            screen: "post",
-          },
-        });
-        return;
-      }
-      dispatch({
-        type: "SET_STATE",
-        patch: {
-          currentPostId: id,
+        commitNavigationPatch({
+          currentPostId: newPost.id,
           currentPostChatId: null,
           postMode: "chat",
           postViewStack: [],
           isEditing: false,
           screen: "post",
-        },
+        });
+        return;
+      }
+      commitNavigationPatch({
+        currentPostId: id,
+        currentPostChatId: null,
+        postMode: "chat",
+        postViewStack: [],
+        isEditing: false,
+        screen: "post",
       });
     },
-    [canLeaveCurrentScreen, discardPendingEdits],
+    [canLeaveCurrentScreen, commitNavigationPatch, discardPendingEdits],
   );
 
   const openPostComments = useCallback(
@@ -927,19 +984,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setMobileSidebarOpen(false);
       navStackRef.current.push(captureRouteState(stateRef.current));
       discardPendingEdits();
-      dispatch({
-        type: "SET_STATE",
-        patch: {
-          currentPostId: id,
-          currentPostChatId: null,
-          postMode: "comments",
-          postViewStack: [],
-          isEditing: false,
-          screen: "post",
-        },
+      commitNavigationPatch({
+        currentPostId: id,
+        currentPostChatId: null,
+        postMode: "comments",
+        postViewStack: [],
+        isEditing: false,
+        screen: "post",
       });
     },
-    [canLeaveCurrentScreen, discardPendingEdits],
+    [canLeaveCurrentScreen, commitNavigationPatch, discardPendingEdits],
   );
 
   const openGChat = useCallback(
@@ -948,9 +1002,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setMobileSidebarOpen(false);
       navStackRef.current.push(captureRouteState(stateRef.current));
       discardPendingEdits();
-      dispatch({ type: "SET_STATE", patch: { currentGChatId: id, screen: "gchat" } });
+      commitNavigationPatch({ currentGChatId: id, screen: "gchat" });
     },
-    [canLeaveCurrentScreen, discardPendingEdits],
+    [canLeaveCurrentScreen, commitNavigationPatch, discardPendingEdits],
   );
 
   const llmLabel = useCallback(
@@ -1197,6 +1251,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       unregisterUserMessageEdit,
       confirmDiscardAnyEdit,
       discardPendingEdits,
+      discardProfileEdits,
     }),
     [
       state,
@@ -1229,6 +1284,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       unregisterUserMessageEdit,
       confirmDiscardAnyEdit,
       discardPendingEdits,
+      discardProfileEdits,
     ],
   );
 

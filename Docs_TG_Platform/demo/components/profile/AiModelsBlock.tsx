@@ -7,6 +7,7 @@ import type { AiProfileConfig, LlmModel } from "@/lib/types";
 import ModelPicker, { BrainIcon, SearchIcon } from "@/components/composer/ModelPicker";
 import MessageTrashIcon from "@/components/chat/MessageTrashIcon";
 import ProfileCheckbox from "@/components/profile/ProfileCheckbox";
+import { restoreAiConfigFromSnapshot } from "@/lib/profileDiscard";
 
 export default function AiModelsBlock() {
   const { state, dispatch, multiResponsePairs, setDirty } = useApp();
@@ -431,54 +432,3 @@ function snapshotAiConfig(cfg: AiProfileConfig) {
   });
 }
 
-function restoreAiConfigFromSnapshot(current: AiProfileConfig, snapshotJson: string): AiProfileConfig {
-  const saved = JSON.parse(snapshotJson) as AiSettingsSnapshot;
-  const currentModelSnapshot = (model: LlmModel): AiModelSnapshot => ({
-    provider: model.provider || "",
-    model: model.model || "",
-    apiKey: model.apiKey || "",
-    active: !!model.active,
-    includeInMulti: false,
-  });
-  const mapModels = (
-    currentModels: LlmModel[],
-    savedModels: AiModelSnapshot[],
-    idPrefix: string,
-  ): LlmModel[] =>
-    savedModels.map((row, i) => ({
-      id: currentModels[i]?.id ?? `${idPrefix}-${Date.now()}-${i}`,
-      provider: row.provider,
-      model: row.model,
-      apiKey: row.apiKey,
-      active: row.active,
-      includeInMulti: row.includeInMulti,
-    }));
-
-  return {
-    ...current,
-    llmModels: mapModels(current.llmModels, saved.llmModels, "llm"),
-    webSearchModels: mapModels(current.webSearchModels, saved.webSearchModels, "web"),
-    orchestratorModels: normalizeExclusiveModels(
-      mapModels(
-        current.orchestratorModels,
-        saved.orchestratorModels ?? current.orchestratorModels.map(currentModelSnapshot),
-        "orchestrator",
-      ),
-    ),
-    webReasonerModels: normalizeExclusiveModels(
-      mapModels(
-        current.webReasonerModels,
-        saved.webReasonerModels ?? current.webReasonerModels.map(currentModelSnapshot),
-        "web-reasoner",
-      ),
-    ),
-    ragReasonerModels: normalizeExclusiveModels(
-      mapModels(
-        current.ragReasonerModels,
-        saved.ragReasonerModels ?? current.ragReasonerModels.map(currentModelSnapshot),
-        "rag-reasoner",
-      ),
-    ),
-    multiResponseEnabled: saved.multiResponseEnabled,
-  };
-}

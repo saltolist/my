@@ -18,6 +18,10 @@ export default function SystemPromptBlock({ active = true }: { active?: boolean 
     return () => setDirty("profile-prompt", false);
   }, [setDirty]);
 
+  useEffect(() => {
+    setDraft(state.aiProfileConfig.systemPrompt);
+  }, [state.aiProfileConfig.systemPrompt, state.systemPromptSavedSnapshot]);
+
   const save = () => {
     if (!dirty) return;
     dispatch({

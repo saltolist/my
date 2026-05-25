@@ -14,7 +14,7 @@ const PROFILE_TABS = ["Настройки", "Канал", "Аналитика п
 
 export default function ProfileScreen() {
   const [tab, setTab] = useState(0);
-  const { state, profileChannelDirty, profileSettingsDirty } = useApp();
+  const { state, profileChannelDirty, profileSettingsDirty, discardProfileEdits } = useApp();
   const profileScreenActive = state.screen === "profile";
   const settingsTabActive = tab === 0 && profileScreenActive;
   const channelTabActive = tab === 1 && profileScreenActive;
@@ -25,6 +25,7 @@ export default function ProfileScreen() {
         "Есть несохранённые изменения в настройках профиля. Перейти без сохранения?",
       );
       if (!ok) return;
+      discardProfileEdits();
     }
     if (
       tab === 1 &&
@@ -35,6 +36,7 @@ export default function ProfileScreen() {
         "Есть несохранённые изменения в профиле канала. Перейти без сохранения?",
       );
       if (!ok) return;
+      discardProfileEdits();
     }
     setTab(next);
   };
