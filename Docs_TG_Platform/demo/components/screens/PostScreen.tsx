@@ -20,7 +20,9 @@ import PostMediaBlock from "../post/PostMediaBlock";
 import { PostReactionPills, PostViewsReposts } from "../feed/PostEngagement";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import PageHeaderMenuButton from "../PageHeaderMenuButton";
-import PageHeaderOverflow from "../PageHeaderOverflow";
+import PageHeaderOverflow, {
+  type PageHeaderOverflowItem,
+} from "../PageHeaderOverflow";
 import PostStatus from "../feed/PostStatus";
 import PostCardToolbar from "../post/PostCardToolbar";
 import PostCommentsPanel from "../post/PostCommentsPanel";
@@ -112,53 +114,55 @@ export default function PostScreen() {
           ? "Чаты"
           : null;
 
-  const postHeaderOverflowItems = useMemo(
-    () => {
-      if (!post) return [];
-      return [
-        {
-          label: state.postMode === "notes" ? "К посту" : "Заметки",
-          onClick: goToPostNotes,
-        },
-        {
-          label: state.postMode === "chats" ? "К посту" : "Чаты",
-          onClick: goToPostChats,
-        },
-        {
-          label: "↑ К посту",
-          onClick: () => chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }),
-          hidden: !showJump || state.postMode !== "chat",
-        },
-        {
-          label: "+ Новая заметка",
-          onClick: startNewNote,
-          hidden: state.postMode !== "notes",
-        },
-        {
-          label: "+ Новый чат",
-          onClick: startNewChat,
-          hidden: state.postMode !== "chats",
-        },
-        ...ctxItems.map((item) => ({
-          label: item.label,
-          onClick: item.onClick,
-          icon: item.icon,
-          danger: item.danger,
-          disabled: item.disabled,
-        })),
-      ];
-    },
-    [
-      ctxItems,
-      goToPostChats,
-      goToPostNotes,
-      post,
-      showJump,
-      startNewChat,
-      startNewNote,
-      state.postMode,
-    ],
-  );
+  const postHeaderOverflowItems = useMemo((): PageHeaderOverflowItem[] => {
+    if (!post) return [];
+    const items: PageHeaderOverflowItem[] = [];
+
+    if (state.postMode !== "chat") {
+      items.push({ label: "К посту", onClick: openPostView });
+    }
+
+    if (state.postMode !== "notes") {
+      items.push({ label: "Заметки", onClick: goToPostNotes });
+    }
+    if (state.postMode !== "chats") {
+      items.push({ label: "Чаты", onClick: goToPostChats });
+    }
+
+    if (state.postMode === "chat" && showJump) {
+      items.push({
+        label: "↑ К посту",
+        onClick: () => chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }),
+      });
+    }
+    if (state.postMode === "notes") {
+      items.push({ label: "+ Новая заметка", onClick: startNewNote });
+    }
+    if (state.postMode === "chats") {
+      items.push({ label: "+ Новый чат", onClick: startNewChat });
+    }
+
+    return [
+      ...items,
+      ...ctxItems.map((item) => ({
+        label: item.label,
+        onClick: item.onClick,
+        icon: item.icon,
+        danger: item.danger,
+        disabled: item.disabled,
+      })),
+    ];
+  }, [
+    ctxItems,
+    goToPostChats,
+    goToPostNotes,
+    openPostView,
+    post,
+    showJump,
+    startNewChat,
+    startNewNote,
+    state.postMode,
+  ]);
 
   if (!post) {
     return (

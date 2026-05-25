@@ -3364,6 +3364,12 @@ button.nav-item {
   align-items: center;
   min-width: 0;
 }
+@media (min-width: 761px) {
+  .post-hdr .btn.btn-ghost.btn-sm.post-mode-btn.active,
+  .post-hdr .btn.btn-ghost.btn-sm.post-mode-btn.active:hover {
+    border-color: color-mix(in srgb, var(--control-border-active) 58%, var(--text) 24%);
+  }
+}
 .post-header-search-row {
   display: flex;
   align-items: center;
