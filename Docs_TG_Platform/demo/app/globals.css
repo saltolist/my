@@ -6051,6 +6051,14 @@ button.filter-tab {
 .profile-checkbox-scope input[type="checkbox"]:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover)::after {
   border-color: var(--border2);
 }
+/* Настройки: только вкл. — при hover темнеет обводка (как сразу после включения) */
+.profile-panel--settings input[type="checkbox"]:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover) {
+  background: var(--profile-control-bg-active);
+  border-color: #484848;
+}
+.profile-panel--settings input[type="checkbox"]:checked:hover:not(:disabled):not(.profile-checkbox--suppress-hover)::after {
+  border-color: #3a3a3a;
+}
 .profile-page input[type="checkbox"]:focus-visible,
 .profile-checkbox-scope input[type="checkbox"]:focus-visible {
   outline: none;
