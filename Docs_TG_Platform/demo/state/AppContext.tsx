@@ -29,6 +29,7 @@ import {
   VARIANT_TAILS,
 } from "@/lib/composer-config";
 import { getGlobalReply, getPostReply } from "@/lib/replies";
+import { resolvePostViewMode } from "@/lib/postView";
 import {
   getParentPath,
   routes,
@@ -696,6 +697,8 @@ type AppContextValue = {
   goToHref: (href: string, opts?: { replace?: boolean }) => boolean;
   goHome: () => void;
   openPost: (id: number | "new") => void;
+  /** Вкладки поста (заметки / чаты / комментарии) без смены URL. */
+  setPostView: (mode: PostMode, chatId?: number | null) => void;
   openPostComments: (id: number) => void;
   openGChat: (id: string) => void;
   sendHome: (text: string) => boolean;
@@ -978,11 +981,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [goToHref],
   );
 
+  const setPostView = useCallback(
+    (nextMode: PostMode, nextChatId: number | null = null) => {
+      if (!confirmDiscardAnyEdit()) return;
+      discardPendingEdits();
+      const cur = stateRef.current;
+      const postMode = resolvePostViewMode(cur.postMode, nextMode);
+      let chatId: number | null = null;
+      if (postMode === "chat") {
+        chatId = nextMode === "chat" ? nextChatId : cur.currentPostChatId;
+      }
+      dispatch({
+        type: "SET_STATE",
+        patch: {
+          screen: "post",
+          postMode,
+          currentPostChatId: chatId,
+          postViewStack: [],
+          isEditing: false,
+        },
+      });
+    },
+    [confirmDiscardAnyEdit, discardPendingEdits, dispatch],
+  );
+
   const openPostComments = useCallback(
     (id: number) => {
-      goToHref(routes.postComments(id));
+      const cur = stateRef.current;
+      if (cur.screen !== "post" || cur.currentPostId !== id) {
+        if (!goToHref(routes.post(id))) return;
+      }
+      setPostView("comments", null);
     },
-    [goToHref],
+    [goToHref, setPostView],
   );
 
   const openGChat = useCallback(
@@ -1213,6 +1244,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       goToHref,
       goHome,
       openPost,
+      setPostView,
       openPostComments,
       openGChat,
       sendHome,
@@ -1246,6 +1278,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       goToHref,
       goHome,
       openPost,
+      setPostView,
       openPostComments,
       openGChat,
       sendHome,

@@ -147,8 +147,8 @@ export default function Sidebar() {
   useEffect(() => {
     if (screen === "note") setNotesExpanded(true);
     if (screen === "gchat") setChatsExpanded(true);
-    if (screen === "post" && route.postMode === "notes") setNotesExpanded(true);
-  }, [screen, route.postMode]);
+    if (screen === "post" && state.postMode === "notes") setNotesExpanded(true);
+  }, [screen, state.postMode]);
 
   const sidebarPostId = useMemo((): number | null => {
     if (screen === "post" && route.postId != null) return route.postId;

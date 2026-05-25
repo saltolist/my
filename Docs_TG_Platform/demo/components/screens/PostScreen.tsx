@@ -36,6 +36,7 @@ export default function PostScreen() {
     dispatch,
     navigate,
     navigateBack,
+    setPostView,
     goToHref,
     canLeaveCurrentScreen,
     confirmDiscardAnyEdit,
@@ -84,22 +85,16 @@ export default function PostScreen() {
     };
   }, [state.postMode, state.isEditing, post?.id, activeChat?.id]);
 
-  const pushPostView = (nextMode: PostMode, nextChatId: number | null) => {
+  const applyPostView = (nextMode: PostMode, nextChatId: number | null = null) => {
     if (!post) return;
-    if (!confirmDiscardAnyEdit()) return;
-    discardPendingEdits();
-    if (nextMode === state.postMode && nextChatId === state.currentPostChatId) return;
-    goToHref(routes.postSub(post.id, nextMode, nextChatId));
+    setPostView(nextMode, nextChatId);
     setListSearch("");
   };
-  const goToPostNotes = () => pushPostView("notes", null);
-  const goToPostChats = () => pushPostView("chats", null);
-  const openPostView = () => {
-    if (state.postMode === "chat") return;
-    pushPostView("chat", state.currentPostChatId);
-  };
-  const openLocalChat = (chatId: number) => pushPostView("chat", chatId);
-  const startNewChat = () => pushPostView("chat", null);
+  const goToPostNotes = () => applyPostView("notes", null);
+  const goToPostChats = () => applyPostView("chats", null);
+  const openPostView = () => applyPostView("chat", state.currentPostChatId);
+  const openLocalChat = (chatId: number) => applyPostView("chat", chatId);
+  const startNewChat = () => applyPostView("chat", null);
   const startNewNote = () => {
     if (!post) return;
     goToHref(routes.noteNew("post", post.id));
@@ -122,14 +117,12 @@ export default function PostScreen() {
       if (!post) return [];
       return [
         {
-          label: "Заметки",
+          label: state.postMode === "notes" ? "К посту" : "Заметки",
           onClick: goToPostNotes,
-          hidden: state.postMode === "notes",
         },
         {
-          label: "Чаты",
+          label: state.postMode === "chats" ? "К посту" : "Чаты",
           onClick: goToPostChats,
-          hidden: state.postMode === "chats",
         },
         {
           label: "↑ К посту",
@@ -283,7 +276,7 @@ export default function PostScreen() {
               </button>
               <div className="post-mode-cluster">
                 <button
-                  className="btn btn-ghost btn-sm post-mode-btn"
+                  className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "notes" ? " active" : ""}`}
                   onClick={goToPostNotes}
                   type="button"
                 >
@@ -292,7 +285,7 @@ export default function PostScreen() {
               </div>
               <div className="post-mode-cluster">
                 <button
-                  className="btn btn-ghost btn-sm post-mode-btn"
+                  className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "chats" ? " active" : ""}`}
                   onClick={goToPostChats}
                   type="button"
                 >
@@ -339,7 +332,7 @@ export default function PostScreen() {
                 badge={badgeForPost(post)}
                 metrics={post.status === "published" && post.metrics ? post.metrics : null}
                 comments={post.status === "published" ? (post.comments ?? []) : undefined}
-                onOpenComments={() => pushPostView("comments", state.currentPostChatId)}
+                onOpenComments={() => applyPostView("comments", null)}
                 isTextOnlyNoMedia={
                   mediaItems.length === 0 &&
                   (post.status === "published" || post.status === "scheduled" || post.status === "draft")

@@ -73,14 +73,11 @@ export function parseAppPath(pathname: string): ParsedAppPath {
     }
     const postId = parsePositiveInt(segments[1]);
     if (!postId) return empty;
-    const sub = segments[2];
-    const postMode: PostMode =
-      sub === "comments" ? "comments" : sub === "notes" ? "notes" : sub === "chats" ? "chats" : "chat";
     return {
       ...empty,
       screen: "post",
       postId,
-      postMode,
+      postMode: "chat",
     };
   }
 
@@ -103,6 +100,19 @@ export function parseAppPath(pathname: string): ParsedAppPath {
   return empty;
 }
 
+/** Старые URL `/post/5/notes/` → редирект на `/post/5/` + режим во state. */
+export function parsePostLegacySub(
+  pathname: string,
+): { postId: number; mode: PostMode } | null {
+  const path = norm(pathname);
+  const m = path.match(/^\/post\/([^/]+)\/(comments|notes|chats)\/$/);
+  if (!m || m[1] === POST_NEW_SLUG) return null;
+  const postId = parsePositiveInt(m[1]);
+  if (!postId) return null;
+  const mode = m[2] as "comments" | "notes" | "chats";
+  return { postId, mode };
+}
+
 export function parseChatSearchParam(raw: string | null): number | null {
   if (!raw) return null;
   const n = Number(raw);
@@ -122,15 +132,9 @@ export const routes = {
     if (chatId != null) return `${base}?chat=${chatId}`;
     return base;
   },
-  postComments: (id: number | string) => `/post/${id}/comments/`,
-  postNotes: (id: number | string) => `/post/${id}/notes/`,
-  postChats: (id: number | string) => `/post/${id}/chats/`,
-  postSub: (id: number | string, mode: PostMode, chatId?: number | null) => {
-    if (mode === "comments") return routes.postComments(id);
-    if (mode === "notes") return routes.postNotes(id);
-    if (mode === "chats") return routes.postChats(id);
-    return routes.post(id, chatId);
-  },
+  /** Устаревшие подпути — только для редиректа в RouteSync. */
+  postLegacySubPath: (id: number | string, sub: "comments" | "notes" | "chats") =>
+    `/post/${id}/${sub}/`,
   noteNew: (from?: NoteFromScreen, postId?: number) => {
     const q = new URLSearchParams();
     if (from) q.set("from", from);
@@ -169,9 +173,6 @@ export function getParentPath(pathname: string): string | null {
   const path = norm(pathname);
   if (path === "/") return null;
 
-  const mPostSub = path.match(/^\/post\/([^/]+)\/(comments|notes|chats)\/$/);
-  if (mPostSub) return `/post/${mPostSub[1]}/`;
-
   const mPost = path.match(/^\/post\/([^/]+)\/$/);
   if (mPost && mPost[1] !== POST_NEW_SLUG) return routes.feed();
 
@@ -179,7 +180,7 @@ export function getParentPath(pathname: string): string | null {
   if (path.startsWith("/note/global/")) return routes.notes();
   if (path.match(/^\/note\/post\/\d+\/\d+\/$/)) {
     const parts = path.split("/").filter(Boolean);
-    return routes.postNotes(Number(parts[2]));
+    return routes.post(Number(parts[2]));
   }
   if (path.startsWith(`/note/${NOTE_NEW_SLUG}/`)) return routes.notes();
 
@@ -309,8 +310,7 @@ export function statePatchToHref(
   if (screen === "post") {
     const id = patch.currentPostId ?? cur.currentPostId;
     if (id == null) return routes.post(POST_NEW_SLUG);
-    const mode = patch.postMode ?? cur.postMode ?? "chat";
-    return routes.postSub(id, mode, patch.currentPostChatId ?? null);
+    return routes.post(id, patch.currentPostChatId ?? null);
   }
 
   if (screen === "gchat" && patch.currentGChatId) {

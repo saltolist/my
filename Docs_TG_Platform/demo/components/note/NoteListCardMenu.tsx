@@ -71,7 +71,7 @@ export default function NoteListCardMenu(props: Props) {
           ) {
             goToHref(
               state.noteFrom === "post"
-                ? routes.postNotes(props.postId)
+                ? routes.post(props.postId)
                 : routes.notes(),
               { replace: true },
             );

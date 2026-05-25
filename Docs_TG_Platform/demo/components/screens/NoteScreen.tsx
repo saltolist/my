@@ -29,7 +29,7 @@ export default function NoteScreen() {
   const discardNewNote = () => {
     setDirty("note", false);
     if (state.noteFrom === "post" && note && !note.isGlobal) {
-      goToHref(routes.postNotes(note.postId), { replace: true });
+      goToHref(routes.post(note.postId), { replace: true });
     } else {
       goToHref(routes.notes(), { replace: true });
     }
@@ -77,7 +77,7 @@ export default function NoteScreen() {
             goToHref(routes.notes(), { replace: true });
           } else {
             dispatch({ type: "DELETE_POST_NOTE", postId: note.postId, noteId: note.id });
-            goToHref(routes.postNotes(note.postId), { replace: true });
+            goToHref(routes.post(note.postId), { replace: true });
           }
         },
       },

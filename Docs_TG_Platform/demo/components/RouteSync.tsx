@@ -1,15 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useApp } from "@/state/AppContext";
 import {
   POST_NEW_SLUG,
   buildRoutePatch,
   parseAppPath,
   parseChatSearchParam,
+  parsePostLegacySub,
+  routes,
 } from "@/lib/routes";
-import type { NoteFromScreen, Post } from "@/lib/types";
+import type { NoteFromScreen, Post, PostMode } from "@/lib/types";
 
 function ensureNewPost(posts: Post[]): { posts: Post[]; postId: number } {
   const newPost: Post = {
@@ -26,6 +28,7 @@ function ensureNewPost(posts: Post[]): { posts: Post[]; postId: number } {
 
 export default function RouteSync() {
   const { state, dispatch } = useApp();
+  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const syncKeyRef = useRef("");
@@ -36,7 +39,20 @@ export default function RouteSync() {
     if (syncKeyRef.current === syncKey) return;
     syncKeyRef.current = syncKey;
 
-    const parsed = parseAppPath(path);
+    const legacySub = parsePostLegacySub(path);
+    let postModeOverride: PostMode | undefined;
+    let pathForParse = path;
+
+    if (legacySub) {
+      postModeOverride = legacySub.mode;
+      pathForParse = routes.post(legacySub.postId);
+      const chatQ = searchParams.get("chat");
+      const href =
+        chatQ != null ? `${pathForParse}?chat=${chatQ}` : pathForParse;
+      router.replace(href);
+    }
+
+    const parsed = parseAppPath(pathForParse);
     const chatId = parseChatSearchParam(searchParams.get("chat"));
     const fromParam = searchParams.get("from");
     const noteFrom: NoteFromScreen = fromParam === "post" ? "post" : "notes";
@@ -52,7 +68,7 @@ export default function RouteSync() {
     let posts = state.posts;
     let postId = parsed.postId;
 
-    if (parsed.screen === "post" && path.includes(`/post/${POST_NEW_SLUG}/`)) {
+    if (parsed.screen === "post" && pathForParse.includes(`/post/${POST_NEW_SLUG}/`)) {
       const ensured = ensureNewPost(posts);
       posts = ensured.posts;
       postId = ensured.postId;
@@ -68,9 +84,13 @@ export default function RouteSync() {
     const patch: Record<string, unknown> = { ...routePatch };
     if (posts !== state.posts) patch.posts = posts;
     if (postId != null && parsed.screen === "post") patch.currentPostId = postId;
+    if (postModeOverride) {
+      patch.postMode = postModeOverride;
+      patch.postViewStack = [];
+    }
 
     dispatch({ type: "SET_STATE", patch });
-  }, [pathname, searchParams, dispatch, state.posts, state.globalChats, state.globalNotes]);
+  }, [pathname, searchParams, dispatch, router, state.posts, state.globalChats, state.globalNotes]);
 
   return null;
 }

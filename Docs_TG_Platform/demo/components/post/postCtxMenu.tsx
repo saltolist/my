@@ -288,11 +288,10 @@ export function usePostCtxMenuItems(post: Post | null | undefined): PostCtxMenuR
   const {
     state,
     dispatch,
-    navigate,
     goToHref,
+    setPostView,
     confirmDiscardAnyEdit,
     discardPendingEdits,
-    canLeaveCurrentScreen,
   } = useApp();
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
   const [scheduleInitialDate, setScheduleInitialDate] = useState<Date>(() => getDefaultScheduleDate());
@@ -339,7 +338,7 @@ export function usePostCtxMenuItems(post: Post | null | undefined): PostCtxMenuR
     const pushPostView = (nextMode: PostMode, nextChatId: number | null) => {
       if (!confirmDiscardAnyEdit()) return;
       discardPendingEdits();
-      goToHref(routes.postSub(post.id, nextMode, nextChatId));
+      setPostView(nextMode, nextChatId);
     };
 
     return buildPostCtxMenuItems(post, {
@@ -374,17 +373,11 @@ export function usePostCtxMenuItems(post: Post | null | undefined): PostCtxMenuR
     });
   }, [
     post,
-    state.screen,
-    state.currentPostId,
-    state.postMode,
-    state.currentPostChatId,
-    state.postViewStack,
     dispatch,
-    navigate,
     goToHref,
+    setPostView,
     confirmDiscardAnyEdit,
     discardPendingEdits,
-    canLeaveCurrentScreen,
     openScheduleModal,
   ]);
 
