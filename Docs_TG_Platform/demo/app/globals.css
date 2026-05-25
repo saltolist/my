@@ -1521,9 +1521,11 @@ button.nav-item {
 }
 .page-header-select {
   height: 32px;
-  width: auto;
+  width: 100%;
+  min-width: 0;
   max-width: 100%;
-  padding: 0 28px 0 12px;
+  box-sizing: border-box;
+  padding: 0 26px;
   border-radius: 999px;
   border: 1px solid var(--page-header-control-border);
   background: var(--page-header-control-bg);
@@ -1531,7 +1533,9 @@ button.nav-item {
   font-family: var(--font);
   font-size: 12px;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 32px;
+  text-align: center;
+  text-align-last: center;
   cursor: pointer;
   outline: none;
   flex-shrink: 0;
@@ -5773,16 +5777,20 @@ button.filter-tab {
 .bar-meta { font-size: 12px; color: var(--text3); width: 58px; text-align: right; flex-shrink: 0; }
 .top-table { width: 100%; min-width: 640px; border-collapse: collapse; }
 .analytics-top-posts-table {
-  min-width: 920px;
   table-layout: fixed;
   width: 100%;
+}
+@media (min-width: 761px) {
+  .analytics-top-posts-table {
+    min-width: 920px;
+  }
 }
 .analytics-top-posts-table .analytics-top-posts-col-title {
   width: 32%;
   min-width: 200px;
 }
 .analytics-top-posts-table .analytics-top-posts-col-metric {
-  width: calc(68% / 6);
+  width: calc(68% / var(--top-posts-metric-cols, 5));
 }
 .analytics-top-posts-table .analytics-top-posts-col-action {
   width: 40px;
@@ -5797,6 +5805,10 @@ button.filter-tab {
 .analytics-top-posts-table td:first-child {
   padding-left: 0;
   text-align: left;
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .analytics-top-posts-table th:not(:first-child):not(:last-child),
 .analytics-top-posts-table td:not(:first-child):not(:last-child) {
@@ -7199,8 +7211,55 @@ button.filter-tab {
     min-height: var(--hdr);
   }
 
-  .page-header-left {
+  /* Flex: селектор и overflow у правого края, даже если центр скрыт (grid без центра съезжал в col 2) */
+  .page-header {
+    display: flex;
+    align-items: center;
     gap: 8px;
+  }
+
+  .page-header-left {
+    flex: 0 1 auto;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .page-header-center {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-self: auto;
+    max-width: none;
+  }
+
+  .page-header-right {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  .page-header-toolbar-slot.page-header-toolbar--mobile {
+    flex: 0 0 auto;
+    max-width: 100%;
+  }
+
+  .post-hdr--with-search .post-hdr-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .post-hdr--with-search .page-header-center {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-self: auto;
+    max-width: none;
+    width: auto;
+  }
+
+  .post-hdr--with-search .page-header-right {
+    flex: 0 0 auto;
+    margin-left: auto;
+    justify-self: auto;
   }
 
   .page-header-left h2 {
@@ -7794,12 +7853,64 @@ button.filter-tab {
     gap: 8px;
   }
 
-  .analytics-card {
-    overflow-x: auto;
+  #screen-analytics .analytics-page {
+    overflow-x: hidden;
+    max-width: 100%;
   }
 
-  .analytics-top-posts-table .analytics-top-posts-col-title {
-    min-width: 160px;
+  #screen-analytics .analytics-scroll-inner {
+    overflow-x: hidden;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #screen-analytics .analytics-card {
+    overflow-x: hidden;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  #screen-analytics .analytics-chart-card {
+    overflow-x: hidden;
+  }
+
+  #screen-analytics .analytics-chart-card .model-trend-plot,
+  #screen-analytics .analytics-chart-card .trend-chart-wrap {
+    overflow: hidden;
+    max-width: 100%;
+  }
+
+  #screen-analytics .analytics-chart-card .channel-analytics-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric-label {
+    white-space: normal;
+  }
+
+  #screen-analytics .channel-metrics-block {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  #screen-analytics .analytics-top-posts-table {
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  #screen-analytics .analytics-top-posts-table .analytics-top-posts-col-title {
+    width: auto;
+    min-width: 0;
+  }
+
+  #screen-analytics .analytics-top-posts-table .analytics-top-posts-col-metric {
+    width: 56px;
+    min-width: 0;
+  }
+
+  #screen-analytics .analytics-top-posts-table .analytics-top-posts-col-action {
+    width: 32px;
   }
 }
 

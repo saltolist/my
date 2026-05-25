@@ -64,6 +64,19 @@ export const CHANNEL_POST_TABLE_METRICS = CHANNEL_METRICS.map((metric) => ({
   label: metric.id === "er" ? "ER" : metric.label,
 }));
 
+/** Таблица «Лучшие посты за период» (десктоп) — без подписчиков */
+export const CHANNEL_TOP_POSTS_TABLE_METRICS = CHANNEL_POST_TABLE_METRICS.filter(
+  (metric) => metric.id !== "subscribers",
+);
+
+/** Только для блока «Лучшие посты» на телефоне */
+export function getChannelTopPostsTableMetrics(isMobile: boolean) {
+  if (isMobile) {
+    return CHANNEL_POST_TABLE_METRICS.filter((metric) => metric.id === "er");
+  }
+  return CHANNEL_TOP_POSTS_TABLE_METRICS;
+}
+
 const CHANNEL_CURRENT_TOTALS: Record<string, number> = {
   subscribers: 8412,
   reactions: 1286,

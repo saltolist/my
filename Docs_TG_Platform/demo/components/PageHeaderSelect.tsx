@@ -19,19 +19,20 @@ export default function PageHeaderSelect({
   ariaLabel,
   className,
 }: Props) {
-  const minWidthCh = useMemo(() => {
-    const longest = options.reduce((max, o) => Math.max(max, o.label.length), 0);
-    return longest + 3;
-  }, [options]);
+  /** Текущая подпись (ch) + отступы и chevron */
+  const wrapWidth = useMemo(() => {
+    const label = options.find((o) => o.value === value)?.label ?? "";
+    const ch = Math.max(label.length, 3);
+    return `calc(${ch}ch + 4rem)`;
+  }, [options, value]);
 
   return (
-    <div className="page-header-select-wrap">
+    <div className="page-header-select-wrap" style={{ width: wrapWidth }}>
       <select
         className={className ? `page-header-select ${className}` : "page-header-select"}
         value={value}
         aria-label={ariaLabel}
         onChange={(e) => onChange(e.target.value)}
-        style={{ width: `${minWidthCh}ch` }}
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>

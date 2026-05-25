@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { useApp } from "@/state/AppContext";
 import ChannelAnalyticsSection from "@/components/analytics/ChannelAnalyticsSection";
 import {
-  CHANNEL_POST_TABLE_METRICS,
   formatChannelPostMetricValue,
+  getChannelTopPostsTableMetrics,
 } from "@/lib/channelAnalyticsTrend";
+import { useMobile760 } from "@/lib/hooks/useMobile760";
 import PageHeader from "../PageHeader";
 import PageHeaderSelect from "../PageHeaderSelect";
 
@@ -69,6 +70,15 @@ const topPosts: TopPostRow[] = [
 export default function AnalyticsScreen() {
   const { openPost } = useApp();
   const [period, setPeriod] = useState(1);
+  const isMobile = useMobile760();
+  const topPostsTableMetrics = useMemo(
+    () => getChannelTopPostsTableMetrics(isMobile),
+    [isMobile],
+  );
+  const rankedTopPosts = useMemo(
+    () => [...topPosts].sort((a, b) => b.subscribers - a.subscribers),
+    [],
+  );
 
   const periodToolbar = (
     <div
@@ -116,12 +126,19 @@ export default function AnalyticsScreen() {
             <Heatmap />
           </div>
 
-          <div className="analytics-card platform-analytics-section">
+          <div className="analytics-card analytics-top-posts-card platform-analytics-section">
             <div className="profile-section-title platform-section-title-spaced">Лучшие посты за период</div>
-            <table className="top-table analytics-top-posts-table">
+            <table
+              className="top-table analytics-top-posts-table"
+              style={
+                {
+                  "--top-posts-metric-cols": topPostsTableMetrics.length,
+                } as CSSProperties
+              }
+            >
               <colgroup>
                 <col className="analytics-top-posts-col-title" />
-                {CHANNEL_POST_TABLE_METRICS.map((metric) => (
+                {topPostsTableMetrics.map((metric) => (
                   <col key={metric.id} className="analytics-top-posts-col-metric" />
                 ))}
                 <col className="analytics-top-posts-col-action" />
@@ -129,17 +146,17 @@ export default function AnalyticsScreen() {
               <thead>
                 <tr>
                   <th>Пост</th>
-                  {CHANNEL_POST_TABLE_METRICS.map((metric) => (
+                  {topPostsTableMetrics.map((metric) => (
                     <th key={metric.id}>{metric.label}</th>
                   ))}
                   <th aria-label="Открыть пост" />
                 </tr>
               </thead>
               <tbody>
-                {topPosts.map((post) => (
+                {rankedTopPosts.map((post) => (
                   <tr key={post.id}>
                     <td>{post.title}</td>
-                    {CHANNEL_POST_TABLE_METRICS.map((metric) => (
+                    {topPostsTableMetrics.map((metric) => (
                       <td key={metric.id}>
                         {formatChannelPostMetricValue(
                           metric.id,
