@@ -13,7 +13,7 @@ type Props = {
   onBack?: () => void;
   backLabel?: string;
   search?: ReactNode;
-  /** На мобильной — в одной строке с названием, не на всю ширину */
+  /** На мобильной — селектор вкладок у правого края шапки */
   mobileSelect?: ReactNode;
   actions?: ReactNode;
   /** На мобильной — одно меню вместо ряда кнопок в `actions` */
@@ -39,12 +39,12 @@ export default function PageHeader({
         <PageHeaderMenuButton />
         {title ? <h2>{title}</h2> : null}
         {left}
-        {mobileSelect ? (
-          <div className="page-header-toolbar-slot">{mobileSelect}</div>
-        ) : null}
       </div>
       <div className="page-header-center">{search}</div>
       <div className="page-header-right">
+        {mobileSelect ? (
+          <div className="page-header-toolbar-slot page-header-toolbar--mobile">{mobileSelect}</div>
+        ) : null}
         <div className="page-header-actions--desktop">
           {handleBack ? (
             <button
