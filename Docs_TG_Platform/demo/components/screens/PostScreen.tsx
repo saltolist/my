@@ -303,7 +303,12 @@ export default function PostScreen() {
               >
                 ← Назад
               </button>
-              <ContextMenu items={ctxItems} />
+              <ContextMenu
+                items={ctxItems}
+                portal
+                align="right"
+                dropdownClassName="ctx-dropdown--page-header-control"
+              />
             </div>
             <PageHeaderOverflow
               className="page-header-actions--mobile"

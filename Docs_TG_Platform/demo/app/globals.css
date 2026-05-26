@@ -97,6 +97,10 @@
   --dropdown-shadow:  0 10px 30px rgba(0,0,0,.45);
   --trend-tooltip-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.38);
   --ctx-dropdown-offset: 12px;
+  /* Портальное меню шапки: непрозрачный фон (control-bg в light — полупрозрачный) */
+  --ctx-dropdown-header-surface: var(--bg2);
+  --ctx-dropdown-header-surface-hover: var(--bg3);
+  --ctx-dropdown-header-border: var(--border2);
 
   /* Liquid-glass header material */
   --glass-bg:     rgba(28, 30, 36, 0.62);
@@ -360,11 +364,16 @@ html.sidebar-collapsed {
 :root[data-theme="light"] :is(
   .model-picker-dropdown,
   .chart-series-selector-panel,
-  .ctx-dropdown
+  .ctx-dropdown:not(.ctx-dropdown--page-header-control)
 ) {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   background: var(--bg3);
+}
+:root[data-theme="light"] {
+  --ctx-dropdown-header-surface: var(--bg2);
+  --ctx-dropdown-header-surface-hover: var(--bg3);
+  --ctx-dropdown-header-border: var(--border2);
 }
 :root[data-theme="light"] .model-picker-dropdown--composer {
   background: color-mix(in srgb, var(--bg3) 88%, #ffffff 12%);
@@ -419,6 +428,10 @@ html.sidebar-collapsed {
     --page-header-control-bg-hover: color-mix(in srgb, var(--bg4) 66%, transparent);
     --page-header-control-bg-focus: color-mix(in srgb, var(--bg4) 72%, transparent);
     --page-header-control-border: color-mix(in srgb, var(--border2) 58%, transparent);
+
+    --ctx-dropdown-header-surface: var(--bg2);
+    --ctx-dropdown-header-surface-hover: var(--bg3);
+    --ctx-dropdown-header-border: var(--border2);
 
     --reaction-pill-bg: rgb(225, 238, 246);
     --reaction-pill-border: transparent;
@@ -1698,6 +1711,22 @@ button.nav-item {
 }
 .ctx-dropdown-portal.open {
   display: block;
+}
+/* Как .page-header-select по тону, но непрозрачно — панель в portal над контентом */
+.ctx-dropdown.ctx-dropdown-portal.ctx-dropdown--page-header-control,
+.ctx-dropdown.ctx-dropdown--page-header-control {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background-color: var(--ctx-dropdown-header-surface) !important;
+  border: 1px solid var(--ctx-dropdown-header-border);
+  box-shadow: var(--dropdown-shadow);
+}
+.ctx-dropdown--page-header-control .ctx-item:hover {
+  background: var(--ctx-dropdown-header-surface-hover);
+  color: var(--text);
+}
+.ctx-dropdown--page-header-control .ctx-item.active:hover {
+  background: color-mix(in srgb, var(--ctx-dropdown-header-surface-hover) 78%, var(--accent) 22%);
 }
 .ctx-item {
   display: flex; align-items: center; gap: 10px;

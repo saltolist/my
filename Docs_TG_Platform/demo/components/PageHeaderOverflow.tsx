@@ -39,6 +39,7 @@ export default function PageHeaderOverflow({
     <div className={className ?? undefined}>
       <ContextMenu
         className="page-header-overflow"
+        dropdownClassName="ctx-dropdown--page-header-control"
         items={menuItems}
         triggerAriaLabel={triggerAriaLabel}
         portal

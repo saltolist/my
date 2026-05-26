@@ -1,7 +1,8 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { clampFloatingPanelLeft } from "@/lib/floatingPanel";
 import { useOverlayDismissOnPointer } from "@/lib/hooks/useOverlayDismissOnPointer";
 
 export type ModelOption = { id: string; label: string };
@@ -49,20 +50,26 @@ export default function ModelPicker({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isComposerPicker = className?.includes("composer-model-picker");
 
-  const updatePos = () => {
+  const updatePos = useCallback(() => {
     const btn = btnRef.current;
     if (!btn) return;
     const r = btn.getBoundingClientRect();
+    const minWidth = Math.max(r.width, isComposerPicker ? r.width : 140);
+    const panelWidth = dropdownRef.current?.offsetWidth ?? minWidth;
+    const left = clampFloatingPanelLeft(r.left, panelWidth);
     if (placement === "down") {
-      setPos({ mode: "down", top: r.bottom + 6, left: r.left, width: r.width });
+      setPos({ mode: "down", top: r.bottom + 6, left, width: r.width });
     } else {
-      setPos({ mode: "up", bottom: window.innerHeight - r.top + 6, left: r.left, width: r.width });
+      setPos({ mode: "up", bottom: window.innerHeight - r.top + 6, left, width: r.width });
     }
-  };
+  }, [placement, isComposerPicker]);
 
   useLayoutEffect(() => {
-    if (open) updatePos();
-  }, [open]);
+    if (!open) return;
+    updatePos();
+    const raf = requestAnimationFrame(updatePos);
+    return () => cancelAnimationFrame(raf);
+  }, [open, updatePos]);
 
   const { consumeSuppressTriggerClick } = useOverlayDismissOnPointer({
     open,
@@ -80,7 +87,7 @@ export default function ModelPicker({
       window.removeEventListener("resize", onReflow);
       window.removeEventListener("scroll", onReflow, true);
     };
-  }, [open]);
+  }, [open, updatePos]);
 
   const flatOptions = sections ? sections.flatMap((s) => s.options) : options;
   const isEmpty = emptyValue !== undefined && value === emptyValue;

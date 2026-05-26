@@ -1,8 +1,9 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import ProfileCheckbox from "@/components/profile/ProfileCheckbox";
+import { clampFloatingPanelLeft } from "@/lib/floatingPanel";
 import { useOverlayDismissOnPointer } from "@/lib/hooks/useOverlayDismissOnPointer";
 
 export type ChartSeriesSelectorItem = {
@@ -62,20 +63,25 @@ export default function ChartSeriesSelector({
     return `${label} ${visibleCount}/${items.length}`;
   }, [items.length, label, visibleCount]);
 
-  const updatePanelPos = () => {
+  const updatePanelPos = useCallback(() => {
     const trigger = triggerRef.current;
     if (!trigger) return;
     const rect = trigger.getBoundingClientRect();
+    const minPanelWidth = Math.max(rect.width, isProfile ? rect.width : 220);
+    const panelWidth = panelRef.current?.offsetWidth ?? minPanelWidth;
     setPanelPos({
       top: rect.bottom + 6,
-      left: rect.left,
+      left: clampFloatingPanelLeft(rect.left, panelWidth),
       width: rect.width,
     });
-  };
+  }, [isProfile]);
 
   useLayoutEffect(() => {
-    if (open) updatePanelPos();
-  }, [open]);
+    if (!open) return;
+    updatePanelPos();
+    const raf = requestAnimationFrame(updatePanelPos);
+    return () => cancelAnimationFrame(raf);
+  }, [open, updatePanelPos]);
 
   const { consumeSuppressTriggerClick } = useOverlayDismissOnPointer({
     open,
@@ -93,7 +99,7 @@ export default function ChartSeriesSelector({
       window.removeEventListener("resize", onReflow);
       window.removeEventListener("scroll", onReflow, true);
     };
-  }, [open]);
+  }, [open, updatePanelPos]);
 
   const rootClassName = isProfile
     ? `model-picker profile-model-picker chart-series-selector chart-series-selector--profile${open ? " is-open" : ""}`
@@ -135,6 +141,7 @@ export default function ChartSeriesSelector({
                 top: panelPos.top,
                 left: panelPos.left,
                 minWidth: Math.max(panelPos.width, isProfile ? panelPos.width : 220),
+                maxWidth: "min(280px, calc(100vw - 24px))",
               }}
 
             >

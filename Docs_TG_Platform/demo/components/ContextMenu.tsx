@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import {
+  clampFloatingPanelLeft,
+  FLOATING_PANEL_EDGE_MARGIN_PX,
+} from "@/lib/floatingPanel";
 import { useOverlayDismissOnPointer } from "@/lib/hooks/useOverlayDismissOnPointer";
 
 export type CtxMenuItem = {
@@ -22,12 +26,15 @@ export function ContextMenu({
   className = "",
   align = "right",
   portal = false,
+  dropdownClassName = "",
   onOpenChange,
   triggerAriaLabel,
 }: {
   items: CtxMenuItem[];
   trigger?: ReactNode;
   className?: string;
+  /** Доп. классы панели (важно для portal — панель вне DOM-родителя). */
+  dropdownClassName?: string;
   /** Для `portal`: `left` — левый край меню с левого края кнопки; `right` — с правого. */
   align?: "left" | "right";
   /** Рендер выпадающего списка в `document.body` (чтобы не обрезался `overflow` родителя). */
@@ -51,20 +58,39 @@ export function ContextMenu({
     onOpenChangeRef.current?.(open);
   }, [open]);
 
+  const updatePortalPos = useCallback(() => {
+    const btn = btnRef.current;
+    if (!btn) return;
+    const r = btn.getBoundingClientRect();
+    const panelWidth = dropdownRef.current?.offsetWidth ?? DROPDOWN_MIN_W;
+    const preferredLeft =
+      align === "right" ? r.right - panelWidth : r.left;
+    setPortalPos({
+      top: r.bottom + DROPDOWN_OFFSET,
+      left: clampFloatingPanelLeft(preferredLeft, panelWidth),
+    });
+  }, [align]);
+
   useLayoutEffect(() => {
-    if (!open || !portal || !btnRef.current) {
+    if (!open || !portal) {
       setPortalPos(null);
       return;
     }
-    const r = btnRef.current.getBoundingClientRect();
-    const maxMenuW = 280;
-    const pad = 8;
-    const left =
-      align === "right"
-        ? Math.min(window.innerWidth - DROPDOWN_MIN_W - pad, Math.max(pad, r.right - DROPDOWN_MIN_W))
-        : Math.max(pad, Math.min(r.left, window.innerWidth - maxMenuW - pad));
-    setPortalPos({ top: r.bottom + DROPDOWN_OFFSET, left });
-  }, [open, portal, align]);
+    updatePortalPos();
+    const raf = requestAnimationFrame(updatePortalPos);
+    return () => cancelAnimationFrame(raf);
+  }, [open, portal, updatePortalPos]);
+
+  useLayoutEffect(() => {
+    if (!open || !portal) return;
+    const onReflow = () => updatePortalPos();
+    window.addEventListener("resize", onReflow);
+    window.addEventListener("scroll", onReflow, true);
+    return () => {
+      window.removeEventListener("resize", onReflow);
+      window.removeEventListener("scroll", onReflow, true);
+    };
+  }, [open, portal, updatePortalPos]);
 
   const { consumeSuppressTriggerClick } = useOverlayDismissOnPointer({
     open,
@@ -116,7 +142,7 @@ export function ContextMenu({
           createPortal(
             <div
               ref={dropdownRef}
-              className="ctx-dropdown ctx-dropdown-portal open"
+              className={`ctx-dropdown ctx-dropdown-portal open${dropdownClassName ? ` ${dropdownClassName}` : ""}`}
               style={{
                 position: "fixed",
                 top: portalPos.top,
@@ -124,7 +150,7 @@ export function ContextMenu({
                 right: "auto",
                 minWidth: DROPDOWN_MIN_W,
                 width: "max-content",
-                maxWidth: "min(280px, calc(100vw - 16px))",
+                maxWidth: `min(280px, calc(100vw - ${FLOATING_PANEL_EDGE_MARGIN_PX * 2}px))`,
                 zIndex: 2000,
               }}
             >
@@ -136,7 +162,7 @@ export function ContextMenu({
       {!portal ? (
         <div
           ref={dropdownRef}
-          className={`ctx-dropdown${open ? " open" : ""}`}
+          className={`ctx-dropdown${dropdownClassName ? ` ${dropdownClassName}` : ""}${open ? " open" : ""}`}
           style={align === "left" ? { left: 0, right: "auto" } : undefined}
         >
           {dropdownBody}
