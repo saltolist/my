@@ -136,6 +136,7 @@ export default function ChatsScreen() {
               placeholder="Поиск по чатам..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              onDismiss={() => setSearch("")}
             />
             <div
               className="chats-tabs page-header-toolbar--desktop"

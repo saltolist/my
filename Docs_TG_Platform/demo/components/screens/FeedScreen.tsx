@@ -134,6 +134,7 @@ export default function FeedScreen() {
               placeholder="Поиск по постам..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              onDismiss={() => setSearch("")}
             />
             <div
               className="feed-post-width-toggles page-header-toolbar--desktop"

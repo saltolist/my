@@ -90,6 +90,7 @@ export default function NotesScreen() {
               placeholder="Поиск по заметкам..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              onDismiss={() => setSearch("")}
             />
             <div
               className="notes-scope-tabs page-header-toolbar--desktop"

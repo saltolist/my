@@ -33,6 +33,7 @@ import { ContextMenu } from "../ContextMenu";
 import { usePostCtxMenuItems } from "../post/postCtxMenu";
 import { NavIconChats, NavIconFeed, NavIconNotes } from "@/components/sidebar/NavIcons";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
+import { useMobileHeaderSearchDismiss } from "@/lib/hooks/useMobileHeaderSearchDismiss";
 import { routes } from "@/lib/routes";
 import type { LocalNote, NoteFile, PostComment, PostMedia, PostMetrics, PostMode } from "@/lib/types";
 
@@ -129,29 +130,13 @@ export default function PostScreen() {
     setMobileSearchOpen(false);
   }, [state.postMode, showListHeaderSearch]);
 
-  useEffect(() => {
-    if (!mobileSearchOpen || !isMobile) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMobileSearchOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [mobileSearchOpen, isMobile]);
-
-  useEffect(() => {
-    if (!mobileSearchOpen || !isMobile) return;
-    const onPointerDownCapture = (e: PointerEvent) => {
-      const wrap = mobileSearchWrapRef.current;
-      const input = mobileSearchInputRef.current;
-      const t = e.target as Node | null;
-      if (wrap && t && wrap.contains(t)) return;
-      // Если поле ещё активно — первый тап снаружи просто снимет фокус (не закрываем).
-      if (input && document.activeElement === input) return;
-      setMobileSearchOpen(false);
-    };
-    window.addEventListener("pointerdown", onPointerDownCapture, true);
-    return () => window.removeEventListener("pointerdown", onPointerDownCapture, true);
-  }, [mobileSearchOpen, isMobile]);
+  useMobileHeaderSearchDismiss({
+    open: mobileSearchOpen,
+    isMobile,
+    wrapRef: mobileSearchWrapRef,
+    inputRef: mobileSearchInputRef,
+    onClose: () => setMobileSearchOpen(false),
+  });
 
   const postHeaderOverflowItems = useMemo((): PageHeaderOverflowItem[] => {
     if (!post) return [];
@@ -300,6 +285,7 @@ export default function PostScreen() {
                 onChange={(e) => setListSearch(e.target.value)}
                 aria-label={listSearchPlaceholder}
                 inputRef={mobileSearchInputRef}
+                onDismiss={() => setMobileSearchOpen(false)}
               />
             </div>
           ) : null}
@@ -310,6 +296,7 @@ export default function PostScreen() {
                   placeholder={listSearchPlaceholder}
                   value={listSearch}
                   onChange={(e) => setListSearch(e.target.value)}
+                  onDismiss={() => setListSearch("")}
                 />
                 {state.postMode === "notes" ? (
                   <button

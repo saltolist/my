@@ -114,7 +114,7 @@ export default function AnalyticsScreen() {
             onChange={(v) => setPeriod(Number(v))}
           />
         }
-        search={periodToolbar}
+        center={periodToolbar}
       />
       <div className="analytics-page" id="screen-analytics">
         <div className="analytics-scroll-inner">

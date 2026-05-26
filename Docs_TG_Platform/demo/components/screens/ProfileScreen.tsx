@@ -76,7 +76,7 @@ export default function ProfileScreen() {
             onChange={(v) => switchTab(Number(v))}
           />
         }
-        search={profileTabToolbar}
+        center={profileTabToolbar}
       />
       <div className="profile-page" id="screen-profile">
         <div className="profile-scroll-inner">
