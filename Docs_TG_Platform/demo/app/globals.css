@@ -1684,6 +1684,9 @@ button.nav-item {
   cursor: pointer;
   z-index: 2;
   transition: color 0.12s ease, opacity 0.12s ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
 }
 .page-header-search-field-dismiss:hover {
   color: var(--text2);
@@ -1691,6 +1694,20 @@ button.nav-item {
 .page-header-search-field-dismiss:active {
   color: var(--text);
   opacity: 0.85;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .page-header-search-field-dismiss {
+    transition: none;
+  }
+  .page-header-search-field-dismiss:active {
+    opacity: 1;
+  }
+}
+
+.page-header-search-field-dismiss:focus,
+.page-header-search-field-dismiss:focus-visible {
+  outline: none;
 }
 .page-header-search {
   width: 100%;
@@ -7484,12 +7501,19 @@ button.filter-tab {
     color: var(--text3);
     cursor: pointer;
     transition: color 0.12s, background 0.12s;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .post-header-search-toggle:hover,
   .post-header-search-toggle.is-active {
     color: var(--text);
     background: var(--page-header-control-bg-hover);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .post-header-search-toggle:hover {
+      color: var(--text);
+      background: var(--page-header-control-bg-hover);
+    }
   }
 
   .post-hdr--with-search-mobile.post-hdr--search-open .post-hdr-top {
@@ -7540,12 +7564,27 @@ button.filter-tab {
     color: var(--text3);
     cursor: pointer;
     transition: color 0.12s, background 0.12s;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .page-header-search-toggle:hover,
+  /* На тач-устройствах убираем “анимацию нажатия” у кнопок лупы */
+  @media (hover: none) and (pointer: coarse) {
+    .post-header-search-toggle,
+    .page-header-search-toggle {
+      transition: none;
+    }
+  }
+
   .page-header--search-open .page-header-search-toggle {
     color: var(--text);
     background: var(--page-header-control-bg-hover);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .page-header-search-toggle:hover {
+      color: var(--text);
+      background: var(--page-header-control-bg-hover);
+    }
   }
 
   .page-header-search-expand {
