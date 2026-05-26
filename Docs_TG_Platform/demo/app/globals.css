@@ -7751,17 +7751,50 @@ button.filter-tab {
     }
   }
 
-  .post-hdr--with-search-mobile.post-hdr--search-open .post-hdr-top {
-    gap: 10px;
-  }
-
   .post-hdr--with-search-mobile.post-hdr--search-open .page-header-left {
     flex: 0 0 auto;
     gap: 0;
   }
 
+  .post-hdr--with-search-mobile.post-hdr--search-open .post-hdr-top {
+    position: relative;
+    gap: 10px;
+  }
+
+  .post-hdr--with-search-mobile.post-hdr--search-open .page-header-left,
   .post-hdr--with-search-mobile.post-hdr--search-open .page-header-right {
-    margin-left: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .post-hdr--with-search-mobile.post-hdr--search-open .page-header-right {
+    margin-left: auto;
+  }
+
+  .post-hdr--with-search-mobile.post-hdr--search-open .post-header-search-expand {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--page-header-search-span-left, 0);
+    right: var(--page-header-search-span-right, 0);
+    flex: none;
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .post-hdr--with-search-mobile.post-hdr--search-open
+    .post-header-search-expand
+    .page-header-search-field {
+    width: calc(100% - var(--page-header-mobile-search-shrink));
+    max-width: none;
+    flex: 0 0 auto;
+    pointer-events: auto;
   }
 
   .post-header-search-expand,
@@ -7785,9 +7818,10 @@ button.filter-tab {
     flex: 1 1 auto;
   }
 
-  /* Лента, телефон: поле на 50px уже пролёта «меню ↔ правый край» и по центру в нём */
+  /* Лента, телефон: поле на 150px уже пролёта «меню ↔ правый край» и по центру в нём */
   #screen-feed .page-header.page-header--search-open {
     --page-header-mobile-visual-inset: 16px;
+    --page-header-mobile-search-shrink: 150px;
     position: relative;
   }
 

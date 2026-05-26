@@ -61,6 +61,9 @@ export default function PostScreen() {
   const [showJump, setShowJump] = useState(false);
   const [listSearch, setListSearch] = useState("");
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const postHdrTopRef = useRef<HTMLDivElement>(null);
+  const mobileSearchLeftRef = useRef<HTMLDivElement>(null);
+  const postOverflowWrapRef = useRef<HTMLDivElement>(null);
   const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const mobileSearchWrapRef = useRef<HTMLDivElement>(null);
   const mediaItems: PostMedia[] = post?.media ?? [];
@@ -183,6 +186,41 @@ export default function PostScreen() {
     state.postMode,
   ]);
 
+  const hasPostMobileTrailing = postHeaderOverflowItems.length > 0;
+
+  useLayoutEffect(() => {
+    if (!post || !mobileSearchOpen || !isMobile || !showListHeaderSearch || !hasPostMobileTrailing) return;
+    const header = postHdrTopRef.current;
+    const left = mobileSearchLeftRef.current;
+    const overflowWrap = postOverflowWrapRef.current;
+    if (!header || !left || !overflowWrap) return;
+
+    const updateSearchSpan = () => {
+      const headerRect = header.getBoundingClientRect();
+      const leftRect = left.getBoundingClientRect();
+      const overflowRect = overflowWrap.getBoundingClientRect();
+      header.style.setProperty(
+        "--page-header-search-span-left",
+        `${leftRect.right - headerRect.left}px`,
+      );
+      header.style.setProperty(
+        "--page-header-search-span-right",
+        `${headerRect.right - overflowRect.left}px`,
+      );
+    };
+
+    updateSearchSpan();
+    const observer = new ResizeObserver(updateSearchSpan);
+    observer.observe(header);
+    observer.observe(left);
+    observer.observe(overflowWrap);
+    window.addEventListener("resize", updateSearchSpan);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateSearchSpan);
+    };
+  }, [post, mobileSearchOpen, isMobile, showListHeaderSearch, hasPostMobileTrailing]);
+
   if (!post) {
     return (
       <div className="post-hdr">
@@ -211,7 +249,6 @@ export default function PostScreen() {
   const postIntermediateCrumb = isMobile
     ? POST_BREADCRUMB_LABEL
     : truncate(postTitle(post), 32);
-  const hasPostMobileTrailing = postHeaderOverflowItems.length > 0;
   const showPostMobileRight =
     isMobile &&
     ((showListHeaderSearch && !mobileSearchOpen) ||
@@ -229,8 +266,8 @@ export default function PostScreen() {
             : ""
         }`}
       >
-        <div className="post-hdr-top">
-          <div className="page-header-left">
+        <div className="post-hdr-top" ref={postHdrTopRef}>
+          <div className="page-header-left" ref={mobileSearchLeftRef}>
             <PageHeaderMenuButton />
             {!(isMobile && mobileSearchOpen) ? (
             <div className="breadcrumb">
@@ -276,17 +313,20 @@ export default function PostScreen() {
             ) : null}
           </div>
           {showListHeaderSearch && isMobile && mobileSearchOpen ? (
-            <div className="post-header-search-expand" ref={mobileSearchWrapRef}>
-              <PageHeaderSearchInput
-                autoFocus
-                placeholder={listSearchPlaceholder}
-                value={listSearch}
-                onChange={(e) => setListSearch(e.target.value)}
-                aria-label={listSearchPlaceholder}
-                inputRef={mobileSearchInputRef}
-                onDismiss={() => setMobileSearchOpen(false)}
-              />
-            </div>
+            <>
+              <div className="post-header-search-expand" ref={mobileSearchWrapRef}>
+                <PageHeaderSearchInput
+                  autoFocus
+                  placeholder={listSearchPlaceholder}
+                  value={listSearch}
+                  onChange={(e) => setListSearch(e.target.value)}
+                  aria-label={listSearchPlaceholder}
+                  inputRef={mobileSearchInputRef}
+                  onDismiss={() => setMobileSearchOpen(false)}
+                />
+              </div>
+              <div className="page-header-search-spacer" aria-hidden />
+            </>
           ) : null}
           {showListHeaderSearch && !isMobile ? (
             <div className="page-header-center">
@@ -385,10 +425,12 @@ export default function PostScreen() {
                   )
                 ) : null}
                 {hasPostMobileTrailing ? (
-                  <PageHeaderOverflow
-                    className="page-header-actions--mobile"
-                    items={postHeaderOverflowItems}
-                  />
+                  <div ref={postOverflowWrapRef}>
+                    <PageHeaderOverflow
+                      className="page-header-actions--mobile"
+                      items={postHeaderOverflowItems}
+                    />
+                  </div>
                 ) : null}
               </>
             ) : null}
