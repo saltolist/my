@@ -88,7 +88,7 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
   const attachmentsRef = useRef<ComposerAttachment[]>([]);
   attachmentsRef.current = attachments;
 
-  const placement: "up" | "down" = scope === "home" ? "down" : "up";
+  const placement: "up" | "down" = "down";
 
   const cfg = state.aiProfileConfig;
   const target = state.composerTargets[scope];

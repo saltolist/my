@@ -3118,6 +3118,7 @@ button.nav-item {
 #screen-gchat .input-box,
 #screen-post .input-box {
   padding-top: 15px;
+  min-height: 0;
 }
 #screen-home .input-wrap {
   width: 100%;
@@ -3129,9 +3130,13 @@ button.nav-item {
 }
 #screen-home .input-wrap::before,
 #screen-home .input-wrap::after { content: none; }
-#screen-home .composer-editor,
-#screen-gchat .composer-editor {
+/* Главная: ~2 строки; чаты поста и глобальные — одна строка, та же карточка */
+#screen-home .composer-editor {
   min-height: calc(3em + 2px);
+}
+#screen-gchat .composer-editor,
+#screen-post .composer-editor {
+  min-height: calc(1.5em + 2px);
 }
 
 /* ════════════════════════════════
@@ -7291,29 +7296,24 @@ button.filter-tab {
     padding-right: 16px;
   }
 
-  #screen-post .input-bottom,
   .feed-screen-wrap .input-bottom {
     align-items: flex-start;
     flex-wrap: wrap;
   }
 
-  #screen-post .composer-mode,
   .feed-screen-wrap .composer-mode {
     flex: 1 1 260px;
   }
 
-  #screen-post .model-picker,
   .feed-screen-wrap .model-picker {
     flex: 1 1 140px;
     min-width: 128px;
   }
-  #screen-post .model-picker-btn,
   .feed-screen-wrap .model-picker-btn {
     width: 100%;
     max-width: none;
   }
 
-  #screen-post .send-btn,
   .feed-screen-wrap .send-btn {
     margin-left: 0;
   }
@@ -7797,18 +7797,15 @@ button.filter-tab {
     padding-right: 10px;
   }
 
-  #screen-post .input-wrap,
   .feed-screen-wrap .input-wrap {
     padding: 12px;
     margin-top: -66px;
   }
 
-  #screen-post .input-tools,
   .feed-screen-wrap .input-tools {
     order: 1;
   }
 
-  #screen-post .composer-mode,
   .feed-screen-wrap .composer-mode {
     order: 3;
     flex: 1 0 100%;
@@ -7817,13 +7814,13 @@ button.filter-tab {
     gap: 6px;
   }
 
-  #screen-post .composer-model-picker {
+  .feed-screen-wrap .composer-model-picker {
     flex: 1 1 0;
     min-width: 0;
     max-width: none;
   }
 
-  #screen-post .composer-model-picker .model-picker-btn {
+  .feed-screen-wrap .composer-model-picker .model-picker-btn {
     width: 100%;
     max-width: none;
     font-size: 11px;
@@ -7831,13 +7828,11 @@ button.filter-tab {
     padding: 0 8px 0 10px;
   }
 
-  #screen-post .send-btn,
   .feed-screen-wrap .send-btn {
     order: 2;
     margin-left: auto;
   }
 
-  #screen-post .model-picker,
   .feed-screen-wrap .model-picker {
     min-width: 0;
     flex: 1 1 0;
@@ -7852,7 +7847,8 @@ button.filter-tab {
 
   /* Главная и чаты: та же карточка composer, что на полноэкранной версии */
   #screen-home .input-wrap,
-  #screen-gchat .input-wrap {
+  #screen-gchat .input-wrap,
+  #screen-post .input-wrap {
     padding: 14px var(--composer-mobile-gutter) 18px;
     display: flex;
     justify-content: center;
@@ -7861,7 +7857,8 @@ button.filter-tab {
     box-sizing: border-box;
   }
 
-  #screen-gchat .input-wrap {
+  #screen-gchat .input-wrap,
+  #screen-post .input-wrap {
     margin-top: -84px;
     position: sticky;
     bottom: 0;
@@ -7871,7 +7868,9 @@ button.filter-tab {
   }
 
   #screen-gchat .input-wrap::before,
-  #screen-gchat .input-wrap::after {
+  #screen-gchat .input-wrap::after,
+  #screen-post .input-wrap::before,
+  #screen-post .input-wrap::after {
     content: "";
   }
 
@@ -7886,8 +7885,7 @@ button.filter-tab {
     content: none;
   }
 
-  #screen-home .input-box,
-  #screen-gchat .input-box {
+  #screen-home .input-box {
     width: 100%;
     max-width: 100%;
     min-height: 95px;
@@ -7897,12 +7895,20 @@ button.filter-tab {
     box-shadow: var(--inset-edge), var(--shadow-strong);
   }
 
-  #screen-gchat .input-box {
-    padding-top: 15px;
+  #screen-gchat .input-box,
+  #screen-post .input-box {
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    padding: 15px 20px 20px;
+    border-radius: 22px;
+    background: var(--bg2);
+    box-shadow: var(--inset-edge), var(--shadow-strong);
   }
 
   #screen-home .input-bottom,
-  #screen-gchat .input-bottom {
+  #screen-gchat .input-bottom,
+  #screen-post .input-bottom {
     display: flex;
     align-items: center;
     flex-wrap: nowrap;
@@ -7913,15 +7919,19 @@ button.filter-tab {
 
   #screen-home .input-tools,
   #screen-gchat .input-tools,
+  #screen-post .input-tools,
   #screen-home .composer-mode,
   #screen-gchat .composer-mode,
+  #screen-post .composer-mode,
   #screen-home .send-btn,
-  #screen-gchat .send-btn {
+  #screen-gchat .send-btn,
+  #screen-post .send-btn {
     order: unset;
   }
 
   #screen-home .composer-mode,
-  #screen-gchat .composer-mode {
+  #screen-gchat .composer-mode,
+  #screen-post .composer-mode {
     display: inline-flex;
     flex: 1 1 auto;
     width: auto;
@@ -7931,19 +7941,22 @@ button.filter-tab {
   }
 
   #screen-home .send-btn,
-  #screen-gchat .send-btn {
+  #screen-gchat .send-btn,
+  #screen-post .send-btn {
     margin-left: auto;
   }
 
   #screen-home .composer-model-picker,
-  #screen-gchat .composer-model-picker {
+  #screen-gchat .composer-model-picker,
+  #screen-post .composer-model-picker {
     flex: 1 1 0;
     min-width: 0;
     max-width: none;
   }
 
   #screen-home .composer-model-picker .model-picker-btn,
-  #screen-gchat .composer-model-picker .model-picker-btn {
+  #screen-gchat .composer-model-picker .model-picker-btn,
+  #screen-post .composer-model-picker .model-picker-btn {
     width: 100%;
     max-width: none;
     height: 28px;
@@ -7953,7 +7966,8 @@ button.filter-tab {
   }
 
   #screen-home .composer-model-picker .model-picker-icon,
-  #screen-gchat .composer-model-picker .model-picker-icon {
+  #screen-gchat .composer-model-picker .model-picker-icon,
+  #screen-post .composer-model-picker .model-picker-icon {
     width: 14px;
     height: 14px;
     flex-shrink: 0;
