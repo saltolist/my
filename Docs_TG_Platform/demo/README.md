@@ -44,7 +44,7 @@ NEXT_PUBLIC_BASE_PATH=/<repo>/Docs_TG_Platform/demo npm run build
 | `/notes/` | Заметки |
 | `/analytics/` | Аналитика |
 | `/profile/` | Профиль |
-| `/gchat/[id]/` | Глобальный чат |
+| `/gchat/?id=…` | Глобальный чат (id в query — любые чаты без prebuild) |
 | `/post/[id]/` | Пост (режим чата; вкладки «Заметки»/«Чаты»/комментарии — в `postMode`, без смены URL) |
 | `/note/global/[id]/` | Глобальная заметка |
 | `/note/post/[postId]/[noteId]/` | Заметка поста |

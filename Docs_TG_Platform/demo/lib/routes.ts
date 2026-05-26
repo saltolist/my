@@ -16,6 +16,7 @@ import type {
 
 export const POST_NEW_SLUG = "new";
 export const NOTE_NEW_SLUG = "new";
+export const GCHAT_ID_PARAM = "id";
 
 export type ParsedAppPath = {
   screen: ScreenId;
@@ -63,8 +64,11 @@ export function parseAppPath(pathname: string): ParsedAppPath {
   if (segments[0] === "analytics") return { ...empty, screen: "analytics" };
   if (segments[0] === "profile") return { ...empty, screen: "profile" };
 
-  if (segments[0] === "gchat" && segments[1]) {
-    return { ...empty, screen: "gchat", gchatId: segments[1] };
+  if (segments[0] === "gchat") {
+    if (segments[1]) {
+      return { ...empty, screen: "gchat", gchatId: decodeURIComponent(segments[1]) };
+    }
+    return { ...empty, screen: "gchat" };
   }
 
   if (segments[0] === "post" && segments[1]) {
@@ -119,6 +123,20 @@ export function parseChatSearchParam(raw: string | null): number | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+export function parseGChatSearchParam(raw: string | null): string | null {
+  if (!raw) return null;
+  const id = raw.trim();
+  return id.length > 0 ? id : null;
+}
+
+/** Старые URL `/gchat/gc1/` → редирект на `/gchat/?id=gc1` (static export). */
+export function parseGChatLegacyPath(pathname: string): string | null {
+  const path = norm(pathname);
+  const m = path.match(/^\/gchat\/([^/]+)\/$/);
+  if (!m) return null;
+  return decodeURIComponent(m[1]);
+}
+
 export const routes = {
   home: () => "/",
   feed: () => "/feed/",
@@ -126,7 +144,7 @@ export const routes = {
   notes: () => "/notes/",
   analytics: () => "/analytics/",
   profile: () => "/profile/",
-  gchat: (id: string) => `/gchat/${encodeURIComponent(id)}/`,
+  gchat: (id: string) => `/gchat/?${GCHAT_ID_PARAM}=${encodeURIComponent(id)}`,
   post: (id: number | string, chatId?: number | null) => {
     const base = id === POST_NEW_SLUG ? `/post/${POST_NEW_SLUG}/` : `/post/${id}/`;
     if (chatId != null) return `${base}?chat=${chatId}`;
@@ -176,7 +194,7 @@ export function getParentPath(pathname: string): string | null {
   const mPost = path.match(/^\/post\/([^/]+)\/$/);
   if (mPost && mPost[1] !== POST_NEW_SLUG) return routes.feed();
 
-  if (path.startsWith("/gchat/")) return routes.chats();
+  if (path === "/gchat/" || path.startsWith("/gchat/")) return routes.chats();
   if (path.startsWith("/note/global/")) return routes.notes();
   if (path.match(/^\/note\/post\/\d+\/\d+\/$/)) {
     const parts = path.split("/").filter(Boolean);
@@ -228,9 +246,13 @@ export function buildRoutePatch(
     screen: parsed.screen,
     postViewStack: [] as { mode: PostMode; chatId: number | null }[],
     isEditing: false,
+    currentGChatId: null as string | null,
+    currentPostId: null as number | null,
+    currentPostChatId: null as number | null,
+    currentNote: null as ActiveNote | null,
   };
 
-  if (parsed.screen === "gchat" && parsed.gchatId) {
+  if (parsed.screen === "gchat") {
     return { ...base, currentGChatId: parsed.gchatId };
   }
 

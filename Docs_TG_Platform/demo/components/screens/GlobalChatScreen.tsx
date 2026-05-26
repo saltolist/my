@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/lib/chatPaths";
 import { isOmnichannelChat, isOmnichannelChatId } from "@/lib/omnichannel";
+import { parseAppPath, parseGChatSearchParam } from "@/lib/routes";
 import { globalChatById, useApp } from "@/state/AppContext";
 import Composer from "../composer/Composer";
 import ChatMessage from "../chat/ChatMessage";
@@ -14,8 +16,14 @@ import { routes } from "@/lib/routes";
 
 export default function GlobalChatScreen() {
   const { state, navigateBack, goToHref, dispatch, sendGChat } = useApp();
-  const chat = globalChatById(state, state.currentGChatId);
-  const omnichannel = chat ? isOmnichannelChat(chat) : isOmnichannelChatId(state.currentGChatId);
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const chatId =
+    parseAppPath(pathname).gchatId ??
+    parseGChatSearchParam(searchParams.get("id")) ??
+    state.currentGChatId;
+  const chat = globalChatById(state, chatId);
+  const omnichannel = chat ? isOmnichannelChat(chat) : isOmnichannelChatId(chatId);
   const messagesRef = useRef<HTMLDivElement>(null);
   const chatHistory = chat?.history;
   const flatMessages = useMemo(() => flattenVisibleWithPaths(chatHistory ?? []), [chatHistory]);

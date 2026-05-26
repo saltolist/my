@@ -1,13 +1,8 @@
-import {
-  initialGlobalChats,
-  initialGlobalNotes,
-  initialPosts,
-} from "@/lib/data";
+import { initialGlobalNotes, initialPosts } from "@/lib/data";
 
 export const POST_NEW_SLUG = "new";
 
 export const STATIC_POST_IDS = initialPosts.map((p) => String(p.id));
-export const STATIC_GCHAT_IDS = initialGlobalChats.map((c) => c.id);
 export const STATIC_GLOBAL_NOTE_IDS = initialGlobalNotes.map((n) => n.id);
 
 /** Все пары postId + noteId из демо-данных. */

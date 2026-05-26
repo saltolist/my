@@ -8,6 +8,8 @@ import {
   buildRoutePatch,
   parseAppPath,
   parseChatSearchParam,
+  parseGChatLegacyPath,
+  parseGChatSearchParam,
   parsePostLegacySub,
   routes,
 } from "@/lib/routes";
@@ -39,6 +41,12 @@ export default function RouteSync() {
     if (syncKeyRef.current === syncKey) return;
     syncKeyRef.current = syncKey;
 
+    const legacyGchatId = parseGChatLegacyPath(path);
+    if (legacyGchatId) {
+      router.replace(routes.gchat(legacyGchatId));
+      return;
+    }
+
     const legacySub = parsePostLegacySub(path);
     let postModeOverride: PostMode | undefined;
     let pathForParse = path;
@@ -53,12 +61,15 @@ export default function RouteSync() {
     }
 
     const parsed = parseAppPath(pathForParse);
+    const gchatId =
+      parsed.gchatId ?? parseGChatSearchParam(searchParams.get("id"));
     const chatId = parseChatSearchParam(searchParams.get("chat"));
     const fromParam = searchParams.get("from");
     const noteFrom: NoteFromScreen = fromParam === "post" ? "post" : "notes";
     const notePostId = Number(searchParams.get("postId"));
     const parsedNote = {
       ...parsed,
+      gchatId,
       notePostId:
         parsed.noteIsNew && Number.isFinite(notePostId) && notePostId > 0
           ? notePostId

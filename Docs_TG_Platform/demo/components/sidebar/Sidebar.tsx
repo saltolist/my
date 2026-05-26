@@ -380,7 +380,7 @@ export default function Sidebar() {
 
   const isRecentActive = (row: RecentRow) => {
     if (row.kind === "global") {
-      return screen === "gchat" && route.gchatId === row.id;
+      return screen === "gchat" && state.currentGChatId === row.id;
     }
     return (
       screen === "post" &&
@@ -441,7 +441,7 @@ export default function Sidebar() {
               if (!window.confirm(`Удалить чат «${row.title}»?`)) return;
               if (row.kind === "global") {
                 dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: row.id });
-                if (screen === "gchat" && route.gchatId === row.id) {
+                if (screen === "gchat" && state.currentGChatId === row.id) {
                   goToHref(routes.chats(), { replace: true });
                 }
               } else {
