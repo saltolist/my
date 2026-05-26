@@ -7371,11 +7371,24 @@ button.filter-tab {
 }
 
 @media (max-width: 760px) {
-  /* Кнопка селектора шапки — тот же непрозрачный тон, что у выпадающей панели */
+  /* Селектор в шапке = активная вкладка desktop (period-tab / chats-tab) */
   .page-header-select,
   .page-header-select-ctx .page-header-select {
-    background-color: var(--ctx-dropdown-header-surface);
-    border-color: var(--ctx-dropdown-header-border);
+    padding-left: 12px;
+    padding-right: 10px;
+    background: var(--page-header-control-bg);
+    border-color: var(--control-border-active);
+    color: var(--text);
+  }
+
+  .page-header-select-wrap--mobile .page-header-select-chevron--inline {
+    color: var(--text2);
+  }
+
+  #screen-profile .page-header-select,
+  #screen-profile .page-header-select-ctx .page-header-select {
+    background: var(--profile-control-bg-active);
+    border-color: var(--control-border-active);
     color: var(--text);
   }
 
