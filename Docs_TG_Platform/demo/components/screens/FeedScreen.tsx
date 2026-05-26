@@ -3,9 +3,9 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { usePathname } from "next/navigation";
 import { useApp } from "@/state/AppContext";
+import { useMobile760 } from "@/lib/hooks/useMobile760";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
-import PageHeaderSelect from "../PageHeaderSelect";
 import PostCard from "../feed/PostCard";
 import DraftsSection from "../feed/DraftsSection";
 import { buildPublishedFeedDayGroups, sortPostsByPublicationTime } from "@/lib/feedTimeline";
@@ -26,6 +26,7 @@ export default function FeedScreen() {
   const { state, dispatch, openPost, openPostComments } = useApp();
   const pathname = usePathname() ?? "/";
   const onFeed = pathname === "/feed/" || pathname === "/feed";
+  const isMobile = useMobile760();
   const [draft, setDraft] = useState("");
   const [pendingMedia, setPendingMedia] = useState<PostMedia[]>([]);
   const [search, setSearch] = useState("");
@@ -110,24 +111,12 @@ export default function FeedScreen() {
 
   return (
     <div
-      className="feed-screen-wrap"
-      style={{ "--feed-post-w": `${feedPostWidth}px` } as CSSProperties}
+      className={`feed-screen-wrap${isMobile || feedPostWidth === 270 ? " post-format-phone" : ""}`}
+      style={{ "--feed-post-w": `${isMobile ? 270 : feedPostWidth}px` } as CSSProperties}
     >
       <PageHeader
         title="Лента"
         backTo="home"
-        mobileSelect={
-          <PageHeaderSelect
-            ariaLabel="Ширина карточки поста"
-            value={String(feedPostWidth)}
-            options={[
-              { value: "500", label: "Компьютер" },
-              { value: "390", label: "Планшет" },
-              { value: "270", label: "Телефон" },
-            ]}
-            onChange={(v) => setFeedPostWidth(Number(v) as FeedPostWidth)}
-          />
-        }
         search={
           <div className="page-header-feed-search-row">
             <PageHeaderSearchInput

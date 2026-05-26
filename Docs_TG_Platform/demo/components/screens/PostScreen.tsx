@@ -33,7 +33,6 @@ import { ContextMenu } from "../ContextMenu";
 import { usePostCtxMenuItems } from "../post/postCtxMenu";
 import { NavIconChats, NavIconFeed, NavIconNotes } from "@/components/sidebar/NavIcons";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
-import { useMobileHeaderSearchDismiss } from "@/lib/hooks/useMobileHeaderSearchDismiss";
 import { routes } from "@/lib/routes";
 import type { LocalNote, NoteFile, PostComment, PostMedia, PostMetrics, PostMode } from "@/lib/types";
 
@@ -129,14 +128,6 @@ export default function PostScreen() {
   useEffect(() => {
     setMobileSearchOpen(false);
   }, [state.postMode, showListHeaderSearch]);
-
-  useMobileHeaderSearchDismiss({
-    open: mobileSearchOpen,
-    isMobile,
-    wrapRef: mobileSearchWrapRef,
-    inputRef: mobileSearchInputRef,
-    onClose: () => setMobileSearchOpen(false),
-  });
 
   const postHeaderOverflowItems = useMemo((): PageHeaderOverflowItem[] => {
     if (!post) return [];
@@ -409,6 +400,7 @@ export default function PostScreen() {
                   mediaItems.length === 0 &&
                   (post.status === "published" || post.status === "scheduled" || post.status === "draft")
                 }
+                phoneFormat={isMobile}
               />
               {flatMessages.map(({ message: m, path }, i) => (
                 <ChatMessage
@@ -444,6 +436,7 @@ export default function PostScreen() {
           badge={badgeForPost(post)}
           metrics={post.status === "published" && post.metrics ? post.metrics : null}
           media={mediaItems}
+          phoneFormat={isMobile}
         />
       ) : (
         <div className="post-subpage-scroll">
@@ -477,6 +470,7 @@ const PostMessageCard = ({
   comments,
   onOpenComments,
   isTextOnlyNoMedia,
+  phoneFormat,
 }: {
   ref: React.RefObject<HTMLDivElement | null>;
   isEditing: boolean;
@@ -490,6 +484,7 @@ const PostMessageCard = ({
   metrics: PostMetrics | null;
   comments?: PostComment[];
   onOpenComments?: () => void;
+  phoneFormat?: boolean;
 }) => {
   const showComments = !!metrics;
   const [draft, setDraft] = useState(text);
@@ -539,7 +534,10 @@ const PostMessageCard = ({
   const copyText = text.trim() || "";
 
   return (
-    <div className="post-msg-block" id="post-msg-card">
+    <div
+      className={`post-msg-block${phoneFormat ? " post-format-phone" : ""}`}
+      id="post-msg-card"
+    >
     <div
       ref={ref}
       className={[

@@ -4,7 +4,6 @@ import { Children, cloneElement, isValidElement, useEffect, useLayoutEffect, use
 import { useApp } from "@/state/AppContext";
 import type { ScreenId } from "@/lib/types";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
-import { useMobileHeaderSearchDismiss } from "@/lib/hooks/useMobileHeaderSearchDismiss";
 import PageHeaderMenuButton from "./PageHeaderMenuButton";
 import PageHeaderOverflow, { type PageHeaderOverflowItem } from "./PageHeaderOverflow";
 import PageHeaderSearchInput, { PageHeaderSearchMagnifier } from "./PageHeaderSearchInput";
@@ -81,14 +80,6 @@ export default function PageHeader({
       }
     }
   }, [mobileSearchOpen, isMobile]);
-
-  useMobileHeaderSearchDismiss({
-    open: mobileSearchOpen,
-    isMobile,
-    wrapRef: mobileSearchWrapRef,
-    inputRef: mobileSearchInputRef,
-    onClose: () => setMobileSearchOpen(false),
-  });
 
   const showMobileSearchToggle = isMobile && !!search;
   const mobileSearchContent =

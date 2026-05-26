@@ -15,6 +15,7 @@ type Props = {
   badge: React.ReactNode;
   metrics: PostMetrics | null;
   media: PostMedia[];
+  phoneFormat?: boolean;
 };
 
 export default function PostCommentsPanel({
@@ -24,6 +25,7 @@ export default function PostCommentsPanel({
   badge,
   metrics,
   media,
+  phoneFormat = false,
 }: Props) {
   const { dispatch } = useApp();
   const [replyTo, setReplyTo] = useState<PostComment | null>(null);
@@ -52,6 +54,7 @@ export default function PostCommentsPanel({
           <div
             className={[
               "post-msg-card",
+              phoneFormat ? "post-format-phone" : "",
               "post-msg-card--readonly",
               "post-msg-card--with-comments",
               media.length === 0 &&

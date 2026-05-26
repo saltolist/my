@@ -40,8 +40,9 @@ export default function PostStatus({
     return (
       <span className="post-status">
         <PostStatusIcon post={post} />
-        <span className="post-status-label">
-          Опубликован{post.date ? ` · ${post.date}` : ""}
+        <span className="post-status-text">
+          <span className="post-status-title">Опубликован</span>
+          {post.date ? <span className="post-status-time">{post.date}</span> : null}
         </span>
       </span>
     );
@@ -50,14 +51,20 @@ export default function PostStatus({
     return (
       <span className="post-status">
         <PostStatusIcon post={post} />
-        <span className="post-status-label">Отложено · {post.date}</span>
+        <span className="post-status-text">
+          <span className="post-status-title">Отложено</span>
+          {post.date ? <span className="post-status-time">{post.date}</span> : null}
+        </span>
       </span>
     );
   }
   return (
     <span className="post-status">
       <PostStatusIcon post={post} />
-      <span className="post-status-label">Черновик · создан {post.created}</span>
+      <span className="post-status-text">
+        <span className="post-status-title">Черновик</span>
+        <span className="post-status-time">создан {post.created}</span>
+      </span>
     </span>
   );
 }

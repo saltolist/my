@@ -3345,9 +3345,50 @@ button.nav-item {
   font-weight: 500;
   min-height: var(--post-inline-icon);
 }
-.post-status-label {
+.post-status-text {
+  display: inline;
   line-height: var(--post-inline-icon);
 }
+.post-status-title,
+.post-status-time {
+  line-height: inherit;
+}
+.post-status-time:not(:only-child)::before {
+  content: " · ";
+}
+
+/* Телефонный формат карточки (270px): две строки подписи, без иконки статуса */
+.post-format-phone .post-status-icon {
+  display: none !important;
+}
+
+.post-format-phone .post-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  min-height: 0;
+}
+
+.post-format-phone .post-status-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  line-height: 1.25;
+}
+
+.post-format-phone .post-status-time::before {
+  content: none !important;
+}
+
+.post-format-phone .post-metrics-views-reposts {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  line-height: 1.25;
+}
+
 .post-status-icon,
 .post-metric-ico {
   display: inline-flex;
@@ -3617,6 +3658,12 @@ button.nav-item {
   width: 500px;
   max-width: 100%;
   align-self: center;
+}
+
+@media (max-width: 760px) {
+  .post-body-inner .post-msg-block {
+    width: 270px;
+  }
 }
 .post-msg-actions {
   display: flex;
@@ -7293,6 +7340,16 @@ button.filter-tab {
     color: var(--text);
   }
 
+  /* Меню селекторов в шапке и меню "•••" в шапках — без эффекта стекла на mobile */
+  .ctx-dropdown.ctx-dropdown-portal.ctx-dropdown--page-header-control,
+  .ctx-dropdown.ctx-dropdown--page-header-control {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: var(--ctx-dropdown-header-surface) !important;
+    border-color: var(--ctx-dropdown-header-border) !important;
+    box-shadow: none !important;
+  }
+
   :root {
     --nav-w: 0px;
     --content-w: 100%;
@@ -7359,10 +7416,10 @@ button.filter-tab {
     min-width: 0;
     height: auto;
     min-height: 0;
-    background: transparent;
+    background: var(--bg2);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
-    border-right: 1px solid var(--sidebar-glass-border);
+    border-right: 1px solid var(--border);
     border-top: none;
     flex-direction: column;
     align-items: stretch;
@@ -7376,9 +7433,12 @@ button.filter-tab {
 
   body.mobile-sidebar-open #sidebar {
     transform: translateX(0);
-    box-shadow:
-      inset 0 1px 0 var(--sidebar-glass-shine),
-      var(--sidebar-glass-shadow);
+    box-shadow: none;
+  }
+
+  #sidebar::before {
+    display: none;
+    content: none;
   }
 
   .sidebar-header {
@@ -7517,33 +7577,33 @@ button.filter-tab {
     margin-left: auto;
   }
 
-  .post-header-search-toggle {
+  .post-header-search-toggle,
+  .page-header-search-toggle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     width: 40px;
     height: 40px;
-    margin: 0 -8px 0 0;
+    margin: 0;
     padding: 0;
     border: none;
     border-radius: 999px;
     background: transparent;
     color: var(--text3);
     cursor: pointer;
-    transition: color 0.12s, background 0.12s;
+    transition: color 0.12s;
     -webkit-tap-highlight-color: transparent;
   }
 
   .post-header-search-toggle.is-active {
     color: var(--text);
-    background: var(--page-header-control-bg-hover);
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .post-header-search-toggle:hover {
+    .post-header-search-toggle:hover,
+    .page-header-search-toggle:hover {
       color: var(--text);
-      background: var(--page-header-control-bg-hover);
     }
   }
 
@@ -7580,41 +7640,11 @@ button.filter-tab {
     margin-left: auto;
   }
 
-  .page-header-search-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    margin: 0 -8px 0 0;
-    padding: 0;
-    border: none;
-    border-radius: 999px;
-    background: transparent;
-    color: var(--text3);
-    cursor: pointer;
-    transition: color 0.12s, background 0.12s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* На тач-устройствах убираем “анимацию нажатия” у кнопок лупы */
+  /* На тач-устройствах убираем “анимацию нажатия” у кнопок поиска */
   @media (hover: none) and (pointer: coarse) {
     .post-header-search-toggle,
     .page-header-search-toggle {
       transition: none;
-    }
-  }
-
-  .page-header--search-open .page-header-search-toggle {
-    color: var(--text);
-    background: var(--page-header-control-bg-hover);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .page-header-search-toggle:hover {
-      color: var(--text);
-      background: var(--page-header-control-bg-hover);
     }
   }
 
@@ -7917,7 +7947,8 @@ button.filter-tab {
   }
 
   .post-body-inner .post-msg-block {
-    width: 100%;
+    width: 270px;
+    max-width: 100%;
   }
 
   .post-card {

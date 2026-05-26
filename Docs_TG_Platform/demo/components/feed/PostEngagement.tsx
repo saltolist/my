@@ -30,13 +30,13 @@ export function PostViewsReposts({
 }) {
   return (
     <div className="post-metrics-views-reposts">
-      <span className="post-metric-item" title="Просмотры">
+      <span className="post-metric-item post-metric-item--views" title="Просмотры">
         <span className="post-metric-ico post-metric-ico--views" aria-hidden>
           <ViewsEyeIcon />
         </span>
         {views}
       </span>
-      <span className="post-metric-item" title="Репосты">
+      <span className="post-metric-item post-metric-item--reposts" title="Репосты">
         <span className="post-metric-ico post-metric-ico--repost" aria-hidden>
           <RepostIcon />
         </span>
