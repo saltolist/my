@@ -5728,19 +5728,22 @@ button.filter-tab {
 .model-usage-track:focus-visible {
   outline: none;
 }
+/* Тултипы строк метрик / типов моделей — то же матовое стекло, что у точек графика */
 .model-usage-tooltip {
   position: fixed;
   min-width: 170px;
+  max-width: 220px;
   transform: translate(-50%, calc(-100% - 10px));
   pointer-events: none;
-  border: 1px solid var(--profile-control-border);
-  border-radius: var(--rs);
-  background: var(--profile-select-bg-active);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r);
+  background: var(--glass-bg);
   color: var(--text2);
+  text-align: left;
   padding: 9px 10px;
-  box-shadow: var(--dropdown-shadow);
-  -webkit-backdrop-filter: var(--profile-control-blur);
-  backdrop-filter: var(--profile-control-blur);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+  box-shadow: var(--trend-tooltip-shadow);
   z-index: 10000;
 }
 .model-usage-tooltip b,
@@ -7917,8 +7920,6 @@ button.filter-tab {
     transform: translate3d(0, calc(-100% - 8px), 0);
     z-index: 3;
     pointer-events: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
   }
 
   .analytics-chart-head,
