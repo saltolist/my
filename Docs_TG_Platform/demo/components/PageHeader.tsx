@@ -75,6 +75,9 @@ export default function PageHeader({
   const handleBack = onBack ?? (backTo ? () => navigateBack(backTo) : undefined);
   const isMobile = useMobile760();
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const mobileSearchLeftRef = useRef<HTMLDivElement>(null);
+  const mobileSelectWrapRef = useRef<HTMLDivElement>(null);
   const mobileSearchWrapRef = useRef<HTMLDivElement>(null);
   const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -101,6 +104,39 @@ export default function PageHeader({
     }
   }, [mobileSearchOpen, isMobile]);
 
+  useLayoutEffect(() => {
+    if (!mobileSearchOpen || !isMobile || !mobileSelect) return;
+    const header = headerRef.current;
+    const left = mobileSearchLeftRef.current;
+    const selectWrap = mobileSelectWrapRef.current;
+    if (!header || !left || !selectWrap) return;
+
+    const updateSearchSpan = () => {
+      const headerRect = header.getBoundingClientRect();
+      const leftRect = left.getBoundingClientRect();
+      const selectRect = selectWrap.getBoundingClientRect();
+      header.style.setProperty(
+        "--page-header-search-span-left",
+        `${leftRect.right - headerRect.left}px`,
+      );
+      header.style.setProperty(
+        "--page-header-search-span-right",
+        `${headerRect.right - selectRect.left}px`,
+      );
+    };
+
+    updateSearchSpan();
+    const observer = new ResizeObserver(updateSearchSpan);
+    observer.observe(header);
+    observer.observe(left);
+    observer.observe(selectWrap);
+    window.addEventListener("resize", updateSearchSpan);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateSearchSpan);
+    };
+  }, [mobileSearchOpen, isMobile, mobileSelect]);
+
   const showMobileSearchToggle = isMobile && !!search;
   const mobileSearchInput = search ? findPageHeaderSearchInput(search) : null;
   const mobileSearchContent =
@@ -117,16 +153,24 @@ export default function PageHeader({
       (mobileSearchOpen && hasMobileTrailing));
 
   return (
-    <div className={`page-header${mobileSearchOpen ? " page-header--search-open" : ""}`}>
-      <div className="page-header-left">
+    <div
+      ref={headerRef}
+      className={`page-header${mobileSearchOpen ? " page-header--search-open" : ""}${
+        mobileSearchOpen && mobileSelect ? " page-header--has-mobile-select" : ""
+      }`}
+    >
+      <div className="page-header-left" ref={mobileSearchLeftRef}>
         <PageHeaderMenuButton />
         {!mobileSearchOpen && (title ? <h2>{title}</h2> : null)}
         {!mobileSearchOpen && left}
       </div>
       {isMobile && mobileSearchOpen && mobileSearchContent ? (
-        <div className="page-header-search-expand" ref={mobileSearchWrapRef}>
-          {mobileSearchContent}
-        </div>
+        <>
+          <div className="page-header-search-expand" ref={mobileSearchWrapRef}>
+            {mobileSearchContent}
+          </div>
+          <div className="page-header-search-spacer" aria-hidden />
+        </>
       ) : (
         <div className="page-header-center" aria-hidden={isMobile ? true : undefined}>
           {center && !isMobile ? center : null}
@@ -171,7 +215,12 @@ export default function PageHeader({
               )
             ) : null}
             {mobileSelect ? (
-              <div className="page-header-toolbar-slot page-header-toolbar--mobile">{mobileSelect}</div>
+              <div
+                ref={mobileSelectWrapRef}
+                className="page-header-toolbar-slot page-header-toolbar--mobile"
+              >
+                {mobileSelect}
+              </div>
             ) : null}
             {overflowItems && overflowItems.length > 0 ? (
               <PageHeaderOverflow

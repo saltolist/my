@@ -7605,6 +7605,10 @@ button.filter-tab {
     min-height: var(--hdr);
   }
 
+  :root {
+    --page-header-mobile-search-shrink: 50px;
+  }
+
   /* Flex: селектор и overflow у правого края, даже если центр скрыт (grid без центра съезжал в col 2) */
   .page-header {
     display: flex;
@@ -7769,6 +7773,11 @@ button.filter-tab {
     padding: 0;
   }
 
+  .page-header-search-spacer {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
   .post-header-search-expand .page-header-search-field,
   .page-header-search-expand .page-header-search-field {
     width: 100%;
@@ -7776,9 +7785,78 @@ button.filter-tab {
     flex: 1 1 auto;
   }
 
+  /* Лента, телефон: поле на 50px уже пролёта «меню ↔ правый край» и по центру в нём */
+  #screen-feed .page-header.page-header--search-open {
+    --page-header-mobile-visual-inset: 16px;
+    position: relative;
+  }
+
+  #screen-feed .page-header.page-header--search-open .page-header-left {
+    position: relative;
+    z-index: 1;
+  }
+
+  #screen-feed .page-header.page-header--search-open .page-header-search-expand {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--page-header-mobile-visual-inset) - 10px);
+    right: -10px;
+    flex: none;
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 0;
+    pointer-events: none;
+  }
+
+  #screen-feed .page-header.page-header--search-open .page-header-search-field {
+    width: calc(100% - var(--page-header-mobile-search-shrink));
+    max-width: none;
+    flex: 0 0 auto;
+    pointer-events: auto;
+  }
+
+  /* Чаты, заметки и др.: поле по центру между меню и селектором, на 50px уже пролёта */
+  .page-header.page-header--search-open.page-header--has-mobile-select {
+    position: relative;
+  }
+
+  .page-header.page-header--search-open.page-header--has-mobile-select .page-header-left,
+  .page-header.page-header--search-open.page-header--has-mobile-select .page-header-right {
+    position: relative;
+    z-index: 1;
+  }
+
+  .page-header.page-header--search-open.page-header--has-mobile-select .page-header-search-expand {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--page-header-search-span-left, 0);
+    right: var(--page-header-search-span-right, 0);
+    flex: none;
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page-header.page-header--search-open.page-header--has-mobile-select .page-header-search-field {
+    width: calc(100% - var(--page-header-mobile-search-shrink));
+    max-width: none;
+    flex: 0 0 auto;
+    pointer-events: auto;
+  }
+
   .page-header.page-header--search-open .page-header-right {
     flex: 0 0 auto;
-    margin-left: 0;
+    margin-left: auto;
   }
 
   .page-header-left h2 {
