@@ -1,13 +1,13 @@
 "use client";
 
-import type { InputHTMLAttributes } from "react";
+import type { InputHTMLAttributes, Ref } from "react";
 
-function PageHeaderSearchMagnifier() {
+export function PageHeaderSearchMagnifier({ size = 16 }: { size?: number }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      width={16}
-      height={16}
+      width={size}
+      height={size}
       aria-hidden
       fill="none"
       stroke="currentColor"
@@ -23,16 +23,17 @@ function PageHeaderSearchMagnifier() {
 
 type Props = Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "className"> & {
   className?: string;
+  inputRef?: Ref<HTMLInputElement>;
 };
 
 /** Поле поиска в шапке: лупа слева, плейсхолдер начинается после неё */
-export default function PageHeaderSearchInput({ className, ...props }: Props) {
+export default function PageHeaderSearchInput({ className, inputRef, ...props }: Props) {
   return (
     <div className="page-header-search-field">
       <span className="page-header-search-field-icon" aria-hidden>
         <PageHeaderSearchMagnifier />
       </span>
-      <input type="text" className={className ?? "page-header-search"} {...props} />
+      <input ref={inputRef} type="text" className={className ?? "page-header-search"} {...props} />
     </div>
   );
 }

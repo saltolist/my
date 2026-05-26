@@ -7420,25 +7420,71 @@ button.filter-tab {
     max-width: 100%;
   }
 
-  .post-hdr--with-search .post-hdr-top {
+  /* Пост: поиск справа, слева от «•••»; крошки — «Пост» вместо заголовка */
+  .post-hdr--with-search-mobile .post-hdr-top {
     display: flex;
     align-items: center;
     gap: 8px;
     width: 100%;
   }
 
-  .post-hdr--with-search .page-header-center {
+  .post-hdr--with-search-mobile .page-header-left {
     flex: 1 1 auto;
     min-width: 0;
-    justify-self: auto;
-    max-width: none;
-    width: auto;
   }
 
-  .post-hdr--with-search .page-header-right {
+  .post-hdr--with-search-mobile .page-header-right {
     flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
     margin-left: auto;
-    justify-self: auto;
+  }
+
+  .post-header-search-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    margin: 0 -8px 0 0;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text3);
+    cursor: pointer;
+    transition: color 0.12s, background 0.12s;
+  }
+
+  .post-header-search-toggle:hover,
+  .post-header-search-toggle.is-active {
+    color: var(--text);
+    background: var(--page-header-control-bg-hover);
+  }
+
+  .post-hdr--with-search-mobile.post-hdr--search-open .post-hdr-top {
+    gap: 6px;
+  }
+
+  .post-hdr--with-search-mobile.post-hdr--search-open .page-header-left {
+    flex: 0 0 auto;
+  }
+
+  .post-header-search-expand {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 0 4px;
+  }
+
+  .post-header-search-expand .page-header-search-field {
+    width: 100%;
+    max-width: min(320px, calc(100vw - 108px));
+    flex: 1 1 auto;
   }
 
   .page-header-left h2 {
@@ -7773,31 +7819,6 @@ button.filter-tab {
     flex-wrap: nowrap;
     height: 100%;
     gap: 8px;
-  }
-
-  .post-hdr--with-search .post-hdr-top {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    column-gap: 8px;
-  }
-
-  .post-hdr--with-search .page-header-center {
-    width: auto;
-    max-width: min(var(--page-header-search-w), calc(100vw - 220px));
-    min-width: 0;
-  }
-
-  .post-header-search-row {
-    width: 100%;
-    max-width: 100%;
-    flex-wrap: nowrap;
-    gap: 8px;
-  }
-
-  .post-header-search-row .page-header-search-field {
-    flex: 1 1 auto;
-    width: auto;
-    min-width: 0;
   }
 
   .post-hdr-actions.has-jump .post-back-btn {

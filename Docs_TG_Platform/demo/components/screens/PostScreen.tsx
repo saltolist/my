@@ -18,7 +18,9 @@ import NoteListCardMenu from "../note/NoteListCardMenu";
 import { NoteIconAttach } from "../note/NoteHeaderIcons";
 import PostMediaBlock from "../post/PostMediaBlock";
 import { PostReactionPills, PostViewsReposts } from "../feed/PostEngagement";
-import PageHeaderSearchInput from "../PageHeaderSearchInput";
+import PageHeaderSearchInput, {
+  PageHeaderSearchMagnifier,
+} from "../PageHeaderSearchInput";
 import PageHeaderMenuButton from "../PageHeaderMenuButton";
 import PageHeaderOverflow, {
   type PageHeaderOverflowItem,
@@ -30,8 +32,11 @@ import PostCommentsRow from "../post/PostCommentsRow";
 import { ContextMenu } from "../ContextMenu";
 import { usePostCtxMenuItems } from "../post/postCtxMenu";
 import { NavIconChats, NavIconFeed, NavIconNotes } from "@/components/sidebar/NavIcons";
+import { useMobile760 } from "@/lib/hooks/useMobile760";
 import { routes } from "@/lib/routes";
 import type { LocalNote, NoteFile, PostComment, PostMedia, PostMetrics, PostMode } from "@/lib/types";
+
+const POST_BREADCRUMB_LABEL = "Пост";
 
 export default function PostScreen() {
   const {
@@ -47,11 +52,15 @@ export default function PostScreen() {
     sendPost,
   } = useApp();
   const post = postById(state, state.currentPostId);
+  const isMobile = useMobile760();
   const { items: ctxItems, modal: ctxModal } = usePostCtxMenuItems(post);
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const postCardRef = useRef<HTMLDivElement>(null);
   const [showJump, setShowJump] = useState(false);
   const [listSearch, setListSearch] = useState("");
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSearchWrapRef = useRef<HTMLDivElement>(null);
   const mediaItems: PostMedia[] = post?.media ?? [];
   const activeChat = post?.chats.find((c) => c.id === state.currentPostChatId) || null;
   const chatHistory = activeChat?.history;
@@ -114,6 +123,35 @@ export default function PostScreen() {
         : state.postMode === "chats"
           ? "Чаты"
           : null;
+  const showListHeaderSearch = postSubPage != null;
+
+  useEffect(() => {
+    setMobileSearchOpen(false);
+  }, [state.postMode, showListHeaderSearch]);
+
+  useEffect(() => {
+    if (!mobileSearchOpen || !isMobile) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileSearchOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileSearchOpen, isMobile]);
+
+  useEffect(() => {
+    if (!mobileSearchOpen || !isMobile) return;
+    const onPointerDownCapture = (e: PointerEvent) => {
+      const wrap = mobileSearchWrapRef.current;
+      const input = mobileSearchInputRef.current;
+      const t = e.target as Node | null;
+      if (wrap && t && wrap.contains(t)) return;
+      // Если поле ещё активно — первый тап снаружи просто снимет фокус (не закрываем).
+      if (input && document.activeElement === input) return;
+      setMobileSearchOpen(false);
+    };
+    window.addEventListener("pointerdown", onPointerDownCapture, true);
+    return () => window.removeEventListener("pointerdown", onPointerDownCapture, true);
+  }, [mobileSearchOpen, isMobile]);
 
   const postHeaderOverflowItems = useMemo((): PageHeaderOverflowItem[] => {
     if (!post) return [];
@@ -186,20 +224,31 @@ export default function PostScreen() {
     );
   }
 
-  const showListHeaderSearch = postSubPage != null;
   const listSearchPlaceholder =
     state.postMode === "comments"
       ? "Поиск по комментариям..."
       : state.postMode === "notes"
         ? "Поиск по заметкам..."
         : "Поиск по чатам...";
+  const postIntermediateCrumb = isMobile
+    ? POST_BREADCRUMB_LABEL
+    : truncate(postTitle(post), 32);
 
   return (
     <>
-      <div className={`post-hdr${showListHeaderSearch ? " post-hdr--with-search" : ""}`}>
+      <div
+        className={`post-hdr${
+          showListHeaderSearch
+            ? isMobile
+              ? ` post-hdr--with-search-mobile${mobileSearchOpen ? " post-hdr--search-open" : ""}`
+              : " post-hdr--with-search"
+            : ""
+        }`}
+      >
         <div className="post-hdr-top">
           <div className="page-header-left">
             <PageHeaderMenuButton />
+            {!(isMobile && mobileSearchOpen) ? (
             <div className="breadcrumb">
               <span className="bc-link" onClick={() => navigate("feed")}>
                 Лента
@@ -208,7 +257,7 @@ export default function PostScreen() {
               {postSubPage ? (
                 <>
                   <span className="bc-link" onClick={openPostView}>
-                    {truncate(postTitle(post), 32)}
+                    {postIntermediateCrumb}
                   </span>
                   <span className="bc-sep">/</span>
                   <span className="crumb-current">{postSubPage}</span>
@@ -231,7 +280,7 @@ export default function PostScreen() {
                       });
                     }}
                   >
-                    {truncate(postTitle(post), 32)}
+                    {postIntermediateCrumb}
                   </span>
                   <span className="bc-sep">/</span>
                   <span className="crumb-current">{truncate(activeChat.title, 32)}</span>
@@ -240,8 +289,21 @@ export default function PostScreen() {
                 <span className="crumb-current">{truncate(postTitle(post), 38)}</span>
               )}
             </div>
+            ) : null}
           </div>
-          {showListHeaderSearch ? (
+          {showListHeaderSearch && isMobile && mobileSearchOpen ? (
+            <div className="post-header-search-expand" ref={mobileSearchWrapRef}>
+              <PageHeaderSearchInput
+                autoFocus
+                placeholder={listSearchPlaceholder}
+                value={listSearch}
+                onChange={(e) => setListSearch(e.target.value)}
+                aria-label={listSearchPlaceholder}
+                inputRef={mobileSearchInputRef}
+              />
+            </div>
+          ) : null}
+          {showListHeaderSearch && !isMobile ? (
             <div className="page-header-center">
               <div className="post-header-search-row">
                 <PageHeaderSearchInput
@@ -313,6 +375,17 @@ export default function PostScreen() {
                 dropdownClassName="ctx-dropdown--page-header-control"
               />
             </div>
+            {showListHeaderSearch && isMobile && !mobileSearchOpen ? (
+              <button
+                type="button"
+                className={`post-header-search-toggle${mobileSearchOpen ? " is-active" : ""}`}
+                aria-label={listSearchPlaceholder}
+                aria-expanded={mobileSearchOpen}
+                onClick={() => setMobileSearchOpen((open) => !open)}
+              >
+                <PageHeaderSearchMagnifier size={18} />
+              </button>
+            ) : null}
             <PageHeaderOverflow
               className="page-header-actions--mobile"
               items={postHeaderOverflowItems}

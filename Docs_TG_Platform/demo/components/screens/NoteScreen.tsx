@@ -18,7 +18,10 @@ import NoteHeaderToolbar from "../note/NoteHeaderToolbar";
 import PageHeader from "../PageHeader";
 import type { ActiveNote, NoteFile } from "@/lib/types";
 import { useFitTitleSize } from "@/lib/use-fit-title";
+import { useMobile760 } from "@/lib/hooks/useMobile760";
 import { routes } from "@/lib/routes";
+
+const POST_BREADCRUMB_LABEL = "Пост";
 
 export default function NoteScreen() {
   const { state, dispatch, navigate, navigateBack, openPost, goToHref, setDirty } = useApp();
@@ -128,7 +131,9 @@ function NoteBreadcrumb({
   onOpenPost: (id: number) => void;
   titleLabel?: string;
 }) {
+  const isMobile = useMobile760();
   const title = titleLabel ?? (note.title || "Новая заметка");
+
   if (note.isGlobal) {
     return (
       <div className="breadcrumb">
@@ -149,7 +154,7 @@ function NoteBreadcrumb({
       {parentPost ? (
         <>
           <span className="bc-link" onClick={() => onOpenPost(note.postId)}>
-            {truncate(postTitle(parentPost), 32)}
+            {isMobile ? POST_BREADCRUMB_LABEL : truncate(postTitle(parentPost), 32)}
           </span>
           <span className="bc-sep">/</span>
         </>
