@@ -114,47 +114,48 @@ export default function FeedScreen() {
       className={`feed-screen-wrap${isMobile || feedPostWidth === 270 ? " post-format-phone" : ""}`}
       style={{ "--feed-post-w": `${isMobile ? 270 : feedPostWidth}px` } as CSSProperties}
     >
-      <PageHeader
-        title="Лента"
-        backTo="home"
-        search={
-          <div className="page-header-feed-search-row">
-            <PageHeaderSearchInput
-              placeholder="Поиск по постам..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onDismiss={() => setSearch("")}
-            />
-            <div
-              className="feed-post-width-toggles page-header-toolbar--desktop"
-              role="radiogroup"
-              aria-label="Ширина карточки поста в ленте"
-            >
-              {FEED_POST_WIDTHS.map((w) => (
-                <button
-                  key={w}
-                  type="button"
-                  role="radio"
-                  aria-checked={feedPostWidth === w}
-                  className={`feed-post-width-btn${feedPostWidth === w ? " active" : ""}`}
-                  title={
-                    w === 500
-                      ? "Компьютер, как сейчас"
-                      : w === 390
-                        ? "Планшет"
-                        : "Телефон"
-                  }
-                  onClick={() => setFeedPostWidth(w)}
-                >
-                  {w === 500 ? "Компьютер" : w === 390 ? "Планшет" : "Телефон"}
-                </button>
-              ))}
+      <div className="feed-layout screen-header-host">
+        <PageHeader
+          title="Лента"
+          backTo="home"
+          search={
+            <div className="page-header-feed-search-row">
+              <PageHeaderSearchInput
+                placeholder="Поиск по постам..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onDismiss={() => setSearch("")}
+              />
+              <div
+                className="feed-post-width-toggles page-header-toolbar--desktop"
+                role="radiogroup"
+                aria-label="Ширина карточки поста в ленте"
+              >
+                {FEED_POST_WIDTHS.map((w) => (
+                  <button
+                    key={w}
+                    type="button"
+                    role="radio"
+                    aria-checked={feedPostWidth === w}
+                    className={`feed-post-width-btn${feedPostWidth === w ? " active" : ""}`}
+                    title={
+                      w === 500
+                        ? "Компьютер, как сейчас"
+                        : w === 390
+                          ? "Планшет"
+                          : "Телефон"
+                    }
+                    onClick={() => setFeedPostWidth(w)}
+                  >
+                    {w === 500 ? "Компьютер" : w === 390 ? "Планшет" : "Телефон"}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        }
-      />
-      <div className="feed-layout">
+          }
+        />
         <div className="feed-scroll" id="feed-scroll" ref={feedScrollRef}>
+          <div className="feed-scroll-pane">
           <div className="feed-inner">
             {publishedDayGroups.length > 0 ? (
               <div className="feed-section feed-section--published">
@@ -187,6 +188,7 @@ export default function FeedScreen() {
               </div>
             </div>
             <DraftsSection drafts={drafts} />
+          </div>
           </div>
         </div>
         <div className="input-wrap" onMouseDown={onComposerShellMouseDown}>

@@ -16,6 +16,7 @@ type Props = {
   metrics: PostMetrics | null;
   media: PostMedia[];
   phoneFormat?: boolean;
+  header?: React.ReactNode;
 };
 
 export default function PostCommentsPanel({
@@ -26,6 +27,7 @@ export default function PostCommentsPanel({
   metrics,
   media,
   phoneFormat = false,
+  header = null,
 }: Props) {
   const { dispatch } = useApp();
   const [replyTo, setReplyTo] = useState<PostComment | null>(null);
@@ -49,7 +51,10 @@ export default function PostCommentsPanel({
 
   return (
     <>
-      <div className="post-body post-comments-body" ref={scrollRef}>
+      <div className="post-screen-host screen-header-host">
+        {header}
+        <div className="post-body post-comments-body" ref={scrollRef}>
+        <div className="post-body-pane">
         <div className="post-body-inner">
           <div
             className={[
@@ -89,6 +94,8 @@ export default function PostCommentsPanel({
               />
             </div>
           </div>
+        </div>
+        </div>
         </div>
       </div>
       <CommentComposer replyTo={replyTo} onCancelReply={() => setReplyTo(null)} onSubmit={addComment} />

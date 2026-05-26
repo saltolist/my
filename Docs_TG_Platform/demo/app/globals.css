@@ -112,9 +112,6 @@
   --glass-shine:  rgba(255, 255, 255, 0.06);
   --glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.45), 0 14px 36px rgba(0, 0, 0, 0.22);
   --glass-filter: blur(22px) saturate(180%);
-  /* Шапки: слабее заливка и мягче blur — иначе «молочная плёнка» без читаемого размытия */
-  --header-glass-bg: rgba(28, 30, 36, 0.36);
-  --header-glass-filter: blur(14px) saturate(165%);
 
   /* Sidebar: нейтральный тёмный тон без синевы */
   --sidebar-glass-overlay:  rgba(17, 17, 18, 0.56);
@@ -279,9 +276,6 @@ html.sidebar-collapsed {
   --glass-border: rgba(0, 0, 0, 0.06);
   --glass-shine:  rgba(255, 255, 255, 0.85);
   --glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 14px 36px rgba(0, 0, 0, 0.08);
-  --header-glass-bg: rgba(248, 249, 251, 0.42);
-  --header-glass-filter: blur(14px) saturate(165%);
-
   /* Sidebar: светлое стекло, не холодный серый */
   --sidebar-glass-overlay:  rgba(252, 252, 253, 0.85);
   --sidebar-glass-border: rgba(0, 0, 0, 0.07);
@@ -428,9 +422,6 @@ html.sidebar-collapsed {
     --glass-border: rgba(0, 0, 0, 0.06);
     --glass-shine:  rgba(255, 255, 255, 0.85);
     --glass-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 14px 36px rgba(0, 0, 0, 0.08);
-    --header-glass-bg: rgba(248, 249, 251, 0.42);
-    --header-glass-filter: blur(14px) saturate(165%);
-
     --sidebar-glass-overlay:  rgba(252, 252, 253, 0.85);
     --sidebar-glass-border: rgba(0, 0, 0, 0.07);
     --sidebar-glass-shine:  rgba(255, 255, 255, 0.55);
@@ -1117,13 +1108,11 @@ button.nav-item {
   border-top: 1px solid var(--sidebar-glass-border);
 }
 
-/* ── Glass surfaces (аналитика, шапки, карточки) ── */
+/* ── Glass surfaces (аналитика и пр.) ── */
 .glass-surface,
 .stat-card,
 .analytics-card,
-.mini-metric,
-.page-header,
-.post-hdr {
+.mini-metric {
   position: relative;
   isolation: isolate;
   background: transparent;
@@ -1145,32 +1134,20 @@ button.nav-item {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   border-radius: inherit;
   background: var(--sidebar-glass-overlay);
   -webkit-backdrop-filter: var(--glass-filter);
   backdrop-filter: var(--glass-filter);
   pointer-events: none;
 }
-
-/* Шапки — полупрозрачное стекло как у тултипов/кластеров графика (не сплошная белая заливка карточек) */
-.page-header::before,
-.post-hdr::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-  background: var(--header-glass-bg);
-  -webkit-backdrop-filter: var(--header-glass-filter);
-  backdrop-filter: var(--header-glass-filter);
-  pointer-events: none;
-}
-
-.page-header > *,
-.post-hdr > * {
+/* Контент карточек поверх glass-слоя (как у .page-header > *) */
+.glass-surface > *,
+.stat-card > *,
+.analytics-card > *,
+.mini-metric > * {
   position: relative;
-  z-index: 1;
+  z-index: 0;
 }
 
 /* Блоки профиля — тот же серый, что у неактивной btn-primary «Сохранить» */
@@ -1212,10 +1189,69 @@ button.nav-item {
 .screen.active { display: flex; }
 
 /* ── Page header (shared, liquid glass material) ── */
+/* Blur на ::before: полупрозрачный background на самом элементе гасит backdrop (как #sidebar) */
+.page-header,
+.post-hdr {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: transparent;
+}
+.page-header::before,
+.post-hdr::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+  pointer-events: none;
+}
+.page-header > *,
+.post-hdr > * {
+  position: relative;
+  z-index: 1;
+}
+/* Шапка поверх скролла: не двигается, контент уезжает под glass (padding-top у .scroll-pane) */
+.screen-header-host {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.screen-header-host > .page-header,
+.screen-header-host > .post-hdr {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  width: 100%;
+  max-width: none;
+  flex-shrink: 0;
+}
+.screen-header-host__scroll {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+}
+#screen-chats > .chats-screen-host,
+#screen-notes > .notes-screen-host,
+#screen-analytics > .analytics-page.screen-header-host,
+#screen-profile > .profile-page.screen-header-host,
+#screen-gchat > .gchat-layout.screen-header-host,
+#screen-post > .post-screen-host,
+#screen-post > .post-subpage-scroll.screen-header-host {
+  flex: 1;
+  min-height: 0;
+}
 .page-header {
   height: var(--hdr); min-height: var(--hdr);
   border-bottom: 1px solid var(--glass-border);
-  border-radius: 0;
   /* Три колонки: левый блок и правый занимают поровну оставшегося места — центр визуально по середине шапки */
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -3076,19 +3112,16 @@ button.nav-item {
 /* ════════════════════════════════
    SCREEN: GLOBAL CHAT (open chat)
 ════════════════════════════════ */
-.gchat-layout {
+.gchat-layout.screen-header-host {
   flex: 1;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
 }
 .gchat-messages {
   flex: 1;
   min-height: 0;
   min-width: 0;
   overflow-y: auto;
-  padding: 16px 20px 90px 20px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -3097,7 +3130,15 @@ button.nav-item {
   scrollbar-width: thin;
   scrollbar-color: var(--scroll-thumb) transparent;
 }
-.gchat-messages > * {
+.gchat-messages-pane {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: calc(var(--hdr) + 16px) 20px 90px 20px;
+  box-sizing: border-box;
+}
+.gchat-messages-pane > * {
   width: var(--composer-w);
   max-width: 100%;
 }
@@ -3137,19 +3178,28 @@ button.nav-item {
   min-height: 0;
   overflow: hidden;
 }
-.feed-layout { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+.feed-layout.screen-header-host { flex: 1; min-height: 0; }
 .feed-scroll {
   flex: 1;
   min-height: 0;
   min-width: 0;
   overflow-y: auto;
-  padding: 24px 20px 90px 20px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
+  scroll-padding-top: var(--hdr);
   scroll-padding-bottom: 90px;
   scrollbar-width: thin;
   scrollbar-color: var(--scroll-thumb) transparent;
+}
+.feed-scroll-pane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: calc(var(--hdr) + 24px) 20px 90px 20px;
+  box-sizing: border-box;
 }
 .feed-inner {
   width: var(--composer-w);
@@ -3523,7 +3573,6 @@ button.nav-item {
 .post-hdr {
   height: var(--hdr); min-height: var(--hdr);
   border-bottom: 1px solid var(--glass-border);
-  border-radius: 0;
   box-shadow:
     inset 0 1px 0 var(--glass-shine),
     var(--glass-shadow);
@@ -3669,14 +3718,38 @@ button.nav-item {
   min-height: 0;
   min-width: 0;
   overflow-y: auto;
-  padding: 20px 20px 90px 20px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  scroll-padding-bottom: 90px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) transparent;
+}
+.post-screen-host.screen-header-host {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.post-body-pane {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  scroll-padding-bottom: 90px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--scroll-thumb) transparent;
+  width: 100%;
+  padding: calc(var(--hdr) + 20px) 20px 90px 20px;
+  box-sizing: border-box;
+}
+.post-subpage-scroll.screen-header-host {
+  flex: 1;
+  min-height: 0;
+}
+.post-subpage-scroll .post-subpage-scroll-pane {
+  padding-top: var(--hdr);
+  box-sizing: border-box;
 }
 .post-body-inner {
   width: var(--composer-w);
@@ -4078,8 +4151,20 @@ button.nav-item {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   padding-top: 0;
+  scroll-padding-top: var(--hdr);
+}
+.post-subpage-scroll-pane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.post-subpage-scroll-pane > .post-subpage-toolbar,
+.post-subpage-scroll-pane > .notes-grid,
+.post-subpage-scroll-pane > .post-chats {
+  width: 100%;
 }
 /* notes grid in post */
 .notes-grid {
@@ -4687,9 +4772,26 @@ a.note-file-item:hover {
 /* ════════════════════════════════
    SCREEN: CHATS LIST
 ════════════════════════════════ */
+.chats-screen-host.screen-header-host {
+  flex: 1;
+  min-height: 0;
+}
 .chats-scroll {
-  flex: 1; overflow-y: auto; padding: 20px 24px 20px;
-  display: flex; justify-content: center;
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  scroll-padding-top: var(--hdr);
+}
+.chats-scroll-pane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: calc(var(--hdr) + 20px) 24px 20px;
+  box-sizing: border-box;
 }
 .chats-scroll-inner { width: min(var(--content-w), 100%); }
 /* Глобальные / локальные чаты — переключатель в шапке (.page-header-search-tools-row) */
@@ -4846,13 +4948,31 @@ a.note-file-item:hover {
 /* ════════════════════════════════
    SCREEN: NOTES LIST
 ════════════════════════════════ */
+.notes-screen-host.screen-header-host {
+  flex: 1;
+  min-height: 0;
+}
 .notes-page {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  align-items: center;
+  align-items: stretch;
   min-height: 0;
+  scroll-padding-top: var(--hdr);
+}
+.notes-page-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding-top: var(--hdr);
+  box-sizing: border-box;
+}
+.notes-page .notes-filter-row,
+.notes-page .notes-grid-page {
+  align-self: center;
+  width: min(var(--content-w), 100%);
 }
 .notes-toolbar {
   width: min(var(--content-w), 100%);
@@ -5081,18 +5201,26 @@ button.filter-tab {
 /* ════════════════════════════════
    SCREEN: ANALYTICS
 ════════════════════════════════ */
-.analytics-page {
+.analytics-page.screen-header-host {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  align-items: center;
   min-height: 0;
 }
-.analytics-scroll-inner {
+.analytics-page-scroll {
+  position: relative;
+  z-index: 0;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scroll-padding-top: var(--hdr);
+}
+.analytics-page .analytics-scroll-inner {
   width: min(var(--content-w), 100%);
+  margin: 0 auto;
+  padding: calc(var(--hdr) + 14px) 0 20px;
+  box-sizing: border-box;
+}
+.analytics-scroll-inner {
   flex: none;
-  padding: 14px 0 20px;
   box-sizing: border-box;
 }
 .period-tab {
@@ -6204,22 +6332,30 @@ button.filter-tab {
 /* ════════════════════════════════
    SCREEN: PROFILE
 ════════════════════════════════ */
-.profile-page {
+.profile-page.screen-header-host {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  align-items: center;
   min-height: 0;
+}
+.profile-page-scroll {
+  position: relative;
+  z-index: 0;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scroll-padding-top: var(--hdr);
+}
+.profile-page .profile-scroll-inner {
+  width: min(var(--content-w), 100%);
+  margin: 0 auto;
+  padding: calc(var(--hdr) + 14px) 0 20px;
+  box-sizing: border-box;
 }
 .profile-page :is(.profile-section, .profile-channel-actions, .stat-card) {
   overflow: visible;
   box-shadow: var(--content-card-shadow);
 }
 .profile-scroll-inner {
-  width: min(var(--content-w), 100%);
   flex: none;
-  padding: 14px 0 20px;
   box-sizing: border-box;
 }
 .profile-panel { display: none; }
@@ -7249,7 +7385,7 @@ button.filter-tab {
 
   .profile-scroll-inner,
   .analytics-scroll-inner,
-  .chats-scroll,
+  .chats-scroll-pane,
   .note-page {
     padding-left: 18px;
     padding-right: 18px;
@@ -7273,9 +7409,9 @@ button.filter-tab {
     padding-right: 16px;
   }
 
-  .post-body,
-  .feed-scroll,
-  .gchat-messages {
+  .post-body-pane,
+  .feed-scroll-pane,
+  .gchat-messages-pane {
     padding-left: 16px;
     padding-right: 16px;
   }
@@ -7819,9 +7955,9 @@ button.filter-tab {
     flex: 1 1 0;
   }
 
-  .post-body,
-  .feed-scroll,
-  .gchat-messages {
+  .post-body-pane,
+  .feed-scroll-pane,
+  .gchat-messages-pane {
     padding-left: 12px;
     padding-right: 12px;
   }
@@ -7956,9 +8092,9 @@ button.filter-tab {
     text-align: center;
   }
 
-  .gchat-messages,
-  .post-body,
-  .feed-scroll {
+  .gchat-messages-pane,
+  .post-body-pane,
+  .feed-scroll-pane {
     padding-bottom: 118px;
   }
 
@@ -8064,10 +8200,13 @@ button.filter-tab {
     min-height: 360px;
   }
 
-  .chats-scroll,
-  .analytics-scroll-inner,
-  .profile-scroll-inner {
-    padding: 14px 12px 18px;
+  .chats-scroll-pane {
+    padding: calc(var(--hdr) + 14px) 12px 18px;
+  }
+
+  .analytics-page .analytics-scroll-inner,
+  .profile-page .profile-scroll-inner {
+    padding: calc(var(--hdr) + 14px) 12px 18px;
   }
 
   .notes-filter-row {
@@ -8605,9 +8744,9 @@ button.filter-tab {
     padding: 0 8px 0 10px;
   }
 
-  .gchat-messages,
-  .post-body,
-  .feed-scroll {
+  .gchat-messages-pane,
+  .post-body-pane,
+  .feed-scroll-pane {
     padding-bottom: 150px;
   }
 

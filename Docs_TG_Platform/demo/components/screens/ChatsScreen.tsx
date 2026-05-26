@@ -114,7 +114,7 @@ export default function ChatsScreen() {
   });
 
   return (
-    <>
+    <div className="chats-screen-host screen-header-host">
       <PageHeader
         title="Чаты"
         backTo="home"
@@ -172,6 +172,7 @@ export default function ChatsScreen() {
         }
       />
       <div className="chats-scroll">
+      <div className="chats-scroll-pane">
         <div className="chats-scroll-inner">
           {tab === "all" ? (
             globalChats.length === 0 && localChats.length === 0 ? (
@@ -211,6 +212,7 @@ export default function ChatsScreen() {
           )}
         </div>
       </div>
-    </>
+      </div>
+    </div>
   );
 }
