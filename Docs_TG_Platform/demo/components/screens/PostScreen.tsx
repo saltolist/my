@@ -211,6 +211,12 @@ export default function PostScreen() {
   const postIntermediateCrumb = isMobile
     ? POST_BREADCRUMB_LABEL
     : truncate(postTitle(post), 32);
+  const hasPostMobileTrailing = postHeaderOverflowItems.length > 0;
+  const showPostMobileRight =
+    isMobile &&
+    ((showListHeaderSearch && !mobileSearchOpen) ||
+      hasPostMobileTrailing ||
+      (mobileSearchOpen && hasPostMobileTrailing));
 
   return (
     <div className={`post-screen-wrap${layoutClassName}`} style={layoutStyle}>
@@ -313,7 +319,9 @@ export default function PostScreen() {
             </div>
           ) : null}
           <div
-            className={`page-header-right${showJump ? " post-hdr-has-reveal" : ""}`}
+            className={`page-header-right${
+              showPostMobileRight ? " page-header-right--mobile" : ""
+            }${showJump ? " post-hdr-has-reveal" : ""}`}
           >
             {!isMobile ? (
               <div className="page-header-actions--desktop">
@@ -357,27 +365,32 @@ export default function PostScreen() {
                 />
               </div>
             ) : null}
-            {isMobile &&
-            ((showListHeaderSearch && !mobileSearchOpen) || postHeaderOverflowItems.length > 0) ? (
-              <div className="page-header-mobile-cluster">
-                {showListHeaderSearch && !mobileSearchOpen ? (
-                  <button
-                    type="button"
-                    className={`post-header-search-toggle${mobileSearchOpen ? " is-active" : ""}`}
-                    aria-label={listSearchPlaceholder}
-                    aria-expanded={mobileSearchOpen}
-                    onClick={() => setMobileSearchOpen((open) => !open)}
-                  >
-                    <PageHeaderSearchMagnifier size={18} />
-                  </button>
+            {showPostMobileRight ? (
+              <>
+                {showListHeaderSearch ? (
+                  mobileSearchOpen ? (
+                    hasPostMobileTrailing ? (
+                      <span className="page-header-search-toggle-slot" aria-hidden />
+                    ) : null
+                  ) : (
+                    <button
+                      type="button"
+                      className={`post-header-search-toggle${mobileSearchOpen ? " is-active" : ""}`}
+                      aria-label={listSearchPlaceholder}
+                      aria-expanded={mobileSearchOpen}
+                      onClick={() => setMobileSearchOpen((open) => !open)}
+                    >
+                      <PageHeaderSearchMagnifier size={20} />
+                    </button>
+                  )
                 ) : null}
-                {postHeaderOverflowItems.length > 0 ? (
+                {hasPostMobileTrailing ? (
                   <PageHeaderOverflow
                     className="page-header-actions--mobile"
                     items={postHeaderOverflowItems}
                   />
                 ) : null}
-              </div>
+              </>
             ) : null}
             {ctxModal}
           </div>

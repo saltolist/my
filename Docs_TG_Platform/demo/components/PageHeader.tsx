@@ -1,6 +1,15 @@
 "use client";
 
-import { Children, cloneElement, isValidElement, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useApp } from "@/state/AppContext";
 import type { ScreenId } from "@/lib/types";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
@@ -25,8 +34,10 @@ type Props = {
   overflowItems?: PageHeaderOverflowItem[];
 };
 
+type ElementWithChildren = { children?: ReactNode };
+
 function withMobileSearchClose(node: ReactNode, onClose: () => void): ReactNode {
-  if (!isValidElement(node)) return node;
+  if (!isValidElement<ElementWithChildren>(node)) return node;
   if (node.type === PageHeaderSearchInput) {
     return cloneElement(node, { onDismiss: onClose } as never);
   }
@@ -35,6 +46,17 @@ function withMobileSearchClose(node: ReactNode, onClose: () => void): ReactNode 
     return cloneElement(node, {}, children);
   }
   return node;
+}
+
+function findPageHeaderSearchInput(node: ReactNode): ReactNode | null {
+  if (!isValidElement<ElementWithChildren>(node)) return null;
+  if (node.type === PageHeaderSearchInput) return node;
+  if (node.props.children == null) return null;
+  for (const child of Children.toArray(node.props.children)) {
+    const found = findPageHeaderSearchInput(child);
+    if (found) return found;
+  }
+  return null;
 }
 
 export default function PageHeader({
@@ -68,9 +90,7 @@ export default function PageHeader({
     if (!wrap) return;
     const input = wrap.querySelector<HTMLInputElement>("input, textarea");
     mobileSearchInputRef.current = input;
-    // Важно: фокус сразу при появлении поля
     input?.focus();
-    // Поставить курсор в конец для удобства редактирования
     if (input && "setSelectionRange" in input) {
       try {
         const len = input.value?.length ?? 0;
@@ -82,10 +102,19 @@ export default function PageHeader({
   }, [mobileSearchOpen, isMobile]);
 
   const showMobileSearchToggle = isMobile && !!search;
+  const mobileSearchInput = search ? findPageHeaderSearchInput(search) : null;
   const mobileSearchContent =
-    isMobile && mobileSearchOpen && search
-      ? withMobileSearchClose(search, () => setMobileSearchOpen(false))
-      : search;
+    isMobile && mobileSearchOpen && mobileSearchInput
+      ? withMobileSearchClose(mobileSearchInput, () => setMobileSearchOpen(false))
+      : null;
+
+  const hasMobileTrailing =
+    !!mobileSelect || (overflowItems != null && overflowItems.length > 0);
+  const showMobileRight =
+    isMobile &&
+    ((showMobileSearchToggle && !mobileSearchOpen) ||
+      hasMobileTrailing ||
+      (mobileSearchOpen && hasMobileTrailing));
 
   return (
     <div className={`page-header${mobileSearchOpen ? " page-header--search-open" : ""}`}>
@@ -94,17 +123,20 @@ export default function PageHeader({
         {!mobileSearchOpen && (title ? <h2>{title}</h2> : null)}
         {!mobileSearchOpen && left}
       </div>
-      <div className="page-header-center">
-        {center && !isMobile ? center : null}
-        {search && !isMobile ? (
-          search
-        ) : search && isMobile && mobileSearchOpen ? (
-          <div className="page-header-search-expand" ref={mobileSearchWrapRef}>
-            {mobileSearchContent}
-          </div>
-        ) : null}
-      </div>
-      <div className="page-header-right">
+      {isMobile && mobileSearchOpen && mobileSearchContent ? (
+        <div className="page-header-search-expand" ref={mobileSearchWrapRef}>
+          {mobileSearchContent}
+        </div>
+      ) : (
+        <div className="page-header-center" aria-hidden={isMobile ? true : undefined}>
+          {center && !isMobile ? center : null}
+          {search && !isMobile ? search : null}
+        </div>
+      )}
+      {!isMobile || showMobileRight ? (
+      <div
+        className={`page-header-right${showMobileRight ? " page-header-right--mobile" : ""}`}
+      >
         {!isMobile ? (
           <div className="page-header-actions--desktop">
             {handleBack ? (
@@ -119,22 +151,26 @@ export default function PageHeader({
             {actions}
           </div>
         ) : null}
-        {isMobile &&
-        ((showMobileSearchToggle && !mobileSearchOpen) ||
-          (overflowItems && overflowItems.length > 0)) ? (
-          <div className="page-header-mobile-cluster">
-            {showMobileSearchToggle && !mobileSearchOpen ? (
-              <button
-                type="button"
-                className="page-header-search-toggle"
-                aria-label="Поиск"
-                aria-expanded={mobileSearchOpen}
-                onClick={() => setMobileSearchOpen(true)}
-              >
-                <PageHeaderSearchMagnifier size={18} />
-              </button>
+        {showMobileRight ? (
+          <>
+            {showMobileSearchToggle ? (
+              mobileSearchOpen ? (
+                hasMobileTrailing ? (
+                  <span className="page-header-search-toggle-slot" aria-hidden />
+                ) : null
+              ) : (
+                <button
+                  type="button"
+                  className="page-header-search-toggle"
+                  aria-label="Поиск"
+                  aria-expanded={mobileSearchOpen}
+                  onClick={() => setMobileSearchOpen(true)}
+                >
+                  <PageHeaderSearchMagnifier size={20} />
+                </button>
+              )
             ) : null}
-            {mobileSelect && !mobileSearchOpen ? (
+            {mobileSelect ? (
               <div className="page-header-toolbar-slot page-header-toolbar--mobile">{mobileSelect}</div>
             ) : null}
             {overflowItems && overflowItems.length > 0 ? (
@@ -143,9 +179,10 @@ export default function PageHeader({
                 items={overflowItems}
               />
             ) : null}
-          </div>
+          </>
         ) : null}
       </div>
+      ) : null}
     </div>
   );
 }

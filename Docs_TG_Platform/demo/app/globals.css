@@ -1565,18 +1565,26 @@ button.nav-item {
 .page-header-actions--mobile {
   display: none;
 }
-/* Лупа и «•••» в одной группе — расстояние только внутри cluster, не через page-header-right */
-.page-header-mobile-cluster {
-  display: none;
+.page-header-right--mobile {
+  display: flex;
   align-items: center;
   flex-shrink: 0;
-  gap: 12px;
+  gap: 10px;
 }
-.page-header-mobile-cluster .page-header-actions--mobile {
+.page-header-search-toggle-slot {
+  flex-shrink: 0;
+  display: inline-block;
+  box-sizing: border-box;
+  width: 40px;
+  min-width: 40px;
+  min-height: 44px;
+  padding: 4px 2px 4px 0;
+}
+.page-header-right--mobile .page-header-actions--mobile {
   display: flex;
   align-items: center;
 }
-.page-header-mobile-cluster .page-header-overflow .ctx-btn {
+.page-header-right--mobile .page-header-overflow .ctx-btn {
   padding-left: 0;
 }
 .page-header-toolbar-slot {
@@ -7403,13 +7411,6 @@ button.filter-tab {
     color: var(--text2);
   }
 
-  #screen-profile .page-header-select,
-  #screen-profile .page-header-select-ctx .page-header-select {
-    background: var(--profile-control-bg-active);
-    border-color: var(--control-border-active);
-    color: var(--text);
-  }
-
   /* Меню селекторов в шапке и меню "•••" в шапках — без эффекта стекла на mobile */
   .ctx-dropdown.ctx-dropdown-portal.ctx-dropdown--page-header-control,
   .ctx-dropdown.ctx-dropdown--page-header-control {
@@ -7598,7 +7599,7 @@ button.filter-tab {
 
   .page-header,
   .post-hdr {
-    padding: 0 12px;
+    padding: 0 10px;
     column-gap: 8px;
     height: var(--hdr);
     min-height: var(--hdr);
@@ -7608,13 +7609,26 @@ button.filter-tab {
   .page-header {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
   }
 
   .page-header-left {
     flex: 0 1 auto;
     min-width: 0;
     gap: 8px;
+  }
+
+  .page-header.page-header--search-open .page-header-left {
+    flex: 0 0 auto;
+    gap: 0;
+  }
+
+  .page-header.page-header--search-open .page-header-menu-btn {
+    margin: 0 -6px;
+    min-width: 0;
+    width: auto;
+    min-height: 44px;
+    padding: 12px 0 12px 12px;
   }
 
   .page-header-center {
@@ -7657,13 +7671,16 @@ button.filter-tab {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
-    gap: 0;
+    gap: 10px;
     margin-left: auto;
   }
 
-  .page-header-mobile-cluster {
-    display: inline-flex;
-    margin-right: 6px;
+  .post-hdr--with-search-mobile.post-hdr--search-open .page-header-menu-btn {
+    margin: 0 -6px;
+    min-width: 0;
+    width: auto;
+    min-height: 44px;
+    padding: 12px 0 12px 12px;
   }
 
   .post-header-search-toggle,
@@ -7683,15 +7700,38 @@ button.filter-tab {
     cursor: pointer;
     transition: color 0.12s;
     -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
   }
 
-  .page-header-mobile-cluster .page-header-search-toggle,
-  .page-header-mobile-cluster .post-header-search-toggle {
+  /* Лупа в кластере (селектор / «•••» справа) */
+  .page-header-right--mobile .post-header-search-toggle:not(:only-child),
+  .page-header-right--mobile .page-header-search-toggle:not(:only-child) {
+    width: 40px;
+    min-width: 40px;
+    height: auto;
+    min-height: 44px;
+    padding: 4px 2px 4px 0;
     justify-content: flex-end;
-    padding-right: 0;
   }
 
-  .page-header-mobile-cluster .page-header-overflow .ctx-btn {
+  .page-header-right--mobile .page-header-search-toggle + .page-header-toolbar-slot,
+  .page-header-right--mobile .page-header-search-toggle-slot + .page-header-toolbar-slot,
+  .page-header-right--mobile .page-header-search-toggle + .page-header-actions--mobile,
+  .page-header-right--mobile .page-header-search-toggle-slot + .page-header-actions--mobile,
+  .page-header-right--mobile .post-header-search-toggle:not(:only-child) + .page-header-actions--mobile {
+    margin-left: -2px;
+  }
+
+  /* Лента и др.: лупа одна у правого края — как «•••» */
+  .page-header-right--mobile .post-header-search-toggle:only-child,
+  .page-header-right--mobile .page-header-search-toggle:only-child {
+    width: auto;
+    min-width: 44px;
+    padding: 4px 6px 4px 0;
+    justify-content: flex-end;
+  }
+
+  .page-header-right--mobile .page-header-overflow .ctx-btn {
     padding-left: 0;
     padding-right: 6px;
   }
@@ -7708,26 +7748,37 @@ button.filter-tab {
   }
 
   .post-hdr--with-search-mobile.post-hdr--search-open .post-hdr-top {
-    gap: 6px;
+    gap: 10px;
   }
 
   .post-hdr--with-search-mobile.post-hdr--search-open .page-header-left {
     flex: 0 0 auto;
+    gap: 0;
   }
 
-  .post-header-search-expand {
+  .post-hdr--with-search-mobile.post-hdr--search-open .page-header-right {
+    margin-left: 0;
+  }
+
+  .post-header-search-expand,
+  .page-header-search-expand {
     flex: 1 1 auto;
     display: flex;
     align-items: center;
-    justify-content: center;
     min-width: 0;
-    padding: 0 4px;
+    padding: 0;
   }
 
-  .post-header-search-expand .page-header-search-field {
+  .post-header-search-expand .page-header-search-field,
+  .page-header-search-expand .page-header-search-field {
     width: 100%;
-    max-width: min(320px, calc(100vw - 108px));
+    max-width: none;
     flex: 1 1 auto;
+  }
+
+  .page-header.page-header--search-open .page-header-right {
+    flex: 0 0 auto;
+    margin-left: 0;
   }
 
   .page-header-left h2 {
@@ -7738,11 +7789,15 @@ button.filter-tab {
   .page-header-right {
     flex-shrink: 0;
     margin-left: auto;
-    gap: 0;
   }
 
-  .page-header-mobile-cluster {
-    display: inline-flex;
+  .page-header-right--mobile {
+    gap: 10px;
+  }
+
+  /* Селектор у правого края — зеркально меню слева (10px − 6px + 12px = 16px) */
+  .page-header-right--mobile .page-header-toolbar-slot {
+    margin-right: 6px;
   }
 
   /* На тач-устройствах убираем “анимацию нажатия” у кнопок поиска */
@@ -7751,21 +7806,6 @@ button.filter-tab {
     .page-header-search-toggle {
       transition: none;
     }
-  }
-
-  .page-header-search-expand {
-    flex: 1 1 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 0;
-    padding: 0 4px;
-  }
-
-  .page-header-search-expand .page-header-search-field {
-    width: 100%;
-    max-width: min(320px, calc(100vw - 108px));
-    flex: 1 1 auto;
   }
 
   .page-header-toolbar--desktop {
