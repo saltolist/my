@@ -29,6 +29,7 @@ import PostCommentsPanel from "../post/PostCommentsPanel";
 import PostCommentsRow from "../post/PostCommentsRow";
 import { ContextMenu } from "../ContextMenu";
 import { usePostCtxMenuItems } from "../post/postCtxMenu";
+import { NavIconChats, NavIconFeed, NavIconNotes } from "@/components/sidebar/NavIcons";
 import { routes } from "@/lib/routes";
 import type { LocalNote, NoteFile, PostComment, PostMedia, PostMetrics, PostMode } from "@/lib/types";
 
@@ -119,27 +120,31 @@ export default function PostScreen() {
     const items: PageHeaderOverflowItem[] = [];
 
     if (state.postMode !== "chat") {
-      items.push({ label: "К посту", onClick: openPostView });
+      items.push({
+        label: "К посту",
+        onClick: openPostView,
+        icon: <NavIconFeed />,
+      });
     }
 
-    if (state.postMode !== "notes") {
-      items.push({ label: "Заметки", onClick: goToPostNotes });
-    }
-    if (state.postMode !== "chats") {
-      items.push({ label: "Чаты", onClick: goToPostChats });
-    }
+    items.push({
+      label: "Заметки",
+      onClick: goToPostNotes,
+      active: state.postMode === "notes",
+      icon: <NavIconNotes />,
+    });
+    items.push({
+      label: "Чаты",
+      onClick: goToPostChats,
+      active: state.postMode === "chats",
+      icon: <NavIconChats />,
+    });
 
     if (state.postMode === "chat" && showJump) {
       items.push({
         label: "↑ К посту",
         onClick: () => chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }),
       });
-    }
-    if (state.postMode === "notes") {
-      items.push({ label: "+ Новая заметка", onClick: startNewNote });
-    }
-    if (state.postMode === "chats") {
-      items.push({ label: "+ Новый чат", onClick: startNewChat });
     }
 
     return [
@@ -159,8 +164,6 @@ export default function PostScreen() {
     openPostView,
     post,
     showJump,
-    startNewChat,
-    startNewNote,
     state.postMode,
   ]);
 
@@ -366,6 +369,11 @@ export default function PostScreen() {
         </>
       ) : state.postMode === "chats" ? (
         <div className="post-subpage-scroll">
+          <div className="post-subpage-toolbar">
+            <button className="post-new-chat-btn" onClick={startNewChat} type="button">
+              + Новый чат
+            </button>
+          </div>
           <PostChats search={listSearch} onOpenChat={openLocalChat} />
         </div>
       ) : state.postMode === "comments" ? (
@@ -379,6 +387,11 @@ export default function PostScreen() {
         />
       ) : (
         <div className="post-subpage-scroll">
+          <div className="post-subpage-toolbar">
+            <button className="post-new-note-btn" onClick={startNewNote} type="button">
+              + Новая заметка
+            </button>
+          </div>
           <PostNotes search={listSearch} />
         </div>
       )}

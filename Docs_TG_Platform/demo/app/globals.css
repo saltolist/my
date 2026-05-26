@@ -3906,6 +3906,17 @@ button.nav-item {
 .tg-media-editable .tg-media-remove { display: inline-flex; }
 .tg-media-remove:hover { background: rgba(0,0,0,.75); }
 
+/* «+ Новый чат» / «+ Новая заметка» — в потоке скролла, над списком (как отступы сетки) */
+.post-subpage-toolbar {
+  display: none;
+  flex-shrink: 0;
+  align-self: center;
+  width: min(var(--composer-w), 100%);
+  box-sizing: border-box;
+  padding: 18px 12px 10px;
+  justify-content: flex-end;
+}
+
 /* Подстраницы поста (заметки, чаты): скролл на .post-subpage-scroll, не на сетке */
 .post-subpage-scroll {
   flex: 1;
@@ -7456,6 +7467,15 @@ button.filter-tab {
     display: flex;
     align-items: center;
     flex-shrink: 0;
+  }
+
+  .post-subpage-toolbar {
+    display: flex;
+  }
+
+  .post-subpage-scroll .notes-grid.visible,
+  .post-subpage-scroll .post-chats.visible {
+    padding-top: 0;
   }
 
   .page-header-back-btn,

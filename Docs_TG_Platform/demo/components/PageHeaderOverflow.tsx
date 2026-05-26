@@ -10,6 +10,7 @@ export type PageHeaderOverflowItem = {
   danger?: boolean;
   disabled?: boolean;
   hidden?: boolean;
+  active?: boolean;
 };
 
 type Props = {
@@ -30,6 +31,7 @@ export default function PageHeaderOverflow({
       icon: item.icon,
       danger: item.danger,
       disabled: item.disabled,
+      active: item.active,
       onClick: item.onClick,
     }));
 
