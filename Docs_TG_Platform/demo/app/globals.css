@@ -1145,12 +1145,20 @@ button.nav-item {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   border-radius: inherit;
   background: var(--sidebar-glass-overlay);
   -webkit-backdrop-filter: var(--glass-filter);
   backdrop-filter: var(--glass-filter);
   pointer-events: none;
+}
+
+.glass-surface > *,
+.stat-card > *,
+.analytics-card > *,
+.mini-metric > * {
+  position: relative;
+  z-index: 0;
 }
 
 /* Шапки — полупрозрачное стекло как у тултипов/кластеров графика (не сплошная белая заливка карточек) */
