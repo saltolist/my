@@ -2174,7 +2174,8 @@ button.nav-item {
 }
 .input-box {
   display: flex; flex-direction: column; gap: 8px;
-  background: var(--bg2); border: none;
+  background: color-mix(in srgb, var(--ctx-dropdown-header-surface) 72%, var(--glass-bg) 28%);
+  border: none;
   border-radius: 22px; padding: 20px;
   box-shadow: var(--inset-edge), var(--shadow-strong);
   transition: opacity .15s, box-shadow .15s;
