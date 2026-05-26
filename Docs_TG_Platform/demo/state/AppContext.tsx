@@ -51,6 +51,11 @@ import {
 } from "@/lib/chatPaths";
 import { isOmnichannelChatId, syncOmnichannelGlobalChats } from "@/lib/omnichannel";
 import { buildProfileDiscardPatch } from "@/lib/profileDiscard";
+import {
+  FEED_POST_WIDTH_STORAGE_KEY,
+  readStoredFeedPostWidth,
+  type FeedPostWidth,
+} from "@/lib/feedPostWidth";
 import type {
   ActiveNote,
   AiProfileConfig,
@@ -112,6 +117,8 @@ type State = {
   channelProfileSavedSnapshot: string;
 
   theme: ThemeMode;
+  /** Ширина карточки поста в ленте и на экране поста (десктоп). */
+  feedPostWidth: FeedPostWidth;
 };
 
 /** Subset of app state restored when the user goes «back» through the nav stack. */
@@ -622,6 +629,7 @@ const initialState: State = {
   channelProfileSavedSnapshot: JSON.stringify(initialChannelProfileConfig),
 
   theme: "dark",
+  feedPostWidth: 500,
 };
 
 export type DirtyKey = "note" | "profile-channel" | "profile-ai" | "profile-prompt" | "profile-telegram";
@@ -726,6 +734,7 @@ type AppContextValue = {
   discardPendingEdits: () => void;
   /** Сброс несохранённых правок профиля к последним сохранённым снимкам. */
   discardProfileEdits: () => void;
+  setFeedPostWidth: (width: FeedPostWidth) => void;
 };
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -959,6 +968,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
           dispatch({ type: "SET_STATE", patch: { theme: stored } });
         }
       }
+      const feedW = readStoredFeedPostWidth();
+      if (feedW !== state.feedPostWidth) {
+        dispatch({ type: "SET_STATE", patch: { feedPostWidth: feedW } });
+      }
     } catch {}
     // run once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -970,6 +983,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       window.localStorage.setItem("tg-demo-theme", state.theme);
     } catch {}
   }, [state.theme]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(FEED_POST_WIDTH_STORAGE_KEY, String(state.feedPostWidth));
+    } catch {}
+  }, [state.feedPostWidth]);
+
+  const setFeedPostWidth = useCallback((width: FeedPostWidth) => {
+    dispatch({ type: "SET_STATE", patch: { feedPostWidth: width } });
+  }, []);
 
   const goHome = useCallback(() => navigate("home"), [navigate]);
 
@@ -1268,6 +1291,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       confirmDiscardAnyEdit,
       discardPendingEdits,
       discardProfileEdits,
+      setFeedPostWidth,
     }),
     [
       state,
@@ -1302,6 +1326,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       confirmDiscardAnyEdit,
       discardPendingEdits,
       discardProfileEdits,
+      setFeedPostWidth,
     ],
   );
 

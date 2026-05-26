@@ -32,6 +32,7 @@ import PostCommentsRow from "../post/PostCommentsRow";
 import { ContextMenu } from "../ContextMenu";
 import { usePostCtxMenuItems } from "../post/postCtxMenu";
 import { NavIconChats, NavIconFeed, NavIconNotes } from "@/components/sidebar/NavIcons";
+import { useFeedPostLayout } from "@/lib/hooks/useFeedPostLayout";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 import { routes } from "@/lib/routes";
 import type { LocalNote, NoteFile, PostComment, PostMedia, PostMetrics, PostMode } from "@/lib/types";
@@ -53,6 +54,7 @@ export default function PostScreen() {
   } = useApp();
   const post = postById(state, state.currentPostId);
   const isMobile = useMobile760();
+  const { phoneFormat, layoutClassName, layoutStyle } = useFeedPostLayout();
   const { items: ctxItems, modal: ctxModal } = usePostCtxMenuItems(post);
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const postCardRef = useRef<HTMLDivElement>(null);
@@ -211,7 +213,7 @@ export default function PostScreen() {
     : truncate(postTitle(post), 32);
 
   return (
-    <>
+    <div className={`post-screen-wrap${layoutClassName}`} style={layoutStyle}>
       <div
         className={`post-hdr${
           showListHeaderSearch
@@ -400,7 +402,7 @@ export default function PostScreen() {
                   mediaItems.length === 0 &&
                   (post.status === "published" || post.status === "scheduled" || post.status === "draft")
                 }
-                phoneFormat={isMobile}
+                phoneFormat={phoneFormat}
               />
               {flatMessages.map(({ message: m, path }, i) => (
                 <ChatMessage
@@ -436,7 +438,7 @@ export default function PostScreen() {
           badge={badgeForPost(post)}
           metrics={post.status === "published" && post.metrics ? post.metrics : null}
           media={mediaItems}
-          phoneFormat={isMobile}
+          phoneFormat={phoneFormat}
         />
       ) : (
         <div className="post-subpage-scroll">
@@ -448,7 +450,7 @@ export default function PostScreen() {
           <PostNotes search={listSearch} />
         </div>
       )}
-    </>
+    </div>
   );
 }
 

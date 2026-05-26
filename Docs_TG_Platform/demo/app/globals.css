@@ -3671,6 +3671,14 @@ button.nav-item {
 }
 .post-card-metrics { font-size: 12px; color: var(--text3); }
 
+.post-screen-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
 /* post body */
 .post-body {
   flex: 1;
@@ -3693,16 +3701,11 @@ button.nav-item {
   flex-direction: column;
   gap: 12px;
 }
-.post-body-inner .post-msg-block {
-  width: 500px;
+.post-body-inner .post-msg-block,
+.post-body-inner > .post-msg-card {
+  width: var(--feed-post-w, 500px);
   max-width: 100%;
   align-self: center;
-}
-
-@media (max-width: 760px) {
-  .post-body-inner .post-msg-block {
-    width: 270px;
-  }
 }
 .post-msg-actions {
   display: flex;
@@ -4158,7 +4161,7 @@ button.nav-item {
 }
 .post-chats.visible { display: flex; }
 .post-chats-inner {
-  width: min(var(--composer-w), 100%);
+  width: min(var(--feed-post-w, var(--composer-w)), 100%);
   display: flex;
   flex-direction: column;
   gap: 10px;

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useApp } from "@/state/AppContext";
-import { useMobile760 } from "@/lib/hooks/useMobile760";
+import { FEED_POST_WIDTHS } from "@/lib/feedPostWidth";
+import { useFeedPostLayout } from "@/lib/hooks/useFeedPostLayout";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import PostCard from "../feed/PostCard";
@@ -15,22 +16,18 @@ import { onComposerShellMouseDown } from "@/lib/composerPointerDown";
 import PostMediaBlock from "../post/PostMediaBlock";
 import type { Post, PostMedia } from "@/lib/types";
 
-const FEED_POST_WIDTHS = [500, 390, 270] as const;
-type FeedPostWidth = (typeof FEED_POST_WIDTHS)[number];
-
 /** Позиция скролла ленты между визитами (экран остаётся смонтированным). */
 let feedScrollTopMemory = 0;
 let feedDidInitialScrollToBottom = false;
 
 export default function FeedScreen() {
-  const { state, dispatch, openPost, openPostComments } = useApp();
+  const { state, dispatch, openPost, openPostComments, setFeedPostWidth } = useApp();
   const pathname = usePathname() ?? "/";
   const onFeed = pathname === "/feed/" || pathname === "/feed";
-  const isMobile = useMobile760();
+  const { feedPostWidth, layoutClassName, layoutStyle } = useFeedPostLayout();
   const [draft, setDraft] = useState("");
   const [pendingMedia, setPendingMedia] = useState<PostMedia[]>([]);
   const [search, setSearch] = useState("");
-  const [feedPostWidth, setFeedPostWidth] = useState<FeedPostWidth>(500);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const feedScrollRef = useRef<HTMLDivElement>(null);
 
@@ -110,10 +107,7 @@ export default function FeedScreen() {
   }
 
   return (
-    <div
-      className={`feed-screen-wrap${isMobile || feedPostWidth === 270 ? " post-format-phone" : ""}`}
-      style={{ "--feed-post-w": `${isMobile ? 270 : feedPostWidth}px` } as CSSProperties}
-    >
+    <div className={`feed-screen-wrap${layoutClassName}`} style={layoutStyle}>
       <PageHeader
         title="Лента"
         backTo="home"
