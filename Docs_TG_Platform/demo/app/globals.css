@@ -1817,7 +1817,13 @@ button.nav-item {
 }
 .page-header-search::placeholder { color: var(--text3); }
 .page-header-search:hover { background: var(--page-header-control-bg-hover); }
-.page-header-search:focus { border-color: var(--control-border-active); background: var(--page-header-control-bg-focus); }
+.page-header-search:focus {
+  border-color: var(--control-border-active);
+  background: var(--page-header-control-bg);
+}
+.page-header-search:focus:hover {
+  background: var(--page-header-control-bg);
+}
 
 /* ── Buttons ── */
 .btn {
