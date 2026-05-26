@@ -6,11 +6,16 @@ export const TREND_DOT_CLUSTER_FALLBACK_WIDTH_PX = 720;
 
 export const TREND_CLUSTER_STRIP_MARGIN_PX = 12;
 export const TREND_CLUSTER_STRIP_MAX_COLUMNS = 5;
+/** Мобильная версия: не больше двух карточек в ряд. */
+export const TREND_CLUSTER_STRIP_MAX_COLUMNS_MOBILE = 2;
 export const TREND_CLUSTER_LEFT_EDGE_PERCENT = 20;
 export const TREND_CLUSTER_RIGHT_EDGE_PERCENT = 80;
 
-export function getClusterStripColumnCount(cardCount: number) {
-  return Math.min(Math.max(cardCount, 1), TREND_CLUSTER_STRIP_MAX_COLUMNS);
+export function getClusterStripColumnCount(
+  cardCount: number,
+  maxColumns: number = TREND_CLUSTER_STRIP_MAX_COLUMNS,
+) {
+  return Math.min(Math.max(cardCount, 1), maxColumns);
 }
 
 export function computeClusterStripLeft(pointerX: number, stripWidth: number, dotXPercent: number) {

@@ -8043,6 +8043,12 @@ button.filter-tab {
     overflow-x: visible;
   }
 
+  /* Кластер тултипов графика: не больше 2 карточек в ряд */
+  .trend-tooltip-strip,
+  .trend-tooltip-strip-track {
+    max-width: min(96vw, calc(2 * 220px + 8px));
+  }
+
   #screen-analytics .analytics-chart-card .model-trend-plot,
   #screen-analytics .analytics-chart-card .trend-chart-wrap,
   #screen-profile .platform-analytics-section .model-trend-plot,

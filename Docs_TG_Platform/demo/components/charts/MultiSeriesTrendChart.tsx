@@ -23,6 +23,8 @@ import {
   computeClusterStripLeft,
   formatTrendNumber,
   getClusterStripColumnCount,
+  TREND_CLUSTER_STRIP_MAX_COLUMNS,
+  TREND_CLUSTER_STRIP_MAX_COLUMNS_MOBILE,
   sanitizeSvgId,
   valueToChartY,
 } from "@/lib/trendChart/math";
@@ -650,7 +652,10 @@ export default function MultiSeriesTrendChart({
             <div
               className="trend-tooltip-strip-track"
               style={{
-                gridTemplateColumns: `repeat(${getClusterStripColumnCount(hoveredCluster.dots.length)}, minmax(170px, 220px))`,
+                gridTemplateColumns: `repeat(${getClusterStripColumnCount(
+                  hoveredCluster.dots.length,
+                  isMobile ? TREND_CLUSTER_STRIP_MAX_COLUMNS_MOBILE : TREND_CLUSTER_STRIP_MAX_COLUMNS,
+                )}, minmax(170px, 220px))`,
               }}
             >
               {hoveredCluster.dots.map((dot) => {
