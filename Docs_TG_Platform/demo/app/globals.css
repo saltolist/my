@@ -100,7 +100,11 @@
   /* Портальное меню шапки: непрозрачный фон (control-bg в light — полупрозрачный) */
   --ctx-dropdown-header-surface: var(--bg2);
   --ctx-dropdown-header-surface-hover: var(--bg3);
+  --ctx-dropdown-header-surface-active: var(--bg4);
   --ctx-dropdown-header-border: var(--border2);
+  /* Выпадашки селекторов шапки — в такт pill-кнопке (border-radius: 999px) */
+  --page-header-dropdown-r: 16px;
+  --page-header-dropdown-item-r: 999px;
 
   /* Liquid-glass header material */
   --glass-bg:     rgba(28, 30, 36, 0.62);
@@ -373,6 +377,7 @@ html.sidebar-collapsed {
 :root[data-theme="light"] {
   --ctx-dropdown-header-surface: var(--bg2);
   --ctx-dropdown-header-surface-hover: var(--bg3);
+  --ctx-dropdown-header-surface-active: var(--bg4);
   --ctx-dropdown-header-border: var(--border2);
 }
 :root[data-theme="light"] .model-picker-dropdown--composer {
@@ -431,6 +436,7 @@ html.sidebar-collapsed {
 
     --ctx-dropdown-header-surface: var(--bg2);
     --ctx-dropdown-header-surface-hover: var(--bg3);
+    --ctx-dropdown-header-surface-active: var(--bg4);
     --ctx-dropdown-header-border: var(--border2);
 
     --reaction-pill-bg: rgb(225, 238, 246);
@@ -1583,6 +1589,31 @@ button.nav-item {
   border-color: var(--control-border-active);
   background-color: var(--page-header-control-bg-focus);
 }
+.page-header-select-ctx {
+  display: block;
+  width: 100%;
+  position: relative;
+}
+.page-header-select-ctx .page-header-select {
+  width: 100%;
+  display: block;
+}
+.page-header-select-trigger-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ctx-dropdown.ctx-dropdown--page-header-select {
+  padding: 5px;
+  min-width: 0;
+  border-radius: var(--page-header-dropdown-r);
+}
+.ctx-dropdown--page-header-select .ctx-item {
+  justify-content: center;
+  text-align: center;
+  border-radius: var(--page-header-dropdown-item-r);
+}
 .breadcrumb { font-weight: 400; color: var(--text2); display: flex; align-items: center; gap: 4px; }
 .breadcrumb .bc-link {
   font-weight: 400;
@@ -1712,21 +1743,36 @@ button.nav-item {
 .ctx-dropdown-portal.open {
   display: block;
 }
-/* Как .page-header-select по тону, но непрозрачно — панель в portal над контентом */
+/* Меню селекторов в шапке: лёгкое стекло (но с «контрольным» тоном шапки) */
 .ctx-dropdown.ctx-dropdown-portal.ctx-dropdown--page-header-control,
 .ctx-dropdown.ctx-dropdown--page-header-control {
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-  background-color: var(--ctx-dropdown-header-surface) !important;
-  border: 1px solid var(--ctx-dropdown-header-border);
+  -webkit-backdrop-filter: var(--glass-filter) !important;
+  backdrop-filter: var(--glass-filter) !important;
+  background: color-mix(in srgb, var(--ctx-dropdown-header-surface) 72%, var(--glass-bg) 28%) !important;
+  border: 1px solid color-mix(in srgb, var(--ctx-dropdown-header-border) 76%, var(--glass-border) 24%);
   box-shadow: var(--dropdown-shadow);
+  border-radius: var(--page-header-dropdown-r);
+  padding: 5px;
 }
-.ctx-dropdown--page-header-control .ctx-item:hover {
-  background: var(--ctx-dropdown-header-surface-hover);
+.ctx-dropdown--page-header-control .ctx-item {
+  color: var(--text2);
+  border-radius: var(--page-header-dropdown-item-r);
+}
+.ctx-dropdown--page-header-control .ctx-item.active {
+  background: var(--ctx-dropdown-header-surface-active);
   color: var(--text);
 }
+.ctx-dropdown--page-header-control .ctx-item:hover:not(.active) {
+  background: var(--ctx-dropdown-header-surface-hover);
+  color: var(--text2);
+}
 .ctx-dropdown--page-header-control .ctx-item.active:hover {
-  background: color-mix(in srgb, var(--ctx-dropdown-header-surface-hover) 78%, var(--accent) 22%);
+  background: var(--ctx-dropdown-header-surface-active);
+  color: var(--text);
+}
+.ctx-dropdown--page-header-control .ctx-item.danger,
+.ctx-dropdown--page-header-control .ctx-item.danger:hover {
+  color: var(--red);
 }
 .ctx-item {
   display: flex; align-items: center; gap: 10px;
@@ -7152,6 +7198,14 @@ button.filter-tab {
 }
 
 @media (max-width: 760px) {
+  /* Кнопка селектора шапки — тот же непрозрачный тон, что у выпадающей панели */
+  .page-header-select,
+  .page-header-select-ctx .page-header-select {
+    background-color: var(--ctx-dropdown-header-surface);
+    border-color: var(--ctx-dropdown-header-border);
+    color: var(--text);
+  }
+
   :root {
     --nav-w: 0px;
     --content-w: 100%;
