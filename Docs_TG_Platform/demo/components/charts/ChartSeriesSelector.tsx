@@ -1,15 +1,9 @@
 "use client";
 
-import {
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-  type CSSProperties,
-} from "react";
+import { useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import ProfileCheckbox from "@/components/profile/ProfileCheckbox";
+import { useOverlayDismissOnPointer } from "@/lib/hooks/useOverlayDismissOnPointer";
 
 export type ChartSeriesSelectorItem = {
   id: string;
@@ -83,30 +77,19 @@ export default function ChartSeriesSelector({
     if (open) updatePanelPos();
   }, [open]);
 
-  useEffect(() => {
+  const { consumeSuppressTriggerClick } = useOverlayDismissOnPointer({
+    open,
+    onClose: () => setOpen(false),
+    contentRef: panelRef,
+    triggerRef: triggerRef,
+  });
+
+  useLayoutEffect(() => {
     if (!open) return;
-
-    const onDocumentClick = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (triggerRef.current?.contains(target)) return;
-      if (panelRef.current?.contains(target)) return;
-      setOpen(false);
-    };
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-
     const onReflow = () => updatePanelPos();
-
-    document.addEventListener("mousedown", onDocumentClick);
-    document.addEventListener("keydown", onKeyDown);
     window.addEventListener("resize", onReflow);
     window.addEventListener("scroll", onReflow, true);
-
     return () => {
-      document.removeEventListener("mousedown", onDocumentClick);
-      document.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("resize", onReflow);
       window.removeEventListener("scroll", onReflow, true);
     };
@@ -132,7 +115,11 @@ export default function ChartSeriesSelector({
         aria-expanded={open}
         aria-label={triggerLabel}
         disabled={items.length === 0}
-        onClick={() => setOpen((value) => !value)}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (consumeSuppressTriggerClick()) return;
+          setOpen((value) => !value);
+        }}
       >
         <span className={labelClassName}>{triggerLabel}</span>
         {isProfile ? <PickerChevron /> : null}
@@ -149,7 +136,7 @@ export default function ChartSeriesSelector({
                 left: panelPos.left,
                 minWidth: Math.max(panelPos.width, isProfile ? panelPos.width : 220),
               }}
-              onMouseDown={(event) => event.stopPropagation()}
+
             >
               {items.map((item) => (
                 <label

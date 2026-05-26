@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useOverlayDismissOnPointer } from "@/lib/hooks/useOverlayDismissOnPointer";
 
 export type ModelOption = { id: string; label: string };
 export type ModelPickerSection = { title: string; options: ModelOption[] };
@@ -63,29 +64,21 @@ export default function ModelPicker({
     if (open) updatePos();
   }, [open]);
 
-  useEffect(() => {
+  const { consumeSuppressTriggerClick } = useOverlayDismissOnPointer({
+    open,
+    onClose: () => setOpen(false),
+    contentRef: dropdownRef,
+    triggerRef: btnRef,
+  });
+
+  useLayoutEffect(() => {
     if (!open) return;
-    function onDocClick(e: MouseEvent) {
-      const target = e.target as Node;
-      if (btnRef.current?.contains(target)) return;
-      if (dropdownRef.current?.contains(target)) return;
-      setOpen(false);
-    }
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-    function onScroll() {
-      updatePos();
-    }
-    document.addEventListener("mousedown", onDocClick);
-    document.addEventListener("keydown", onKey);
-    window.addEventListener("resize", onScroll);
-    window.addEventListener("scroll", onScroll, true);
+    const onReflow = () => updatePos();
+    window.addEventListener("resize", onReflow);
+    window.addEventListener("scroll", onReflow, true);
     return () => {
-      document.removeEventListener("mousedown", onDocClick);
-      document.removeEventListener("keydown", onKey);
-      window.removeEventListener("resize", onScroll);
-      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onReflow);
+      window.removeEventListener("scroll", onReflow, true);
     };
   }, [open]);
 
@@ -113,6 +106,7 @@ export default function ModelPicker({
         aria-expanded={open}
         onClick={(e) => {
           e.stopPropagation();
+          if (consumeSuppressTriggerClick()) return;
           if (!isDisabled) setOpen((v) => !v);
         }}
       >

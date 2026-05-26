@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useOverlayDismissOnPointer } from "@/lib/hooks/useOverlayDismissOnPointer";
 import { NoteIconAttach, NoteIconImage } from "@/components/note/NoteHeaderIcons";
 import { useApp, postById } from "@/state/AppContext";
 import { getPostMediaItems, isImageMedia, isVideoMedia, postTitle } from "@/lib/helpers";
@@ -74,34 +75,28 @@ export default function AttachMenu({
     if (open) updatePos();
   }, [open]);
 
-  useEffect(() => {
-    function onDocClick(e: MouseEvent) {
-      const target = e.target as Node;
-      if (btnRef.current?.contains(target)) return;
-      if (dropdownRef.current?.contains(target)) return;
-      setOpen(false);
-      setSubmenu(null);
-    }
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        setOpen(false);
-        setSubmenu(null);
-      }
-    }
-    function onScroll() {
-      updatePos();
-    }
-    document.addEventListener("mousedown", onDocClick);
-    document.addEventListener("keydown", onKey);
+  const closeMenu = useCallback(() => {
+    setOpen(false);
+    setSubmenu(null);
+  }, []);
+
+  const { consumeSuppressTriggerClick } = useOverlayDismissOnPointer({
+    open,
+    onClose: closeMenu,
+    contentRef: dropdownRef,
+    triggerRef: btnRef,
+  });
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    const onScroll = () => updatePos();
     window.addEventListener("resize", onScroll);
     window.addEventListener("scroll", onScroll, true);
     return () => {
-      document.removeEventListener("mousedown", onDocClick);
-      document.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", onScroll);
       window.removeEventListener("scroll", onScroll, true);
     };
-  }, []);
+  }, [open]);
 
   function pickFile() {
     fileInputRef.current?.click();
@@ -119,6 +114,7 @@ export default function AttachMenu({
 
   function onTriggerClick(e: React.MouseEvent) {
     e.stopPropagation();
+    if (consumeSuppressTriggerClick()) return;
     if (scope === "feed") {
       pickFile();
       return;
@@ -128,8 +124,7 @@ export default function AttachMenu({
   }
 
   function close() {
-    setOpen(false);
-    setSubmenu(null);
+    closeMenu();
   }
 
   const currentPost = scope === "post" ? postById(state, state.currentPostId) : null;

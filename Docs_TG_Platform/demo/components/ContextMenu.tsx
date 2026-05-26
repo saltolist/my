@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useOverlayDismissOnPointer } from "@/lib/hooks/useOverlayDismissOnPointer";
 
 export type CtxMenuItem = {
   label: string;
@@ -65,16 +66,12 @@ export function ContextMenu({
     setPortalPos({ top: r.bottom + DROPDOWN_OFFSET, left });
   }, [open, portal, align]);
 
-  useEffect(() => {
-    function onDocClick(e: MouseEvent) {
-      const t = e.target as Node;
-      if (wrapRef.current?.contains(t)) return;
-      if (dropdownRef.current?.contains(t)) return;
-      setOpen(false);
-    }
-    document.addEventListener("click", onDocClick);
-    return () => document.removeEventListener("click", onDocClick);
-  }, []);
+  const { consumeSuppressTriggerClick } = useOverlayDismissOnPointer({
+    open,
+    onClose: () => setOpen(false),
+    contentRef: dropdownRef,
+    triggerRef: btnRef,
+  });
 
   const dropdownBody = (
     <>
@@ -106,6 +103,7 @@ export function ContextMenu({
         aria-label={triggerAriaLabel}
         onClick={(e) => {
           e.stopPropagation();
+          if (consumeSuppressTriggerClick()) return;
           setOpen((v) => !v);
         }}
       >

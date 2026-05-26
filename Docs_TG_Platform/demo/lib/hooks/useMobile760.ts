@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 const MQ = "(max-width: 760px)";
 
 export function useMobile760(): boolean {
+  /** Всегда false до mount — совпадает с SSR и убирает hydration mismatch. */
   const [mobile, setMobile] = useState(false);
 
   useEffect(() => {

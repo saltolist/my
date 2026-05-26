@@ -1,6 +1,8 @@
 "use client";
 
 import {
+  useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -9,6 +11,7 @@ import {
   type MouseEvent,
 } from "react";
 import { createPortal } from "react-dom";
+import { useMobile760 } from "@/lib/hooks/useMobile760";
 import {
   TREND_CHART_HEIGHT_PX,
   TREND_CHART_WIDTH,
@@ -218,6 +221,7 @@ export default function MultiSeriesTrendChart({
   getDotPercentGrowthLine,
   getDotExtraLines,
 }: MultiSeriesTrendChartProps) {
+  const isMobile = useMobile760();
   const [hoveredClusterId, setHoveredClusterId] = useState<string | null>(null);
   const [hoveredDotKey, setHoveredDotKey] = useState<string | null>(null);
   const [clusterStripAnchor, setClusterStripAnchor] = useState<{
@@ -329,6 +333,49 @@ export default function MultiSeriesTrendChart({
 
   dotClustersRef.current = dotClusters;
 
+  const clearTrendHover = useCallback(() => {
+    setHoveredClusterId(null);
+    setHoveredDotKey(null);
+    setClusterAnchor(null);
+    setClusterStripAnchor(null);
+    const wrap = chartWrapRef.current;
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && wrap?.contains(active)) {
+      active.blur();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile || !hoveredClusterId) return;
+
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+      const wrap = chartWrapRef.current;
+      const dotEl =
+        target instanceof Element ? target.closest<HTMLButtonElement>(".trend-html-dot") : null;
+
+      if (dotEl && wrap?.contains(dotEl)) {
+        const dotKey = dotEl.getAttribute("data-trend-dot-key");
+        const cluster = dotClustersRef.current.find((item) =>
+          item.dots.some((dot) => trendDotKey(dot) === dotKey),
+        );
+        if (cluster?.id === hoveredClusterId) {
+          clearTrendHover();
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        return;
+      }
+
+      if (clusterStripRef.current?.contains(target)) return;
+
+      clearTrendHover();
+    };
+
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, [isMobile, hoveredClusterId, clearTrendHover]);
+
   const hoveredCluster = useMemo(
     () => dotClusters.find((cluster) => cluster.id === hoveredClusterId) ?? null,
     [dotClusters, hoveredClusterId],
@@ -425,17 +472,13 @@ export default function MultiSeriesTrendChart({
         ref={chartWrapRef}
         className="trend-chart-wrap"
         onMouseLeave={() => {
-          setHoveredClusterId(null);
-          setHoveredDotKey(null);
-          setClusterAnchor(null);
-          setClusterStripAnchor(null);
+          if (isMobile) return;
+          clearTrendHover();
         }}
         onBlur={(event) => {
+          if (isMobile) return;
           if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-            setHoveredClusterId(null);
-            setHoveredDotKey(null);
-            setClusterAnchor(null);
-            setClusterStripAnchor(null);
+            clearTrendHover();
           }
         }}
       >
