@@ -1565,6 +1565,20 @@ button.nav-item {
 .page-header-actions--mobile {
   display: none;
 }
+/* Лупа и «•••» в одной группе — расстояние только внутри cluster, не через page-header-right */
+.page-header-mobile-cluster {
+  display: none;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 12px;
+}
+.page-header-mobile-cluster .page-header-actions--mobile {
+  display: flex;
+  align-items: center;
+}
+.page-header-mobile-cluster .page-header-overflow .ctx-btn {
+  padding-left: 0;
+}
 .page-header-toolbar-slot {
   display: flex;
   flex-shrink: 0;
@@ -7406,6 +7420,14 @@ button.filter-tab {
     box-shadow: none !important;
   }
 
+  /* «•••» в шапке: на телефоне без разрежения и крупнее (как на десктопе визуально) */
+  .page-header-overflow .ctx-btn {
+    font-size: 18px;
+    letter-spacing: 0;
+    line-height: 1;
+    padding: 4px 6px;
+  }
+
   :root {
     --nav-w: 0px;
     --content-w: 100%;
@@ -7602,6 +7624,12 @@ button.filter-tab {
     max-width: none;
   }
 
+  .page-header-center > .page-header-toolbar-slot.page-header-toolbar--mobile {
+    flex: 0 1 auto;
+    max-width: 100%;
+    margin-left: auto;
+  }
+
   .page-header-right {
     flex: 0 0 auto;
     margin-left: auto;
@@ -7629,8 +7657,13 @@ button.filter-tab {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 0;
     margin-left: auto;
+  }
+
+  .page-header-mobile-cluster {
+    display: inline-flex;
+    margin-right: 6px;
   }
 
   .post-header-search-toggle,
@@ -7639,8 +7672,8 @@ button.filter-tab {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    width: 40px;
-    height: 40px;
+    width: 55px;
+    height: 55px;
     margin: 0;
     padding: 0;
     border: none;
@@ -7650,6 +7683,17 @@ button.filter-tab {
     cursor: pointer;
     transition: color 0.12s;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  .page-header-mobile-cluster .page-header-search-toggle,
+  .page-header-mobile-cluster .post-header-search-toggle {
+    justify-content: flex-end;
+    padding-right: 0;
+  }
+
+  .page-header-mobile-cluster .page-header-overflow .ctx-btn {
+    padding-left: 0;
+    padding-right: 6px;
   }
 
   .post-header-search-toggle.is-active {
@@ -7694,6 +7738,11 @@ button.filter-tab {
   .page-header-right {
     flex-shrink: 0;
     margin-left: auto;
+    gap: 0;
+  }
+
+  .page-header-mobile-cluster {
+    display: inline-flex;
   }
 
   /* На тач-устройствах убираем “анимацию нажатия” у кнопок поиска */
@@ -7729,6 +7778,10 @@ button.filter-tab {
 
   .page-header-actions--desktop {
     display: none;
+  }
+
+  .post-hdr .page-header-actions--desktop {
+    display: none !important;
   }
 
   .page-header-actions--mobile {

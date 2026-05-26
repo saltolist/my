@@ -315,61 +315,70 @@ export default function PostScreen() {
           <div
             className={`page-header-right${showJump ? " post-hdr-has-reveal" : ""}`}
           >
-            <div className="page-header-actions--desktop">
-              <button
-                className={`jump-post-btn${showJump ? " visible" : ""}`}
-                onClick={() => chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
-                type="button"
-              >
-                ↑ К посту
-              </button>
-              <div className="post-mode-cluster">
+            {!isMobile ? (
+              <div className="page-header-actions--desktop">
                 <button
-                  className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "notes" ? " active" : ""}`}
-                  onClick={goToPostNotes}
+                  className={`jump-post-btn${showJump ? " visible" : ""}`}
+                  onClick={() => chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
                   type="button"
                 >
-                  Заметки
+                  ↑ К посту
                 </button>
-              </div>
-              <div className="post-mode-cluster">
+                <div className="post-mode-cluster">
+                  <button
+                    className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "notes" ? " active" : ""}`}
+                    onClick={goToPostNotes}
+                    type="button"
+                  >
+                    Заметки
+                  </button>
+                </div>
+                <div className="post-mode-cluster">
+                  <button
+                    className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "chats" ? " active" : ""}`}
+                    onClick={goToPostChats}
+                    type="button"
+                  >
+                    Чаты
+                  </button>
+                </div>
                 <button
-                  className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "chats" ? " active" : ""}`}
-                  onClick={goToPostChats}
+                  className="btn btn-ghost btn-sm post-back-btn"
+                  onClick={handleBack}
                   type="button"
                 >
-                  Чаты
+                  ← Назад
                 </button>
+                <ContextMenu
+                  items={ctxItems}
+                  portal
+                  align="right"
+                  dropdownClassName="ctx-dropdown--page-header-control"
+                />
               </div>
-              <button
-                className="btn btn-ghost btn-sm post-back-btn"
-                onClick={handleBack}
-                type="button"
-              >
-                ← Назад
-              </button>
-              <ContextMenu
-                items={ctxItems}
-                portal
-                align="right"
-                dropdownClassName="ctx-dropdown--page-header-control"
-              />
-            </div>
-            {showListHeaderSearch && isMobile && !mobileSearchOpen ? (
-              <button
-                type="button"
-                className={`post-header-search-toggle${mobileSearchOpen ? " is-active" : ""}`}
-                aria-label={listSearchPlaceholder}
-                aria-expanded={mobileSearchOpen}
-                onClick={() => setMobileSearchOpen((open) => !open)}
-              >
-                <PageHeaderSearchMagnifier size={18} />
-              </button>
             ) : null}
-            <PageHeaderOverflow
-              className="page-header-actions--mobile"
-              items={postHeaderOverflowItems}
-            />
+            {isMobile &&
+            ((showListHeaderSearch && !mobileSearchOpen) || postHeaderOverflowItems.length > 0) ? (
+              <div className="page-header-mobile-cluster">
+                {showListHeaderSearch && !mobileSearchOpen ? (
+                  <button
+                    type="button"
+                    className={`post-header-search-toggle${mobileSearchOpen ? " is-active" : ""}`}
+                    aria-label={listSearchPlaceholder}
+                    aria-expanded={mobileSearchOpen}
+                    onClick={() => setMobileSearchOpen((open) => !open)}
+                  >
+                    <PageHeaderSearchMagnifier size={18} />
+                  </button>
+                ) : null}
+                {postHeaderOverflowItems.length > 0 ? (
+                  <PageHeaderOverflow
+                    className="page-header-actions--mobile"
+                    items={postHeaderOverflowItems}
+                  />
+                ) : null}
+              </div>
+            ) : null}
             {ctxModal}
           </div>
         </div>

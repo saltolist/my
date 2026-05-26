@@ -105,37 +105,45 @@ export default function PageHeader({
         ) : null}
       </div>
       <div className="page-header-right">
-        {showMobileSearchToggle && !mobileSearchOpen ? (
-          <button
-            type="button"
-            className="page-header-search-toggle"
-            aria-label="Поиск"
-            aria-expanded={mobileSearchOpen}
-            onClick={() => setMobileSearchOpen(true)}
-          >
-            <PageHeaderSearchMagnifier size={18} />
-          </button>
+        {!isMobile ? (
+          <div className="page-header-actions--desktop">
+            {handleBack ? (
+              <button
+                className="btn btn-ghost btn-sm page-header-back-btn"
+                onClick={handleBack}
+                type="button"
+              >
+                {backLabel}
+              </button>
+            ) : null}
+            {actions}
+          </div>
         ) : null}
-        {mobileSelect ? (
-          <div className="page-header-toolbar-slot page-header-toolbar--mobile">{mobileSelect}</div>
-        ) : null}
-        <div className="page-header-actions--desktop">
-          {handleBack ? (
-            <button
-              className="btn btn-ghost btn-sm page-header-back-btn"
-              onClick={handleBack}
-              type="button"
-            >
-              {backLabel}
-            </button>
-          ) : null}
-          {actions}
-        </div>
-        {overflowItems && overflowItems.length > 0 ? (
-          <PageHeaderOverflow
-            className="page-header-actions--mobile"
-            items={overflowItems}
-          />
+        {isMobile &&
+        ((showMobileSearchToggle && !mobileSearchOpen) ||
+          (overflowItems && overflowItems.length > 0)) ? (
+          <div className="page-header-mobile-cluster">
+            {showMobileSearchToggle && !mobileSearchOpen ? (
+              <button
+                type="button"
+                className="page-header-search-toggle"
+                aria-label="Поиск"
+                aria-expanded={mobileSearchOpen}
+                onClick={() => setMobileSearchOpen(true)}
+              >
+                <PageHeaderSearchMagnifier size={18} />
+              </button>
+            ) : null}
+            {mobileSelect && !mobileSearchOpen ? (
+              <div className="page-header-toolbar-slot page-header-toolbar--mobile">{mobileSelect}</div>
+            ) : null}
+            {overflowItems && overflowItems.length > 0 ? (
+              <PageHeaderOverflow
+                className="page-header-actions--mobile"
+                items={overflowItems}
+              />
+            ) : null}
+          </div>
         ) : null}
       </div>
     </div>
