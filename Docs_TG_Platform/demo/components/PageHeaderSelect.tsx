@@ -45,11 +45,17 @@ export default function PageHeaderSelect({
     [options, value],
   );
 
-  /** Ширина по самой длинной подписи — панель и кнопка не меняют размер при открытии */
+  /** Ширина под выбранный пункт — без лишней “пустоты” */
   const wrapWidth = useMemo(() => {
+    const ch = Math.max(currentLabel.length, 3);
+    return `calc(${ch}ch + 3.1rem)`;
+  }, [currentLabel]);
+
+  /** Меню — по самой широкой подписи, без переносов */
+  const panelMinWidth = useMemo(() => {
     const longest = options.reduce((max, o) => Math.max(max, o.label.length), 0);
-    const ch = Math.max(longest, 3);
-    return `calc(${ch}ch + 4rem)`;
+    // Оценка ширины: ~8px на символ + отступы/иконка/паддинги
+    return Math.min(420, Math.max(160, longest * 8 + 64));
   }, [options]);
 
   const selectClass = className
@@ -58,17 +64,32 @@ export default function PageHeaderSelect({
 
   if (isMobile) {
     return (
-      <div className="page-header-select-wrap" style={{ width: wrapWidth }}>
+      <div className="page-header-select-wrap page-header-select-wrap--mobile" style={{ width: wrapWidth }}>
         <ContextMenu
           className="page-header-select-ctx"
           triggerVariant="custom"
           triggerClassName={selectClass}
-          trigger={<span className="page-header-select-trigger-text">{currentLabel}</span>}
+          trigger={
+            <span className="page-header-select-trigger">
+              <span className="page-header-select-trigger-text">{currentLabel}</span>
+              <svg
+                className="page-header-select-chevron page-header-select-chevron--inline"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.4}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </span>
+          }
           triggerAriaLabel={ariaLabel}
           portal
           align="right"
-          matchTriggerWidth
-          panelMinWidth={120}
+          panelMinWidth={panelMinWidth}
           dropdownClassName="ctx-dropdown--page-header-control ctx-dropdown--page-header-select"
           items={options.map((o) => ({
             label: o.label,
@@ -76,7 +97,6 @@ export default function PageHeaderSelect({
             onClick: () => onChange(o.value),
           }))}
         />
-        <PageHeaderSelectChevron />
       </div>
     );
   }

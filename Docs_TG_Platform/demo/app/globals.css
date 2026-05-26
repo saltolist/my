@@ -1541,13 +1541,19 @@ button.nav-item {
   flex-shrink: 0;
   max-width: 100%;
 }
+.page-header-select-wrap--mobile {
+  /* На mobile шеврон — внутри кнопки, не абсолютный */
+  align-items: center;
+}
 .page-header-select {
   height: 32px;
   width: 100%;
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
-  padding: 0 26px;
+  /* На mobile: текст должен визуально центрироваться МЕЖДУ левым краем и шевроном справа */
+  padding-left: 10px;
+  padding-right: 26px;
   border-radius: 999px;
   border: 1px solid var(--page-header-control-border);
   background: var(--page-header-control-bg);
@@ -1567,7 +1573,7 @@ button.nav-item {
 }
 .page-header-select-chevron {
   position: absolute;
-  right: 10px;
+  right: 9px;
   top: 50%;
   width: 12px;
   height: 12px;
@@ -1576,6 +1582,28 @@ button.nav-item {
   display: block;
   pointer-events: none;
   color: var(--text3);
+}
+.page-header-select-wrap--mobile .page-header-select {
+  /* Поскольку шеврон внутри, правый отступ можно уменьшить */
+  padding-right: 10px;
+}
+.page-header-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+.page-header-select-wrap--mobile .page-header-select-chevron--inline {
+  position: static;
+  margin: 0;
+  width: 12px;
+  height: 12px;
+  color: var(--text3);
+}
+.page-header-select-wrap--mobile .page-header-select-chevron:not(.page-header-select-chevron--inline) {
+  /* На mobile внешний абсолютный шеврон не используется */
+  display: none;
 }
 .page-header-select-wrap:hover .page-header-select-chevron,
 .page-header-select-wrap:focus-within .page-header-select-chevron {
@@ -1603,6 +1631,8 @@ button.nav-item {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  /* Занимает всю ширину кнопки, центрируется в зоне между паддингами */
+  width: 100%;
 }
 .ctx-dropdown.ctx-dropdown--page-header-select {
   padding: 5px;
@@ -1610,9 +1640,10 @@ button.nav-item {
   border-radius: var(--page-header-dropdown-r);
 }
 .ctx-dropdown--page-header-select .ctx-item {
-  justify-content: center;
-  text-align: center;
+  justify-content: flex-start;
+  text-align: left;
   border-radius: var(--page-header-dropdown-item-r);
+  white-space: nowrap;
 }
 .breadcrumb { font-weight: 400; color: var(--text2); display: flex; align-items: center; gap: 4px; }
 .breadcrumb .bc-link {
