@@ -7824,10 +7824,8 @@ button.filter-tab {
     flex: 1 1 auto;
   }
 
-  /* Лента, телефон: поле на 150px уже пролёта «меню ↔ правый край» и по центру в нём */
+  /* Лента, телефон: поле той же ширины и по центру экрана, как карточки постов */
   #screen-feed .page-header.page-header--search-open {
-    --page-header-mobile-visual-inset: 16px;
-    --page-header-mobile-search-shrink: 150px;
     position: relative;
   }
 
@@ -7840,20 +7838,21 @@ button.filter-tab {
     position: absolute;
     top: 0;
     bottom: 0;
-    left: calc(var(--page-header-mobile-visual-inset) - 10px);
-    right: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(calc(var(--feed-post-w, 270px) + 20px), calc(100vw - 24px));
     flex: none;
-    width: auto;
     display: flex;
     align-items: center;
     justify-content: center;
     min-width: 0;
     padding: 0;
     pointer-events: none;
+    z-index: 0;
   }
 
   #screen-feed .page-header.page-header--search-open .page-header-search-field {
-    width: calc(100% - var(--page-header-mobile-search-shrink));
+    width: 100%;
     max-width: none;
     flex: 0 0 auto;
     pointer-events: auto;
