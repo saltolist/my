@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useApp } from "@/state/AppContext";
 import { postTitle } from "@/lib/helpers";
+import { useMobile760 } from "@/lib/hooks/useMobile760";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import PageHeaderSelect from "../PageHeaderSelect";
@@ -18,6 +19,7 @@ type AnyNote =
 
 export default function NotesScreen() {
   const { state, dispatch, openPost, goToHref } = useApp();
+  const isMobile = useMobile760();
   const [search, setSearch] = useState("");
   const scope = state.noteScope;
   const filter = state.noteFilter;
@@ -62,35 +64,39 @@ export default function NotesScreen() {
     goToHref(routes.noteNew("notes"));
   };
 
+  const notesScopeSelectProps = {
+    ariaLabel: "Область заметок",
+    value: scope,
+    options: [
+      { value: "all", label: "Все" },
+      { value: "global", label: "Глобальные" },
+      { value: "local", label: "Локальные" },
+    ],
+    onChange: (v: string) =>
+      dispatch({
+        type: "SET_STATE",
+        patch: { noteScope: v as typeof scope },
+      }),
+  };
+
   return (
     <>
       <PageHeader
         title="Заметки"
         backTo="home"
-        mobileSelect={
-          <PageHeaderSelect
-            ariaLabel="Область заметок"
-            value={scope}
-            options={[
-              { value: "all", label: "Все" },
-              { value: "global", label: "Глобальные" },
-              { value: "local", label: "Локальные" },
-            ]}
-            onChange={(v) =>
-              dispatch({
-                type: "SET_STATE",
-                patch: { noteScope: v as typeof scope },
-              })
-            }
-          />
-        }
+        mobileSelect={isMobile ? <PageHeaderSelect {...notesScopeSelectProps} /> : undefined}
         search={
-          <PageHeaderSearchInput
-            placeholder="Поиск по заметкам..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onDismiss={() => setSearch("")}
-          />
+          <div className="page-header-search-tools-row">
+            <PageHeaderSearchInput
+              placeholder="Поиск по заметкам..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onDismiss={() => setSearch("")}
+            />
+            <div className="page-header-scope-select page-header-toolbar--desktop">
+              <PageHeaderSelect {...notesScopeSelectProps} />
+            </div>
+          </div>
         }
       />
       <div className="notes-page">

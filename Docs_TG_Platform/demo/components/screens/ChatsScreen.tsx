@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useApp } from "@/state/AppContext";
 import { postTitle, chatListUserLine, chatListAssistantLine } from "@/lib/helpers";
+import { useMobile760 } from "@/lib/hooks/useMobile760";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import PageHeaderSelect from "../PageHeaderSelect";
@@ -25,6 +26,7 @@ type LocalChatRow = {
 export default function ChatsScreen() {
   const { state, dispatch, openGChat, goToHref } = useApp();
   const tab = state.chatsTab;
+  const isMobile = useMobile760();
   const [search, setSearch] = useState("");
 
   const setTab = (t: ChatsTab) => dispatch({ type: "SET_STATE", patch: { chatsTab: t } });
@@ -113,30 +115,35 @@ export default function ChatsScreen() {
     );
   });
 
+  const chatsScopeSelectProps = {
+    ariaLabel: "Область чатов",
+    value: tab,
+    options: [
+      { value: "all", label: "Все" },
+      { value: "global", label: "Глобальные" },
+      { value: "local", label: "Локальные" },
+    ],
+    onChange: (v: string) => setTab(v as typeof tab),
+  };
+
   return (
     <>
       <PageHeader
         title="Чаты"
         backTo="home"
-        mobileSelect={
-          <PageHeaderSelect
-            ariaLabel="Область чатов"
-            value={tab}
-            options={[
-              { value: "all", label: "Все" },
-              { value: "global", label: "Глобальные" },
-              { value: "local", label: "Локальные" },
-            ]}
-            onChange={(v) => setTab(v as typeof tab)}
-          />
-        }
+        mobileSelect={isMobile ? <PageHeaderSelect {...chatsScopeSelectProps} /> : undefined}
         search={
-          <PageHeaderSearchInput
-            placeholder="Поиск по чатам..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onDismiss={() => setSearch("")}
-          />
+          <div className="page-header-search-tools-row">
+            <PageHeaderSearchInput
+              placeholder="Поиск по чатам..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onDismiss={() => setSearch("")}
+            />
+            <div className="page-header-scope-select page-header-toolbar--desktop">
+              <PageHeaderSelect {...chatsScopeSelectProps} />
+            </div>
+          </div>
         }
       />
       <div className="chats-scroll">
