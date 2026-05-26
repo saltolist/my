@@ -95,6 +95,7 @@
   --scroll-thumb-hover: rgba(255,255,255,0.32);
   --input-wrap-grad:  linear-gradient(to top, rgba(15,15,15,.95) 56%, rgba(15,15,15,0) 100%);
   --dropdown-shadow:  0 10px 30px rgba(0,0,0,.45);
+  --trend-tooltip-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.38);
   --ctx-dropdown-offset: 12px;
 
   /* Liquid-glass header material */
@@ -261,6 +262,7 @@ html.sidebar-collapsed {
   --scroll-thumb-hover: rgba(0,0,0,0.34);
   --input-wrap-grad:  linear-gradient(to top, rgba(245,245,247,.96) 56%, rgba(245,245,247,0) 100%);
   --dropdown-shadow:  0 10px 30px rgba(0,0,0,.14);
+  --trend-tooltip-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.14);
 
   --glass-bg:     rgba(248, 249, 251, 0.62);
   --glass-border: rgba(0, 0, 0, 0.06);
@@ -5455,15 +5457,15 @@ button.filter-tab {
   transform-origin: bottom center;
   opacity: 0;
   pointer-events: none;
-  border: 1px solid var(--profile-control-border);
-  border-radius: var(--rs);
-  background: var(--profile-select-bg-active);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r);
+  background: var(--glass-bg);
   color: var(--text2);
   text-align: left;
   padding: 9px 10px;
-  box-shadow: var(--dropdown-shadow);
-  -webkit-backdrop-filter: var(--profile-control-blur);
-  backdrop-filter: var(--profile-control-blur);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+  box-shadow: var(--trend-tooltip-shadow);
   transition: opacity .16s ease, transform .16s ease;
 }
 .trend-tooltip b,
@@ -5575,9 +5577,12 @@ button.filter-tab {
 }
 .trend-tooltip-strip--fixed .trend-tooltip-strip-track {
   padding: 0;
+  position: relative;
+  isolation: isolate;
 }
 .trend-tooltip-card {
   position: relative;
+  z-index: 1;
   left: auto;
   bottom: auto;
   opacity: 1;
@@ -5585,6 +5590,26 @@ button.filter-tab {
   min-width: 0;
   max-width: 220px;
   text-align: left;
+  padding: 9px 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+  box-shadow: var(--trend-tooltip-shadow);
+}
+/* Левые карточки выше по z-index — тень соседа справа не ложится поверх */
+.trend-tooltip-strip--fixed .trend-tooltip-card:nth-child(1) { z-index: 8; }
+.trend-tooltip-strip--fixed .trend-tooltip-card:nth-child(2) { z-index: 7; }
+.trend-tooltip-strip--fixed .trend-tooltip-card:nth-child(3) { z-index: 6; }
+.trend-tooltip-strip--fixed .trend-tooltip-card:nth-child(4) { z-index: 5; }
+.trend-tooltip-strip--fixed .trend-tooltip-card:nth-child(5) { z-index: 4; }
+.trend-tooltip-strip--fixed .trend-tooltip-card:nth-child(6) { z-index: 3; }
+.trend-tooltip-strip--fixed .trend-tooltip-card:nth-child(7) { z-index: 2; }
+.trend-tooltip-strip--fixed .trend-tooltip-card:nth-child(8) { z-index: 1; }
+.trend-tooltip-strip--fixed .trend-tooltip.trend-tooltip-card {
+  opacity: 1;
+  transform: none;
 }
 .trend-labels {
   position: relative;
