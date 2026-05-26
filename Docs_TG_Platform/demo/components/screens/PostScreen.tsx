@@ -210,7 +210,8 @@ export default function PostScreen() {
     ? POST_BREADCRUMB_LABEL
     : truncate(postTitle(post), 32);
 
-  const postHeader = (
+  return (
+    <>
       <div
         className={`post-hdr${
           showListHeaderSearch
@@ -371,16 +372,10 @@ export default function PostScreen() {
           </div>
         </div>
       </div>
-  );
 
-  return (
-    <>
       {state.postMode === "chat" ? (
         <>
-          <div className="post-screen-host screen-header-host">
-            {postHeader}
-            <div className="post-body" ref={chatScrollRef}>
-            <div className="post-body-pane">
+          <div className="post-body" ref={chatScrollRef}>
             <div className="post-body-inner">
               <PostMessageCard
                 ref={postCardRef}
@@ -421,22 +416,17 @@ export default function PostScreen() {
                 />
               ))}
             </div>
-            </div>
-            </div>
           </div>
           <Composer scope="post" onSubmit={sendPost} />
         </>
       ) : state.postMode === "chats" ? (
-        <div className="post-subpage-scroll screen-header-host">
-          {postHeader}
-          <div className="post-subpage-scroll-pane">
+        <div className="post-subpage-scroll">
           <div className="post-subpage-toolbar">
             <button className="post-new-chat-btn" onClick={startNewChat} type="button">
               + Новый чат
             </button>
           </div>
           <PostChats search={listSearch} onOpenChat={openLocalChat} />
-          </div>
         </div>
       ) : state.postMode === "comments" ? (
         <PostCommentsPanel
@@ -447,19 +437,15 @@ export default function PostScreen() {
           metrics={post.status === "published" && post.metrics ? post.metrics : null}
           media={mediaItems}
           phoneFormat={isMobile}
-          header={postHeader}
         />
       ) : (
-        <div className="post-subpage-scroll screen-header-host">
-          {postHeader}
-          <div className="post-subpage-scroll-pane">
+        <div className="post-subpage-scroll">
           <div className="post-subpage-toolbar">
             <button className="post-new-note-btn" onClick={startNewNote} type="button">
               + Новая заметка
             </button>
           </div>
           <PostNotes search={listSearch} />
-          </div>
         </div>
       )}
     </>

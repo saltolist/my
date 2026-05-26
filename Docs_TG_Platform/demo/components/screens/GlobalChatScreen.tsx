@@ -34,50 +34,31 @@ export default function GlobalChatScreen() {
   }, [flatMessages.length]);
 
   return (
-    <div className="gchat-layout screen-header-host">
-          <div className="page-header">
-            <div className="page-header-left">
-              <PageHeaderMenuButton />
-              <div className="breadcrumb">
-                <span className="bc-link" onClick={() => navigateBack("chats")}>
-                  Чаты
-                </span>
-                <span className="bc-sep">/</span>
-                <span className="crumb-current">{chat?.title || "—"}</span>
-              </div>
-            </div>
-            <div className="page-header-center" aria-hidden="true" />
-            <div className="page-header-right">
-              <div className="page-header-actions--desktop">
-                <button className="btn btn-ghost btn-sm" onClick={() => navigateBack("chats")} type="button">
-                  ← Назад
-                </button>
-                {omnichannel ? null : (
-                  <ContextMenu
-                    items={[
-                      {
-                        label: "Удалить чат",
-                        icon: <MenuIconTrash />,
-                        danger: true,
-                        onClick: () => {
-                          if (!chat) return;
-                          if (!confirm(`Удалить чат «${chat.title}»?`)) return;
-                          dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: chat.id });
-                          goToHref(routes.chats(), { replace: true });
-                        },
-                      },
-                    ]}
-                  />
-                )}
-              </div>
-              <PageHeaderOverflow
-                className="page-header-actions--mobile"
+    <>
+      <div className="page-header">
+        <div className="page-header-left">
+          <PageHeaderMenuButton />
+          <div className="breadcrumb">
+            <span className="bc-link" onClick={() => navigateBack("chats")}>
+              Чаты
+            </span>
+            <span className="bc-sep">/</span>
+            <span className="crumb-current">{chat?.title || "—"}</span>
+          </div>
+        </div>
+        <div className="page-header-center" aria-hidden="true" />
+        <div className="page-header-right">
+          <div className="page-header-actions--desktop">
+            <button className="btn btn-ghost btn-sm" onClick={() => navigateBack("chats")} type="button">
+              ← Назад
+            </button>
+            {omnichannel ? null : (
+              <ContextMenu
                 items={[
                   {
                     label: "Удалить чат",
                     icon: <MenuIconTrash />,
                     danger: true,
-                    hidden: omnichannel || !chat,
                     onClick: () => {
                       if (!chat) return;
                       if (!confirm(`Удалить чат «${chat.title}»?`)) return;
@@ -87,10 +68,29 @@ export default function GlobalChatScreen() {
                   },
                 ]}
               />
-            </div>
+            )}
           </div>
+          <PageHeaderOverflow
+            className="page-header-actions--mobile"
+            items={[
+              {
+                label: "Удалить чат",
+                icon: <MenuIconTrash />,
+                danger: true,
+                hidden: omnichannel || !chat,
+                onClick: () => {
+                  if (!chat) return;
+                  if (!confirm(`Удалить чат «${chat.title}»?`)) return;
+                  dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: chat.id });
+                  goToHref(routes.chats(), { replace: true });
+                },
+              },
+            ]}
+          />
+        </div>
+      </div>
+      <div className="gchat-layout">
         <div className="gchat-messages" ref={messagesRef}>
-          <div className="gchat-messages-pane">
           {chat
             ? flatMessages.map(({ message: m, path }, i) => (
                 <ChatMessage
@@ -101,9 +101,9 @@ export default function GlobalChatScreen() {
                 />
               ))
             : null}
-          </div>
         </div>
-      <Composer scope="gchat" onSubmit={sendGChat} />
-    </div>
+        <Composer scope="gchat" onSubmit={sendGChat} />
+      </div>
+    </>
   );
 }

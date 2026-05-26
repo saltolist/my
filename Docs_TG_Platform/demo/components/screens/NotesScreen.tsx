@@ -63,7 +63,7 @@ export default function NotesScreen() {
   };
 
   return (
-    <div className="notes-screen-host screen-header-host">
+    <>
       <PageHeader
         title="Заметки"
         backTo="home"
@@ -126,7 +126,6 @@ export default function NotesScreen() {
         }
       />
       <div className="notes-page">
-        <div className="notes-page-content">
         <div className="notes-filter-row">
           {(["all", "ai", "noai"] as const).map((k) => (
             <div
@@ -209,8 +208,7 @@ export default function NotesScreen() {
             )}
           </div>
         </div>
-        </div>
       </div>
-    </div>
+    </>
   );
 }

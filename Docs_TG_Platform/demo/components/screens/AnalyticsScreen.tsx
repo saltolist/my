@@ -102,7 +102,7 @@ export default function AnalyticsScreen() {
   );
 
   return (
-    <div className="analytics-page screen-header-host">
+    <>
       <PageHeader
         title="Аналитика канала"
         backTo="home"
@@ -116,7 +116,7 @@ export default function AnalyticsScreen() {
         }
         center={periodToolbar}
       />
-      <div className="analytics-page-scroll">
+      <div className="analytics-page" id="screen-analytics">
         <div className="analytics-scroll-inner">
           <ChannelAnalyticsSection periodIndex={period} />
 
@@ -176,7 +176,7 @@ export default function AnalyticsScreen() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -64,7 +64,7 @@ export default function ProfileScreen() {
   );
 
   return (
-    <div className="profile-page screen-header-host">
+    <>
       <PageHeader
         title="Профиль канала"
         backTo="home"
@@ -78,7 +78,7 @@ export default function ProfileScreen() {
         }
         center={profileTabToolbar}
       />
-      <div className="profile-page-scroll">
+      <div className="profile-page" id="screen-profile">
         <div className="profile-scroll-inner">
           <ChannelTab active={channelTabActive} />
 
@@ -94,6 +94,6 @@ export default function ProfileScreen() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
