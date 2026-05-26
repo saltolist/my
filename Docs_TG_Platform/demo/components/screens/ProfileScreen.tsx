@@ -42,27 +42,6 @@ export default function ProfileScreen() {
     setTab(next);
   };
 
-  const profileTabToolbar = (
-    <div
-      className="page-header-profile-tabs page-header-toolbar--desktop"
-      role="tablist"
-      aria-label="Раздел профиля"
-    >
-      {PROFILE_TABS.map((label, i) => (
-        <button
-          key={label}
-          type="button"
-          role="tab"
-          aria-selected={i === tab}
-          className={`period-tab${i === tab ? " active" : ""}`}
-          onClick={() => switchTab(i)}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
-  );
-
   return (
     <>
       <PageHeader
@@ -76,7 +55,6 @@ export default function ProfileScreen() {
             onChange={(v) => switchTab(Number(v))}
           />
         }
-        center={profileTabToolbar}
       />
       <div className="profile-page" id="screen-profile">
         <div className="profile-scroll-inner">

@@ -1306,23 +1306,19 @@ button.nav-item {
   max-width: 100%;
   z-index: 1;
 }
-/* Лента: лимит ширины центра шапки; сам блок по ширине содержимого (поиск + gap + тумблеры) */
-#screen-feed {
-  --feed-header-search-toggles: 280px;
-}
+/* Лента: лимит ширины центра шапки — только поле поиска */
 #screen-feed .page-header-center {
   width: fit-content;
   max-width: min(
-    calc(var(--page-header-search-w) + 10px + var(--feed-header-search-toggles)),
+    var(--page-header-search-w),
     calc(100vw - var(--nav-w) - 48px)
   );
 }
 #screen-chats .page-header-center,
 #screen-notes .page-header-center {
-  --header-scope-tabs-w: 312px;
   width: fit-content;
   max-width: min(
-    calc(var(--page-header-search-w) + 10px + var(--header-scope-tabs-w)),
+    var(--page-header-search-w),
     calc(100vw - var(--nav-w) - 48px)
   );
 }
@@ -1497,6 +1493,8 @@ button.nav-item {
 
 /* Кнопки в шапках (в т.ч. «← Назад»); переключатели ширины карточки ленты — в центре, справа от поля поиска; .ctx-btn (•••) не трогаем */
 .page-header .btn.btn-ghost.btn-sm,
+.page-header .page-header-select,
+.page-header .page-header-select-ctx .page-header-select,
 .post-hdr .btn.btn-ghost.btn-sm,
 .note-shell-header .btn.btn-ghost.btn-sm {
   height: 32px;
@@ -1561,6 +1559,11 @@ button.nav-item {
   gap: 10px;
   min-width: 0;
 }
+.page-header-toolbar--desktop-select {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
 .page-header-toolbar--mobile,
 .page-header-actions--mobile {
   display: none;
@@ -1601,6 +1604,7 @@ button.nav-item {
   position: relative;
   display: inline-flex;
   flex-shrink: 0;
+  align-items: center;
   max-width: 100%;
 }
 .page-header-select-wrap--mobile {
@@ -1613,40 +1617,34 @@ button.nav-item {
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
-  /* На mobile: текст должен визуально центрироваться МЕЖДУ левым краем и шевроном справа */
-  padding-left: 10px;
-  padding-right: 26px;
+  padding: 0 10px;
   border-radius: 999px;
   border: 1px solid var(--page-header-control-border);
   background: var(--page-header-control-bg);
-  color: var(--text);
+  color: var(--text2);
   font-family: var(--font);
   font-size: 12px;
   font-weight: 600;
-  line-height: 32px;
+  line-height: normal;
   text-align: center;
-  text-align-last: center;
   cursor: pointer;
   outline: none;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   -webkit-appearance: none;
   appearance: none;
-  transition: border-color 0.12s, background-color 0.12s, color 0.12s;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
 }
 .page-header-select-chevron {
-  position: absolute;
-  right: 9px;
-  top: 50%;
-  width: 12px;
-  height: 12px;
-  margin-top: -6px;
   flex-shrink: 0;
   display: block;
-  pointer-events: none;
-  color: var(--text3);
+  width: 14px;
+  height: 14px;
+  color: currentColor;
 }
 .page-header-select-wrap--mobile .page-header-select {
-  /* Поскольку шеврон внутри, правый отступ можно уменьшить */
   padding-right: 10px;
 }
 .page-header-select-trigger {
@@ -1655,29 +1653,22 @@ button.nav-item {
   justify-content: center;
   gap: 6px;
   width: 100%;
+  min-width: 0;
 }
-.page-header-select-wrap--mobile .page-header-select-chevron--inline {
-  position: static;
-  margin: 0;
-  width: 12px;
-  height: 12px;
-  color: var(--text3);
-}
-.page-header-select-wrap--mobile .page-header-select-chevron:not(.page-header-select-chevron--inline) {
-  /* На mobile внешний абсолютный шеврон не используется */
-  display: none;
-}
-.page-header-select-wrap:hover .page-header-select-chevron,
-.page-header-select-wrap:focus-within .page-header-select-chevron {
-  color: var(--text2);
-}
-.page-header-select:hover {
-  background-color: var(--page-header-control-bg-hover);
+.page-header-select:hover,
+.page-header .page-header-select-ctx .page-header-select:hover {
+  opacity: 1;
+  background: var(--page-header-control-bg-hover);
   color: var(--text);
+  border-color: var(--control-border-active);
 }
 .page-header-select:focus {
   border-color: var(--control-border-active);
-  background-color: var(--page-header-control-bg-focus);
+  background: var(--page-header-control-bg-focus);
+}
+.page-header-select-ctx .page-header-select[aria-expanded="true"] {
+  color: var(--text);
+  border-color: var(--control-border-active);
 }
 .page-header-select-ctx {
   display: block;
@@ -1686,15 +1677,14 @@ button.nav-item {
 }
 .page-header-select-ctx .page-header-select {
   width: 100%;
-  display: block;
 }
 .page-header-select-trigger-text {
-  display: block;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  /* Занимает всю ширину кнопки, центрируется в зоне между паддингами */
-  width: 100%;
+  font: inherit;
+  color: inherit;
 }
 .ctx-dropdown.ctx-dropdown--page-header-select {
   padding: 5px;
@@ -7411,10 +7401,6 @@ button.filter-tab {
     background: var(--page-header-control-bg);
     border-color: var(--control-border-active);
     color: var(--text);
-  }
-
-  .page-header-select-wrap--mobile .page-header-select-chevron--inline {
-    color: var(--text2);
   }
 
   /* Меню селекторов в шапке и меню "•••" в шапках — без эффекта стекла на mobile */

@@ -27,7 +27,7 @@ type Props = {
   search?: ReactNode;
   /** Центр шапки на desktop (вкладки, периоды и т.п.) — без мобильного поиска. */
   center?: ReactNode;
-  /** На мобильной — селектор вкладок у правого края шапки */
+  /** Селектор вкладок: на мобильной — у правого края; на desktop — слева от «← Назад» */
   mobileSelect?: ReactNode;
   actions?: ReactNode;
   /** На мобильной — одно меню вместо ряда кнопок в `actions` */
@@ -183,6 +183,11 @@ export default function PageHeader({
       >
         {!isMobile ? (
           <div className="page-header-actions--desktop">
+            {mobileSelect ? (
+              <div className="page-header-toolbar-slot page-header-toolbar--desktop-select">
+                {mobileSelect}
+              </div>
+            ) : null}
             {handleBack ? (
               <button
                 className="btn btn-ghost btn-sm page-header-back-btn"

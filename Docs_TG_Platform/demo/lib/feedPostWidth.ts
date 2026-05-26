@@ -25,3 +25,12 @@ export function feedPostWidthPhoneFormat(width: FeedPostWidth, isMobile: boolean
 export function effectiveFeedPostWidth(width: FeedPostWidth, isMobile: boolean): FeedPostWidth {
   return isMobile ? 270 : width;
 }
+
+export function feedPostWidthLabel(width: FeedPostWidth): string {
+  return width === 500 ? "Компьютер" : width === 390 ? "Планшет" : "Телефон";
+}
+
+export const FEED_POST_WIDTH_SELECT_OPTIONS = FEED_POST_WIDTHS.map((w) => ({
+  value: String(w),
+  label: feedPostWidthLabel(w),
+}));

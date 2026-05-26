@@ -85,44 +85,12 @@ export default function NotesScreen() {
           />
         }
         search={
-          <div className="page-header-search-tools-row">
-            <PageHeaderSearchInput
-              placeholder="Поиск по заметкам..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onDismiss={() => setSearch("")}
-            />
-            <div
-              className="notes-scope-tabs page-header-toolbar--desktop"
-              role="tablist"
-              aria-label="Область заметок"
-            >
-              <div
-                role="tab"
-                aria-selected={scope === "all"}
-                className={`notes-scope-tab${scope === "all" ? " active" : ""}`}
-                onClick={() => dispatch({ type: "SET_STATE", patch: { noteScope: "all" } })}
-              >
-                Все
-              </div>
-              <div
-                role="tab"
-                aria-selected={scope === "global"}
-                className={`notes-scope-tab${scope === "global" ? " active" : ""}`}
-                onClick={() => dispatch({ type: "SET_STATE", patch: { noteScope: "global" } })}
-              >
-                Глобальные
-              </div>
-              <div
-                role="tab"
-                aria-selected={scope === "local"}
-                className={`notes-scope-tab${scope === "local" ? " active" : ""}`}
-                onClick={() => dispatch({ type: "SET_STATE", patch: { noteScope: "local" } })}
-              >
-                Локальные
-              </div>
-            </div>
-          </div>
+          <PageHeaderSearchInput
+            placeholder="Поиск по заметкам..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onDismiss={() => setSearch("")}
+          />
         }
       />
       <div className="notes-page">

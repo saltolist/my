@@ -14,10 +14,10 @@ type Props = {
   className?: string;
 };
 
-function PageHeaderSelectChevron() {
+function PageHeaderSelectChevron({ inline }: { inline?: boolean }) {
   return (
     <svg
-      className="page-header-select-chevron"
+      className={`page-header-select-chevron${inline ? " page-header-select-chevron--inline" : ""}`}
       viewBox="0 0 24 24"
       aria-hidden="true"
       fill="none"
@@ -26,7 +26,8 @@ function PageHeaderSelectChevron() {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <polyline points="6 9 12 15 18 9" />
+      <polyline points="8 9 12 5 16 9" />
+      <polyline points="8 15 12 19 16 15" />
     </svg>
   );
 }
@@ -45,7 +46,7 @@ export default function PageHeaderSelect({
     [options, value],
   );
 
-  /** Ширина под выбранный пункт — без лишней “пустоты” */
+  /** Ширина под выбранный пункт — без лишней «пустоты» */
   const wrapWidth = useMemo(() => {
     const ch = Math.max(currentLabel.length, 3);
     return `calc(${ch}ch + 3.1rem)`;
@@ -54,7 +55,6 @@ export default function PageHeaderSelect({
   /** Меню — по самой широкой подписи, без переносов */
   const panelMinWidth = useMemo(() => {
     const longest = options.reduce((max, o) => Math.max(max, o.label.length), 0);
-    // Оценка ширины: ~8px на символ + отступы/иконка/паддинги
     return Math.min(420, Math.max(160, longest * 8 + 64));
   }, [options]);
 
@@ -62,60 +62,32 @@ export default function PageHeaderSelect({
     ? `page-header-select ${className}`
     : "page-header-select";
 
-  if (isMobile) {
-    return (
-      <div className="page-header-select-wrap page-header-select-wrap--mobile" style={{ width: wrapWidth }}>
-        <ContextMenu
-          className="page-header-select-ctx"
-          triggerVariant="custom"
-          triggerClassName={selectClass}
-          trigger={
-            <span className="page-header-select-trigger">
-              <span className="page-header-select-trigger-text">{currentLabel}</span>
-              <svg
-                className="page-header-select-chevron page-header-select-chevron--inline"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2.4}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </span>
-          }
-          triggerAriaLabel={ariaLabel}
-          portal
-          align="right"
-          panelMinWidth={panelMinWidth}
-          dropdownClassName="ctx-dropdown--page-header-control ctx-dropdown--page-header-select"
-          items={options.map((o) => ({
-            label: o.label,
-            active: o.value === value,
-            onClick: () => onChange(o.value),
-          }))}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="page-header-select-wrap" style={{ width: wrapWidth }}>
-      <select
-        className={selectClass}
-        value={value}
-        aria-label={ariaLabel}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      <PageHeaderSelectChevron />
+    <div
+      className={`page-header-select-wrap${isMobile ? " page-header-select-wrap--mobile" : ""}`}
+      style={{ width: wrapWidth }}
+    >
+      <ContextMenu
+        className="page-header-select-ctx"
+        triggerVariant="custom"
+        triggerClassName={selectClass}
+        trigger={
+          <span className="page-header-select-trigger">
+            <span className="page-header-select-trigger-text">{currentLabel}</span>
+            <PageHeaderSelectChevron inline />
+          </span>
+        }
+        triggerAriaLabel={ariaLabel}
+        portal
+        align="right"
+        panelMinWidth={panelMinWidth}
+        dropdownClassName="ctx-dropdown--page-header-control ctx-dropdown--page-header-select"
+        items={options.map((o) => ({
+          label: o.label,
+          active: o.value === value,
+          onClick: () => onChange(o.value),
+        }))}
+      />
     </div>
   );
 }

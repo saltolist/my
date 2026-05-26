@@ -131,44 +131,12 @@ export default function ChatsScreen() {
           />
         }
         search={
-          <div className="page-header-search-tools-row">
-            <PageHeaderSearchInput
-              placeholder="Поиск по чатам..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onDismiss={() => setSearch("")}
-            />
-            <div
-              className="chats-tabs page-header-toolbar--desktop"
-              role="tablist"
-              aria-label="Область чатов"
-            >
-              <div
-                role="tab"
-                aria-selected={tab === "all"}
-                className={`chats-tab${tab === "all" ? " active" : ""}`}
-                onClick={() => setTab("all")}
-              >
-                Все
-              </div>
-              <div
-                role="tab"
-                aria-selected={tab === "global"}
-                className={`chats-tab${tab === "global" ? " active" : ""}`}
-                onClick={() => setTab("global")}
-              >
-                Глобальные
-              </div>
-              <div
-                role="tab"
-                aria-selected={tab === "local"}
-                className={`chats-tab${tab === "local" ? " active" : ""}`}
-                onClick={() => setTab("local")}
-              >
-                Локальные
-              </div>
-            </div>
-          </div>
+          <PageHeaderSearchInput
+            placeholder="Поиск по чатам..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onDismiss={() => setSearch("")}
+          />
         }
       />
       <div className="chats-scroll">

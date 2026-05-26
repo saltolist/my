@@ -3,10 +3,12 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useApp } from "@/state/AppContext";
-import { FEED_POST_WIDTHS } from "@/lib/feedPostWidth";
+import { FEED_POST_WIDTH_SELECT_OPTIONS, isFeedPostWidth } from "@/lib/feedPostWidth";
 import { useFeedPostLayout } from "@/lib/hooks/useFeedPostLayout";
+import { useMobile760 } from "@/lib/hooks/useMobile760";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
+import PageHeaderSelect from "../PageHeaderSelect";
 import PostCard from "../feed/PostCard";
 import DraftsSection from "../feed/DraftsSection";
 import { buildPublishedFeedDayGroups, sortPostsByPublicationTime } from "@/lib/feedTimeline";
@@ -25,6 +27,7 @@ export default function FeedScreen() {
   const pathname = usePathname() ?? "/";
   const onFeed = pathname === "/feed/" || pathname === "/feed";
   const { feedPostWidth, layoutClassName, layoutStyle } = useFeedPostLayout();
+  const isMobile = useMobile760();
   const [draft, setDraft] = useState("");
   const [pendingMedia, setPendingMedia] = useState<PostMedia[]>([]);
   const [search, setSearch] = useState("");
@@ -111,40 +114,26 @@ export default function FeedScreen() {
       <PageHeader
         title="Лента"
         backTo="home"
-        search={
-          <div className="page-header-feed-search-row">
-            <PageHeaderSearchInput
-              placeholder="Поиск по постам..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onDismiss={() => setSearch("")}
+        mobileSelect={
+          !isMobile ? (
+            <PageHeaderSelect
+              ariaLabel="Ширина карточки поста в ленте"
+              value={String(feedPostWidth)}
+              options={FEED_POST_WIDTH_SELECT_OPTIONS}
+              onChange={(v) => {
+                const n = Number(v);
+                if (isFeedPostWidth(n)) setFeedPostWidth(n);
+              }}
             />
-            <div
-              className="feed-post-width-toggles page-header-toolbar--desktop"
-              role="radiogroup"
-              aria-label="Ширина карточки поста в ленте"
-            >
-              {FEED_POST_WIDTHS.map((w) => (
-                <button
-                  key={w}
-                  type="button"
-                  role="radio"
-                  aria-checked={feedPostWidth === w}
-                  className={`feed-post-width-btn${feedPostWidth === w ? " active" : ""}`}
-                  title={
-                    w === 500
-                      ? "Компьютер, как сейчас"
-                      : w === 390
-                        ? "Планшет"
-                        : "Телефон"
-                  }
-                  onClick={() => setFeedPostWidth(w)}
-                >
-                  {w === 500 ? "Компьютер" : w === 390 ? "Планшет" : "Телефон"}
-                </button>
-              ))}
-            </div>
-          </div>
+          ) : undefined
+        }
+        search={
+          <PageHeaderSearchInput
+            placeholder="Поиск по постам..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onDismiss={() => setSearch("")}
+          />
         }
       />
       <div className="feed-layout">

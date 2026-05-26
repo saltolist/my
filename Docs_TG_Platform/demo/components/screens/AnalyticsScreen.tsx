@@ -80,27 +80,6 @@ export default function AnalyticsScreen() {
     [],
   );
 
-  const periodToolbar = (
-    <div
-      className="page-header-analytics-periods page-header-toolbar--desktop"
-      role="tablist"
-      aria-label="Период"
-    >
-      {PERIODS.map((p, i) => (
-        <button
-          key={p}
-          type="button"
-          role="tab"
-          aria-selected={i === period}
-          className={`period-tab${i === period ? " active" : ""}`}
-          onClick={() => setPeriod(i)}
-        >
-          {p}
-        </button>
-      ))}
-    </div>
-  );
-
   return (
     <>
       <PageHeader
@@ -114,7 +93,6 @@ export default function AnalyticsScreen() {
             onChange={(v) => setPeriod(Number(v))}
           />
         }
-        center={periodToolbar}
       />
       <div className="analytics-page" id="screen-analytics">
         <div className="analytics-scroll-inner">
