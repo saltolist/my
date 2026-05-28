@@ -166,7 +166,7 @@ function NoteBreadcrumb({
 }
 
 function NoteWorkspace({ note }: { note: ActiveNote }) {
-  const { state, dispatch, setDirty, registerNotePersist, goToHref } = useApp();
+  const { state, dispatch, setDirty, registerNotePersist } = useApp();
   const isMobile = useMobile760();
   const noteKey = noteIdentityKey(note);
   const isView = state.noteMode === "view" && !note.isNew;
@@ -323,10 +323,6 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
     e.target.value = "";
   };
 
-  const openParentPost = () => {
-    if (!note || note.isGlobal) return;
-    goToHref(routes.post(note.postId));
-  };
   const focusBodyFromTitle = () => {
     if (isView) setEditMode();
     setBodyFocusRequest((request) => request + 1);
@@ -366,12 +362,6 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
           />
         </div>
         <div className="note-shell-content">
-          {!note.isGlobal ? (
-            <div className="note-local-info">
-              📌 Локальная &nbsp;•&nbsp;{" "}
-              <a onClick={openParentPost}>→ пост</a>
-            </div>
-          ) : null}
           <NoteBodyEditor
             body={body}
             files={files}
