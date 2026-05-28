@@ -3355,8 +3355,8 @@ button.nav-item {
 }
 #screen-gchat .input-box,
 #screen-post .input-box {
-  padding-top: 15px;
-  min-height: 0;
+  padding: 20px;
+  min-height: 95px;
 }
 #screen-home .input-wrap {
   width: 100%;
@@ -3373,6 +3373,7 @@ button.nav-item {
 #screen-gchat .composer-editor,
 #screen-post .composer-editor {
   min-height: calc(1.5em + 2px);
+  margin-top: -4px;
 }
 
 /* ════════════════════════════════
@@ -8378,8 +8379,8 @@ button.filter-tab {
   #screen-post .input-box {
     width: 100%;
     max-width: 100%;
-    min-height: 0;
-    padding: 15px 20px 20px;
+    min-height: 95px;
+    padding: 20px;
     border-radius: 22px;
     background: var(--bg2);
     box-shadow: var(--inset-edge), var(--shadow-strong);
