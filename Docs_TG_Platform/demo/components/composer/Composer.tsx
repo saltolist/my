@@ -600,6 +600,7 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
 
   return (
     <div className="input-wrap" onMouseDown={onComposerShellMouseDown}>
+      <div className="composer-backdrop" aria-hidden="true" />
       <div
         className="input-box"
         ref={inputBoxRef}

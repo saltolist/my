@@ -173,9 +173,9 @@ export default function FeedScreen() {
               </div>
             </div>
           </div>
-          <div className="composer-scroll-shade" aria-hidden="true" />
         </div>
         <div className="input-wrap" onMouseDown={onComposerShellMouseDown}>
+          <div className="composer-backdrop" aria-hidden="true" />
           <div className="input-box">
             {pendingMedia.length > 0 ? (
               <PostMediaBlock media={pendingMedia} onRemove={removePendingMedia} />

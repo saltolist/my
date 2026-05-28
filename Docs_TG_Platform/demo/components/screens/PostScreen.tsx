@@ -486,7 +486,6 @@ export default function PostScreen() {
                 </div>
               </div>
             </div>
-            <div className="composer-scroll-shade" aria-hidden="true" />
           </div>
           <Composer scope="post" onSubmit={sendPost} />
         </>

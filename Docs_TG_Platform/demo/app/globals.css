@@ -100,6 +100,10 @@
   --composer-shade-inset: 15px;
   --composer-shade-h: calc(var(--composer-overlay-h) - var(--composer-shade-inset));
   --scroll-fade-h: 52px;
+  --composer-backdrop-radius: 22px;
+  --composer-backdrop-blur: 14px;
+  --composer-backdrop-blur-outset: 12px;
+  --composer-backdrop-bg: color-mix(in srgb, var(--bg2) 94%, var(--bg) 6%);
   --scroll-pad-inline: 20px;
   --dropdown-shadow:  0 10px 30px rgba(0,0,0,.45);
   --trend-tooltip-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.38);
@@ -282,6 +286,7 @@ html.sidebar-collapsed {
   --scroll-thumb-hover: rgba(0,0,0,0.34);
   --input-wrap-base: rgba(245,245,247,.96);
   --input-wrap-grad:  linear-gradient(to top, var(--input-wrap-base) 56%, rgba(245,245,247,0) 100%);
+  --composer-backdrop-bg: color-mix(in srgb, var(--bg2) 97%, #ffffff 3%);
   --dropdown-shadow:  0 10px 30px rgba(0,0,0,.14);
   --trend-tooltip-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.14);
 
@@ -2263,7 +2268,7 @@ button.nav-item {
 
 /* ── Chat input (shared) ── */
 .input-wrap {
-  padding: 18px 20px 20px;
+  padding: var(--input-wrap-pad-top, 18px) 20px var(--input-wrap-pad-bottom, 20px);
   background: transparent;
   flex-shrink: 0;
   display: flex; justify-content: center;
@@ -2302,6 +2307,7 @@ button.nav-item {
   position: relative;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .composer-scroll-wrap > .feed-scroll,
 .composer-scroll-wrap > .gchat-messages,
@@ -2313,94 +2319,50 @@ button.nav-item {
 .composer-scroll-body {
   box-sizing: border-box;
 }
-.composer-scroll-shade {
-  position: absolute;
-  left: 0;
-  right: var(--sb-w);
-  bottom: 0;
-  height: var(--composer-shade-h);
-  pointer-events: none;
-  z-index: 1;
-  background: transparent;
-  backdrop-filter: blur(10px) saturate(1.08);
-  -webkit-backdrop-filter: blur(10px) saturate(1.08);
-  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 calc(100% - var(--scroll-fade-h)), transparent 100%);
-  mask-image: linear-gradient(to top, #000 0%, #000 calc(100% - var(--scroll-fade-h)), transparent 100%);
-}
 
-/* «Стекло»: градиент = ширина карточки (мягкие бока); блюр = +10% шире */
+/* Маска за карточкой composer: до низа экрана, скругление сверху как у .input-box */
 #screen-feed .input-wrap,
 #screen-gchat .input-wrap,
 #screen-post .input-wrap:not(.post-comments-input-wrap) {
+  --input-wrap-pad-top: 18px;
   --input-wrap-pad-bottom: 20px;
   overflow: visible;
 }
-#screen-feed .input-wrap::before,
-#screen-feed .input-wrap::after,
-#screen-gchat .input-wrap::before,
-#screen-gchat .input-wrap::after,
-#screen-post .input-wrap:not(.post-comments-input-wrap)::before,
-#screen-post .input-wrap:not(.post-comments-input-wrap)::after {
-  content: "";
+#screen-feed .composer-backdrop,
+#screen-gchat .composer-backdrop,
+#screen-post .input-wrap:not(.post-comments-input-wrap) > .composer-backdrop {
   position: absolute;
-  top: 0;
-  bottom: 0;
   left: 50%;
-  box-sizing: border-box;
   transform: translateX(-50%);
-  border-radius: 0;
-  pointer-events: none;
-}
-/* Блюр шире карточки (max-width:100% раньше обрезал до ширины градиента) */
-#screen-feed .input-wrap::before,
-#screen-gchat .input-wrap::before,
-#screen-post .input-wrap:not(.post-comments-input-wrap)::before {
-  width: calc(var(--composer-w) * 1.1);
-  max-width: calc(100% * 1.1);
-  z-index: -2;
-  background: transparent;
-  backdrop-filter: blur(12px) saturate(1.1);
-  -webkit-backdrop-filter: blur(12px) saturate(1.1);
-  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 72%, transparent 100%);
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 100%;
-  mask-image: linear-gradient(to top, #000 0%, #000 72%, transparent 100%);
-  mask-repeat: no-repeat;
-  mask-size: 100% 100%;
-}
-/* Размытие по ширине карточки без сплошной заливки — не спорит с градиентом страницы */
-#screen-feed .input-wrap::after,
-#screen-gchat .input-wrap::after,
-#screen-post .input-wrap:not(.post-comments-input-wrap)::after {
   width: var(--composer-w);
   max-width: 100%;
-  z-index: -1;
-  background: transparent;
-  backdrop-filter: blur(10px) saturate(1.1);
-  -webkit-backdrop-filter: blur(10px) saturate(1.1);
-  -webkit-mask-image:
-    linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%),
-    linear-gradient(to top, #000 0%, #000 72%, transparent 100%);
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 100%;
-  -webkit-mask-position: 0 0;
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%),
-    linear-gradient(to top, #000 0%, #000 72%, transparent 100%);
-  mask-repeat: no-repeat;
-  mask-size: 100% 100%;
-  mask-position: 0 0;
-  mask-composite: intersect;
+  top: var(--input-wrap-pad-top);
+  bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: visible;
+  border-radius: var(--composer-backdrop-radius) var(--composer-backdrop-radius) 0 0;
+  background: var(--composer-backdrop-bg);
+  isolation: isolate;
 }
-
-@supports not (-webkit-mask-composite: source-in) {
-  #screen-feed .input-wrap::after,
-  #screen-gchat .input-wrap::after,
-  #screen-post .input-wrap:not(.post-comments-input-wrap)::after {
-    -webkit-mask-image: linear-gradient(to top, #000 0%, #000 72%, transparent 100%);
-    mask-image: linear-gradient(to top, #000 0%, #000 72%, transparent 100%);
-  }
+/* Размытие вынесено за контур панели (filter на слое шире/выше блока) */
+#screen-feed .composer-backdrop::before,
+#screen-gchat .composer-backdrop::before,
+#screen-post .input-wrap:not(.post-comments-input-wrap) > .composer-backdrop::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: calc(-1 * var(--composer-backdrop-blur-outset));
+  right: calc(-1 * var(--composer-backdrop-blur-outset));
+  bottom: calc(-1 * var(--composer-backdrop-blur-outset));
+  left: calc(-1 * var(--composer-backdrop-blur-outset));
+  border-radius:
+    calc(var(--composer-backdrop-radius) + var(--composer-backdrop-blur-outset))
+    calc(var(--composer-backdrop-radius) + var(--composer-backdrop-blur-outset))
+    0
+    0;
+  background: var(--composer-backdrop-bg);
+  filter: blur(var(--composer-backdrop-blur));
 }
 
 #screen-feed .input-wrap > .input-box,
@@ -3326,7 +3288,7 @@ button.nav-item {
 .gchat-layout {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 .gchat-messages {
   overflow-y: auto;
@@ -3383,7 +3345,7 @@ button.nav-item {
 .feed-screen-wrap {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 .feed-screen-wrap > .page-header {
   flex-shrink: 0;
@@ -3395,7 +3357,7 @@ button.nav-item {
 .feed-layout {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   min-height: 0;
 }
 .feed-scroll {
@@ -3927,7 +3889,7 @@ button.nav-item {
 .post-screen-wrap {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 .post-screen-wrap > .post-hdr {
   flex-shrink: 0;
@@ -8291,6 +8253,8 @@ button.filter-tab {
   }
 
   .feed-screen-wrap .input-wrap {
+    --input-wrap-pad-top: 12px;
+    --input-wrap-pad-bottom: 12px;
     padding: 12px;
   }
 
@@ -8351,8 +8315,9 @@ button.filter-tab {
   #screen-feed .input-wrap,
   #screen-gchat .input-wrap,
   #screen-post .input-wrap:not(.post-comments-input-wrap) {
-    padding: 14px var(--composer-mobile-gutter) 18px;
+    --input-wrap-pad-top: 14px;
     --input-wrap-pad-bottom: 18px;
+    padding: 14px var(--composer-mobile-gutter) 18px;
     display: flex;
     justify-content: center;
     width: 100%;

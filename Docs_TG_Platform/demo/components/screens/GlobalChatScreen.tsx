@@ -105,7 +105,6 @@ export default function GlobalChatScreen() {
                 : null}
             </div>
           </div>
-          <div className="composer-scroll-shade" aria-hidden="true" />
         </div>
         <Composer scope="gchat" onSubmit={sendGChat} />
       </div>
