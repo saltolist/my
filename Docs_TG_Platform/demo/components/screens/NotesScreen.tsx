@@ -8,6 +8,7 @@ import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import PageHeaderSelect from "../PageHeaderSelect";
 import NoteCardAiToggle from "../note/NoteCardAiToggle";
+import NotesScopeFilterSelect from "../note/NotesScopeFilterSelect";
 import NoteListCardMenu from "../note/NoteListCardMenu";
 import { buildNoteSnapshot, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
 import { routes } from "@/lib/routes";
@@ -64,18 +65,18 @@ export default function NotesScreen() {
     goToHref(routes.noteNew("notes"));
   };
 
-  const notesScopeSelectProps = {
-    ariaLabel: "Область заметок",
-    value: scope,
+  const notesContextFilterSelectProps = {
+    ariaLabel: "Контекст заметок",
+    value: filter,
     options: [
       { value: "all", label: "Все" },
-      { value: "global", label: "Глобальные" },
-      { value: "local", label: "Локальные" },
+      { value: "ai", label: "В контексте" },
+      { value: "noai", label: "Не в контексте" },
     ],
     onChange: (v: string) =>
       dispatch({
         type: "SET_STATE",
-        patch: { noteScope: v as typeof scope },
+        patch: { noteFilter: v as typeof filter },
       }),
   };
 
@@ -84,7 +85,9 @@ export default function NotesScreen() {
       <PageHeader
         title="Заметки"
         backTo="home"
-        mobileSelect={isMobile ? <PageHeaderSelect {...notesScopeSelectProps} /> : undefined}
+        mobileSelect={
+          isMobile ? <PageHeaderSelect {...notesContextFilterSelectProps} /> : undefined
+        }
         search={
           <div className="page-header-search-tools-row">
             <PageHeaderSearchInput
@@ -93,25 +96,62 @@ export default function NotesScreen() {
               onChange={(e) => setSearch(e.target.value)}
               onDismiss={() => setSearch("")}
             />
-            <div className="page-header-scope-select page-header-toolbar--desktop">
-              <PageHeaderSelect {...notesScopeSelectProps} />
-            </div>
+            {!isMobile ? (
+              <div
+                className="notes-scope-tabs page-header-toolbar--desktop"
+                role="tablist"
+                aria-label="Область заметок"
+              >
+                {(
+                  [
+                    { key: "all", label: "Все" },
+                    { key: "global", label: "Глобальные" },
+                    { key: "local", label: "Локальные" },
+                  ] as const
+                ).map(({ key, label }) => (
+                  <div
+                    key={key}
+                    role="tab"
+                    aria-selected={scope === key}
+                    className={`notes-scope-tab${scope === key ? " active" : ""}`}
+                    onClick={() =>
+                      dispatch({ type: "SET_STATE", patch: { noteScope: key } })
+                    }
+                  >
+                    {label}
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
         }
       />
       <div className="notes-page">
         <div className="notes-filter-row">
-          {(["all", "ai", "noai"] as const).map((k) => (
-            <div
-              key={k}
-              className={`filter-tab${filter === k ? " active" : ""}`}
-              onClick={() => dispatch({ type: "SET_STATE", patch: { noteFilter: k } })}
-            >
-              {k === "all" ? "Все" : k === "ai" ? "В контексте ИИ" : "Не в контексте"}
-            </div>
-          ))}
+          {isMobile ? (
+            <NotesScopeFilterSelect
+              value={scope}
+              onChange={(v) => dispatch({ type: "SET_STATE", patch: { noteScope: v } })}
+            />
+          ) : (
+            <>
+              {(["all", "ai", "noai"] as const).map((k) => (
+                <div
+                  key={k}
+                  className={`filter-tab${filter === k ? " active" : ""}`}
+                  onClick={() => dispatch({ type: "SET_STATE", patch: { noteFilter: k } })}
+                >
+                  {k === "all" ? "Все" : k === "ai" ? "В контексте ИИ" : "Не в контексте ИИ"}
+                </div>
+              ))}
+            </>
+          )}
           {scope === "global" || scope === "all" ? (
-            <button type="button" className="filter-tab notes-new-note-btn" onClick={newGlobal}>
+            <button
+              type="button"
+              className={`filter-tab active notes-new-note-btn${isMobile ? " filter-tab--dropdown" : ""}`}
+              onClick={newGlobal}
+            >
               + Новая заметка
             </button>
           ) : null}

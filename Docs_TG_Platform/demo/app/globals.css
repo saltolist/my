@@ -1361,15 +1361,24 @@ button.nav-item {
 .page-header-scope-select {
   flex-shrink: 0;
 }
-#screen-chats,
-#screen-notes {
+#screen-chats {
   --header-scope-select-w: 9.5rem;
 }
-#screen-chats .page-header-center,
-#screen-notes .page-header-center {
+#screen-chats .page-header-center {
   width: fit-content;
   max-width: min(
     calc(var(--page-header-search-w) + 10px + var(--header-scope-select-w)),
+    calc(100vw - var(--nav-w) - 48px)
+  );
+}
+/* Заметки: в шапке три вкладки scope — шире селектора чатов */
+#screen-notes {
+  --notes-header-scope-tabs-w: 17.5rem;
+}
+#screen-notes .page-header-center {
+  width: fit-content;
+  max-width: min(
+    calc(var(--page-header-search-w) + 10px + var(--notes-header-scope-tabs-w)),
     calc(100vw - var(--nav-w) - 48px)
   );
 }
@@ -5184,7 +5193,32 @@ a.note-file-item:hover {
   padding: 14px 0 0;
   flex-shrink: 0;
 }
-.notes-new-note-btn { margin-left: auto; }
+.notes-new-note-btn {
+  margin-left: auto;
+}
+.notes-filter-tab-select {
+  flex-shrink: 0;
+}
+button.filter-tab.filter-tab--dropdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  padding-right: 10px;
+  cursor: pointer;
+}
+button.filter-tab.filter-tab--dropdown.notes-new-note-btn {
+  padding-right: 12px;
+  margin-left: auto;
+}
+.filter-tab--dropdown-label {
+  min-width: 0;
+  white-space: nowrap;
+}
+.filter-tab-chevron {
+  flex-shrink: 0;
+  opacity: 0.72;
+}
 .filter-tab {
   padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer;
   border: 1px solid var(--border2); background: var(--bg4); color: var(--text2);
