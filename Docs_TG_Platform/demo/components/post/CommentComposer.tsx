@@ -32,6 +32,7 @@ export default function CommentComposer({ replyTo, onCancelReply, onSubmit }: Pr
 
   return (
     <div className="input-wrap post-comments-input-wrap" onMouseDown={onComposerShellMouseDown}>
+      <div className="composer-backdrop" aria-hidden="true" />
       {replyTo ? (
         <div className="comment-reply-banner">
           <span>

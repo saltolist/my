@@ -49,44 +49,50 @@ export default function PostCommentsPanel({
 
   return (
     <>
-      <div className="post-body post-comments-body" ref={scrollRef}>
-        <div className="post-body-inner">
-          <div
-            className={[
-              "post-msg-card",
-              phoneFormat ? "post-format-phone" : "",
-              "post-msg-card--readonly",
-              "post-msg-card--with-comments",
-              media.length === 0 &&
-              (post.status === "published" || post.status === "scheduled")
-                ? "post-card--no-media"
-                : "",
-            ]
-              .filter(Boolean)
-              .join(" ")}
-            ref={postCardRef}
-          >
-            <div className="post-card-body">
-              {media.length > 0 ? (
-                <div className="post-card-media">
-                  <PostMediaBlock media={media} />
+      <div className="composer-scroll-wrap">
+        <div className="post-body post-comments-body" ref={scrollRef}>
+          <div className="composer-scroll-body">
+            <div className="post-body-inner">
+              <div
+                className={[
+                  "post-msg-card",
+                  phoneFormat ? "post-format-phone" : "",
+                  "post-msg-card--readonly",
+                  "post-msg-card--with-comments",
+                  media.length === 0 &&
+                  (post.status === "published" || post.status === "scheduled")
+                    ? "post-card--no-media"
+                    : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+                ref={postCardRef}
+              >
+                <div className="post-card-body">
+                  {media.length > 0 ? (
+                    <div className="post-card-media">
+                      <PostMediaBlock media={media} />
+                    </div>
+                  ) : null}
+                  {post.text ? (
+                    <div className="post-card-text">{post.text}</div>
+                  ) : (
+                    <div className="post-card-text empty">Пост пустой</div>
+                  )}
+                  {metrics ? <PostReactionPills reactions={metrics.reactions} /> : null}
+                  <div className="post-card-footer">
+                    <div className="post-meta">{badge}</div>
+                    {metrics ? (
+                      <PostViewsReposts views={metrics.views} reposts={metrics.reposts} />
+                    ) : null}
+                  </div>
+                  <PostCardCommentsSection
+                    comments={comments}
+                    search={search}
+                    onReply={(c) => setReplyTo(c)}
+                  />
                 </div>
-              ) : null}
-              {post.text ? (
-                <div className="post-card-text">{post.text}</div>
-              ) : (
-                <div className="post-card-text empty">Пост пустой</div>
-              )}
-              {metrics ? <PostReactionPills reactions={metrics.reactions} /> : null}
-              <div className="post-card-footer">
-                <div className="post-meta">{badge}</div>
-                {metrics ? <PostViewsReposts views={metrics.views} reposts={metrics.reposts} /> : null}
               </div>
-              <PostCardCommentsSection
-                comments={comments}
-                search={search}
-                onReply={(c) => setReplyTo(c)}
-              />
             </div>
           </div>
         </div>

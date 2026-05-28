@@ -2284,7 +2284,7 @@ button.nav-item {
 }
 .feed-layout > .input-wrap,
 .gchat-layout > .input-wrap,
-.post-screen-wrap > .input-wrap:not(.post-comments-input-wrap) {
+.post-screen-wrap > .input-wrap {
   position: absolute;
   left: 0;
   right: 0;
@@ -2323,14 +2323,14 @@ button.nav-item {
 /* Маска за карточкой composer: до низа экрана, скругление сверху как у .input-box */
 #screen-feed .input-wrap,
 #screen-gchat .input-wrap,
-#screen-post .input-wrap:not(.post-comments-input-wrap) {
+#screen-post .input-wrap {
   --input-wrap-pad-top: 18px;
   --input-wrap-pad-bottom: 20px;
   overflow: visible;
 }
 #screen-feed .composer-backdrop,
 #screen-gchat .composer-backdrop,
-#screen-post .input-wrap:not(.post-comments-input-wrap) > .composer-backdrop {
+#screen-post .composer-backdrop {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -2348,7 +2348,7 @@ button.nav-item {
 /* Размытие вынесено за контур панели (filter на слое шире/выше блока) */
 #screen-feed .composer-backdrop::before,
 #screen-gchat .composer-backdrop::before,
-#screen-post .input-wrap:not(.post-comments-input-wrap) > .composer-backdrop::before {
+#screen-post .composer-backdrop::before {
   content: "";
   position: absolute;
   z-index: -1;
@@ -2367,7 +2367,7 @@ button.nav-item {
 
 #screen-feed .input-wrap > .input-box,
 #screen-gchat .input-wrap > .input-box,
-#screen-post .input-wrap:not(.post-comments-input-wrap) > .input-box {
+#screen-post .input-wrap > .input-box {
   position: relative;
   z-index: 1;
 }
@@ -3894,7 +3894,7 @@ button.nav-item {
 .post-screen-wrap > .post-hdr {
   flex-shrink: 0;
 }
-.post-screen-wrap > :is(.composer-scroll-wrap, .post-subpage-scroll, .post-comments-body) {
+.post-screen-wrap > :is(.composer-scroll-wrap, .post-subpage-scroll) {
   flex: 1;
   min-height: 0;
 }
@@ -4035,11 +4035,16 @@ button.nav-item {
 
 /* post comments */
 .post-comments-body {
-  padding: 20px var(--scroll-pad-inline) 120px;
+  padding: 0;
+  display: block;
+}
+.post-comments-body .composer-scroll-body {
+  padding: 20px var(--scroll-pad-inline) var(--composer-overlay-h) var(--scroll-pad-inline);
   display: flex;
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
+  min-height: 100%;
 }
 .post-msg-card--with-comments {
   display: flex;
@@ -4180,11 +4185,7 @@ button.nav-item {
 }
 .post-comment-reply-btn:hover { text-decoration: underline; }
 .post-comments-input-wrap {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 4;
+  isolation: auto;
 }
 .comment-reply-banner {
   display: flex;
@@ -8310,7 +8311,7 @@ button.filter-tab {
     padding-right: var(--scroll-pad-inline);
   }
 
-  .post-comments-body {
+  .post-comments-body .composer-scroll-body {
     --scroll-pad-inline: 12px;
     padding-left: var(--scroll-pad-inline);
     padding-right: var(--scroll-pad-inline);
@@ -8328,7 +8329,7 @@ button.filter-tab {
 
   #screen-feed .input-wrap,
   #screen-gchat .input-wrap,
-  #screen-post .input-wrap:not(.post-comments-input-wrap) {
+  #screen-post .input-wrap {
     --input-wrap-pad-top: 14px;
     --input-wrap-pad-bottom: 18px;
     padding: 14px var(--composer-mobile-gutter) 18px;
