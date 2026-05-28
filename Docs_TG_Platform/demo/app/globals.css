@@ -3894,7 +3894,7 @@ button.nav-item {
 .post-screen-wrap > .post-hdr {
   flex-shrink: 0;
 }
-.post-screen-wrap > :is(.composer-scroll-wrap, .post-subpage-scroll) {
+.post-screen-wrap > :is(.composer-scroll-wrap, .post-subpage-scroll, .post-comments-body) {
   flex: 1;
   min-height: 0;
 }
@@ -4034,7 +4034,13 @@ button.nav-item {
 }
 
 /* post comments */
-.post-comments-body { padding-bottom: 120px; }
+.post-comments-body {
+  padding: 20px var(--scroll-pad-inline) 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
 .post-msg-card--with-comments {
   display: flex;
   flex-direction: column;
@@ -4099,12 +4105,14 @@ button.nav-item {
 .post-comments-empty {
   font-size: 13px;
   color: var(--text3);
-  padding: 12px 4px 20px;
+  padding: 0 4px 20px;
+  margin-top: 14px;
 }
 .post-comments-list {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  margin-top: 14px;
 }
 .post-comment {
   display: flex;
@@ -8297,6 +8305,12 @@ button.filter-tab {
   .post-body .composer-scroll-body,
   .feed-scroll .composer-scroll-body,
   .gchat-messages .composer-scroll-body {
+    --scroll-pad-inline: 12px;
+    padding-left: var(--scroll-pad-inline);
+    padding-right: var(--scroll-pad-inline);
+  }
+
+  .post-comments-body {
     --scroll-pad-inline: 12px;
     padding-left: var(--scroll-pad-inline);
     padding-right: var(--scroll-pad-inline);

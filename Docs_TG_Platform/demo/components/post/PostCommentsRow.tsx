@@ -32,7 +32,7 @@ export default function PostCommentsRow({ count, onClick }: Props) {
     <>
       <span className="post-comments-row-text">Комментарии</span>
       <span className="post-comments-count">{count}</span>
-      <CommentsChevron />
+      {onClick ? <CommentsChevron /> : null}
     </>
   );
 
