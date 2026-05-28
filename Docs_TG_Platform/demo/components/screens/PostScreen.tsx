@@ -31,6 +31,7 @@ import PostCommentsPanel from "../post/PostCommentsPanel";
 import PostCommentsRow from "../post/PostCommentsRow";
 import { ContextMenu } from "../ContextMenu";
 import { usePostCtxMenuItems } from "../post/postCtxMenu";
+import { MenuIconPlus } from "../HeaderMenuIcons";
 import { NavIconChats, NavIconFeed, NavIconNotes } from "@/components/sidebar/NavIcons";
 import { useFeedPostLayout } from "@/lib/hooks/useFeedPostLayout";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
@@ -493,8 +494,15 @@ export default function PostScreen() {
       ) : state.postMode === "chats" ? (
         <div className="post-subpage-scroll">
           <div className="post-subpage-toolbar">
-            <button className="post-new-chat-btn" onClick={startNewChat} type="button">
-              + Новый чат
+            <button
+              type="button"
+              className="filter-tab active chats-new-chat-btn filter-tab--dropdown"
+              onClick={startNewChat}
+            >
+              <span className="chats-new-chat-btn-icon" aria-hidden>
+                <MenuIconPlus size={12} strokeWidth={2} />
+              </span>
+              <span>Новый чат</span>
             </button>
           </div>
           <PostChats search={listSearch} onOpenChat={openLocalChat} />
@@ -512,8 +520,15 @@ export default function PostScreen() {
       ) : (
         <div className="post-subpage-scroll">
           <div className="post-subpage-toolbar">
-            <button className="post-new-note-btn" onClick={startNewNote} type="button">
-              + Новая заметка
+            <button
+              type="button"
+              className="filter-tab active notes-new-note-btn filter-tab--dropdown"
+              onClick={startNewNote}
+            >
+              <span className="notes-new-note-btn-icon" aria-hidden>
+                <MenuIconPlus size={12} strokeWidth={2} />
+              </span>
+              <span>Новая заметка</span>
             </button>
           </div>
           <PostNotes search={listSearch} />
