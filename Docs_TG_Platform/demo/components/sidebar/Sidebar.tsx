@@ -4,6 +4,8 @@ import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { parseAppPath, routes, screenFromPath } from "@/lib/routes";
 import { ContextMenu } from "@/components/ContextMenu";
+import MessageRenameIcon from "@/components/chat/MessageRenameIcon";
+import MessageTrashIcon from "@/components/chat/MessageTrashIcon";
 import { usePostCtxMenuItems } from "@/components/post/postCtxMenu";
 import { useApp } from "@/state/AppContext";
 import { buildNoteSnapshot } from "@/lib/noteDraft";
@@ -415,7 +417,7 @@ export default function Sidebar() {
         items={[
           {
             label: "Переименовать",
-            icon: "✎",
+            icon: <MessageRenameIcon />,
             onClick: () => {
               const next = window.prompt("Новое название чата", row.title);
               if (next == null) return;
@@ -435,7 +437,7 @@ export default function Sidebar() {
           },
           {
             label: "Удалить чат",
-            icon: "🗑",
+            icon: <MessageTrashIcon />,
             danger: true,
             onClick: () => {
               if (!window.confirm(`Удалить чат «${row.title}»?`)) return;
@@ -506,7 +508,7 @@ export default function Sidebar() {
         items={[
           {
             label: "Переименовать",
-            icon: "✎",
+            icon: <MessageRenameIcon />,
             onClick: () => {
               const next = window.prompt("Новое название заметки", row.title);
               if (next == null) return;
@@ -528,7 +530,7 @@ export default function Sidebar() {
           },
           {
             label: "Удалить заметку",
-            icon: "🗑",
+            icon: <MessageTrashIcon />,
             danger: true,
             onClick: () => {
               if (!window.confirm(`Удалить заметку «${row.title}»?`)) return;
