@@ -2263,27 +2263,60 @@ button.nav-item {
   --input-wrap-side-fade: 22px;
   -webkit-mask-image:
     linear-gradient(to right, transparent 0, #000 var(--input-wrap-side-fade), #000 calc(100% - var(--input-wrap-side-fade)), transparent 100%),
-    linear-gradient(to top, #000 0%, #000 70%, transparent 100%);
-  -webkit-mask-composite: source-in;
+    linear-gradient(to top, #000 0%, #000 85%, transparent 100%);
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-size: 100% 100%;
   -webkit-mask-position: 0 0;
-  /* NB: не задаём обычный mask-image — на WebKit он может конфликтовать с -webkit-mask */
+  -webkit-mask-composite: source-in;
 }
 .input-wrap::after {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   background: var(--input-wrap-grad);
   border-radius: 0;
-  /* Более сильный blur ближе к низу, мягко уходит вверх */
+  /* более сильный blur ближе к низу, мягко уходит вверх */
   -webkit-mask-image:
     linear-gradient(to right, transparent 0, #000 var(--input-wrap-side-fade), #000 calc(100% - var(--input-wrap-side-fade)), transparent 100%),
-    linear-gradient(to top, #000 0%, #000 35%, transparent 75%);
-  -webkit-mask-composite: source-in;
+    linear-gradient(to top, #000 0%, #000 55%, transparent 95%);
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-size: 100% 100%;
   -webkit-mask-position: 0 0;
-  /* NB: не задаём обычный mask-image — на WebKit он может конфликтовать с -webkit-mask */
+  -webkit-mask-composite: source-in;
+}
+
+/* Desktop fallback: если -webkit-mask не поддерживается/игнорируется */
+@supports not (-webkit-mask-image: linear-gradient(#000, #000)) {
+  .input-wrap::before {
+    mask-image:
+      linear-gradient(
+        to right,
+        transparent 0,
+        #000 var(--input-wrap-side-fade),
+        #000 calc(100% - var(--input-wrap-side-fade)),
+        transparent 100%
+      ),
+      linear-gradient(to top, #000 0%, #000 85%, transparent 100%);
+    mask-repeat: no-repeat;
+    mask-size: 100% 100%;
+    mask-position: 0 0;
+    mask-composite: intersect;
+  }
+
+  .input-wrap::after {
+    mask-image:
+      linear-gradient(
+        to right,
+        transparent 0,
+        #000 var(--input-wrap-side-fade),
+        #000 calc(100% - var(--input-wrap-side-fade)),
+        transparent 100%
+      ),
+      linear-gradient(to top, #000 0%, #000 55%, transparent 95%);
+    mask-repeat: no-repeat;
+    mask-size: 100% 100%;
+    mask-position: 0 0;
+    mask-composite: intersect;
+  }
 }
 .input-box {
   display: flex; flex-direction: column; gap: 8px;
@@ -8228,7 +8261,7 @@ button.filter-tab {
     content: none;
   }
 
-  /* Мобильные: более заметный боковой fade, чтобы не читался прямоугольник */
+  /* Мобильные: смягчаем края “стекла” не только сверху, но и по бокам */
   #screen-gchat .input-wrap::before,
   #screen-gchat .input-wrap::after,
   #screen-post .input-wrap::before,
@@ -8238,19 +8271,16 @@ button.filter-tab {
     --input-wrap-side-fade: 22px;
   }
 
-  /* Мобильные: явные маски (как было, чтобы точно не было прямоугольника) */
   #screen-gchat .input-wrap::before,
   #screen-post .input-wrap::before,
   #screen-feed .input-wrap::before {
-    /* на мобиле убираем плотный тон с верхнего слоя — так “цвета” подложки читаются лучше */
-    background: transparent;
     -webkit-mask-image:
       linear-gradient(to right, transparent 0, #000 var(--input-wrap-side-fade), #000 calc(100% - var(--input-wrap-side-fade)), transparent 100%),
-      linear-gradient(to top, #000 0%, #000 70%, transparent 100%);
-    -webkit-mask-composite: source-in;
+      linear-gradient(to top, #000 0%, #000 85%, transparent 100%);
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-size: 100% 100%;
     -webkit-mask-position: 0 0;
+    -webkit-mask-composite: source-in;
   }
 
   #screen-gchat .input-wrap::after,
@@ -8258,11 +8288,11 @@ button.filter-tab {
   #screen-feed .input-wrap::after {
     -webkit-mask-image:
       linear-gradient(to right, transparent 0, #000 var(--input-wrap-side-fade), #000 calc(100% - var(--input-wrap-side-fade)), transparent 100%),
-      linear-gradient(to top, #000 0%, #000 35%, transparent 75%);
-    -webkit-mask-composite: source-in;
+      linear-gradient(to top, #000 0%, #000 55%, transparent 95%);
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-size: 100% 100%;
     -webkit-mask-position: 0 0;
+    -webkit-mask-composite: source-in;
   }
 
   #screen-home .input-box {
