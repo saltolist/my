@@ -9,6 +9,7 @@ import {
 } from "@/lib/channelAnalyticsTrend";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 import PageHeader from "../PageHeader";
+import PageHeaderSelect from "../PageHeaderSelect";
 
 type TopPostRow = {
   id: number;
@@ -84,6 +85,16 @@ export default function AnalyticsScreen() {
       <PageHeader
         title="Аналитика канала"
         backTo="home"
+        mobileSelect={
+          isMobile ? (
+            <PageHeaderSelect
+              ariaLabel="Период аналитики"
+              value={String(period)}
+              options={PERIODS.map((p, i) => ({ value: String(i), label: p }))}
+              onChange={(v) => setPeriod(Number(v))}
+            />
+          ) : undefined
+        }
       />
       <div className="analytics-page" id="screen-analytics">
         <div className="analytics-scroll-inner">

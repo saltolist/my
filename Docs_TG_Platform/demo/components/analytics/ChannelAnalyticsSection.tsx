@@ -57,15 +57,17 @@ export default function ChannelAnalyticsSection({
         <div className="analytics-card-head">
           <div className="profile-section-title">Динамика прироста</div>
           <div className="analytics-channel-head-filters model-filter-stack model-filter-stack--with-series">
-            <ModelPicker
-              ariaLabel="Период"
-              className="profile-model-picker analytics-period-picker"
-              value={String(periodIndex)}
-              options={periods.map((label, index) => ({ id: String(index), label }))}
-              placement="down"
-              dropdownClassName="model-picker-dropdown--page-header"
-              onChange={(id) => onPeriodChange(Number(id))}
-            />
+            {!isMobile ? (
+              <ModelPicker
+                ariaLabel="Период"
+                className="profile-model-picker analytics-period-picker"
+                value={String(periodIndex)}
+                options={periods.map((label, index) => ({ id: String(index), label }))}
+                placement="down"
+                dropdownClassName="model-picker-dropdown--page-header"
+                onChange={(id) => onPeriodChange(Number(id))}
+              />
+            ) : null}
             <ChartSeriesSelector
               variant="profile"
               label="Метрики"

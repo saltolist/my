@@ -5287,12 +5287,14 @@ button.filter-tab {
   flex-shrink: 0;
 }
 .analytics-chart-card .analytics-card-head .chart-series-selector--profile {
-  width: auto;
-  max-width: 260px;
+  /* mobile-first: на узких экранах селектор занимает всю строку */
+  width: 100%;
+  max-width: none;
 }
 .analytics-chart-card .analytics-card-head .analytics-period-picker {
-  width: auto;
-  max-width: 260px;
+  /* mobile-first: период как полноценный селектор, не “пилюля по контенту” */
+  width: 100%;
+  max-width: none;
 }
 .analytics-chart-card .analytics-card-head .chart-series-selector--profile .model-picker-btn {
   width: 100%;
