@@ -138,6 +138,14 @@ export default function PostScreen() {
     if (!post) return [];
     const items: PageHeaderOverflowItem[] = [];
 
+    if (state.postMode === "chat" && showJump) {
+      items.push({
+        label: "↑ К посту",
+        icon: <NavIconFeed />,
+        onClick: () => chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }),
+      });
+    }
+
     if (state.postMode !== "chat") {
       items.push({
         label: "К посту",
@@ -158,13 +166,6 @@ export default function PostScreen() {
       active: state.postMode === "chats",
       icon: <NavIconChats />,
     });
-
-    if (state.postMode === "chat" && showJump) {
-      items.push({
-        label: "↑ К посту",
-        onClick: () => chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }),
-      });
-    }
 
     return [
       ...items,
