@@ -1,18 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { autoResize } from "@/lib/helpers";
+import AttachMenu from "@/components/composer/AttachMenu";
+import { autoResize, readFileAsMedia } from "@/lib/helpers";
 import { onComposerShellMouseDown } from "@/lib/composerPointerDown";
-import type { PostComment } from "@/lib/types";
+import type { PostComment, PostMedia } from "@/lib/types";
+import PostMediaBlock from "./PostMediaBlock";
 
 type Props = {
   replyTo: PostComment | null;
   onCancelReply: () => void;
-  onSubmit: (text: string) => void;
+  onSubmit: (text: string, media: PostMedia[]) => void;
 };
 
 export default function CommentComposer({ replyTo, onCancelReply, onSubmit }: Props) {
   const [draft, setDraft] = useState("");
+  const [pendingMedia, setPendingMedia] = useState<PostMedia[]>([]);
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -23,11 +26,16 @@ export default function CommentComposer({ replyTo, onCancelReply, onSubmit }: Pr
     if (replyTo) taRef.current?.focus();
   }, [replyTo]);
 
+  function removePendingMedia(index: number) {
+    setPendingMedia((arr) => arr.filter((_, i) => i !== index));
+  }
+
   function submit() {
     const text = draft.trim();
-    if (!text) return;
-    onSubmit(text);
+    if (!text && pendingMedia.length === 0) return;
+    onSubmit(text, pendingMedia);
     setDraft("");
+    setPendingMedia([]);
   }
 
   return (
@@ -49,6 +57,9 @@ export default function CommentComposer({ replyTo, onCancelReply, onSubmit }: Pr
         </div>
       ) : null}
       <div className="input-box">
+        {pendingMedia.length > 0 ? (
+          <PostMediaBlock media={pendingMedia} onRemove={removePendingMedia} />
+        ) : null}
         <textarea
           ref={taRef}
           placeholder="Написать комментарий..."
@@ -64,10 +75,28 @@ export default function CommentComposer({ replyTo, onCancelReply, onSubmit }: Pr
               e.preventDefault();
               onCancelReply();
             }
+            if (e.key === "Backspace" && draft === "" && pendingMedia.length > 0) {
+              e.preventDefault();
+              setPendingMedia((arr) => arr.slice(0, -1));
+            }
           }}
         />
         <div className="input-bottom">
-          <div className="input-tools" />
+          <div className="input-tools">
+            <AttachMenu
+              scope="feed"
+              onAttach={async (att) => {
+                if (att.kind === "file" && att.file) {
+                  try {
+                    const media = await readFileAsMedia(att.file);
+                    setPendingMedia((arr) => [...arr, media]);
+                  } catch {
+                    /* ignore read errors in demo */
+                  }
+                }
+              }}
+            />
+          </div>
           <button className="send-btn" onClick={submit} type="button" aria-label="Отправить комментарий">
             ↑
           </button>

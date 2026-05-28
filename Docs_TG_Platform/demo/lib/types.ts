@@ -75,6 +75,7 @@ export type PostComment = {
   text: string;
   date: string;
   replyToId?: number;
+  media?: PostMedia[];
 };
 
 export type PostMedia = {

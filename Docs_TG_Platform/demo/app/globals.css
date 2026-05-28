@@ -4184,6 +4184,16 @@ button.nav-item {
   cursor: pointer;
 }
 .post-comment-reply-btn:hover { text-decoration: underline; }
+.post-comment-media {
+  margin-top: 4px;
+  max-width: 100%;
+}
+.post-comment-media + .post-comment-text {
+  margin-top: 8px;
+}
+.post-comment-media .tg-media.single .tg-media-item {
+  max-height: 280px;
+}
 .post-comments-input-wrap {
   isolation: auto;
 }

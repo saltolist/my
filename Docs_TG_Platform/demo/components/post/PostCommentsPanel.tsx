@@ -32,12 +32,13 @@ export default function PostCommentsPanel({
   const scrollRef = useRef<HTMLDivElement>(null);
   const comments = post.comments ?? [];
 
-  function addComment(text: string) {
+  function addComment(text: string, media: PostMedia[]) {
     const comment: PostComment = {
       id: Date.now(),
       author: "Вы",
       date: "сейчас",
       text,
+      ...(media.length > 0 ? { media: [...media] } : {}),
       ...(replyTo ? { replyToId: replyTo.id } : {}),
     };
     dispatch({ type: "ADD_POST_COMMENT", postId: post.id, comment });

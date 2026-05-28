@@ -2,6 +2,7 @@
 
 import { avatarHue, avatarInitials } from "@/lib/postComments";
 import type { PostComment } from "@/lib/types";
+import PostMediaBlock from "./PostMediaBlock";
 
 type Props = {
   comment: PostComment;
@@ -31,7 +32,12 @@ export default function PostCommentRow({ comment, parent, onReply }: Props) {
             <span className="post-comment-quote-text">{parent.text}</span>
           </div>
         ) : null}
-        <p className="post-comment-text">{comment.text}</p>
+        {comment.media && comment.media.length > 0 ? (
+          <div className="post-comment-media">
+            <PostMediaBlock media={comment.media} />
+          </div>
+        ) : null}
+        {comment.text ? <p className="post-comment-text">{comment.text}</p> : null}
         {onReply ? (
           <button className="post-comment-reply-btn" onClick={onReply} type="button">
             Ответить
