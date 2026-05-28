@@ -2259,18 +2259,31 @@ button.nav-item {
   -webkit-backdrop-filter: blur(3px);
   background: var(--input-wrap-grad);
   border-radius: 0;
-  /* плавный сход размытия вверх (как было) */
-  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 85%, transparent 100%);
-          mask-image: linear-gradient(to top, #000 0%, #000 85%, transparent 100%);
+  /* Плавные края как на телефоне: fade по бокам + fade вверх */
+  --input-wrap-side-fade: 22px;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 var(--input-wrap-side-fade), #000 calc(100% - var(--input-wrap-side-fade)), transparent 100%),
+    linear-gradient(to top, #000 0%, #000 70%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-position: 0 0;
+  /* NB: не задаём обычный mask-image — на WebKit он может конфликтовать с -webkit-mask */
 }
 .input-wrap::after {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   background: var(--input-wrap-grad);
   border-radius: 0;
-  /* более сильный blur ближе к низу, мягко уходит вверх */
-  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 55%, transparent 95%);
-          mask-image: linear-gradient(to top, #000 0%, #000 55%, transparent 95%);
+  /* Более сильный blur ближе к низу, мягко уходит вверх */
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 var(--input-wrap-side-fade), #000 calc(100% - var(--input-wrap-side-fade)), transparent 100%),
+    linear-gradient(to top, #000 0%, #000 35%, transparent 75%);
+  -webkit-mask-composite: source-in;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-position: 0 0;
+  /* NB: не задаём обычный mask-image — на WebKit он может конфликтовать с -webkit-mask */
 }
 .input-box {
   display: flex; flex-direction: column; gap: 8px;
@@ -8193,7 +8206,7 @@ button.filter-tab {
     position: sticky;
     bottom: 0;
     z-index: 20;
-    background: var(--input-wrap-grad);
+    background: transparent;
     isolation: isolate;
   }
 
@@ -8213,6 +8226,43 @@ button.filter-tab {
   #screen-home .input-wrap::before,
   #screen-home .input-wrap::after {
     content: none;
+  }
+
+  /* Мобильные: более заметный боковой fade, чтобы не читался прямоугольник */
+  #screen-gchat .input-wrap::before,
+  #screen-gchat .input-wrap::after,
+  #screen-post .input-wrap::before,
+  #screen-post .input-wrap::after,
+  #screen-feed .input-wrap::before,
+  #screen-feed .input-wrap::after {
+    --input-wrap-side-fade: 22px;
+  }
+
+  /* Мобильные: явные маски (как было, чтобы точно не было прямоугольника) */
+  #screen-gchat .input-wrap::before,
+  #screen-post .input-wrap::before,
+  #screen-feed .input-wrap::before {
+    /* на мобиле убираем плотный тон с верхнего слоя — так “цвета” подложки читаются лучше */
+    background: transparent;
+    -webkit-mask-image:
+      linear-gradient(to right, transparent 0, #000 var(--input-wrap-side-fade), #000 calc(100% - var(--input-wrap-side-fade)), transparent 100%),
+      linear-gradient(to top, #000 0%, #000 70%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    -webkit-mask-position: 0 0;
+  }
+
+  #screen-gchat .input-wrap::after,
+  #screen-post .input-wrap::after,
+  #screen-feed .input-wrap::after {
+    -webkit-mask-image:
+      linear-gradient(to right, transparent 0, #000 var(--input-wrap-side-fade), #000 calc(100% - var(--input-wrap-side-fade)), transparent 100%),
+      linear-gradient(to top, #000 0%, #000 35%, transparent 75%);
+    -webkit-mask-composite: source-in;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    -webkit-mask-position: 0 0;
   }
 
   #screen-home .input-box {
