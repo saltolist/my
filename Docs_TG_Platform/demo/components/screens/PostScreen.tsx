@@ -441,8 +441,10 @@ export default function PostScreen() {
 
       {state.postMode === "chat" ? (
         <>
-          <div className="post-body" ref={chatScrollRef}>
-            <div className="post-body-inner">
+          <div className="composer-scroll-wrap">
+            <div className="post-body" ref={chatScrollRef}>
+              <div className="composer-scroll-body">
+                <div className="post-body-inner">
               <PostMessageCard
                 ref={postCardRef}
                 isEditing={state.isEditing}
@@ -481,7 +483,10 @@ export default function PostScreen() {
                   isLastAssistantMessage={m.role === "ai" && i === lastAssistantFlat}
                 />
               ))}
+                </div>
+              </div>
             </div>
+            <div className="composer-scroll-shade" aria-hidden="true" />
           </div>
           <Composer scope="post" onSubmit={sendPost} />
         </>

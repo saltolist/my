@@ -135,8 +135,10 @@ export default function FeedScreen() {
         }
       />
       <div className="feed-layout">
-        <div className="feed-scroll" id="feed-scroll" ref={feedScrollRef}>
-          <div className="feed-inner">
+        <div className="composer-scroll-wrap">
+          <div className="feed-scroll" id="feed-scroll" ref={feedScrollRef}>
+            <div className="composer-scroll-body">
+              <div className="feed-inner">
             {publishedDayGroups.length > 0 ? (
               <div className="feed-section feed-section--published">
                 <div className="section-label">Опубликованные</div>
@@ -168,7 +170,10 @@ export default function FeedScreen() {
               </div>
             </div>
             <DraftsSection drafts={drafts} />
+              </div>
+            </div>
           </div>
+          <div className="composer-scroll-shade" aria-hidden="true" />
         </div>
         <div className="input-wrap" onMouseDown={onComposerShellMouseDown}>
           <div className="input-box">

@@ -90,17 +90,22 @@ export default function GlobalChatScreen() {
         </div>
       </div>
       <div className="gchat-layout">
-        <div className="gchat-messages" ref={messagesRef}>
-          {chat
-            ? flatMessages.map(({ message: m, path }, i) => (
-                <ChatMessage
-                  key={path.join("-")}
-                  message={m}
-                  ctx={{ scope: "gchat", entityId: chat.id, path }}
-                  isLastAssistantMessage={m.role === "ai" && i === lastAssistantFlat}
-                />
-              ))
-            : null}
+        <div className="composer-scroll-wrap">
+          <div className="gchat-messages" ref={messagesRef}>
+            <div className="composer-scroll-body">
+              {chat
+                ? flatMessages.map(({ message: m, path }, i) => (
+                    <ChatMessage
+                      key={path.join("-")}
+                      message={m}
+                      ctx={{ scope: "gchat", entityId: chat.id, path }}
+                      isLastAssistantMessage={m.role === "ai" && i === lastAssistantFlat}
+                    />
+                  ))
+                : null}
+            </div>
+          </div>
+          <div className="composer-scroll-shade" aria-hidden="true" />
         </div>
         <Composer scope="gchat" onSubmit={sendGChat} />
       </div>
