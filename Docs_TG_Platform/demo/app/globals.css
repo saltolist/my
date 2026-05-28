@@ -8515,8 +8515,21 @@ button.filter-tab {
   }
 
   .note-shell-header {
-    grid-template-columns: 1fr;
-    padding: 14px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+  }
+
+  .note-title-row:has(.title-multi-line) {
+    align-items: flex-start;
+  }
+
+  .note-title-edit.title-multi-line {
+    line-height: 1.32;
+    padding-top: 3px;
+    padding-bottom: 0;
+    box-sizing: border-box;
   }
 
   .note-shell-content {
@@ -8528,16 +8541,22 @@ button.filter-tab {
     font-size: 22px;
   }
 
-  .note-ctrl,
-  .note-mode-btns {
-    width: 100%;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+  .note-ctrl {
+    flex-shrink: 0;
+    gap: 9px;
+  }
+
+  .note-shell-header .btn.btn-ghost.btn-sm {
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 12px;
   }
 
   .note-body-view,
-  .note-body-edit {
-    min-height: 360px;
+  .note-body-edit,
+  .note-body-canvas,
+  .note-body-edit-canvas {
+    min-height: 240px;
   }
 
   .chats-scroll,

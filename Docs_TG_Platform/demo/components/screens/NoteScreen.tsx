@@ -17,6 +17,7 @@ import NoteFilesPanel from "../note/NoteFilesPanel";
 import NoteHeaderToolbar from "../note/NoteHeaderToolbar";
 import PageHeader from "../PageHeader";
 import type { ActiveNote, NoteFile } from "@/lib/types";
+import { usePreventIosInputZoom } from "@/lib/hooks/usePreventIosInputZoom";
 import { useFitTitleSize } from "@/lib/use-fit-title";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 import { routes } from "@/lib/routes";
@@ -166,6 +167,7 @@ function NoteBreadcrumb({
 
 function NoteWorkspace({ note }: { note: ActiveNote }) {
   const { state, dispatch, setDirty, registerNotePersist, goToHref } = useApp();
+  const isMobile = useMobile760();
   const noteKey = noteIdentityKey(note);
   const isView = state.noteMode === "view" && !note.isNew;
 
@@ -206,6 +208,7 @@ function NoteWorkspace({ note }: { note: ActiveNote }) {
   }, [changed, setDirty]);
 
   useFitTitleSize(titleRef, title, true);
+  usePreventIosInputZoom(titleRef, isMobile);
 
   const setViewMode = () => dispatch({ type: "SET_STATE", patch: { noteMode: "view" } });
   const setEditMode = () => dispatch({ type: "SET_STATE", patch: { noteMode: "edit" } });
