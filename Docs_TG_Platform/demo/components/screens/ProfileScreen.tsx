@@ -8,6 +8,7 @@ import TelegramBlock from "../profile/TelegramBlock";
 import ThemeBlock from "../profile/ThemeBlock";
 import PlatformAnalyticsBlock from "../profile/PlatformAnalyticsBlock";
 import PageHeader from "../PageHeader";
+import PageHeaderSelect from "../PageHeaderSelect";
 import { useApp } from "@/state/AppContext";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 
@@ -66,7 +67,16 @@ export default function ProfileScreen() {
         title="Профиль канала"
         backTo="home"
         center={<div className="page-header-toolbar--desktop">{tabToolbar}</div>}
-        mobileSelect={isMobile ? <div className="page-header-toolbar--mobile">{tabToolbar}</div> : undefined}
+        mobileSelect={
+          isMobile ? (
+            <PageHeaderSelect
+              value={String(tab)}
+              options={PROFILE_TABS.map((label, i) => ({ value: String(i), label }))}
+              onChange={(v) => switchTab(Number(v))}
+              ariaLabel="Раздел профиля"
+            />
+          ) : undefined
+        }
       />
       <div className="profile-page" id="screen-profile">
         <div className="profile-scroll-inner">
