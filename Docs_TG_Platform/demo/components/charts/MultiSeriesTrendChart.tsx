@@ -11,6 +11,7 @@ import {
   type MouseEvent,
 } from "react";
 import { createPortal } from "react-dom";
+import { isDesktopFinePointer } from "@/lib/hooks/useFloatingPanelScrollListeners";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 import {
   TREND_CHART_HEIGHT_PX,
@@ -378,6 +379,14 @@ export default function MultiSeriesTrendChart({
     return () => document.removeEventListener("pointerdown", onPointerDown, true);
   }, [isMobile, hoveredClusterId, clearTrendHover]);
 
+  useEffect(() => {
+    if (isMobile || !hoveredClusterId) return;
+    if (!isDesktopFinePointer()) return;
+    const onScroll = () => clearTrendHover();
+    window.addEventListener("scroll", onScroll, true);
+    return () => window.removeEventListener("scroll", onScroll, true);
+  }, [isMobile, hoveredClusterId, clearTrendHover]);
+
   const hoveredCluster = useMemo(
     () => dotClusters.find((cluster) => cluster.id === hoveredClusterId) ?? null,
     [dotClusters, hoveredClusterId],
@@ -456,15 +465,23 @@ export default function MultiSeriesTrendChart({
         update();
       });
     if (strip && resizeObserver) resizeObserver.observe(strip);
-    window.addEventListener("resize", update);
-    window.addEventListener("scroll", update, true);
+    const onResize = () => update();
+    const onScroll = () => {
+      if (isDesktopFinePointer()) {
+        clearTrendHover();
+        return;
+      }
+      update();
+    };
+    window.addEventListener("resize", onResize);
+    window.addEventListener("scroll", onScroll, true);
 
     return () => {
       resizeObserver?.disconnect();
-      window.removeEventListener("resize", update);
-      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("scroll", onScroll, true);
     };
-  }, [clusterStripSyncKey, clusterAnchor]);
+  }, [clusterStripSyncKey, clusterAnchor, clearTrendHover]);
 
   return (
     <div

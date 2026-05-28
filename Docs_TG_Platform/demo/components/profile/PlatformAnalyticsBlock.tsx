@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties, type FocusEvent, type MouseEvent } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import ChartSeriesSelector from "@/components/charts/ChartSeriesSelector";
 import ModelPicker from "@/components/composer/ModelPicker";
@@ -11,6 +11,7 @@ import type { AiProfileConfig, LlmModel } from "@/lib/types";
 import { formatTrendDollar } from "@/lib/trendChart/math";
 import { getPeriodChartLabels, MOBILE_CHART_MAX_POINTS } from "@/lib/trendChart/periodLabels";
 import { useAnchoredBarRowTooltip } from "@/lib/hooks/useAnchoredBarRowTooltip";
+import { useDesktopBarTooltipPortal } from "@/lib/hooks/useDesktopBarTooltipPortal";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 
 const PERIODS = [
@@ -254,30 +255,11 @@ function ModelUsageBar({
 }) {
   const isMobile = useMobile760();
   const { rowRef, open, mobileHandlers } = useAnchoredBarRowTooltip(isMobile);
-  const [desktopTooltipPos, setDesktopTooltipPos] = useState<{ x: number; y: number } | null>(
-    null,
-  );
+  const { desktopTooltipPos, desktopTooltipHandlers } = useDesktopBarTooltipPortal(!isMobile);
   const callsShare = totals.calls > 0 ? Math.round((model.calls / totals.calls) * 100) : 0;
   const tokensShare = totals.tokens > 0 ? Math.round((model.tokens / totals.tokens) * 100) : 0;
   const costShare = totals.cost > 0 ? Math.round((model.cost / totals.cost) * 100) : 0;
   const fillShare = Math.round((callsShare + tokensShare + costShare) / 3);
-
-  const desktopTooltipHandlers = {
-    onMouseEnter: (event: MouseEvent<HTMLElement>) => {
-      const rect = event.currentTarget.getBoundingClientRect();
-      setDesktopTooltipPos({ x: event.clientX, y: rect.top });
-    },
-    onMouseMove: (event: MouseEvent<HTMLElement>) => {
-      const rect = event.currentTarget.getBoundingClientRect();
-      setDesktopTooltipPos({ x: event.clientX, y: rect.top });
-    },
-    onMouseLeave: () => setDesktopTooltipPos(null),
-    onFocus: (event: FocusEvent<HTMLElement>) => {
-      const rect = event.currentTarget.getBoundingClientRect();
-      setDesktopTooltipPos({ x: rect.left + rect.width / 2, y: rect.top });
-    },
-    onBlur: () => setDesktopTooltipPos(null),
-  };
 
   return (
     <div

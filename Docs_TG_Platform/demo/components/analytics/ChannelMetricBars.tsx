@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  useMemo,
-  useState,
-  type CSSProperties,
-  type FocusEvent,
-  type MouseEvent,
-  type Ref,
-} from "react";
+import { useMemo, type CSSProperties, type Ref } from "react";
 import { createPortal } from "react-dom";
 import {
   buildChannelMetricSummaries,
@@ -15,6 +8,7 @@ import {
   type ChannelMetricSummary,
 } from "@/lib/channelAnalyticsTrend";
 import { useAnchoredBarRowTooltip } from "@/lib/hooks/useAnchoredBarRowTooltip";
+import { useDesktopBarTooltipPortal } from "@/lib/hooks/useDesktopBarTooltipPortal";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 
 type ChannelMetricBarsProps = {
@@ -83,27 +77,8 @@ function ChannelMetricBarRow({
   isMobile: boolean;
 }) {
   const { rowRef, open, mobileHandlers } = useAnchoredBarRowTooltip(isMobile);
-  const [desktopTooltipPos, setDesktopTooltipPos] = useState<{ x: number; y: number } | null>(
-    null,
-  );
+  const { desktopTooltipPos, desktopTooltipHandlers } = useDesktopBarTooltipPortal(!isMobile);
   const fillPercent = metric.barFillPercent;
-
-  const desktopTooltipHandlers = {
-    onMouseEnter: (event: MouseEvent<HTMLElement>) => {
-      const rect = event.currentTarget.getBoundingClientRect();
-      setDesktopTooltipPos({ x: event.clientX, y: rect.top });
-    },
-    onMouseMove: (event: MouseEvent<HTMLElement>) => {
-      const rect = event.currentTarget.getBoundingClientRect();
-      setDesktopTooltipPos({ x: event.clientX, y: rect.top });
-    },
-    onMouseLeave: () => setDesktopTooltipPos(null),
-    onFocus: (event: FocusEvent<HTMLElement>) => {
-      const rect = event.currentTarget.getBoundingClientRect();
-      setDesktopTooltipPos({ x: rect.left + rect.width / 2, y: rect.top });
-    },
-    onBlur: () => setDesktopTooltipPos(null),
-  };
 
   return (
     <tr
