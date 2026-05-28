@@ -10,6 +10,7 @@ import PageHeaderSelect from "../PageHeaderSelect";
 import NoteCardAiToggle from "../note/NoteCardAiToggle";
 import NotesScopeFilterSelect from "../note/NotesScopeFilterSelect";
 import NoteListCardMenu from "../note/NoteListCardMenu";
+import { MenuIconPlus } from "../HeaderMenuIcons";
 import { buildNoteSnapshot, EMPTY_NOTE_SNAPSHOT } from "@/lib/noteDraft";
 import { routes } from "@/lib/routes";
 import type { GlobalNote, LocalNote, NoteFile } from "@/lib/types";
@@ -65,6 +66,18 @@ export default function NotesScreen() {
     goToHref(routes.noteNew("notes"));
   };
 
+  const notesScopeSelectProps = {
+    ariaLabel: "Область заметок",
+    value: scope,
+    options: [
+      { value: "all", label: "Все" },
+      { value: "global", label: "Глобальные" },
+      { value: "local", label: "Локальные" },
+    ],
+    onChange: (v: string) =>
+      dispatch({ type: "SET_STATE", patch: { noteScope: v as typeof scope } }),
+  };
+
   const notesContextFilterSelectProps = {
     ariaLabel: "Контекст заметок",
     value: filter,
@@ -96,33 +109,9 @@ export default function NotesScreen() {
               onChange={(e) => setSearch(e.target.value)}
               onDismiss={() => setSearch("")}
             />
-            {!isMobile ? (
-              <div
-                className="notes-scope-tabs page-header-toolbar--desktop"
-                role="tablist"
-                aria-label="Область заметок"
-              >
-                {(
-                  [
-                    { key: "all", label: "Все" },
-                    { key: "global", label: "Глобальные" },
-                    { key: "local", label: "Локальные" },
-                  ] as const
-                ).map(({ key, label }) => (
-                  <div
-                    key={key}
-                    role="tab"
-                    aria-selected={scope === key}
-                    className={`notes-scope-tab${scope === key ? " active" : ""}`}
-                    onClick={() =>
-                      dispatch({ type: "SET_STATE", patch: { noteScope: key } })
-                    }
-                  >
-                    {label}
-                  </div>
-                ))}
-              </div>
-            ) : null}
+            <div className="page-header-scope-select page-header-toolbar--desktop">
+              <PageHeaderSelect {...notesScopeSelectProps} />
+            </div>
           </div>
         }
       />
@@ -152,7 +141,10 @@ export default function NotesScreen() {
               className={`filter-tab active notes-new-note-btn${isMobile ? " filter-tab--dropdown" : ""}`}
               onClick={newGlobal}
             >
-              + Новая заметка
+              <span className="notes-new-note-btn-icon" aria-hidden>
+                <MenuIconPlus size={12} strokeWidth={2} />
+              </span>
+              <span>Новая заметка</span>
             </button>
           ) : null}
         </div>

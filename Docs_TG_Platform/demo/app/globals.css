@@ -1346,14 +1346,14 @@ button.nav-item {
   max-width: 100%;
   z-index: 1;
 }
-/* Лента: центр шапки — поиск + селектор ширины карточки */
+/* Лента: центр шапки — поиск + переключатель ширины карточки (три кнопки) */
 #screen-feed {
-  --feed-header-width-select-w: 9.5rem;
+  --feed-header-width-tabs-w: 18rem;
 }
 #screen-feed .page-header-center {
   width: fit-content;
   max-width: min(
-    calc(var(--page-header-search-w) + 10px + var(--feed-header-width-select-w)),
+    calc(var(--page-header-search-w) + 10px + var(--feed-header-width-tabs-w)),
     calc(100vw - var(--nav-w) - 48px)
   );
 }
@@ -1361,24 +1361,15 @@ button.nav-item {
 .page-header-scope-select {
   flex-shrink: 0;
 }
-#screen-chats {
+#screen-chats,
+#screen-notes {
   --header-scope-select-w: 9.5rem;
 }
-#screen-chats .page-header-center {
-  width: fit-content;
-  max-width: min(
-    calc(var(--page-header-search-w) + 10px + var(--header-scope-select-w)),
-    calc(100vw - var(--nav-w) - 48px)
-  );
-}
-/* Заметки: в шапке три вкладки scope — шире селектора чатов */
-#screen-notes {
-  --notes-header-scope-tabs-w: 17.5rem;
-}
+#screen-chats .page-header-center,
 #screen-notes .page-header-center {
   width: fit-content;
   max-width: min(
-    calc(var(--page-header-search-w) + 10px + var(--notes-header-scope-tabs-w)),
+    calc(var(--page-header-search-w) + 10px + var(--header-scope-select-w)),
     calc(100vw - var(--nav-w) - 48px)
   );
 }
@@ -5194,7 +5185,17 @@ a.note-file-item:hover {
   flex-shrink: 0;
 }
 .notes-new-note-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   margin-left: auto;
+}
+.notes-new-note-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
 }
 .notes-filter-tab-select {
   flex-shrink: 0;

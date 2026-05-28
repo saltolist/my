@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-type IconProps = { size?: number };
+type IconProps = { size?: number; strokeWidth?: number };
 
 const S = 18;
 
@@ -23,7 +23,7 @@ function MenuSvg({ size = S, children }: IconProps & { children: ReactNode }) {
 }
 
 /** Новый чат / новая заметка */
-export function MenuIconPlus({ size = S }: IconProps) {
+export function MenuIconPlus({ size = S, strokeWidth = 2.625 }: IconProps) {
   return (
     <svg
       width={size}
@@ -31,7 +31,7 @@ export function MenuIconPlus({ size = S }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={2.625}
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden

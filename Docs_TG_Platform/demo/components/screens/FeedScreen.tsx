@@ -3,11 +3,10 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useApp } from "@/state/AppContext";
-import { FEED_POST_WIDTH_SELECT_OPTIONS, isFeedPostWidth } from "@/lib/feedPostWidth";
+import { FEED_POST_WIDTHS, feedPostWidthLabel } from "@/lib/feedPostWidth";
 import { useFeedPostLayout } from "@/lib/hooks/useFeedPostLayout";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
-import PageHeaderSelect from "../PageHeaderSelect";
 import PostCard from "../feed/PostCard";
 import DraftsSection from "../feed/DraftsSection";
 import { buildPublishedFeedDayGroups, sortPostsByPublicationTime } from "@/lib/feedTimeline";
@@ -156,16 +155,21 @@ export default function FeedScreen() {
               onChange={(e) => setSearch(e.target.value)}
               onDismiss={() => setSearch("")}
             />
-            <div className="page-header-feed-width-select page-header-toolbar--desktop">
-              <PageHeaderSelect
-                ariaLabel="Ширина карточки поста в ленте"
-                value={String(feedPostWidth)}
-                options={FEED_POST_WIDTH_SELECT_OPTIONS}
-                onChange={(v) => {
-                  const n = Number(v);
-                  if (isFeedPostWidth(n)) setFeedPostWidth(n);
-                }}
-              />
+            <div
+              className="feed-post-width-toggles page-header-toolbar--desktop"
+              role="group"
+              aria-label="Ширина карточки поста в ленте"
+            >
+              {FEED_POST_WIDTHS.map((w) => (
+                <button
+                  key={w}
+                  type="button"
+                  className={`feed-post-width-btn${feedPostWidth === w ? " active" : ""}`}
+                  onClick={() => setFeedPostWidth(w)}
+                >
+                  {feedPostWidthLabel(w)}
+                </button>
+              ))}
             </div>
           </div>
         }
