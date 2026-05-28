@@ -14,9 +14,6 @@ export function extractTitle(text: string | undefined | null): string {
 
 export function postTitle(post: Post): string {
   const base = extractTitle(post.text) || "(без названия)";
-  if (post.status === "scheduled" && post.date) {
-    return `${base} · ${post.date}`;
-  }
   return base;
 }
 
