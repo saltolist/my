@@ -2231,7 +2231,8 @@ button.nav-item {
 /* ── Chat input (shared) ── */
 .input-wrap {
   padding: 18px 20px 20px;
-  background: var(--input-wrap-grad);
+  /* фон-градиент и blur ограничиваем через ::before/::after, чтобы не тянулось до краёв */
+  background: transparent;
   flex-shrink: 0;
   display: flex; justify-content: center;
   position: sticky;
@@ -2244,25 +2245,36 @@ button.nav-item {
 .input-wrap::after {
   content: "";
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  /* ограничиваем “стекло” по ширине composer + небольшой inset от краёв */
+  width: min(calc(var(--composer-w) + 32px), calc(100% - 16px));
   z-index: -1;
   pointer-events: none;
+  transform: translateX(-50%);
 }
 .input-wrap::before {
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
-  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 70%, transparent 100%);
-          mask-image: linear-gradient(to top, #000 0%, #000 70%, transparent 100%);
+  background: var(--input-wrap-grad);
+  border-radius: 0;
+  /* плавный сход размытия вверх (как было) */
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 85%, transparent 100%);
+          mask-image: linear-gradient(to top, #000 0%, #000 85%, transparent 100%);
 }
 .input-wrap::after {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 35%, transparent 75%);
-          mask-image: linear-gradient(to top, #000 0%, #000 35%, transparent 75%);
+  background: var(--input-wrap-grad);
+  border-radius: 0;
+  /* более сильный blur ближе к низу, мягко уходит вверх */
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 55%, transparent 95%);
+          mask-image: linear-gradient(to top, #000 0%, #000 55%, transparent 95%);
 }
 .input-box {
   display: flex; flex-direction: column; gap: 8px;
-  background: color-mix(in srgb, var(--ctx-dropdown-header-surface) 72%, var(--glass-bg) 28%);
+  background: var(--bg2);
   border: none;
   border-radius: 22px; padding: 20px;
   box-shadow: var(--inset-edge), var(--shadow-strong);
