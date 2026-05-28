@@ -102,7 +102,7 @@
   --scroll-fade-h: 52px;
   --composer-backdrop-radius: 22px;
   --composer-backdrop-blur: 14px;
-  --composer-backdrop-blur-outset: 12px;
+  --composer-backdrop-blur-outset: 8px;
   --composer-backdrop-bg: color-mix(in srgb, var(--bg2) 94%, var(--bg) 6%);
   --scroll-pad-inline: 20px;
   --dropdown-shadow:  0 10px 30px rgba(0,0,0,.45);
