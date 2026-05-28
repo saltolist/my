@@ -560,7 +560,9 @@ html, body {
 .feed-scroll::-webkit-scrollbar,
 .analytics-page::-webkit-scrollbar,
 .profile-page::-webkit-scrollbar,
-.notes-page::-webkit-scrollbar {
+.notes-page::-webkit-scrollbar,
+.chats-scroll::-webkit-scrollbar,
+.note-page::-webkit-scrollbar {
   width: var(--sb-w);
   height: var(--sb-w);
 }
@@ -570,7 +572,9 @@ html, body {
 .feed-scroll::-webkit-scrollbar-track,
 .analytics-page::-webkit-scrollbar-track,
 .profile-page::-webkit-scrollbar-track,
-.notes-page::-webkit-scrollbar-track {
+.notes-page::-webkit-scrollbar-track,
+.chats-scroll::-webkit-scrollbar-track,
+.note-page::-webkit-scrollbar-track {
   background: transparent;
 }
 .gchat-messages::-webkit-scrollbar-thumb,
@@ -579,7 +583,9 @@ html, body {
 .feed-scroll::-webkit-scrollbar-thumb,
 .analytics-page::-webkit-scrollbar-thumb,
 .profile-page::-webkit-scrollbar-thumb,
-.notes-page::-webkit-scrollbar-thumb {
+.notes-page::-webkit-scrollbar-thumb,
+.chats-scroll::-webkit-scrollbar-thumb,
+.note-page::-webkit-scrollbar-thumb {
   background: var(--scroll-thumb);
   border-radius: 999px;
 }
@@ -589,7 +595,9 @@ html, body {
 .feed-scroll::-webkit-scrollbar-thumb:hover,
 .analytics-page::-webkit-scrollbar-thumb:hover,
 .profile-page::-webkit-scrollbar-thumb:hover,
-.notes-page::-webkit-scrollbar-thumb:hover {
+.notes-page::-webkit-scrollbar-thumb:hover,
+.chats-scroll::-webkit-scrollbar-thumb:hover,
+.note-page::-webkit-scrollbar-thumb:hover {
   background: var(--scroll-thumb-hover);
 }
 .gchat-messages::-webkit-scrollbar-corner,
@@ -598,7 +606,9 @@ html, body {
 .feed-scroll::-webkit-scrollbar-corner,
 .analytics-page::-webkit-scrollbar-corner,
 .profile-page::-webkit-scrollbar-corner,
-.notes-page::-webkit-scrollbar-corner {
+.notes-page::-webkit-scrollbar-corner,
+.chats-scroll::-webkit-scrollbar-corner,
+.note-page::-webkit-scrollbar-corner {
   background: transparent;
 }
 
@@ -1247,6 +1257,20 @@ button.nav-item {
 .screen > .page-header,
 .screen > .post-hdr {
   flex-shrink: 0;
+}
+.screen > :is(
+  .profile-page,
+  .analytics-page,
+  .notes-page,
+  .chats-scroll,
+  .note-page,
+  .gchat-layout,
+  .feed-screen-wrap,
+  .post-screen-wrap,
+  .home-layout
+) {
+  flex: 1;
+  min-height: 0;
 }
 .page-header h2,
 .breadcrumb {
@@ -2239,11 +2263,24 @@ button.nav-item {
   background: transparent;
   flex-shrink: 0;
   display: flex; justify-content: center;
-  position: sticky;
-  bottom: 0;
   z-index: 20;
-  margin-top: -84px;
   isolation: isolate;
+}
+
+/* Composer поверх скролла — полоса прокрутки до низа области под шапкой */
+.feed-layout,
+.gchat-layout,
+.post-screen-wrap {
+  position: relative;
+}
+.feed-layout > .input-wrap,
+.gchat-layout > .input-wrap,
+.post-screen-wrap > .input-wrap:not(.post-comments-input-wrap) {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin-top: 0;
 }
 
 /* Скролл ленты/чата: только вертикаль; горизонталь не раздуваем */
@@ -3249,8 +3286,6 @@ button.nav-item {
    SCREEN: GLOBAL CHAT (open chat)
 ════════════════════════════════ */
 .gchat-layout {
-  flex: 1;
-  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -3306,13 +3341,23 @@ button.nav-item {
 ════════════════════════════════ */
 /* Один корневой узел под #screen-feed: тянем на высоту экрана, иначе flex:1 у .feed-layout не срабатывает */
 .feed-screen-wrap {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
   overflow: hidden;
 }
-.feed-layout { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+.feed-screen-wrap > .page-header {
+  flex-shrink: 0;
+}
+.feed-screen-wrap > .feed-layout {
+  flex: 1;
+  min-height: 0;
+}
+.feed-layout {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
 .feed-scroll {
   flex: 1;
   min-height: 0;
@@ -3839,11 +3884,16 @@ button.nav-item {
 .post-card-metrics { font-size: 12px; color: var(--text3); }
 
 .post-screen-wrap {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
   overflow: hidden;
+}
+.post-screen-wrap > .post-hdr {
+  flex-shrink: 0;
+}
+.post-screen-wrap > :is(.post-body, .post-subpage-scroll) {
+  flex: 1;
+  min-height: 0;
 }
 
 /* post body */
@@ -4344,8 +4394,13 @@ button.nav-item {
    SCREEN: NOTE PAGE
 ════════════════════════════════ */
 .note-page {
-  flex: 1; overflow-y: auto; padding: 20px 24px 28px;
-  display: flex; justify-content: center; align-items: flex-start;
+  overflow-y: auto;
+  padding: 20px 24px 28px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) transparent;
 }
 .note-layout {
   width: min(var(--content-w), 100%);
@@ -4866,8 +4921,12 @@ a.note-file-item:hover {
    SCREEN: CHATS LIST
 ════════════════════════════════ */
 .chats-scroll {
-  flex: 1; overflow-y: auto; padding: 20px 24px 20px;
-  display: flex; justify-content: center;
+  overflow-y: auto;
+  padding: 20px 24px 20px;
+  display: flex;
+  justify-content: center;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) transparent;
 }
 .chats-scroll-inner { width: min(var(--content-w), 100%); }
 /* Глобальные / локальные чаты — переключатель в шапке (.page-header-search-tools-row) */
@@ -8191,7 +8250,6 @@ button.filter-tab {
 
   .feed-screen-wrap .input-wrap {
     padding: 12px;
-    margin-top: -72px;
   }
 
   .feed-screen-wrap .input-tools {
@@ -8260,18 +8318,7 @@ button.filter-tab {
     box-sizing: border-box;
   }
 
-  #screen-feed .input-wrap,
-  #screen-gchat .input-wrap,
-  #screen-post .input-wrap {
-    margin-top: -84px;
-    position: sticky;
-    bottom: 0;
-    z-index: 20;
-    background: transparent;
-  }
-
   #screen-home .input-wrap {
-    margin-top: 0;
     position: static;
     background: transparent;
   }
