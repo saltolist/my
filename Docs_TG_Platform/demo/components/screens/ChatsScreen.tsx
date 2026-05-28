@@ -8,6 +8,7 @@ import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import PageHeaderSelect from "../PageHeaderSelect";
 import ChatListCardMenu from "../chat/ChatListCardMenu";
+import { MenuIconPlus } from "../HeaderMenuIcons";
 import { NavIconChats, NavIconFeed, NavIconSend } from "@/components/sidebar/NavIcons";
 import { isOmnichannelChat } from "@/lib/omnichannel";
 import { routes } from "@/lib/routes";
@@ -146,8 +147,23 @@ export default function ChatsScreen() {
           </div>
         }
       />
-      <div className="chats-scroll">
-        <div className="chats-scroll-inner">
+      <div className="chats-page">
+        {tab === "global" || tab === "all" ? (
+          <div className="chats-filter-row">
+            <button
+              type="button"
+              className={`filter-tab active chats-new-chat-btn${isMobile ? " filter-tab--dropdown" : ""}`}
+              onClick={() => goToHref(routes.home())}
+            >
+              <span className="chats-new-chat-btn-icon" aria-hidden>
+                <MenuIconPlus size={12} strokeWidth={2} />
+              </span>
+              <span>Новый чат</span>
+            </button>
+          </div>
+        ) : null}
+        <div className="chats-scroll">
+          <div className="chats-scroll-inner">
           {tab === "all" ? (
             globalChats.length === 0 && localChats.length === 0 ? (
               <div className="empty">
@@ -184,6 +200,7 @@ export default function ChatsScreen() {
               </div>
             </>
           )}
+          </div>
         </div>
       </div>
     </>
