@@ -4361,19 +4361,66 @@ button.nav-item {
   font-size: 12px; color: var(--text3); line-height: 1.5; overflow: hidden;
   display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical;
 }
-.note-card-footer {
+.note-card-footer,
+.note-card-footer-pg {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 10px;
   margin-top: auto;
+}
+.note-card-footer {
   padding-top: 8px;
+}
+.note-card-footer-start {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: 0;
+}
+.note-card-context-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-width: 0;
+  text-align: left;
+}
+.note-card-context-control:focus-visible {
+  outline: none;
+}
+.note-card-context-control:focus-visible .note-ai-toggle {
+  border-color: var(--control-border-active);
+}
+.note-card-context-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text2);
+  white-space: nowrap;
+}
+.note-card-context-label--out {
+  font-weight: 400;
+  color: var(--text3);
+}
+.note-card-meta,
+.note-card-meta-pg {
+  font-size: 11px;
+  color: var(--text3);
+  min-width: 0;
+  margin-left: auto;
+  text-align: right;
+  line-height: 1.35;
 }
 .note-date {
   font-size: 11px;
   color: var(--text3);
   min-width: 0;
-  flex: 1;
   line-height: 1.35;
 }
 .note-del { font-size: 13px; color: var(--text3); cursor: pointer; transition: color .15s; }
@@ -5189,34 +5236,10 @@ button.filter-tab {
   font-size: 12px; color: var(--text3); line-height: 1.5; overflow: hidden;
   display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical;
 }
-.note-card-footer-pg {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  margin-top: auto;
-}
-.note-card-date-pg {
-  font-size: 11px;
-  color: var(--text3);
-  min-width: 0;
-  flex: 1;
-  line-height: 1.35;
-}
-.note-card-date-pg a {
-  color: var(--accent);
-  cursor: pointer;
-  text-decoration: none;
-}
-.note-card-date-pg a:hover {
-  text-decoration: underline;
-}
 /* Как чекбокс в профиле (22px), вместо галочки — иконка мозга */
 .note-ai-toggle {
   --note-ai-toggle-size: 22px;
   --note-ai-toggle-icon: 15px;
-  -webkit-appearance: none;
-  appearance: none;
   box-sizing: border-box;
   width: var(--note-ai-toggle-size);
   height: var(--note-ai-toggle-size);
@@ -5228,7 +5251,6 @@ button.filter-tab {
   background: var(--profile-control-bg);
   -webkit-backdrop-filter: var(--profile-control-blur);
   backdrop-filter: var(--profile-control-blur);
-  cursor: pointer;
   position: relative;
   overflow: visible;
   display: inline-flex;
@@ -5264,16 +5286,20 @@ button.filter-tab {
 .note-ai-toggle.off::after {
   opacity: 1;
 }
-.note-ai-toggle.off:hover:not(:disabled):not(.note-ai-toggle--suppress-hover) {
+.note-card-context-control:hover:not(:disabled) .note-ai-toggle.off:not(.note-ai-toggle--suppress-hover),
+.note-ai-toggle.off:hover:not(.note-ai-toggle--suppress-hover) {
   background: var(--profile-control-bg-hover);
   border-color: var(--control-border-active);
 }
-.note-ai-toggle.off:hover:not(:disabled):not(.note-ai-toggle--suppress-hover)::after {
+.note-card-context-control:hover:not(:disabled) .note-ai-toggle.off:not(.note-ai-toggle--suppress-hover)::after,
+.note-ai-toggle.off:hover:not(.note-ai-toggle--suppress-hover)::after {
   opacity: 0;
 }
 /* Выкл. после клика по вкл.: чуть темнее обводка, пока курсор на кнопке */
-.note-ai-toggle.off.note-ai-toggle--suppress-hover:hover:not(:disabled),
-.note-ai-toggle.off.note-ai-toggle--suppress-hover:active:not(:disabled) {
+.note-card-context-control--suppress-hover:hover:not(:disabled) .note-ai-toggle.off,
+.note-card-context-control--suppress-hover:active:not(:disabled) .note-ai-toggle.off,
+.note-ai-toggle.off.note-ai-toggle--suppress-hover:hover,
+.note-ai-toggle.off.note-ai-toggle--suppress-hover:active {
   background: var(--profile-control-bg);
   border-color: color-mix(
     in srgb,
@@ -5293,32 +5319,35 @@ button.filter-tab {
   color: var(--profile-control-fg);
 }
 /* Вкл.: hover-превью (тусклый мозг + штрих) — как :checked:hover:not(.profile-checkbox--suppress-hover) */
-.note-ai-toggle.on:hover:not(:disabled):not(.note-ai-toggle--suppress-hover) {
+.note-card-context-control:hover:not(:disabled) .note-ai-toggle.on:not(.note-ai-toggle--suppress-hover),
+.note-ai-toggle.on:hover:not(.note-ai-toggle--suppress-hover) {
   background: var(--profile-control-bg-hover);
   border-color: var(--control-border-active);
   color: var(--text3);
 }
-.note-ai-toggle.on:hover:not(:disabled):not(.note-ai-toggle--suppress-hover)::after {
+.note-card-context-control:hover:not(:disabled) .note-ai-toggle.on:not(.note-ai-toggle--suppress-hover)::after,
+.note-ai-toggle.on:hover:not(.note-ai-toggle--suppress-hover)::after {
   opacity: 1;
 }
 /* Вкл. после клика по выкл.: тёмная обводка, пока курсор на кнопке */
-.note-ai-toggle.on.note-ai-toggle--suppress-hover:hover:not(:disabled),
-.note-ai-toggle.on.note-ai-toggle--suppress-hover:active:not(:disabled) {
+.note-card-context-control--suppress-hover:hover:not(:disabled) .note-ai-toggle.on,
+.note-card-context-control--suppress-hover:active:not(:disabled) .note-ai-toggle.on,
+.note-ai-toggle.on.note-ai-toggle--suppress-hover:hover,
+.note-ai-toggle.on.note-ai-toggle--suppress-hover:active {
   background: var(--profile-control-bg-active);
   border-color: color-mix(in srgb, var(--border2) 55%, #000 45%);
   color: var(--profile-control-fg);
 }
-.note-ai-toggle.on.note-ai-toggle--suppress-hover:hover:not(:disabled)::after,
-.note-ai-toggle.on.note-ai-toggle--suppress-hover:active:not(:disabled)::after {
+.note-card-context-control--suppress-hover:hover:not(:disabled) .note-ai-toggle.on::after,
+.note-card-context-control--suppress-hover:active:not(:disabled) .note-ai-toggle.on::after,
+.note-ai-toggle.on.note-ai-toggle--suppress-hover:hover::after,
+.note-ai-toggle.on.note-ai-toggle--suppress-hover:active::after {
   opacity: 0;
 }
-.note-ai-toggle:focus-visible {
-  outline: none;
-  border-color: var(--control-border-active);
-  box-shadow: none;
-}
 .note-card-page:hover:has(.note-ai-toggle--suppress-hover),
-.note-card:hover:has(.note-ai-toggle--suppress-hover) {
+.note-card:hover:has(.note-ai-toggle--suppress-hover),
+.note-card-page:hover:has(.note-card-context-control--suppress-hover),
+.note-card:hover:has(.note-card-context-control--suppress-hover) {
   border-color: var(--border);
 }
 @media (max-width: 1100px) {

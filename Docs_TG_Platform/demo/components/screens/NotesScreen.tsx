@@ -18,7 +18,7 @@ type AnyNote =
   | (LocalNote & { isGlobal: false; postId: number; postTitle: string });
 
 export default function NotesScreen() {
-  const { state, dispatch, openPost, goToHref } = useApp();
+  const { state, dispatch, goToHref } = useApp();
   const isMobile = useMobile760();
   const [search, setSearch] = useState("");
   const scope = state.noteScope;
@@ -153,28 +153,14 @@ export default function NotesScreen() {
                   </div>
                   <div className="note-card-preview">{n.body}</div>
                   <div className="note-card-footer-pg">
-                    <NoteCardAiToggle
-                      ai={n.ai}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleAi(n);
-                      }}
-                    />
-                    <span className="note-card-date-pg">
+                    <div className="note-card-footer-start">
+                      <NoteCardAiToggle
+                        ai={n.ai}
+                        onClick={() => toggleAi(n)}
+                      />
+                    </div>
+                    <span className="note-card-meta-pg">
                       {n.date} · {n.isGlobal ? "Глобальная" : "Локальная"}
-                      {!n.isGlobal ? (
-                        <>
-                          {" · "}
-                          <a
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openPost(n.postId);
-                            }}
-                          >
-                            к посту
-                          </a>
-                        </>
-                      ) : null}
                     </span>
                   </div>
                 </div>

@@ -755,14 +755,15 @@ function PostNotes({ search }: { search: string }) {
               <div className="note-card-preview-post">{n.body || "Пустая заметка"}</div>
             </div>
             <div className="note-card-footer">
-              <NoteCardAiToggle
-                ai={n.ai}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: post.id, noteId: n.id });
-                }}
-              />
-              <span className="note-date">{n.date}</span>
+              <div className="note-card-footer-start">
+                <NoteCardAiToggle
+                  ai={n.ai}
+                  onClick={() =>
+                    dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: post.id, noteId: n.id })
+                  }
+                />
+              </div>
+              <span className="note-card-meta">{n.date}</span>
             </div>
           </div>
         ))}
