@@ -8,8 +8,8 @@ import TelegramBlock from "../profile/TelegramBlock";
 import ThemeBlock from "../profile/ThemeBlock";
 import PlatformAnalyticsBlock from "../profile/PlatformAnalyticsBlock";
 import PageHeader from "../PageHeader";
-import PageHeaderSelect from "../PageHeaderSelect";
 import { useApp } from "@/state/AppContext";
+import { useMobile760 } from "@/lib/hooks/useMobile760";
 
 const PROFILE_TABS = ["Настройки", "Канал", "Аналитика платформы"] as const;
 
@@ -17,6 +17,7 @@ export default function ProfileScreen() {
   const [tab, setTab] = useState(0);
   const { state, profileChannelDirty, profileSettingsDirty, discardProfileEdits } = useApp();
   const profileScreenActive = state.screen === "profile";
+  const isMobile = useMobile760();
   const settingsTabActive = tab === 0 && profileScreenActive;
   const channelTabActive = tab === 1 && profileScreenActive;
 
@@ -42,19 +43,30 @@ export default function ProfileScreen() {
     setTab(next);
   };
 
+  const tabToolbar = (
+    <div className="page-header-profile-tabs" role="tablist" aria-label="Раздел профиля">
+      {PROFILE_TABS.map((label, i) => (
+        <button
+          key={label}
+          type="button"
+          role="tab"
+          aria-selected={i === tab}
+          className={`period-tab${i === tab ? " active" : ""}`}
+          onClick={() => switchTab(i)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <>
       <PageHeader
         title="Профиль канала"
         backTo="home"
-        mobileSelect={
-          <PageHeaderSelect
-            ariaLabel="Раздел профиля"
-            value={String(tab)}
-            options={PROFILE_TABS.map((label, i) => ({ value: String(i), label }))}
-            onChange={(v) => switchTab(Number(v))}
-          />
-        }
+        center={<div className="page-header-toolbar--desktop">{tabToolbar}</div>}
+        mobileSelect={isMobile ? <div className="page-header-toolbar--mobile">{tabToolbar}</div> : undefined}
       />
       <div className="profile-page" id="screen-profile">
         <div className="profile-scroll-inner">

@@ -1699,6 +1699,48 @@ button.nav-item {
   font: inherit;
   color: inherit;
 }
+
+/* ModelPicker dropdown в стиле селекторов шапки (используем точечно) */
+.model-picker-dropdown.model-picker-dropdown--page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--page-header-dropdown-gap);
+  padding: var(--page-header-dropdown-pad);
+  border-radius: var(--page-header-dropdown-r);
+  -webkit-backdrop-filter: var(--glass-filter) !important;
+  backdrop-filter: var(--glass-filter) !important;
+  background: color-mix(in srgb, var(--ctx-dropdown-header-surface) 72%, var(--glass-bg) 28%) !important;
+  border: 1px solid color-mix(in srgb, var(--ctx-dropdown-header-border) 76%, var(--glass-border) 24%);
+  box-shadow: var(--dropdown-shadow);
+}
+
+.model-picker-dropdown.model-picker-dropdown--page-header .model-picker-item {
+  border-radius: var(--page-header-dropdown-item-r);
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+  text-align: left;
+}
+
+.model-picker-dropdown.model-picker-dropdown--page-header .model-picker-item + .model-picker-item {
+  margin-top: 0;
+}
+
+.model-picker-dropdown.model-picker-dropdown--page-header .model-picker-item:hover {
+  background: var(--ctx-dropdown-header-surface-hover);
+  color: var(--text2);
+}
+
+.model-picker-dropdown.model-picker-dropdown--page-header .model-picker-item.active {
+  background: var(--ctx-dropdown-header-surface-active);
+  color: var(--text);
+}
+
+.model-picker-dropdown.model-picker-dropdown--page-header .model-picker-item.active:hover {
+  background: var(--ctx-dropdown-header-surface-active);
+  color: var(--text);
+}
 .ctx-dropdown.ctx-dropdown--page-header-select {
   display: flex;
   flex-direction: column;
@@ -5246,7 +5288,10 @@ button.filter-tab {
 }
 .analytics-chart-card .analytics-card-head .chart-series-selector--profile {
   width: auto;
-  min-width: 148px;
+  max-width: 260px;
+}
+.analytics-chart-card .analytics-card-head .analytics-period-picker {
+  width: auto;
   max-width: 260px;
 }
 .analytics-chart-card .analytics-card-head .chart-series-selector--profile .model-picker-btn {
@@ -6175,6 +6220,46 @@ button.filter-tab {
   .analytics-top-posts-table {
     min-width: 920px;
   }
+
+  /* Аналитика канала (desktop): селекторы справа в одну строку */
+  #screen-analytics .analytics-chart-card .analytics-card-head {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  #screen-analytics .analytics-chart-card .analytics-card-head .profile-section-title {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  #screen-analytics
+    .analytics-chart-card
+    .analytics-card-head
+    .analytics-channel-head-filters.model-filter-stack.model-filter-stack--with-series {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    width: auto;
+    margin-left: auto;
+  }
+
+  #screen-analytics
+    .analytics-chart-card
+    .analytics-card-head
+    .analytics-channel-head-filters
+    .profile-model-picker,
+  #screen-analytics
+    .analytics-chart-card
+    .analytics-card-head
+    .analytics-channel-head-filters
+    .chart-series-selector--profile {
+    width: auto;
+    max-width: 280px;
+  }
 }
 .analytics-top-posts-table .analytics-top-posts-col-title {
   width: 32%;
@@ -6592,12 +6677,18 @@ button.filter-tab {
   height: 36px;
   font-size: 14px;
   padding: 0 12px 0 14px;
+  border-radius: var(--rs);
   background: var(--profile-select-bg);
   border: 1px solid var(--profile-field-border);
   box-shadow: var(--profile-field-shadow);
   -webkit-backdrop-filter: var(--profile-control-blur);
   backdrop-filter: var(--profile-control-blur);
   transition: background .15s, border-color .15s, color .15s, box-shadow .15s;
+}
+
+/* Аналитика канала: период — такой же радиус, как селектор метрик */
+.analytics-chart-card .analytics-period-picker .model-picker-btn {
+  border-radius: var(--profile-r);
 }
 .profile-model-picker .model-picker-btn:hover:not(:disabled) {
   background: var(--profile-select-bg);
@@ -8706,6 +8797,23 @@ button.filter-tab {
     font-size: 15px;
   }
 
+  /* Аналитика канала (desktop): два селектора рядом, селектор периода слева от метрик */
+  #screen-analytics .analytics-chart-card .analytics-card-head .analytics-channel-head-filters {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex: 0 0 auto;
+    width: auto;
+    margin-left: auto;
+  }
+
+  #screen-analytics .analytics-chart-card .analytics-card-head .analytics-channel-head-filters .profile-model-picker,
+  #screen-analytics .analytics-chart-card .analytics-card-head .analytics-channel-head-filters .chart-series-selector--profile {
+    width: auto;
+    max-width: 280px;
+  }
+
   #screen-analytics .analytics-chart-card .analytics-card-head .chart-series-selector,
   #screen-analytics .analytics-chart-card .analytics-card-head .chart-series-selector--profile {
     flex: 0 1 auto;
@@ -8715,11 +8823,24 @@ button.filter-tab {
   }
 
   #screen-analytics .analytics-chart-card .analytics-card-head .chart-series-selector--profile .model-picker-btn {
-    width: 100%;
+    width: max-content;
     max-width: 100%;
     font-size: 11px;
     height: 32px;
-    padding: 0 8px;
+    /* ширина по тексту + паддинги; стрелка всегда с одинаковым правым inset */
+    padding: 0 14px 0 18px;
+    justify-content: space-between;
+  }
+
+  /* Аналитика канала (desktop): период — тот же ритм текста/шеврона, что у «Метрики» */
+  #screen-analytics .analytics-chart-card .analytics-card-head .analytics-period-picker .model-picker-btn {
+    width: max-content;
+    max-width: 100%;
+    font-size: 11px;
+    height: 32px;
+    /* ширина по тексту + паддинги; стрелка всегда с одинаковым правым inset */
+    padding: 0 14px 0 18px;
+    justify-content: space-between;
   }
 
   #screen-analytics
@@ -8730,6 +8851,18 @@ button.filter-tab {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    text-align: left;
+  }
+
+  #screen-analytics
+    .analytics-chart-card
+    .analytics-card-head
+    .analytics-period-picker
+    .model-picker-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
   }
 
   /* Профиль: три селектора в ряд между заголовком и карточками (как ширина карточек) */

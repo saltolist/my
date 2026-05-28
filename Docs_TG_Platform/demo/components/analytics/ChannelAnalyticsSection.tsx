@@ -5,6 +5,7 @@ import ChartSeriesSelector from "@/components/charts/ChartSeriesSelector";
 import MultiSeriesTrendChart from "@/components/charts/MultiSeriesTrendChart";
 import ChannelMetricBars from "@/components/analytics/ChannelMetricBars";
 import ChannelReactionsPanel from "@/components/analytics/ChannelReactionsPanel";
+import ModelPicker from "@/components/composer/ModelPicker";
 import {
   ANALYTICS_SCREEN_PERIOD_TO_CHART,
   buildChannelSummaryCards,
@@ -20,7 +21,15 @@ import {
 import { useChartSeriesVisibility } from "@/lib/hooks/useChartSeriesVisibility";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 
-export default function ChannelAnalyticsSection({ periodIndex }: { periodIndex: number }) {
+export default function ChannelAnalyticsSection({
+  periodIndex,
+  periods,
+  onPeriodChange,
+}: {
+  periodIndex: number;
+  periods: string[];
+  onPeriodChange: (next: number) => void;
+}) {
   const isMobile = useMobile760();
   const chartPeriod = ANALYTICS_SCREEN_PERIOD_TO_CHART[periodIndex] ?? 1;
   const { labels, series } = useMemo(
@@ -47,13 +56,24 @@ export default function ChannelAnalyticsSection({ periodIndex }: { periodIndex: 
       <div className="analytics-card analytics-chart-card platform-analytics-section profile-checkbox-scope">
         <div className="analytics-card-head">
           <div className="profile-section-title">Динамика прироста</div>
-          <ChartSeriesSelector
-            variant="profile"
-            label="Метрики"
-            items={selectorItems}
-            isVisible={isVisible}
-            onVisibleChange={setVisible}
-          />
+          <div className="analytics-channel-head-filters model-filter-stack model-filter-stack--with-series">
+            <ModelPicker
+              ariaLabel="Период"
+              className="profile-model-picker analytics-period-picker"
+              value={String(periodIndex)}
+              options={periods.map((label, index) => ({ id: String(index), label }))}
+              placement="down"
+              dropdownClassName="model-picker-dropdown--page-header"
+              onChange={(id) => onPeriodChange(Number(id))}
+            />
+            <ChartSeriesSelector
+              variant="profile"
+              label="Метрики"
+              items={selectorItems}
+              isVisible={isVisible}
+              onVisibleChange={setVisible}
+            />
+          </div>
         </div>
         {summaryCards.length > 0 ? (
           <div

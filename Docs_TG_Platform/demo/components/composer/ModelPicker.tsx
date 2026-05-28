@@ -21,6 +21,7 @@ type Props = {
   ariaLabel?: string;
   placement?: "up" | "down";
   className?: string;
+  dropdownClassName?: string;
   /** Подпись на кнопке; пункты меню — из options/sections.label */
   buttonLabelFormatter?: (opt: ModelOption) => string;
 };
@@ -42,6 +43,7 @@ export default function ModelPicker({
   ariaLabel,
   placement = "up",
   className,
+  dropdownClassName,
   buttonLabelFormatter,
 }: Props) {
   const [open, setOpen] = useState(false);
@@ -136,7 +138,7 @@ export default function ModelPicker({
         ? createPortal(
             <div
               ref={dropdownRef}
-              className={`model-picker-dropdown${isComposerPicker ? " model-picker-dropdown--composer" : ""}`}
+              className={`model-picker-dropdown${isComposerPicker ? " model-picker-dropdown--composer" : ""}${dropdownClassName ? ` ${dropdownClassName}` : ""}`}
               role="listbox"
               style={
                 pos.mode === "down"
