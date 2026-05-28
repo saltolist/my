@@ -2941,8 +2941,14 @@ button.nav-item {
 }
 @media (hover: none) {
   .msg-user-side-actions {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .msg-user-hover-zone--actions-open .msg-user-side-actions {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
   }
 }
 .msg-user-edit-wrap {

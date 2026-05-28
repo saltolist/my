@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useApp } from "@/state/AppContext";
+import { useMobile760 } from "@/lib/hooks/useMobile760";
 import type { ChatMessage as ChatMessageType } from "@/lib/types";
 import { clampActiveBranchIndex, displayUserText } from "@/lib/chatPaths";
 import { isOmnichannelChatId } from "@/lib/omnichannel";
@@ -153,8 +154,11 @@ export default function ChatMessage({
   const [draft, setDraft] = useState(userShown);
   const [copied, setCopied] = useState(false);
   const [editSession, setEditSession] = useState(0);
+  const [userActionsOpen, setUserActionsOpen] = useState(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const userHoverZoneRef = useRef<HTMLDivElement>(null);
+  const isMobile = useMobile760();
   const pathKey = ctx ? ctx.path.join("-") : "";
 
   useEffect(() => {
@@ -166,6 +170,25 @@ export default function ChatMessage({
       if (copyTimer.current) clearTimeout(copyTimer.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!isMobile) setUserActionsOpen(false);
+  }, [isMobile]);
+
+  useEffect(() => {
+    if (!isMobile || !userActionsOpen || editing) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (userHoverZoneRef.current?.contains(event.target as Node)) return;
+      setUserActionsOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, [isMobile, userActionsOpen, editing]);
+
+  const openUserActionsOnMobile = useCallback(() => {
+    if (!isMobile || !ctx || editing) return;
+    setUserActionsOpen(true);
+  }, [isMobile, ctx, editing]);
 
   useEffect(() => {
     if (editing && taRef.current) {
@@ -246,6 +269,7 @@ export default function ChatMessage({
     }
     setDraft(userShown);
     setEditSession((n) => n + 1);
+    setUserActionsOpen(false);
     setEditing(true);
   }, [ctx, userShown, editing, confirmDiscardAnyEdit, discardPendingEdits]);
 
@@ -373,10 +397,13 @@ export default function ChatMessage({
     return (
       <div className="msg-row user">
         <div
-          className={`msg-user-hover-zone${editing ? " msg-user-hover-zone--editing" : ""}`}
+          ref={userHoverZoneRef}
+          className={`msg-user-hover-zone${editing ? " msg-user-hover-zone--editing" : ""}${
+            userActionsOpen ? " msg-user-hover-zone--actions-open" : ""
+          }`}
         >
           <div className="msg-user-stack">
-            <div className="msg-user-bubble-row">
+            <div className="msg-user-bubble-row" onClick={openUserActionsOnMobile}>
               <div className={`msg-body${ctx && !editing ? " msg-body--user-actions" : ""}`}>
                 {ctx && !editing ? (
                   <div className="msg-user-side-actions">
