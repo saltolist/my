@@ -6752,6 +6752,10 @@ button.filter-tab {
   margin-bottom: 0;
   width: 100%;
 }
+.profile-model-pickers,
+.profile-model-footer {
+  display: contents;
+}
 .profile-model-row {
   display: flex;
   align-items: center;
@@ -6830,6 +6834,7 @@ button.filter-tab {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   padding: 4px;
   margin: 0;
   border: none;
@@ -6837,6 +6842,9 @@ button.filter-tab {
   color: var(--red);
   cursor: pointer;
   transition: opacity 0.15s;
+}
+.profile-model-remove-label {
+  display: none;
 }
 .profile-model-remove:hover:not(:disabled) {
   opacity: 0.72;
@@ -8950,16 +8958,63 @@ button.filter-tab {
     flex-wrap: wrap;
   }
 
-  .profile-model-row {
-    display: grid;
-    grid-template-columns: 1fr;
+  .profile-model-list {
+    gap: 0;
+  }
+
+  .profile-model-list .profile-model-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding-bottom: 12px;
+  }
+
+  .profile-model-list .profile-model-row + .profile-model-row {
+    border-top: 1px dashed var(--profile-control-border);
+    padding-top: 12px;
+  }
+
+  .profile-model-pickers {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .profile-model-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+    width: 100%;
   }
 
   .profile-model-provider,
-  .profile-model-name,
+  .profile-model-name {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+
   .profile-model-key {
     width: 100%;
-    min-width: 0;
+    flex: none;
+  }
+
+  .profile-model-remove-label {
+    display: inline;
+    font-size: 12px;
+    line-height: 1.3;
+    font-weight: 500;
+  }
+
+  .profile-model-footer .profile-model-remove {
+    margin-left: auto;
+  }
+
+  .profile-model-list > .btn {
+    margin-top: 4px;
   }
 
   .profile-checkbox-label,

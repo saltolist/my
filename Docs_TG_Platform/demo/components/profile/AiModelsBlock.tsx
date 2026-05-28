@@ -272,34 +272,36 @@ function ModelRow({
   const modelOptions = (providerMap[model.provider] || []).map((m) => ({ id: m, label: m }));
   return (
     <div className="profile-model-row">
-      <ModelPicker
-        ariaLabel="Провайдер"
-        className="profile-model-picker profile-model-provider"
-        value={model.provider}
-        options={providerOptions}
-        placeholderLabel="Провайдер"
-        placement="down"
-        onChange={(provider) => {
-          const next = provider ? providerMap[provider]?.[0] || "" : "";
-          onChange({
-            provider,
-            model: next,
-            apiKey: provider ? model.apiKey : "",
-            active: provider ? model.active : false,
-            includeInMulti: provider ? model.includeInMulti : false,
-          });
-        }}
-      />
-      <ModelPicker
-        ariaLabel="Модель"
-        className="profile-model-picker profile-model-name"
-        value={model.model}
-        options={modelOptions}
-        disabled={!hasProvider}
-        placeholderLabel="Выберите модель"
-        placement="down"
-        onChange={(value) => onChange({ model: value })}
-      />
+      <div className="profile-model-pickers">
+        <ModelPicker
+          ariaLabel="Провайдер"
+          className="profile-model-picker profile-model-provider"
+          value={model.provider}
+          options={providerOptions}
+          placeholderLabel="Провайдер"
+          placement="down"
+          onChange={(provider) => {
+            const next = provider ? providerMap[provider]?.[0] || "" : "";
+            onChange({
+              provider,
+              model: next,
+              apiKey: provider ? model.apiKey : "",
+              active: provider ? model.active : false,
+              includeInMulti: provider ? model.includeInMulti : false,
+            });
+          }}
+        />
+        <ModelPicker
+          ariaLabel="Модель"
+          className="profile-model-picker profile-model-name"
+          value={model.model}
+          options={modelOptions}
+          disabled={!hasProvider}
+          placeholderLabel="Выберите модель"
+          placement="down"
+          onChange={(value) => onChange({ model: value })}
+        />
+      </div>
       <div className="profile-model-key profile-model-key-wrap">
         <input
           className="profile-input profile-input-explicit profile-model-key-input"
@@ -320,42 +322,45 @@ function ModelRow({
           <EyeIcon hidden={!apiKeyVisible} />
         </button>
       </div>
-      {showActiveToggle ? (
-        <label className="profile-checkbox-label profile-model-multi">
-          <ProfileCheckbox
-            disabled={!hasProvider}
-            checked={hasProvider && model.active}
-            onChange={(e) => onChange({ active: e.target.checked })}
-          />
-          Активна
-        </label>
-      ) : null}
-      {showMultiToggle ? (
-        <label className="profile-checkbox-label profile-model-multi">
-          <ProfileCheckbox
-            disabled={!hasProvider}
-            checked={hasProvider && model.includeInMulti}
-            onChange={(e) => onChange({ includeInMulti: e.target.checked })}
-          />
-          В мультиответ
-        </label>
-      ) : null}
-      {onRemove ? (
-        <button
-          type="button"
-          className="profile-model-remove"
-          disabled={!canRemove}
-          aria-label="Удалить модель"
-          title={canRemove ? "Удалить модель" : "Нельзя удалить последнюю модель"}
-          onClick={() => {
-            const label = model.model || model.provider || "модель";
-            if (!window.confirm(`Удалить модель «${label}»?`)) return;
-            onRemove();
-          }}
-        >
-          <MessageTrashIcon />
-        </button>
-      ) : null}
+      <div className="profile-model-footer">
+        {showActiveToggle ? (
+          <label className="profile-checkbox-label profile-model-multi">
+            <ProfileCheckbox
+              disabled={!hasProvider}
+              checked={hasProvider && model.active}
+              onChange={(e) => onChange({ active: e.target.checked })}
+            />
+            Активна
+          </label>
+        ) : null}
+        {showMultiToggle ? (
+          <label className="profile-checkbox-label profile-model-multi">
+            <ProfileCheckbox
+              disabled={!hasProvider}
+              checked={hasProvider && model.includeInMulti}
+              onChange={(e) => onChange({ includeInMulti: e.target.checked })}
+            />
+            В мультиответ
+          </label>
+        ) : null}
+        {onRemove ? (
+          <button
+            type="button"
+            className="profile-model-remove"
+            disabled={!canRemove}
+            aria-label="Удалить модель"
+            title={canRemove ? "Удалить модель" : "Нельзя удалить последнюю модель"}
+            onClick={() => {
+              const label = model.model || model.provider || "модель";
+              if (!window.confirm(`Удалить модель «${label}»?`)) return;
+              onRemove();
+            }}
+          >
+            <MessageTrashIcon />
+            <span className="profile-model-remove-label">Удалить</span>
+          </button>
+        ) : null}
+      </div>
     </div>
   );
 }
