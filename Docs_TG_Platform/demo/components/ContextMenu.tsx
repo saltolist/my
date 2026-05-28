@@ -6,6 +6,7 @@ import {
   clampFloatingPanelLeft,
   FLOATING_PANEL_EDGE_MARGIN_PX,
 } from "@/lib/floatingPanel";
+import { useFloatingPanelScrollListeners } from "@/lib/hooks/useFloatingPanelScrollListeners";
 import { useOverlayDismissOnPointer } from "@/lib/hooks/useOverlayDismissOnPointer";
 
 export type CtxMenuItem = {
@@ -139,17 +140,6 @@ export function ContextMenu({
     syncPortalLayout();
   }, [open, portal, matchTriggerWidth, syncPortalLayout, items]);
 
-  useLayoutEffect(() => {
-    if (!open || !portal) return;
-    const onReflow = () => syncPortalLayout();
-    window.addEventListener("resize", onReflow);
-    window.addEventListener("scroll", onReflow, true);
-    return () => {
-      window.removeEventListener("resize", onReflow);
-      window.removeEventListener("scroll", onReflow, true);
-    };
-  }, [open, portal, syncPortalLayout]);
-
   const { consumeSuppressTriggerClick } = useOverlayDismissOnPointer({
     open,
     onClose: () => setOpen(false),
@@ -165,10 +155,16 @@ export function ContextMenu({
     setOpen(true);
   };
 
-  const closePortal = () => {
+  const closePortal = useCallback(() => {
     setOpen(false);
     setPortalLayout(null);
-  };
+  }, []);
+
+  useFloatingPanelScrollListeners({
+    open: open && portal,
+    onReflow: syncPortalLayout,
+    onClose: closePortal,
+  });
 
   const togglePortal = () => {
     if (open) closePortal();

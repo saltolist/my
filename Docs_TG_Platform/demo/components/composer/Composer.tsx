@@ -28,6 +28,7 @@ import {
   isWebSearchVisibleForLlm,
 } from "@/lib/composer-config";
 import { onComposerShellMouseDown } from "@/lib/composerPointerDown";
+import { useFloatingPanelScrollListeners } from "@/lib/hooks/useFloatingPanelScrollListeners";
 
 type Props = {
   scope: ComposerScope;
@@ -532,24 +533,25 @@ export default function Composer({ scope, placeholder, onSubmit }: Props) {
     if (mention && mentionMatches.length > 0) updateMentionPos();
   }, [mention, mentionMatches.length, updateMentionPos]);
 
+  const mentionOpen = !!mention && mentionMatches.length > 0;
+
+  useFloatingPanelScrollListeners({
+    open: mentionOpen,
+    onReflow: updateMentionPos,
+    onClose: () => setMention(null),
+  });
+
   useEffect(() => {
-    if (!mention || mentionMatches.length === 0) return;
-    const onScroll = () => updateMentionPos();
+    if (!mentionOpen) return;
     const onDocMouseDown = (e: MouseEvent) => {
       const target = e.target as Node;
       if (editorRef.current?.contains(target)) return;
       if (mentionRef.current?.contains(target)) return;
       setMention(null);
     };
-    window.addEventListener("scroll", onScroll, true);
-    window.addEventListener("resize", onScroll);
     document.addEventListener("mousedown", onDocMouseDown);
-    return () => {
-      window.removeEventListener("scroll", onScroll, true);
-      window.removeEventListener("resize", onScroll);
-      document.removeEventListener("mousedown", onDocMouseDown);
-    };
-  }, [mention, mentionMatches.length, updateMentionPos]);
+    return () => document.removeEventListener("mousedown", onDocMouseDown);
+  }, [mentionOpen]);
 
   useEffect(() => {
     const onSelChange = () => {

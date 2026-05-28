@@ -3,6 +3,7 @@
 import { useCallback, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { clampFloatingPanelLeft } from "@/lib/floatingPanel";
+import { useFloatingPanelScrollListeners } from "@/lib/hooks/useFloatingPanelScrollListeners";
 import { useOverlayDismissOnPointer } from "@/lib/hooks/useOverlayDismissOnPointer";
 
 export type ModelOption = { id: string; label: string };
@@ -80,16 +81,11 @@ export default function ModelPicker({
     triggerRef: btnRef,
   });
 
-  useLayoutEffect(() => {
-    if (!open) return;
-    const onReflow = () => updatePos();
-    window.addEventListener("resize", onReflow);
-    window.addEventListener("scroll", onReflow, true);
-    return () => {
-      window.removeEventListener("resize", onReflow);
-      window.removeEventListener("scroll", onReflow, true);
-    };
-  }, [open, updatePos]);
+  useFloatingPanelScrollListeners({
+    open,
+    onReflow: updatePos,
+    onClose: () => setOpen(false),
+  });
 
   const flatOptions = sections ? sections.flatMap((s) => s.options) : options;
   const isEmpty = emptyValue !== undefined && value === emptyValue;

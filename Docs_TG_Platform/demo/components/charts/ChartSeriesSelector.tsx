@@ -4,6 +4,7 @@ import { useCallback, useLayoutEffect, useMemo, useRef, useState, type CSSProper
 import { createPortal } from "react-dom";
 import ProfileCheckbox from "@/components/profile/ProfileCheckbox";
 import { clampFloatingPanelLeft } from "@/lib/floatingPanel";
+import { useFloatingPanelScrollListeners } from "@/lib/hooks/useFloatingPanelScrollListeners";
 import { useOverlayDismissOnPointer } from "@/lib/hooks/useOverlayDismissOnPointer";
 
 export type ChartSeriesSelectorItem = {
@@ -90,16 +91,11 @@ export default function ChartSeriesSelector({
     triggerRef: triggerRef,
   });
 
-  useLayoutEffect(() => {
-    if (!open) return;
-    const onReflow = () => updatePanelPos();
-    window.addEventListener("resize", onReflow);
-    window.addEventListener("scroll", onReflow, true);
-    return () => {
-      window.removeEventListener("resize", onReflow);
-      window.removeEventListener("scroll", onReflow, true);
-    };
-  }, [open, updatePanelPos]);
+  useFloatingPanelScrollListeners({
+    open,
+    onReflow: updatePanelPos,
+    onClose: () => setOpen(false),
+  });
 
   const rootClassName = isProfile
     ? `model-picker profile-model-picker chart-series-selector chart-series-selector--profile${open ? " is-open" : ""}`

@@ -2,6 +2,7 @@
 
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useFloatingPanelScrollListeners } from "@/lib/hooks/useFloatingPanelScrollListeners";
 import { useOverlayDismissOnPointer } from "@/lib/hooks/useOverlayDismissOnPointer";
 import { NoteIconAttach, NoteIconImage } from "@/components/note/NoteHeaderIcons";
 import { useApp, postById } from "@/state/AppContext";
@@ -87,16 +88,11 @@ export default function AttachMenu({
     triggerRef: btnRef,
   });
 
-  useLayoutEffect(() => {
-    if (!open) return;
-    const onScroll = () => updatePos();
-    window.addEventListener("resize", onScroll);
-    window.addEventListener("scroll", onScroll, true);
-    return () => {
-      window.removeEventListener("resize", onScroll);
-      window.removeEventListener("scroll", onScroll, true);
-    };
-  }, [open]);
+  useFloatingPanelScrollListeners({
+    open,
+    onReflow: updatePos,
+    onClose: closeMenu,
+  });
 
   function pickFile() {
     fileInputRef.current?.click();
