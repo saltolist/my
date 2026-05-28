@@ -2328,6 +2328,11 @@ button.nav-item {
   --input-wrap-pad-bottom: 20px;
   overflow: visible;
 }
+/* До гидрации / первого layout на /feed маска не показываем — иначе «светлый прямоугольник» при reload. */
+#screen-feed .input-wrap:not(.is-composer-ready) .composer-backdrop {
+  visibility: hidden;
+}
+
 #screen-feed .composer-backdrop,
 #screen-gchat .composer-backdrop,
 #screen-post .composer-backdrop {

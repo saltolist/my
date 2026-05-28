@@ -17,9 +17,10 @@ import { onComposerShellMouseDown } from "@/lib/composerPointerDown";
 import PostMediaBlock from "../post/PostMediaBlock";
 import type { Post, PostMedia } from "@/lib/types";
 
-/** Позиция скролла ленты между визитами (экран остаётся смонтированным). */
+/** Позиция скролла ленты между визитами в SPA (без полной перезагрузки). */
 let feedScrollTopMemory = 0;
-let feedDidInitialScrollToBottom = false;
+/** Первый визит на ленту в сессии: после гидрации статики — докрутить вниз, когда известна высота. */
+let feedSessionDidInitialScroll = false;
 
 export default function FeedScreen() {
   const { state, dispatch, openPost, openPostComments, setFeedPostWidth } = useApp();
@@ -29,6 +30,8 @@ export default function FeedScreen() {
   const [draft, setDraft] = useState("");
   const [pendingMedia, setPendingMedia] = useState<PostMedia[]>([]);
   const [search, setSearch] = useState("");
+  /** Маска composer показывается только после layout — иначе при гидрации /feed виден «лишний» прямоугольник. */
+  const [composerReady, setComposerReady] = useState(false);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const feedScrollRef = useRef<HTMLDivElement>(null);
 
@@ -57,23 +60,56 @@ export default function FeedScreen() {
     return () => el.removeEventListener("scroll", onScroll);
   }, [onFeed]);
 
-  const applyFeedScroll = (el: HTMLDivElement) => {
-    if (!feedDidInitialScrollToBottom) {
-      el.scrollTop = el.scrollHeight;
-      feedScrollTopMemory = el.scrollTop;
-      feedDidInitialScrollToBottom = true;
-      return;
-    }
-    const max = Math.max(0, el.scrollHeight - el.clientHeight);
-    el.scrollTop = Math.min(feedScrollTopMemory, max);
-  };
-
   useLayoutEffect(() => {
     const el = feedScrollRef.current;
     if (!el || !onFeed) return;
-    applyFeedScroll(el);
-    const id = requestAnimationFrame(() => applyFeedScroll(el));
-    return () => cancelAnimationFrame(id);
+
+    setComposerReady(false);
+
+    const pinToBottom = () => {
+      el.scrollTop = el.scrollHeight;
+      feedScrollTopMemory = el.scrollTop;
+    };
+
+    const restoreScroll = () => {
+      const max = Math.max(0, el.scrollHeight - el.clientHeight);
+      el.scrollTop = Math.min(feedScrollTopMemory, max);
+    };
+
+    const syncScroll = () => {
+      if (!feedSessionDidInitialScroll) pinToBottom();
+      else restoreScroll();
+    };
+
+    syncScroll();
+
+    const scrollBody = el.querySelector<HTMLElement>(".composer-scroll-body");
+    const ro =
+      scrollBody &&
+      new ResizeObserver(() => {
+        syncScroll();
+      });
+    ro?.observe(scrollBody);
+
+    let raf1 = 0;
+    let raf2 = 0;
+    raf1 = requestAnimationFrame(() => {
+      syncScroll();
+      raf2 = requestAnimationFrame(() => {
+        syncScroll();
+        if (!feedSessionDidInitialScroll) {
+          pinToBottom();
+          feedSessionDidInitialScroll = true;
+        }
+        setComposerReady(true);
+      });
+    });
+
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      ro?.disconnect();
+    };
   }, [onFeed]);
 
   const scheduled = useMemo(
@@ -174,7 +210,10 @@ export default function FeedScreen() {
             </div>
           </div>
         </div>
-        <div className="input-wrap" onMouseDown={onComposerShellMouseDown}>
+        <div
+          className={`input-wrap${composerReady ? " is-composer-ready" : ""}`}
+          onMouseDown={onComposerShellMouseDown}
+        >
           <div className="composer-backdrop" aria-hidden="true" />
           <div className="input-box">
             {pendingMedia.length > 0 ? (
@@ -185,6 +224,8 @@ export default function FeedScreen() {
               id="feed-input"
               placeholder="Написать пост..."
               rows={1}
+              autoComplete="off"
+              suppressHydrationWarning
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => {
