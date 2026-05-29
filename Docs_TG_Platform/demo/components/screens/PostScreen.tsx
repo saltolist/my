@@ -5,7 +5,6 @@ import { postById, useApp } from "@/state/AppContext";
 import {
   postTitle,
   readFileAsMedia,
-  truncate,
   chatListUserLine,
   chatListAssistantLine,
 } from "@/lib/helpers";
@@ -255,9 +254,7 @@ export default function PostScreen() {
       : state.postMode === "notes"
         ? "Поиск по заметкам..."
         : "Поиск по чатам...";
-  const postIntermediateCrumb = isMobile
-    ? POST_BREADCRUMB_LABEL
-    : truncate(postTitle(post), 32);
+  const postIntermediateCrumb = isMobile ? POST_BREADCRUMB_LABEL : postTitle(post);
   const showPostMobileRight =
     isMobile &&
     ((showListHeaderSearch && !mobileSearchOpen) ||
@@ -313,10 +310,10 @@ export default function PostScreen() {
                     {postIntermediateCrumb}
                   </span>
                   <span className="bc-sep">/</span>
-                  <span className="crumb-current">{truncate(activeChat.title, 32)}</span>
+                  <span className="crumb-current">{activeChat.title}</span>
                 </>
               ) : (
-                <span className="crumb-current">{truncate(postTitle(post), 38)}</span>
+                <span className="crumb-current">{postTitle(post)}</span>
               )}
             </div>
             ) : null}

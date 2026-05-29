@@ -1837,18 +1837,36 @@ button.nav-item {
   font-size: 12px;
   font-weight: 600;
 }
-.breadcrumb { font-weight: 400; color: var(--text2); display: flex; align-items: center; gap: 4px; }
+.breadcrumb {
+  font-weight: 400;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
 .breadcrumb .bc-link {
   font-weight: 400;
   color: var(--accent);
   cursor: pointer;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 0 1 auto;
 }
 .breadcrumb > .bc-link:first-child {
   font-weight: 600;
+  flex-shrink: 0;
 }
 .breadcrumb .bc-sep {
   font-weight: 400;
   color: var(--text2);
+  flex-shrink: 0;
 }
 .breadcrumb > .bc-link:first-child + .bc-sep {
   font-weight: 600;
@@ -1860,6 +1878,10 @@ button.nav-item {
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+  flex: 0 1 auto;
+}
+.breadcrumb .crumb-current:last-child {
+  flex: 1 1 0;
 }
 .page-header-search-field {
   position: relative;
@@ -8833,8 +8855,7 @@ button.filter-tab {
     max-width: none;
   }
 
-  .page-header h2,
-  .breadcrumb .crumb-current {
+  .page-header h2 {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -8844,6 +8865,16 @@ button.filter-tab {
   .breadcrumb {
     min-width: 0;
     flex: 1;
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+
+  .breadcrumb .bc-link,
+  .breadcrumb .crumb-current {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .btn {

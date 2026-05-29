@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useApp, postById } from "@/state/AppContext";
-import { truncate, postTitle } from "@/lib/helpers";
+import { postTitle } from "@/lib/helpers";
 import { normalizeNoteBody } from "@/lib/noteEmbeds";
 import {
   buildNoteSnapshot,
@@ -142,7 +142,7 @@ function NoteBreadcrumb({
           Заметки
         </span>
         <span className="bc-sep">/</span>
-        <span className="crumb-current">{truncate(title, 38)}</span>
+        <span className="crumb-current">{title}</span>
       </div>
     );
   }
@@ -155,12 +155,12 @@ function NoteBreadcrumb({
       {parentPost ? (
         <>
           <span className="bc-link" onClick={() => onOpenPost(note.postId)}>
-            {isMobile ? POST_BREADCRUMB_LABEL : truncate(postTitle(parentPost), 32)}
+            {isMobile ? POST_BREADCRUMB_LABEL : postTitle(parentPost)}
           </span>
           <span className="bc-sep">/</span>
         </>
       ) : null}
-      <span className="crumb-current">{truncate(title, 38)}</span>
+      <span className="crumb-current">{title}</span>
     </div>
   );
 }
