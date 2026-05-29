@@ -34,6 +34,8 @@
   --content-w: min(1160px, calc(100vw - var(--nav-w) - 48px));
   --composer-w: min(720px, calc(100vw - var(--nav-w) - 48px));
   --model-trend-chart-height: 493px;
+  /* Боковой inset под крайние точки и подписи дат на графиках */
+  --trend-chart-inset-x: 34px;
   /* Базовая ширина только поля поиска в шапке (лента / чаты / заметки); рядом — тумблеры */
   --page-header-search-w: min(350px, max(12rem, calc(100vw - var(--nav-w) - 320px)));
   /* Поля и контролы — тот же тон, что карточка composer (.input-box → --bg2) */
@@ -5714,7 +5716,7 @@ button.filter-tab {
 .analytics-page .analytics-chart-card .trend-chart-wrap,
 .profile-page .platform-analytics-section .model-trend-plot,
 .profile-page .platform-analytics-section .trend-chart-wrap {
-  overflow-x: clip;
+  overflow: visible;
   max-width: 100%;
 }
 @media (min-width: 1201px) {
@@ -5835,7 +5837,7 @@ button.filter-tab {
   padding-left: 56px;
 }
 .analytics-chart-card .model-trend-plot.trend-plot--no-y-labels {
-  padding: 0 34px 0 34px;
+  padding: 0 var(--trend-chart-inset-x, 34px);
 }
 .analytics-chart-card .model-trend-plot .trend-chart { height: var(--model-trend-chart-height); }
 .analytics-metrics-row {
@@ -8151,7 +8153,7 @@ button.filter-tab {
 
   #screen-analytics .analytics-chart-card .model-trend-plot.trend-plot--no-y-labels {
     --trend-plot-left-gutter: 34px;
-    padding: 0 14px;
+    padding: 0 var(--trend-chart-inset-x, 34px);
     margin-left: 0;
     margin-right: 0;
     width: 100%;
@@ -8162,7 +8164,7 @@ button.filter-tab {
   #screen-profile .platform-analytics-section .model-trend-plot:not(.trend-plot--no-y-labels) {
     --trend-y-label-inset: 40px;
     --trend-plot-left-gutter: 40px;
-    padding: 4px 14px 0 40px;
+    padding: 4px var(--trend-chart-inset-x, 34px) 0 40px;
     margin-left: 0;
     margin-right: 0;
     width: 100%;
@@ -10229,7 +10231,7 @@ button.filter-tab {
     max-width: 100%;
   }
 
-  /* Графики на мобильной: чуть уже карточки (не 34px), чтобы не резать крайние точки и даты */
+  /* На телефоне — меньший inset (см. --mobile-trend-chart-inset-x) */
   :root {
     --mobile-trend-chart-inset-x: 14px;
   }
