@@ -1228,6 +1228,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           title: truncate(text, 40),
           preview: text,
           date: "сейчас",
+          ai: true,
           history: [{ role: "user", text }],
         };
         dispatch({ type: "ADD_LOCAL_CHAT", postId, chat: newChat });

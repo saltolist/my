@@ -90,6 +90,8 @@ export type LocalChat = {
   preview: string;
   date: string;
   history: ChatMessage[];
+  /** Участвует в контексте ИИ при работе с постом */
+  ai: boolean;
 };
 
 export type Post = {

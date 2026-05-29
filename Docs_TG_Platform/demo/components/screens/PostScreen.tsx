@@ -35,8 +35,10 @@ import { MenuIconPlus } from "../HeaderMenuIcons";
 import { NavIconChats, NavIconFeed, NavIconNotes } from "@/components/sidebar/NavIcons";
 import { useFeedPostLayout } from "@/lib/hooks/useFeedPostLayout";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
+import PostSubpageToolbar from "../post/PostSubpageToolbar";
+import { matchesListContextFilter } from "@/lib/listContextFilter";
 import { routes } from "@/lib/routes";
-import type { LocalNote, NoteFile, PostComment, PostMedia, PostMetrics, PostMode } from "@/lib/types";
+import type { LocalNote, NoteFile, PostComment, PostMedia, PostMetrics, PostMode, NoteListFilter } from "@/lib/types";
 
 const POST_BREADCRUMB_LABEL = "Пост";
 
@@ -61,6 +63,7 @@ export default function PostScreen() {
   const postCardRef = useRef<HTMLDivElement>(null);
   const [showJump, setShowJump] = useState(false);
   const [listSearch, setListSearch] = useState("");
+  const [listContextFilter, setListContextFilter] = useState<NoteListFilter>("all");
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const postHdrTopRef = useRef<HTMLDivElement>(null);
   const mobileSearchLeftRef = useRef<HTMLDivElement>(null);
@@ -134,6 +137,10 @@ export default function PostScreen() {
   useEffect(() => {
     setMobileSearchOpen(false);
   }, [state.postMode, showListHeaderSearch]);
+
+  useEffect(() => {
+    setListContextFilter("all");
+  }, [post?.id]);
 
   const postHeaderOverflowItems = useMemo((): PageHeaderOverflowItem[] => {
     if (!post) return [];
@@ -493,19 +500,23 @@ export default function PostScreen() {
         </>
       ) : state.postMode === "chats" ? (
         <div className="post-subpage-scroll">
-          <div className="post-subpage-toolbar">
-            <button
-              type="button"
-              className="filter-tab active chats-new-chat-btn filter-tab--dropdown"
-              onClick={startNewChat}
-            >
-              <span className="chats-new-chat-btn-icon" aria-hidden>
-                <MenuIconPlus size={12} strokeWidth={2} />
-              </span>
-              <span>Новый чат</span>
-            </button>
-          </div>
-          <PostChats search={listSearch} onOpenChat={openLocalChat} />
+          <PostSubpageToolbar
+            filter={listContextFilter}
+            onFilterChange={setListContextFilter}
+            action={
+              <button
+                type="button"
+                className="filter-tab active chats-new-chat-btn filter-tab--dropdown"
+                onClick={startNewChat}
+              >
+                <span className="chats-new-chat-btn-icon" aria-hidden>
+                  <MenuIconPlus size={12} strokeWidth={2} />
+                </span>
+                <span>Новый чат</span>
+              </button>
+            }
+          />
+          <PostChats search={listSearch} contextFilter={listContextFilter} onOpenChat={openLocalChat} />
         </div>
       ) : state.postMode === "comments" ? (
         <PostCommentsPanel
@@ -519,19 +530,23 @@ export default function PostScreen() {
         />
       ) : (
         <div className="post-subpage-scroll">
-          <div className="post-subpage-toolbar">
-            <button
-              type="button"
-              className="filter-tab active notes-new-note-btn filter-tab--dropdown"
-              onClick={startNewNote}
-            >
-              <span className="notes-new-note-btn-icon" aria-hidden>
-                <MenuIconPlus size={12} strokeWidth={2} />
-              </span>
-              <span>Новая заметка</span>
-            </button>
-          </div>
-          <PostNotes search={listSearch} />
+          <PostSubpageToolbar
+            filter={listContextFilter}
+            onFilterChange={setListContextFilter}
+            action={
+              <button
+                type="button"
+                className="filter-tab active notes-new-note-btn filter-tab--dropdown"
+                onClick={startNewNote}
+              >
+                <span className="notes-new-note-btn-icon" aria-hidden>
+                  <MenuIconPlus size={12} strokeWidth={2} />
+                </span>
+                <span>Новая заметка</span>
+              </button>
+            }
+          />
+          <PostNotes search={listSearch} contextFilter={listContextFilter} />
         </div>
       )}
     </div>
@@ -731,15 +746,17 @@ const PostMessageCard = ({
   );
 };
 
-function PostNotes({ search }: { search: string }) {
+function PostNotes({ search, contextFilter }: { search: string; contextFilter: NoteListFilter }) {
   const { state, dispatch, goToHref } = useApp();
   const post = postById(state, state.currentPostId);
   if (!post) return null;
 
   const q = search.trim().toLowerCase();
-  const notes = post.notes.filter(
-    (n) => !q || n.title.toLowerCase().includes(q) || n.body.toLowerCase().includes(q),
-  );
+  const notes = post.notes.filter((n) => {
+    if (!matchesListContextFilter(n.ai, contextFilter)) return false;
+    if (!q) return true;
+    return n.title.toLowerCase().includes(q) || n.body.toLowerCase().includes(q);
+  });
 
   const openNote = (n: LocalNote) => {
     goToHref(routes.notePost(post.id, n.id));
@@ -756,7 +773,7 @@ function PostNotes({ search }: { search: string }) {
         ) : notes.length === 0 ? (
           <div className="empty">
             <div className="eico">📝</div>
-            <p>Ничего не найдено</p>
+            <p>{contextFilter === "all" ? "Ничего не найдено" : "Нет заметок по фильтру"}</p>
           </div>
         ) : null}
         {notes.map((n) => (
@@ -788,13 +805,22 @@ function PostNotes({ search }: { search: string }) {
   );
 }
 
-function PostChats({ search, onOpenChat }: { search: string; onOpenChat: (chatId: number) => void }) {
+function PostChats({
+  search,
+  contextFilter,
+  onOpenChat,
+}: {
+  search: string;
+  contextFilter: NoteListFilter;
+  onOpenChat: (chatId: number) => void;
+}) {
   const { state } = useApp();
   const post = postById(state, state.currentPostId);
   if (!post) return null;
 
   const q = search.trim().toLowerCase();
   const chats = post.chats.filter((c) => {
+    if (!matchesListContextFilter(c.ai, contextFilter)) return false;
     if (!q) return true;
     const u = chatListUserLine(c.history, c.title || "Без названия");
     const a = chatListAssistantLine(c.history, c.preview || "");
@@ -812,7 +838,7 @@ function PostChats({ search, onOpenChat }: { search: string; onOpenChat: (chatId
         ) : chats.length === 0 ? (
           <div className="empty">
             <div className="eico">💬</div>
-            <p>Ничего не найдено</p>
+            <p>{contextFilter === "all" ? "Ничего не найдено" : "Нет чатов по фильтру"}</p>
           </div>
         ) : (
           chats.map((c) => {

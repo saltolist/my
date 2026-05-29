@@ -4324,13 +4324,27 @@ button.nav-item {
 
 /* «+ Новый чат» / «+ Новая заметка» — в потоке скролла, над списком (как отступы сетки) */
 .post-subpage-toolbar {
-  display: none;
+  display: flex;
   flex-shrink: 0;
   align-self: center;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   width: min(var(--composer-w), 100%);
   box-sizing: border-box;
   padding: 18px 12px 10px;
-  justify-content: flex-end;
+}
+.post-subpage-toolbar-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.post-subpage-toolbar .chats-new-chat-btn,
+.post-subpage-toolbar .notes-new-note-btn {
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 /* Подстраницы поста (заметки, чаты): скролл на .post-subpage-scroll, не на сетке */
@@ -8362,12 +8376,19 @@ button.filter-tab {
 
   .post-subpage-toolbar {
     display: flex;
-    width: 100%;
+    width: 90%;
+    max-width: 90%;
+    align-self: center;
     align-items: center;
-    flex-shrink: 0;
-    align-self: stretch;
-    padding: 14px 12px 10px;
+    padding: 14px 0 10px;
+    margin-left: auto;
+    margin-right: auto;
     box-sizing: border-box;
+  }
+
+  .post-subpage-toolbar-filters {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .post-subpage-toolbar .chats-new-chat-btn,
