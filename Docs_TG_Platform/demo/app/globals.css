@@ -8386,15 +8386,21 @@ button.filter-tab {
 
   .post-subpage-scroll .notes-grid-inner,
   .post-subpage-scroll .post-chats-inner {
-    width: 100%;
-    max-width: 100%;
-    padding-left: 12px;
-    padding-right: 12px;
+    width: 90%;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0;
+    padding-right: 0;
     box-sizing: border-box;
   }
 
-  .post-subpage-scroll .post-chats-inner .chat-card {
+  .post-subpage-scroll .post-chats-inner .chat-card,
+  .post-subpage-scroll .notes-grid-inner .note-card {
     width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .page-header-back-btn,
@@ -8707,8 +8713,7 @@ button.filter-tab {
     transform: none;
   }
 
-  .post-body-inner,
-  .notes-grid-inner {
+  .post-body-inner {
     width: 100%;
     padding-left: 12px;
     padding-right: 12px;
@@ -8776,14 +8781,58 @@ button.filter-tab {
     align-items: stretch;
   }
 
-  .chats-filter-row {
-    width: 100%;
-    padding-left: 12px;
-    padding-right: 12px;
+  #screen-chats .chats-filter-row,
+  #screen-chats .chats-scroll-inner {
+    width: 90%;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
   }
 
-  .chats-scroll {
-    padding: 14px 12px 18px;
+  #screen-chats .chats-filter-row {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  #screen-chats .chats-scroll {
+    display: block;
+    padding: 14px 0 18px;
+  }
+
+  #screen-chats .chat-card {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    box-sizing: border-box;
+  }
+
+  #screen-notes .notes-filter-row,
+  #screen-notes .notes-grid-page {
+    width: 90%;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+
+  #screen-notes .notes-filter-row {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  #screen-notes .note-card-page,
+  #screen-notes .notes-grid-layout > .empty {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .notes-grid-page {
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 18px;
   }
 
   .notes-filter-row,
@@ -9207,16 +9256,15 @@ button.filter-tab {
     align-items: stretch;
   }
 
-  .notes-toolbar,
-  .notes-filter-row,
-  .notes-grid-page {
-    width: 100%;
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-
-  .notes-grid-page {
-    padding-bottom: 18px;
+  #screen-notes .notes-toolbar,
+  #screen-notes .notes-filter-row {
+    width: 90%;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0;
+    padding-right: 0;
+    box-sizing: border-box;
   }
 
   .note-card-footer-pg {
