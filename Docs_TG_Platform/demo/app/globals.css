@@ -5584,7 +5584,43 @@ button.filter-tab {
   max-width: 100%;
 }
 @media (min-width: 1201px) {
+  :root {
+    --content-card-shadow-gutter: 32px;
+  }
+
+  #main:has(#screen-analytics.active),
+  #main:has(#screen-profile.active) {
+    overflow-x: visible;
+  }
+
+  #screen-analytics.active,
+  #screen-profile.active {
+    overflow-x: visible;
+  }
+
+  .analytics-page,
+  .profile-page {
+    overflow-x: visible;
+  }
+
+  /* Тени карточек не обрезаются overflow: hidden у glass / таблицы */
+  .analytics-page .analytics-card,
+  .analytics-page .stat-card,
+  .analytics-page .mini-metric,
+  .profile-page .profile-section,
+  .profile-page .profile-channel-actions,
+  .profile-page .stat-card {
+    overflow: visible;
+  }
+
   .analytics-card:has(.analytics-top-posts-table) {
+    overflow: visible;
+  }
+
+  .analytics-card:has(.analytics-top-posts-table) .top-table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
     overflow-x: auto;
   }
 }
