@@ -1874,12 +1874,15 @@ button.nav-item {
 .breadcrumb .crumb-current {
   font-weight: 400;
   color: var(--text);
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  min-width: 0;
-  flex: 0 1 auto;
 }
+.breadcrumb .crumb-current:not(.bc-post-title) {
+  flex-shrink: 0;
+  overflow: visible;
+  text-overflow: clip;
+}
+.breadcrumb .crumb-current.bc-post-title,
+.breadcrumb .bc-link.bc-post-title,
 .breadcrumb .bc-post-title {
   flex: 0 1 auto;
   min-width: 0;
@@ -3869,6 +3872,20 @@ button.nav-item {
   flex-shrink: 0;
 }
 .post-hdr-top .breadcrumb { flex: 1; min-width: 0; }
+
+.post-hdr .breadcrumb .crumb-current:not(.bc-post-title),
+.post-hdr .breadcrumb > .bc-link:first-child,
+.post-hdr .breadcrumb .bc-sep {
+  flex-shrink: 0;
+}
+
+.post-hdr .breadcrumb .bc-post-title {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .post-hdr--with-search .page-header-left .breadcrumb {
   flex: 1 1 0;
@@ -8205,11 +8222,182 @@ button.filter-tab {
   .bar-label {
     width: 100%;
   }
+
+  /* Пост <1200: лупа вместо постоянного поля поиска (как на мобильной) */
+  .post-hdr--with-search-mobile .post-hdr-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .post-hdr--with-search-mobile .page-header-left {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .post-hdr--with-search-mobile .page-header-right {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+  }
+
+  .post-hdr--with-search-mobile.post-hdr--search-open .page-header-menu-btn {
+    margin: 0 -6px;
+    min-width: 0;
+    width: auto;
+    min-height: 44px;
+    padding: 12px 0 12px 12px;
+  }
+
+  .post-hdr .post-header-search-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 55px;
+    height: 55px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text3);
+    cursor: pointer;
+    transition: color 0.12s;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+  }
+
+  .post-hdr .page-header-right--mobile .post-header-search-toggle:not(:only-child) {
+    width: 40px;
+    min-width: 40px;
+    height: auto;
+    min-height: 44px;
+    padding: 4px 2px 4px 0;
+    justify-content: flex-end;
+  }
+
+  .post-hdr .page-header-right--mobile .post-header-search-toggle:not(:only-child) + .page-header-actions--mobile,
+  .post-hdr .page-header-right--mobile .post-header-search-toggle:not(:only-child) + .page-header-actions--desktop {
+    margin-left: -2px;
+  }
+
+  .post-hdr--with-search-mobile .page-header-actions--desktop .post-header-search-toggle {
+    width: 40px;
+    min-width: 40px;
+    height: auto;
+    min-height: 44px;
+    padding: 4px 2px 4px 0;
+    justify-content: flex-end;
+  }
+
+  .post-hdr--with-search-mobile .page-header-actions--desktop .page-header-search-toggle-slot {
+    flex-shrink: 0;
+  }
+
+  .post-hdr--with-search-mobile .page-header-actions--desktop .jump-post-btn:not(.visible) {
+    display: none;
+  }
+
+  .post-hdr .page-header-right--mobile .post-header-search-toggle:only-child {
+    width: auto;
+    min-width: 44px;
+    padding: 4px 6px 4px 0;
+    justify-content: flex-end;
+  }
+
+  .post-hdr .post-header-search-toggle.is-active {
+    color: var(--text);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .post-hdr .post-header-search-toggle:hover {
+      color: var(--text);
+    }
+  }
+
+  .post-hdr--with-search-mobile.post-hdr--search-open .page-header-left {
+    flex: 0 0 auto;
+    gap: 0;
+  }
+
+  .post-hdr--with-search-mobile.post-hdr--search-open .post-hdr-top {
+    position: relative;
+    gap: 10px;
+  }
+
+  .post-hdr--with-search-mobile.post-hdr--search-open .page-header-left,
+  .post-hdr--with-search-mobile.post-hdr--search-open .page-header-right {
+    position: relative;
+    z-index: 1;
+  }
+
+  .post-hdr--with-search-mobile.post-hdr--search-open .page-header-right {
+    margin-left: auto;
+  }
+
+  .post-hdr--with-search-mobile.post-hdr--search-open .post-header-search-expand {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--page-header-search-span-left, 0);
+    right: var(--page-header-search-span-right, 0);
+    flex: none;
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .post-hdr--with-search-mobile.post-hdr--search-open
+    .post-header-search-expand
+    .page-header-search-field {
+    width: calc(100% - var(--page-header-mobile-search-shrink, 50px));
+    max-width: none;
+    flex: 0 0 auto;
+    pointer-events: auto;
+  }
+
+  .post-hdr .post-header-search-expand {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .post-hdr .post-header-search-expand .page-header-search-field {
+    width: 100%;
+    max-width: none;
+    flex: 1 1 auto;
+  }
+
+  .post-hdr .page-header-search-spacer {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
 }
 
-@media (max-width: 999px) {
+@media (max-width: 1000px) {
   #screen-profile .page-header-center {
     display: none;
+  }
+
+  .post-hdr .page-header-actions--mobile {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .post-hdr--with-search-mobile .page-header-actions--desktop .page-header-actions--mobile {
+    margin-left: -2px;
   }
 }
 
@@ -8534,7 +8722,7 @@ button.filter-tab {
     max-width: 100%;
   }
 
-  /* Пост: поиск справа, слева от «•••»; крошки — «Пост» вместо заголовка */
+  /* Пост: поиск справа, слева от «•••»; в крошках — укороченное название поста */
   .post-hdr--with-search-mobile .post-hdr-top {
     display: flex;
     align-items: center;
@@ -8942,12 +9130,19 @@ button.filter-tab {
     overflow: hidden;
   }
 
-  .breadcrumb .bc-link,
-  .breadcrumb .crumb-current {
+  .breadcrumb .bc-link.bc-post-title,
+  .breadcrumb .crumb-current.bc-post-title {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .breadcrumb .crumb-current:not(.bc-post-title),
+  .breadcrumb > .bc-link:first-child {
+    flex-shrink: 0;
+    overflow: visible;
+    text-overflow: clip;
   }
 
   .btn {

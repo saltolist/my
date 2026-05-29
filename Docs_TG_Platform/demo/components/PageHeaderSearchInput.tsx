@@ -46,6 +46,8 @@ type Props = Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "className"> &
   inputRef?: Ref<HTMLInputElement>;
   /** Кнопка-крестик справа: на мобильной сворачивает поле, на desktop — очищает текст. */
   onDismiss?: () => void;
+  /** Всегда показывать крестик (сворачиваемый поиск в шапке поста и др.). */
+  dismissAlways?: boolean;
 };
 
 /** Поле поиска в шапке: лупа слева, плейсхолдер начинается после неё */
@@ -53,12 +55,14 @@ export default function PageHeaderSearchInput({
   className,
   inputRef,
   onDismiss,
+  dismissAlways = false,
   value,
   ...props
 }: Props) {
   const isMobile = useMobile760();
   const hasText = String(value ?? "").length > 0;
-  const showDismiss = !!onDismiss && (isMobile || hasText);
+  const showDismiss = !!onDismiss && (dismissAlways || isMobile || hasText);
+  const dismissClosesSearch = dismissAlways || isMobile;
   return (
     <div className={`page-header-search-field${showDismiss ? " page-header-search-field--dismiss" : ""}`}>
       <span className="page-header-search-field-icon" aria-hidden>
@@ -75,7 +79,7 @@ export default function PageHeaderSearchInput({
         <button
           type="button"
           className="page-header-search-field-dismiss"
-          aria-label={isMobile ? "Закрыть поиск" : "Очистить поиск"}
+          aria-label={dismissClosesSearch ? "Закрыть поиск" : "Очистить поиск"}
           onClick={onDismiss}
         >
           <CloseIcon size={16} />

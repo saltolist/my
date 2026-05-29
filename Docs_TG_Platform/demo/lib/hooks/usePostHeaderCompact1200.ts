@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 
-const MQ = "(max-width: 1000px)";
+const MQ = "(max-width: 1200px)";
 
-/** Экран уже 1000px — вкладки профиля и аналогичные элементы шапки → селектор. */
-export function useCompactHeader1000(): boolean {
+/** Экран уже 1200px — в шапке поста лупа вместо постоянного поля поиска. */
+export function usePostHeaderCompact1200(): boolean {
   const [compact, setCompact] = useState(false);
 
   useEffect(() => {

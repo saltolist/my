@@ -34,12 +34,12 @@ import { MenuIconPlus } from "../HeaderMenuIcons";
 import { NavIconChats, NavIconFeed, NavIconNotes } from "@/components/sidebar/NavIcons";
 import { useFeedPostLayout } from "@/lib/hooks/useFeedPostLayout";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
+import { usePostHeaderCompact1200 } from "@/lib/hooks/usePostHeaderCompact1200";
+import { useCompactHeader1000 } from "@/lib/hooks/useCompactHeader1000";
 import PostSubpageToolbar from "../post/PostSubpageToolbar";
 import { matchesListContextFilter } from "@/lib/listContextFilter";
 import { routes } from "@/lib/routes";
 import type { LocalNote, NoteFile, PostComment, PostMedia, PostMetrics, PostMode, NoteListFilter } from "@/lib/types";
-
-const POST_BREADCRUMB_LABEL = "Пост";
 
 export default function PostScreen() {
   const {
@@ -56,6 +56,8 @@ export default function PostScreen() {
   } = useApp();
   const post = postById(state, state.currentPostId);
   const isMobile = useMobile760();
+  const postHeaderCompact = usePostHeaderCompact1200();
+  const postHeaderCompact1000 = useCompactHeader1000();
   const { phoneFormat, layoutClassName, layoutStyle } = useFeedPostLayout();
   const { items: ctxItems, modal: ctxModal } = usePostCtxMenuItems(post);
   const chatScrollRef = useRef<HTMLDivElement>(null);
@@ -67,6 +69,7 @@ export default function PostScreen() {
   const postHdrTopRef = useRef<HTMLDivElement>(null);
   const mobileSearchLeftRef = useRef<HTMLDivElement>(null);
   const postOverflowWrapRef = useRef<HTMLDivElement>(null);
+  const postHeaderRightRef = useRef<HTMLDivElement>(null);
   const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const mobileSearchWrapRef = useRef<HTMLDivElement>(null);
   const mediaItems: PostMedia[] = post?.media ?? [];
@@ -197,23 +200,23 @@ export default function PostScreen() {
   const hasPostMobileTrailing = postHeaderOverflowItems.length > 0;
 
   useLayoutEffect(() => {
-    if (!post || !mobileSearchOpen || !isMobile || !showListHeaderSearch || !hasPostMobileTrailing) return;
+    if (!post || !mobileSearchOpen || !postHeaderCompact || !showListHeaderSearch) return;
     const header = postHdrTopRef.current;
     const left = mobileSearchLeftRef.current;
-    const overflowWrap = postOverflowWrapRef.current;
-    if (!header || !left || !overflowWrap) return;
+    const right = postHeaderRightRef.current;
+    if (!header || !left || !right) return;
 
     const updateSearchSpan = () => {
       const headerRect = header.getBoundingClientRect();
       const leftRect = left.getBoundingClientRect();
-      const overflowRect = overflowWrap.getBoundingClientRect();
+      const rightRect = right.getBoundingClientRect();
       header.style.setProperty(
         "--page-header-search-span-left",
         `${leftRect.right - headerRect.left}px`,
       );
       header.style.setProperty(
         "--page-header-search-span-right",
-        `${headerRect.right - overflowRect.left}px`,
+        `${headerRect.right - rightRect.left}px`,
       );
     };
 
@@ -221,13 +224,13 @@ export default function PostScreen() {
     const observer = new ResizeObserver(updateSearchSpan);
     observer.observe(header);
     observer.observe(left);
-    observer.observe(overflowWrap);
+    observer.observe(right);
     window.addEventListener("resize", updateSearchSpan);
     return () => {
       observer.disconnect();
       window.removeEventListener("resize", updateSearchSpan);
     };
-  }, [post, mobileSearchOpen, isMobile, showListHeaderSearch, hasPostMobileTrailing]);
+  }, [post, mobileSearchOpen, postHeaderCompact, showListHeaderSearch]);
 
   if (!post) {
     return (
@@ -254,19 +257,26 @@ export default function PostScreen() {
       : state.postMode === "notes"
         ? "Поиск по заметкам..."
         : "Поиск по чатам...";
-  const postIntermediateCrumb = isMobile ? POST_BREADCRUMB_LABEL : postTitle(post);
+  const postIntermediateCrumb = postTitle(post);
+  const showPostModeButtons = !postHeaderCompact1000;
   const showPostMobileRight =
     isMobile &&
     ((showListHeaderSearch && !mobileSearchOpen) ||
       hasPostMobileTrailing ||
       (mobileSearchOpen && hasPostMobileTrailing));
+  const showPostTabletOverflow =
+    postHeaderCompact1000 && !isMobile && hasPostMobileTrailing;
+  const showPostTabletSearchToggle =
+    postHeaderCompact && !isMobile && showListHeaderSearch && !mobileSearchOpen;
+  const showPostTabletCompactRight =
+    postHeaderCompact && !isMobile && showListHeaderSearch;
 
   return (
     <div className={`post-screen-wrap${layoutClassName}`} style={layoutStyle}>
       <div
         className={`post-hdr${
           showListHeaderSearch
-            ? isMobile
+            ? postHeaderCompact
               ? ` post-hdr--with-search-mobile${mobileSearchOpen ? " post-hdr--search-open" : ""}`
               : " post-hdr--with-search"
             : ""
@@ -275,7 +285,7 @@ export default function PostScreen() {
         <div className="post-hdr-top" ref={postHdrTopRef}>
           <div className="page-header-left" ref={mobileSearchLeftRef}>
             <PageHeaderMenuButton />
-            {!(isMobile && mobileSearchOpen) ? (
+            {!(postHeaderCompact && mobileSearchOpen) ? (
             <div className="breadcrumb">
               <span className="bc-link" onClick={() => navigate("feed")}>
                 Лента
@@ -318,7 +328,7 @@ export default function PostScreen() {
             </div>
             ) : null}
           </div>
-          {showListHeaderSearch && isMobile && mobileSearchOpen ? (
+          {showListHeaderSearch && postHeaderCompact && mobileSearchOpen ? (
             <>
               <div className="post-header-search-expand" ref={mobileSearchWrapRef}>
                 <PageHeaderSearchInput
@@ -329,12 +339,13 @@ export default function PostScreen() {
                   aria-label={listSearchPlaceholder}
                   inputRef={mobileSearchInputRef}
                   onDismiss={() => setMobileSearchOpen(false)}
+                  dismissAlways
                 />
               </div>
               <div className="page-header-search-spacer" aria-hidden />
             </>
           ) : null}
-          {showListHeaderSearch && !isMobile ? (
+          {showListHeaderSearch && !postHeaderCompact ? (
             <div className="page-header-center">
               <div className="post-header-search-row">
                 <PageHeaderSearchInput
@@ -347,12 +358,28 @@ export default function PostScreen() {
             </div>
           ) : null}
           <div
+            ref={postHeaderRightRef}
             className={`page-header-right${
-              showPostMobileRight ? " page-header-right--mobile" : ""
+              showPostMobileRight || showPostTabletCompactRight || showPostTabletOverflow
+                ? " page-header-right--mobile"
+                : ""
             }${showJump ? " post-hdr-has-reveal" : ""}`}
           >
             {!isMobile ? (
               <div className="page-header-actions--desktop">
+                {showPostTabletSearchToggle ? (
+                  <button
+                    type="button"
+                    className="post-header-search-toggle"
+                    aria-label={listSearchPlaceholder}
+                    aria-expanded={false}
+                    onClick={() => setMobileSearchOpen(true)}
+                  >
+                    <PageHeaderSearchMagnifier size={20} />
+                  </button>
+                ) : showPostTabletCompactRight && mobileSearchOpen ? (
+                  <span className="page-header-search-toggle-slot" aria-hidden />
+                ) : null}
                 <button
                   className={`jump-post-btn${showJump ? " visible" : ""}`}
                   onClick={() => chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
@@ -360,24 +387,28 @@ export default function PostScreen() {
                 >
                   ↑ К посту
                 </button>
-                <div className="post-mode-cluster">
-                  <button
-                    className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "notes" ? " active" : ""}`}
-                    onClick={goToPostNotes}
-                    type="button"
-                  >
-                    Заметки
-                  </button>
-                </div>
-                <div className="post-mode-cluster">
-                  <button
-                    className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "chats" ? " active" : ""}`}
-                    onClick={goToPostChats}
-                    type="button"
-                  >
-                    Чаты
-                  </button>
-                </div>
+                {showPostModeButtons ? (
+                  <>
+                    <div className="post-mode-cluster">
+                      <button
+                        className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "notes" ? " active" : ""}`}
+                        onClick={goToPostNotes}
+                        type="button"
+                      >
+                        Заметки
+                      </button>
+                    </div>
+                    <div className="post-mode-cluster">
+                      <button
+                        className={`btn btn-ghost btn-sm post-mode-btn${state.postMode === "chats" ? " active" : ""}`}
+                        onClick={goToPostChats}
+                        type="button"
+                      >
+                        Чаты
+                      </button>
+                    </div>
+                  </>
+                ) : null}
                 <button
                   className="btn btn-ghost btn-sm post-back-btn"
                   onClick={handleBack}
@@ -385,12 +416,22 @@ export default function PostScreen() {
                 >
                   ← Назад
                 </button>
-                <ContextMenu
-                  items={ctxItems}
-                  portal
-                  align="right"
-                  dropdownClassName="ctx-dropdown--page-header-control"
-                />
+                {showPostModeButtons ? (
+                  <ContextMenu
+                    items={ctxItems}
+                    portal
+                    align="right"
+                    dropdownClassName="ctx-dropdown--page-header-control"
+                  />
+                ) : null}
+                {showPostTabletOverflow ? (
+                  <div ref={postOverflowWrapRef}>
+                    <PageHeaderOverflow
+                      className="page-header-actions--mobile"
+                      items={postHeaderOverflowItems}
+                    />
+                  </div>
+                ) : null}
               </div>
             ) : null}
             {showPostMobileRight ? (
