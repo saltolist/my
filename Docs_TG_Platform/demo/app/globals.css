@@ -1880,8 +1880,13 @@ button.nav-item {
   min-width: 0;
   flex: 0 1 auto;
 }
-.breadcrumb .crumb-current:last-child {
-  flex: 1 1 0;
+.breadcrumb .bc-post-title {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .page-header-search-field {
   position: relative;
@@ -3832,10 +3837,17 @@ button.nav-item {
 .post-hdr--with-search .post-hdr-top {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  column-gap: 10px;
+  column-gap: 18px;
   width: 100%;
+  --post-bc-title-max-w: 11rem;
 }
-.post-hdr--with-search .page-header-left { justify-self: start; min-width: 0; }
+.post-hdr--with-search .page-header-left {
+  justify-self: start;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
 .post-hdr--with-search .page-header-center {
   justify-self: center;
   display: flex;
@@ -3856,7 +3868,68 @@ button.nav-item {
   margin-left: auto;
   flex-shrink: 0;
 }
-.post-hdr-top .breadcrumb { flex: 1; }
+.post-hdr-top .breadcrumb { flex: 1; min-width: 0; }
+
+.post-hdr--with-search .page-header-left .breadcrumb {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.post-hdr--with-search .breadcrumb > .bc-link:first-child,
+.post-hdr--with-search .breadcrumb .bc-sep,
+.post-hdr--with-search .breadcrumb .crumb-current:not(.bc-post-title) {
+  flex-shrink: 0;
+}
+
+.post-hdr--with-search .breadcrumb .bc-post-title {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: min(100%, var(--post-bc-title-max-w, 11rem));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 1300px) {
+  .post-hdr--with-search .post-hdr-top {
+    --post-bc-title-max-w: 6.5rem;
+  }
+}
+
+@media (min-width: 1301px) {
+  .post-hdr--with-search .post-hdr-top {
+    --post-bc-title-max-w: 14rem;
+  }
+}
+
+@media (min-width: 1201px) {
+  .post-hdr-top .page-header-left {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .post-hdr:not(.post-hdr--with-search) .post-hdr-top .breadcrumb {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .post-hdr:not(.post-hdr--with-search) .post-hdr-top .breadcrumb .bc-post-title {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .post-hdr:not(.post-hdr--with-search) .post-hdr-top .breadcrumb .crumb-current:not(.bc-post-title) {
+    flex-shrink: 0;
+  }
+}
+
 .post-hdr-actions {
   display: flex; align-items: center; justify-content: flex-end; gap: 8px;
 }

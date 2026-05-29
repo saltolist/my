@@ -283,7 +283,7 @@ export default function PostScreen() {
               <span className="bc-sep">/</span>
               {postSubPage ? (
                 <>
-                  <span className="bc-link" onClick={openPostView}>
+                  <span className="bc-link bc-post-title" onClick={openPostView}>
                     {postIntermediateCrumb}
                   </span>
                   <span className="bc-sep">/</span>
@@ -292,7 +292,7 @@ export default function PostScreen() {
               ) : state.postMode === "chat" && state.currentPostChatId != null && activeChat ? (
                 <>
                   <span
-                    className="bc-link"
+                    className="bc-link bc-post-title"
                     onClick={() => {
                       if (!confirmDiscardAnyEdit()) return;
                       discardPendingEdits();
@@ -313,7 +313,7 @@ export default function PostScreen() {
                   <span className="crumb-current">{activeChat.title}</span>
                 </>
               ) : (
-                <span className="crumb-current">{postTitle(post)}</span>
+                <span className="crumb-current bc-post-title">{postTitle(post)}</span>
               )}
             </div>
             ) : null}
