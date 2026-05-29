@@ -4347,6 +4347,30 @@ button.nav-item {
   margin-left: auto;
 }
 
+/* Действие «Новый чат» / «Новая заметка» — заливка и текст как у .filter-tab.active, обводка — обычная */
+.filter-tab.filter-tab--action,
+.filter-tab.filter-tab--action.active {
+  background: var(--bg4);
+  border-color: var(--border2);
+  color: var(--text);
+}
+.filter-tab.filter-tab--action:hover {
+  background: var(--bg4);
+  border-color: var(--text);
+  color: var(--text);
+}
+:root[data-theme="dark"] .filter-tab.filter-tab--action,
+:root[data-theme="dark"] .filter-tab.filter-tab--action.active {
+  background: var(--bg3);
+  border-color: var(--border2);
+  color: var(--text);
+}
+:root[data-theme="dark"] .filter-tab.filter-tab--action:hover {
+  background: var(--bg3);
+  border-color: var(--text);
+  color: var(--text);
+}
+
 /* Подстраницы поста (заметки, чаты): скролл на .post-subpage-scroll, не на сетке */
 .post-subpage-scroll {
   flex: 1;
@@ -8401,6 +8425,33 @@ button.filter-tab {
   .post-subpage-toolbar .chats-new-chat-btn,
   .post-subpage-toolbar .notes-new-note-btn {
     margin-left: auto;
+  }
+
+  /* Не залипает обводка/hover после тапа по меню; заливка и текст — как у выбранного фильтра */
+  .post-subpage-toolbar .filter-tab--action:focus:not(:focus-visible) {
+    background: var(--bg4);
+    border-color: var(--border2);
+    color: var(--text);
+  }
+
+  :root[data-theme="dark"] .post-subpage-toolbar .filter-tab--action:focus:not(:focus-visible) {
+    background: var(--bg3);
+    border-color: var(--border2);
+    color: var(--text);
+  }
+
+  @media (hover: none) {
+    .post-subpage-toolbar .filter-tab--action:hover {
+      background: var(--bg4);
+      border-color: var(--border2);
+      color: var(--text);
+    }
+
+    :root[data-theme="dark"] .post-subpage-toolbar .filter-tab--action:hover {
+      background: var(--bg3);
+      border-color: var(--border2);
+      color: var(--text);
+    }
   }
 
   .post-subpage-scroll {

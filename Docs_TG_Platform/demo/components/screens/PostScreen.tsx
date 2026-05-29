@@ -488,7 +488,7 @@ export default function PostScreen() {
             action={
               <button
                 type="button"
-                className="filter-tab active chats-new-chat-btn filter-tab--dropdown"
+                className="filter-tab filter-tab--action chats-new-chat-btn filter-tab--dropdown"
                 onClick={startNewChat}
               >
                 <span className="chats-new-chat-btn-icon" aria-hidden>
@@ -518,7 +518,7 @@ export default function PostScreen() {
             action={
               <button
                 type="button"
-                className="filter-tab active notes-new-note-btn filter-tab--dropdown"
+                className="filter-tab filter-tab--action notes-new-note-btn filter-tab--dropdown"
                 onClick={startNewNote}
               >
                 <span className="notes-new-note-btn-icon" aria-hidden>
