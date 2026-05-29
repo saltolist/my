@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useApp } from "@/state/AppContext";
 import { FEED_POST_WIDTHS, FEED_POST_WIDTH_SELECT_OPTIONS, feedPostWidthLabel, isFeedPostWidth } from "@/lib/feedPostWidth";
 import { useFeedPostLayout } from "@/lib/hooks/useFeedPostLayout";
-import { useMobile760 } from "@/lib/hooks/useMobile760";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import PageHeaderSelect from "../PageHeaderSelect";
@@ -28,7 +27,6 @@ export default function FeedScreen() {
   const pathname = usePathname() ?? "/";
   const onFeed = pathname === "/feed/" || pathname === "/feed";
   const { feedPostWidth, layoutClassName, layoutStyle } = useFeedPostLayout();
-  const isMobile = useMobile760();
   const [draft, setDraft] = useState("");
   const [pendingMedia, setPendingMedia] = useState<PostMedia[]>([]);
   const [search, setSearch] = useState("");
@@ -160,7 +158,8 @@ export default function FeedScreen() {
       <PageHeader
         title="Лента"
         backTo="home"
-        mobileSelect={isMobile ? <PageHeaderSelect {...feedPostWidthSelectProps} /> : undefined}
+        compactSearchAtWidth={804}
+        mobileSelect={<PageHeaderSelect {...feedPostWidthSelectProps} />}
         search={
           <div className="page-header-search-tools-row page-header-feed-search-row">
             <PageHeaderSearchInput

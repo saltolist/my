@@ -1569,6 +1569,96 @@ button.nav-item {
     display: flex;
   }
 }
+
+/* Лента, desktop 761+: при ширине шапки ≤804px — поиск по лупе между «Лента» и селектором */
+@media (min-width: 761px) {
+  #screen-feed .page-header.page-header--compact-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    column-gap: 10px;
+  }
+
+  #screen-feed .page-header.page-header--compact-search .page-header-left {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  #screen-feed .page-header.page-header--compact-search:not(.page-header--search-open) .page-header-center {
+    display: none;
+  }
+
+  #screen-feed .page-header.page-header--compact-search.page-header--search-open {
+    gap: 16px;
+    column-gap: 16px;
+  }
+
+  #screen-feed .page-header.page-header--compact-search.page-header--search-open .page-header-compact-search-field {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+  }
+
+  #screen-feed
+    .page-header.page-header--compact-search.page-header--search-open
+    .page-header-compact-search-field
+    .page-header-search-field {
+    width: 100%;
+    max-width: none;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  #screen-feed .page-header.page-header--compact-search .page-header-right {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  #screen-feed .page-header.page-header--compact-search.page-header--search-open .page-header-right {
+    margin-left: 0;
+  }
+
+  #screen-feed .page-header.page-header--compact-search .page-header-actions--desktop {
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+  }
+
+  #screen-feed .page-header.page-header--compact-search .page-header-search-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 40px;
+    min-width: 40px;
+    height: auto;
+    min-height: 44px;
+    margin: 0;
+    padding: 4px 2px 4px 0;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text3);
+    cursor: pointer;
+    transition: color 0.12s;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    justify-content: flex-end;
+  }
+
+  #screen-feed .page-header.page-header--compact-search .page-header-search-toggle:hover {
+    color: var(--text);
+  }
+
+  #screen-feed
+    .page-header.page-header--compact-search
+    .page-header-search-toggle
+    + .page-header-toolbar-slot {
+    margin-left: -2px;
+  }
+}
 .feed-post-width-btn {
   height: 32px;
   min-width: 40px;

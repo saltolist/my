@@ -32,6 +32,8 @@ type Props = {
   actions?: ReactNode;
   /** На мобильной — одно меню вместо ряда кнопок в `actions` */
   overflowItems?: PageHeaderOverflowItem[];
+  /** При ширине шапки ≤ N px (не mobile): поиск по лупе, как на мобильной */
+  compactSearchAtWidth?: number;
 };
 
 type ElementWithChildren = { children?: ReactNode };
@@ -39,7 +41,7 @@ type ElementWithChildren = { children?: ReactNode };
 function withMobileSearchClose(node: ReactNode, onClose: () => void): ReactNode {
   if (!isValidElement<ElementWithChildren>(node)) return node;
   if (node.type === PageHeaderSearchInput) {
-    return cloneElement(node, { onDismiss: onClose } as never);
+    return cloneElement(node, { onDismiss: onClose, dismissAlways: true } as never);
   }
   if (node.props.children != null) {
     const children = Children.map(node.props.children, (child) => withMobileSearchClose(child, onClose));
@@ -70,25 +72,45 @@ export default function PageHeader({
   mobileSelect,
   actions,
   overflowItems,
+  compactSearchAtWidth,
 }: Props) {
   const { navigateBack } = useApp();
   const handleBack = onBack ?? (backTo ? () => navigateBack(backTo) : undefined);
   const isMobile = useMobile760();
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [headerWidth, setHeaderWidth] = useState(0);
   const headerRef = useRef<HTMLDivElement>(null);
   const mobileSearchLeftRef = useRef<HTMLDivElement>(null);
   const mobileSelectWrapRef = useRef<HTMLDivElement>(null);
   const mobileSearchWrapRef = useRef<HTMLDivElement>(null);
   const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => {
-    if (!isMobile) {
-      setMobileSearchOpen(false);
-    }
-  }, [isMobile]);
+  const compactSearch =
+    !isMobile &&
+    compactSearchAtWidth != null &&
+    headerWidth > 0 &&
+    headerWidth <= compactSearchAtWidth;
+  const mobileOverlaySearch = isMobile;
 
   useLayoutEffect(() => {
-    if (!mobileSearchOpen || !isMobile) return;
+    if (compactSearchAtWidth == null) return;
+    const el = headerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setHeaderWidth(entry.contentRect.width);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [compactSearchAtWidth]);
+
+  useEffect(() => {
+    if (!mobileOverlaySearch && !compactSearch) {
+      setMobileSearchOpen(false);
+    }
+  }, [mobileOverlaySearch, compactSearch]);
+
+  useLayoutEffect(() => {
+    if (!mobileSearchOpen || (!mobileOverlaySearch && !compactSearch)) return;
     const wrap = mobileSearchWrapRef.current;
     if (!wrap) return;
     const input = wrap.querySelector<HTMLInputElement>("input, textarea");
@@ -102,10 +124,10 @@ export default function PageHeader({
         // ignore
       }
     }
-  }, [mobileSearchOpen, isMobile]);
+  }, [mobileSearchOpen, mobileOverlaySearch, compactSearch]);
 
   useLayoutEffect(() => {
-    if (!mobileSearchOpen || !isMobile || !mobileSelect) return;
+    if (!mobileSearchOpen || !mobileOverlaySearch || !mobileSelect) return;
     const header = headerRef.current;
     const left = mobileSearchLeftRef.current;
     const selectWrap = mobileSelectWrapRef.current;
@@ -135,57 +157,89 @@ export default function PageHeader({
       observer.disconnect();
       window.removeEventListener("resize", updateSearchSpan);
     };
-  }, [mobileSearchOpen, isMobile, mobileSelect]);
+  }, [mobileSearchOpen, mobileOverlaySearch, mobileSelect]);
 
-  const showMobileSearchToggle = isMobile && !!search;
+  const showSearchToggle = (mobileOverlaySearch || compactSearch) && !!search;
   const mobileSearchInput = search ? findPageHeaderSearchInput(search) : null;
-  const mobileSearchContent =
-    isMobile && mobileSearchOpen && mobileSearchInput
+  const expandableSearchContent =
+    mobileSearchOpen && mobileSearchInput
       ? withMobileSearchClose(mobileSearchInput, () => setMobileSearchOpen(false))
       : null;
 
-  const hasMobileTrailing =
+  const hasTrailingToolbar =
     !!mobileSelect || (overflowItems != null && overflowItems.length > 0);
   const showMobileRight =
     isMobile &&
-    ((showMobileSearchToggle && !mobileSearchOpen) ||
-      hasMobileTrailing ||
-      (mobileSearchOpen && hasMobileTrailing));
+    ((showSearchToggle && !mobileSearchOpen) ||
+      hasTrailingToolbar ||
+      (mobileSearchOpen && hasTrailingToolbar));
 
-  const trailingDesktopSelect = !isMobile && !!mobileSelect;
+  const trailingDesktopSelect =
+    !isMobile && !!mobileSelect && compactSearchAtWidth == null;
+  const showCompactToolbarSelect = compactSearch && !!mobileSelect;
 
   return (
     <div
       ref={headerRef}
       className={`page-header${mobileSearchOpen ? " page-header--search-open" : ""}${
-        mobileSearchOpen && mobileSelect ? " page-header--has-mobile-select" : ""
-      }${trailingDesktopSelect ? " page-header--trailing-select" : ""}`}
+        mobileSearchOpen && mobileSelect && mobileOverlaySearch
+          ? " page-header--has-mobile-select"
+          : ""
+      }${trailingDesktopSelect ? " page-header--trailing-select" : ""}${
+        compactSearch ? " page-header--compact-search" : ""
+      }`}
     >
       <div className="page-header-left" ref={mobileSearchLeftRef}>
         <PageHeaderMenuButton />
-        {!mobileSearchOpen && (title ? <h2>{title}</h2> : null)}
+        {(!mobileSearchOpen || compactSearch) && (title ? <h2>{title}</h2> : null)}
         {!mobileSearchOpen && left}
       </div>
-      {isMobile && mobileSearchOpen && mobileSearchContent ? (
+      {mobileOverlaySearch && mobileSearchOpen && expandableSearchContent ? (
         <>
           <div className="page-header-search-expand" ref={mobileSearchWrapRef}>
-            {mobileSearchContent}
+            {expandableSearchContent}
           </div>
           <div className="page-header-search-spacer" aria-hidden />
         </>
+      ) : compactSearch && mobileSearchOpen && expandableSearchContent ? (
+        <div
+          className="page-header-center page-header-compact-search-field"
+          ref={mobileSearchWrapRef}
+        >
+          {expandableSearchContent}
+        </div>
       ) : (
-        <div className="page-header-center" aria-hidden={isMobile ? true : undefined}>
-          {center && !isMobile ? center : null}
-          {search && !isMobile ? search : null}
+        <div className="page-header-center" aria-hidden={mobileOverlaySearch ? true : undefined}>
+          {center && !mobileOverlaySearch && !compactSearch ? center : null}
+          {search && !mobileOverlaySearch && !compactSearch ? search : null}
         </div>
       )}
       {!isMobile || showMobileRight ? (
       <div
-        className={`page-header-right${showMobileRight ? " page-header-right--mobile" : ""}`}
+        className={`page-header-right${showMobileRight || compactSearch ? " page-header-right--mobile" : ""}`}
       >
         {!isMobile ? (
           <div className="page-header-actions--desktop">
-            {mobileSelect ? (
+            {compactSearch && showSearchToggle && !mobileSearchOpen ? (
+              <button
+                type="button"
+                className="page-header-search-toggle"
+                aria-label="Поиск"
+                aria-expanded={mobileSearchOpen}
+                onClick={() => setMobileSearchOpen(true)}
+              >
+                <PageHeaderSearchMagnifier size={20} />
+              </button>
+            ) : null}
+            {showCompactToolbarSelect ? (
+              <div
+                ref={mobileSelectWrapRef}
+                className="page-header-toolbar-slot page-header-toolbar--desktop-select"
+              >
+                {mobileSelect}
+              </div>
+            ) : null}
+            {trailingDesktopSelect && mobileSelect ? (
               <div className="page-header-toolbar-slot page-header-toolbar--desktop-select">
                 {mobileSelect}
               </div>
@@ -204,9 +258,9 @@ export default function PageHeader({
         ) : null}
         {showMobileRight ? (
           <>
-            {showMobileSearchToggle ? (
+            {showSearchToggle ? (
               mobileSearchOpen ? (
-                hasMobileTrailing ? (
+                hasTrailingToolbar ? (
                   <span className="page-header-search-toggle-slot" aria-hidden />
                 ) : null
               ) : (
@@ -223,7 +277,7 @@ export default function PageHeader({
             ) : null}
             {mobileSelect ? (
               <div
-                ref={mobileSelectWrapRef}
+                ref={isMobile ? mobileSelectWrapRef : undefined}
                 className="page-header-toolbar-slot page-header-toolbar--mobile"
               >
                 {mobileSelect}
