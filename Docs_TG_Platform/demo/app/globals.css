@@ -7773,9 +7773,22 @@ button.filter-tab {
 }
 .telegram-form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 10px 12px;
   min-width: 0;
+}
+.telegram-form-grid > .profile-row:nth-child(1),
+.telegram-form-grid > .profile-row:nth-child(2) {
+  min-width: 0;
+}
+.telegram-form-grid > .profile-row:nth-child(1) .telegram-input,
+.telegram-form-grid > .profile-row:nth-child(2) .telegram-input,
+.telegram-form-grid > .profile-row:nth-child(2) .telegram-input-wrap {
+  min-width: 0;
+  box-sizing: border-box;
+}
+.telegram-form-grid > .profile-row:nth-child(2) .telegram-input-wrap {
+  width: 100%;
 }
 .telegram-inline-action .profile-label {
   visibility: hidden;
@@ -7874,6 +7887,18 @@ button.filter-tab {
 .telegram-auth-desktop {
   display: contents;
 }
+
+/* 761–1024: api_id/api_hash сжимаются; поле телефона — без ужимания */
+@media (min-width: 761px) and (max-width: 1024px) {
+  .telegram-auth-desktop
+    .telegram-desktop-auth-row:not(.telegram-desktop-auth-row--code-sent)
+    .telegram-desktop-phone-input {
+    flex: 1 1 auto;
+    min-width: 12rem;
+    width: auto;
+  }
+}
+
 .telegram-auth-desktop .telegram-phone-desktop-row--code-sent {
   grid-column: 1 / -1;
   gap: 0;
