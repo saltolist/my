@@ -8112,6 +8112,12 @@ button.filter-tab {
   }
 }
 
+@media (max-width: 999px) {
+  #screen-profile .page-header-center {
+    display: none;
+  }
+}
+
 @media (max-width: 920px) {
   :root {
     --content-w: calc(100vw - var(--nav-w) - 32px);

@@ -10,7 +10,7 @@ import PlatformAnalyticsBlock from "../profile/PlatformAnalyticsBlock";
 import PageHeader from "../PageHeader";
 import PageHeaderSelect from "../PageHeaderSelect";
 import { useApp } from "@/state/AppContext";
-import { useMobile760 } from "@/lib/hooks/useMobile760";
+import { useCompactHeader1000 } from "@/lib/hooks/useCompactHeader1000";
 
 const PROFILE_TABS = ["Настройки", "Канал", "Аналитика платформы"] as const;
 
@@ -18,7 +18,7 @@ export default function ProfileScreen() {
   const [tab, setTab] = useState(0);
   const { state, profileChannelDirty, profileSettingsDirty, discardProfileEdits } = useApp();
   const profileScreenActive = state.screen === "profile";
-  const isMobile = useMobile760();
+  const isCompactHeader = useCompactHeader1000();
   const settingsTabActive = tab === 0 && profileScreenActive;
   const channelTabActive = tab === 1 && profileScreenActive;
 
@@ -44,6 +44,13 @@ export default function ProfileScreen() {
     setTab(next);
   };
 
+  const profileTabSelectProps = {
+    ariaLabel: "Раздел профиля",
+    value: String(tab),
+    options: PROFILE_TABS.map((label, i) => ({ value: String(i), label })),
+    onChange: (v: string) => switchTab(Number(v)),
+  };
+
   const tabToolbar = (
     <div className="page-header-profile-tabs" role="tablist" aria-label="Раздел профиля">
       {PROFILE_TABS.map((label, i) => (
@@ -66,16 +73,13 @@ export default function ProfileScreen() {
       <PageHeader
         title="Профиль канала"
         backTo="home"
-        center={<div className="page-header-toolbar--desktop">{tabToolbar}</div>}
+        center={
+          isCompactHeader ? undefined : (
+            <div className="page-header-toolbar--desktop">{tabToolbar}</div>
+          )
+        }
         mobileSelect={
-          isMobile ? (
-            <PageHeaderSelect
-              value={String(tab)}
-              options={PROFILE_TABS.map((label, i) => ({ value: String(i), label }))}
-              onChange={(v) => switchTab(Number(v))}
-              ariaLabel="Раздел профиля"
-            />
-          ) : undefined
+          isCompactHeader ? <PageHeaderSelect {...profileTabSelectProps} /> : undefined
         }
       />
       <div className="profile-page" id="screen-profile">
