@@ -6879,6 +6879,7 @@ button.filter-tab {
   .theme-switch,
   .profile-input,
   .profile-input-explicit,
+  .profile-secret-field,
   .profile-model-picker .model-picker-btn,
   .model-picker-dropdown,
   .btn,
@@ -7009,10 +7010,52 @@ button.filter-tab {
   position: relative;
   display: flex;
   align-items: center;
+  gap: 0;
+  min-width: 0;
 }
-.profile-model-key-input {
-  width: 100%;
-  padding-right: 42px;
+.profile-secret-field {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-width: 0;
+}
+.profile-secret-field .profile-model-key-input,
+.profile-secret-field .telegram-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  padding-right: 2px;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.profile-secret-field .profile-model-key-input:hover:not(:disabled),
+.profile-secret-field .profile-model-key-input:focus,
+.profile-secret-field .telegram-input:hover:not(:disabled),
+.profile-secret-field .telegram-input:focus {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.profile-secret-field.profile-model-key-wrap {
+  background: var(--profile-select-bg);
+}
+.profile-secret-field:hover:not(:has(input:disabled)) {
+  background: var(--profile-field-bg-hover);
+  color: var(--profile-control-fg);
+  border-color: var(--control-border-active);
+}
+.profile-secret-field:focus-within {
+  background: var(--profile-field-bg-active);
+  color: var(--profile-control-fg);
+  border-color: var(--control-border-active);
+  box-shadow: var(--profile-field-shadow);
+}
+.profile-secret-field:has(input:disabled) {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 .profile-api-key-toggle {
   position: absolute;
@@ -7030,6 +7073,17 @@ button.filter-tab {
   color: var(--text3);
   cursor: pointer;
   transition: color 0.12s;
+}
+.profile-secret-field .profile-api-key-toggle {
+  position: static;
+  transform: none;
+  flex: 0 0 24px;
+  width: 24px;
+  margin-right: 6px;
+  margin-left: 0;
+}
+.profile-model-key-input {
+  width: 100%;
 }
 .profile-api-key-toggle:hover {
   color: var(--text);
@@ -7142,10 +7196,9 @@ button.filter-tab {
   border-color: var(--control-border-active);
   box-shadow: var(--profile-field-shadow);
 }
-.profile-model-key-input,
 .profile-model-key-input:hover:not(:disabled),
 .profile-model-key-input:focus {
-  background: var(--profile-select-bg);
+  background: transparent;
 }
 .telegram-input,
 .telegram-input:hover:not(:disabled),
@@ -7796,9 +7849,6 @@ button.filter-tab {
 .telegram-input-wrap {
   position: relative;
 }
-.telegram-input-with-toggle {
-  padding-right: 42px;
-}
 .telegram-input:focus { border-color: var(--control-border-active); }
 .telegram-action-row {
   display: flex;
@@ -8387,12 +8437,11 @@ button.filter-tab {
   }
 
   html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-key {
-    grid-column: 1 / -1;
+    grid-column: 1;
     grid-row: 2;
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
-    padding-right: calc(14px + 36px);
   }
 
   html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-key.profile-model-key-wrap {
@@ -8401,12 +8450,7 @@ button.filter-tab {
   }
 
   html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-key-input {
-    width: 100%;
     box-sizing: border-box;
-  }
-
-  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-key .profile-api-key-toggle {
-    right: calc(14px + 36px + 10px);
   }
 
   .telegram-steps,

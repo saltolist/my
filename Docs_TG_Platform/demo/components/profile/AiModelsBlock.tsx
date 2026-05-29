@@ -302,9 +302,9 @@ function ModelRow({
           onChange={(value) => onChange({ model: value })}
         />
       </div>
-      <div className="profile-model-key profile-model-key-wrap">
+      <div className="profile-model-key profile-model-key-wrap profile-input-explicit profile-secret-field">
         <input
-          className="profile-input profile-input-explicit profile-model-key-input"
+          className="profile-input profile-model-key-input"
           type={apiKeyVisible ? "text" : "password"}
           value={model.apiKey}
           placeholder="API key"
