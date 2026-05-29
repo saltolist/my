@@ -217,27 +217,69 @@ export default function TelegramBlock() {
             </button>
           }
         />
-        <Field
-          label="Телефон аккаунта"
-          value={cfg.phone}
-          placeholder="+7 999 000-00-00"
-          onChange={(v) => update({ phone: v })}
-        />
-        <div className="profile-row telegram-inline-action">
-          <div className="profile-label" aria-hidden>
-            &nbsp;
+        <div className="telegram-auth-desktop">
+          <Field
+            label="Телефон аккаунта"
+            value={cfg.phone}
+            placeholder="+7 999 000-00-00"
+            onChange={(v) => update({ phone: v })}
+          />
+          <div className="profile-row telegram-inline-action">
+            <div className="profile-label" aria-hidden>
+              &nbsp;
+            </div>
+            <div className="telegram-code-row">
+              <button
+                className="btn btn-ghost telegram-inline-button"
+                disabled={sendCodeDisabled}
+                onClick={startAuth}
+                type="button"
+              >
+                Отправить код
+              </button>
+              {codeHidden ? null : (
+                <>
+                  <input
+                    className="profile-input profile-input-explicit telegram-code-input"
+                    placeholder="Код из Telegram"
+                    maxLength={8}
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                  />
+                  <button className="btn btn-ghost telegram-inline-button" onClick={confirmCode} type="button">
+                    Подтвердить
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-          <div className="telegram-code-row">
-            <button
-              className="btn btn-ghost telegram-inline-button"
-              disabled={sendCodeDisabled}
-              onClick={startAuth}
-              type="button"
-            >
-              Отправить код
-            </button>
-            {codeHidden ? null : (
-              <>
+        </div>
+        <div className="telegram-auth-mobile">
+          <div className="profile-row telegram-phone-row">
+            <div className="profile-label">Телефон аккаунта</div>
+            <div className="telegram-inline-field-row">
+              <input
+                className="profile-input profile-input-explicit telegram-input"
+                value={cfg.phone}
+                placeholder="+7 999 000-00-00"
+                onChange={(e) => update({ phone: e.target.value })}
+              />
+              <button
+                className="btn btn-ghost telegram-inline-button"
+                disabled={sendCodeDisabled}
+                onClick={startAuth}
+                type="button"
+              >
+                Отправить код
+              </button>
+            </div>
+          </div>
+          {codeHidden ? null : (
+            <div className="profile-row telegram-code-action-row">
+              <div className="profile-label" aria-hidden>
+                &nbsp;
+              </div>
+              <div className="telegram-inline-field-row">
                 <input
                   className="profile-input profile-input-explicit telegram-code-input"
                   placeholder="Код из Telegram"
@@ -248,9 +290,9 @@ export default function TelegramBlock() {
                 <button className="btn btn-ghost telegram-inline-button" onClick={confirmCode} type="button">
                   Подтвердить
                 </button>
-              </>
-            )}
-          </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -303,36 +345,71 @@ export default function TelegramBlock() {
         <div className="telegram-omnibot-title">Омниканальный бот</div>
 
         <div className="telegram-form-grid">
-          <Field
-            label="API-токен"
-            type={botApiTokenVisible ? "text" : "password"}
-            value={cfg.botApiToken}
-            placeholder="••••••••••••••••"
-            onChange={(v) => update({ botApiToken: v })}
-            trailing={
+          <div className="telegram-omnibot-desktop">
+            <Field
+              label="API-токен"
+              type={botApiTokenVisible ? "text" : "password"}
+              value={cfg.botApiToken}
+              placeholder="••••••••••••••••"
+              onChange={(v) => update({ botApiToken: v })}
+              trailing={
+                <button
+                  type="button"
+                  className="profile-api-key-toggle"
+                  aria-label={botApiTokenVisible ? "Скрыть API-токен" : "Показать API-токен"}
+                  title={botApiTokenVisible ? "Скрыть API-токен" : "Показать API-токен"}
+                  onClick={() => setBotApiTokenVisible((value) => !value)}
+                >
+                  <EyeIcon hidden={!botApiTokenVisible} />
+                </button>
+              }
+            />
+            <div className="profile-row telegram-inline-action">
+              <div className="profile-label" aria-hidden>
+                &nbsp;
+              </div>
               <button
+                className="btn btn-ghost telegram-inline-button"
+                disabled={addBotDisabled}
+                onClick={connectBot}
                 type="button"
-                className="profile-api-key-toggle"
-                aria-label={botApiTokenVisible ? "Скрыть API-токен" : "Показать API-токен"}
-                title={botApiTokenVisible ? "Скрыть API-токен" : "Показать API-токен"}
-                onClick={() => setBotApiTokenVisible((value) => !value)}
               >
-                <EyeIcon hidden={!botApiTokenVisible} />
+                Добавить
               </button>
-            }
-          />
-          <div className="profile-row telegram-inline-action">
-            <div className="profile-label" aria-hidden>
-              &nbsp;
             </div>
-            <button
-              className="btn btn-ghost telegram-inline-button"
-              disabled={addBotDisabled}
-              onClick={connectBot}
-              type="button"
-            >
-              Добавить
-            </button>
+          </div>
+          <div className="telegram-omnibot-mobile">
+            <div className="profile-row telegram-bot-token-row">
+              <div className="profile-label">API-токен</div>
+              <div className="telegram-inline-field-row">
+                <div className="telegram-input-wrap">
+                  <input
+                    className="profile-input profile-input-explicit telegram-input telegram-input-with-toggle"
+                    type={botApiTokenVisible ? "text" : "password"}
+                    value={cfg.botApiToken}
+                    placeholder="••••••••••••••••"
+                    onChange={(e) => update({ botApiToken: e.target.value })}
+                  />
+                  <button
+                    type="button"
+                    className="profile-api-key-toggle"
+                    aria-label={botApiTokenVisible ? "Скрыть API-токен" : "Показать API-токен"}
+                    title={botApiTokenVisible ? "Скрыть API-токен" : "Показать API-токен"}
+                    onClick={() => setBotApiTokenVisible((value) => !value)}
+                  >
+                    <EyeIcon hidden={!botApiTokenVisible} />
+                  </button>
+                </div>
+                <button
+                  className="btn btn-ghost telegram-inline-button"
+                  disabled={addBotDisabled}
+                  onClick={connectBot}
+                  type="button"
+                >
+                  Добавить
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
