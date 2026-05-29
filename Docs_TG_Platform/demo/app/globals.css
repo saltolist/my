@@ -4332,7 +4332,7 @@ button.nav-item {
   gap: 10px;
   width: min(var(--composer-w), 100%);
   box-sizing: border-box;
-  padding: 18px 12px 10px;
+  padding: 14px 12px 0;
 }
 .post-subpage-toolbar-filters {
   display: flex;
@@ -4357,6 +4357,13 @@ button.nav-item {
   align-items: center;
   padding-top: 0;
 }
+
+/* Тулбар отдельно от сетки — один отступ до карточек (как .notes-grid-page) */
+.post-subpage-scroll .notes-grid.visible,
+.post-subpage-scroll .post-chats.visible {
+  padding-top: 14px;
+}
+
 /* notes grid in post */
 .notes-grid {
   width: 100%;

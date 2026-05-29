@@ -346,24 +346,6 @@ export default function PostScreen() {
                   onChange={(e) => setListSearch(e.target.value)}
                   onDismiss={() => setListSearch("")}
                 />
-                {state.postMode === "notes" ? (
-                  <button
-                    className="post-new-note-btn page-header-toolbar--desktop"
-                    onClick={startNewNote}
-                    type="button"
-                  >
-                    + Новая заметка
-                  </button>
-                ) : null}
-                {state.postMode === "chats" ? (
-                  <button
-                    className="post-new-chat-btn page-header-toolbar--desktop"
-                    onClick={startNewChat}
-                    type="button"
-                  >
-                    + Новый чат
-                  </button>
-                ) : null}
               </div>
             </div>
           ) : null}
