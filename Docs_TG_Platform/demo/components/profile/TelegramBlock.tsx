@@ -278,20 +278,16 @@ export default function TelegramBlock() {
           }
         />
         <div className="telegram-auth-desktop">
-          <div
-            className={`profile-row telegram-phone-desktop-row${codeHidden ? "" : " telegram-phone-desktop-row--code-sent"}`}
-          >
-            <div className="profile-label">Телефон аккаунта</div>
-            <div
-              className={`telegram-desktop-auth-row${codeHidden ? "" : " telegram-desktop-auth-row--code-sent"}`}
-            >
-              <input
-                className="profile-input profile-input-explicit telegram-input telegram-desktop-phone-input"
-                value={cfg.phone}
-                placeholder="+7 999 000-00-00"
-                onChange={(e) => update({ phone: e.target.value })}
-              />
-              {codeHidden ? (
+          {codeHidden ? (
+            <div className="profile-row telegram-phone-desktop-row">
+              <div className="profile-label">Телефон аккаунта</div>
+              <div className="telegram-desktop-auth-row">
+                <input
+                  className="profile-input profile-input-explicit telegram-input telegram-desktop-phone-input"
+                  value={cfg.phone}
+                  placeholder="+7 999 000-00-00"
+                  onChange={(e) => update({ phone: e.target.value })}
+                />
                 <button
                   className="btn btn-ghost telegram-inline-button"
                   disabled={sendCodeDisabled}
@@ -300,17 +296,65 @@ export default function TelegramBlock() {
                 >
                   Отправить код
                 </button>
-              ) : (
-                <>
-                  <TelegramCodeInput value={code} onChange={setCode} onDismiss={cancelCodeEntry} />
-                  <button className="btn btn-ghost telegram-inline-button" onClick={confirmCode} type="button">
-                    Подтвердить
-                  </button>
-                  <TelegramResendCode secondsLeft={resendCooldownSec} onResend={resendCode} />
-                </>
-              )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <>
+              <div className="telegram-desktop-auth-wide">
+                <div className="profile-row telegram-phone-desktop-row telegram-phone-desktop-row--code-sent">
+                  <div className="profile-label">Телефон аккаунта</div>
+                  <div className="telegram-desktop-auth-row telegram-desktop-auth-row--code-sent">
+                    <input
+                      className="profile-input profile-input-explicit telegram-input telegram-desktop-phone-input"
+                      value={cfg.phone}
+                      placeholder="+7 999 000-00-00"
+                      onChange={(e) => update({ phone: e.target.value })}
+                    />
+                    <TelegramCodeInput value={code} onChange={setCode} onDismiss={cancelCodeEntry} />
+                    <button className="btn btn-ghost telegram-inline-button" onClick={confirmCode} type="button">
+                      Подтвердить
+                    </button>
+                    <TelegramResendCode secondsLeft={resendCooldownSec} onResend={resendCode} />
+                  </div>
+                </div>
+              </div>
+              <div className="telegram-desktop-auth-narrow">
+                <div className="profile-row telegram-phone-desktop-row telegram-phone-desktop-row--code-sent">
+                  <div className="profile-label">Телефон аккаунта</div>
+                  <div className="telegram-desktop-auth-row telegram-desktop-auth-row--stacked">
+                    <input
+                      className="profile-input profile-input-explicit telegram-input telegram-desktop-phone-input"
+                      value={cfg.phone}
+                      placeholder="+7 999 000-00-00"
+                      onChange={(e) => update({ phone: e.target.value })}
+                    />
+                    <button
+                      className="btn btn-ghost telegram-inline-button"
+                      disabled
+                      onClick={startAuth}
+                      type="button"
+                    >
+                      Отправить код
+                    </button>
+                  </div>
+                </div>
+                <div className="profile-row telegram-code-desktop-row">
+                  <div className="profile-label" aria-hidden>
+                    &nbsp;
+                  </div>
+                  <div className="telegram-code-block telegram-desktop-code-block">
+                    <div className="telegram-inline-field-row telegram-desktop-code-inline">
+                      <TelegramCodeInput value={code} onChange={setCode} onDismiss={cancelCodeEntry} />
+                      <button className="btn btn-ghost telegram-inline-button" onClick={confirmCode} type="button">
+                        Подтвердить
+                      </button>
+                    </div>
+                    <TelegramResendCode secondsLeft={resendCooldownSec} onResend={resendCode} />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
         <div className="telegram-auth-mobile">
           <div className="profile-row telegram-phone-row">
