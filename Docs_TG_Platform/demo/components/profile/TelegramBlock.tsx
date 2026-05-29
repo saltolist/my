@@ -298,24 +298,47 @@ export default function TelegramBlock() {
 
       <div className={`telegram-channel-section${!isAuthorized ? " hidden" : ""}`}>
         <div className="telegram-form-grid">
-          <Field
-            label="Канал"
-            value={cfg.channel}
-            placeholder="@channel или -100..."
-            onChange={(v) => update({ channel: v })}
-          />
-          <div className="profile-row telegram-inline-action">
-            <div className="profile-label" aria-hidden>
-              &nbsp;
+          <div className="telegram-channel-desktop">
+            <Field
+              label="Канал"
+              value={cfg.channel}
+              placeholder="@channel или -100..."
+              onChange={(v) => update({ channel: v })}
+            />
+            <div className="profile-row telegram-inline-action">
+              <div className="profile-label" aria-hidden>
+                &nbsp;
+              </div>
+              <button
+                className="btn btn-ghost telegram-inline-button"
+                disabled={connectChannelDisabled}
+                onClick={connectChannel}
+                type="button"
+              >
+                Подключить канал
+              </button>
             </div>
-            <button
-              className="btn btn-ghost telegram-inline-button"
-              disabled={connectChannelDisabled}
-              onClick={connectChannel}
-              type="button"
-            >
-              Подключить канал
-            </button>
+          </div>
+          <div className="telegram-channel-mobile">
+            <div className="profile-row telegram-channel-row">
+              <div className="profile-label">Канал</div>
+              <div className="telegram-inline-field-row">
+                <input
+                  className="profile-input profile-input-explicit telegram-input"
+                  value={cfg.channel}
+                  placeholder="@channel или -100..."
+                  onChange={(e) => update({ channel: e.target.value })}
+                />
+                <button
+                  className="btn btn-ghost telegram-inline-button"
+                  disabled={connectChannelDisabled}
+                  onClick={connectChannel}
+                  type="button"
+                >
+                  Подключить канал
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 

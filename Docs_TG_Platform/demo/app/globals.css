@@ -7599,6 +7599,12 @@ button.filter-tab {
 .telegram-omnibot-desktop {
   display: contents;
 }
+.telegram-channel-mobile {
+  display: none;
+}
+.telegram-channel-desktop {
+  display: contents;
+}
 .telegram-channel-section {
   display: flex;
   flex-direction: column;
@@ -9088,6 +9094,23 @@ button.filter-tab {
   }
 
   .telegram-omnibot-mobile .profile-row {
+    min-width: 0;
+    max-width: 100%;
+    margin-bottom: 0;
+  }
+
+  .telegram-channel-desktop {
+    display: none;
+  }
+
+  .telegram-channel-mobile {
+    display: block;
+    grid-column: 1 / -1;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .telegram-channel-mobile .profile-row {
     min-width: 0;
     max-width: 100%;
     margin-bottom: 0;
