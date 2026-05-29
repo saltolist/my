@@ -460,9 +460,9 @@ export default function TelegramBlock() {
             <div className="profile-row telegram-bot-token-row">
               <div className="profile-label">API-токен</div>
               <div className="telegram-inline-field-row">
-                <div className="telegram-input-wrap profile-input-explicit profile-secret-field">
+                <div className="telegram-input-wrap">
                   <input
-                    className="profile-input telegram-input"
+                    className="profile-input profile-input-explicit telegram-input telegram-input-with-toggle"
                     type={botApiTokenVisible ? "text" : "password"}
                     value={cfg.botApiToken}
                     placeholder="••••••••••••••••"
@@ -531,9 +531,9 @@ function Field({
     <div className="profile-row">
       <div className="profile-label">{label}</div>
       {trailing ? (
-        <div className="telegram-input-wrap profile-input-explicit profile-secret-field">
+        <div className="telegram-input-wrap">
           <input
-            className="profile-input telegram-input"
+            className="profile-input profile-input-explicit telegram-input telegram-input-with-toggle"
             type={type}
             value={value}
             placeholder={placeholder}
