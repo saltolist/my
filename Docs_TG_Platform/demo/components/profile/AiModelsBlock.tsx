@@ -323,26 +323,28 @@ function ModelRow({
         </button>
       </div>
       <div className="profile-model-footer">
-        {showActiveToggle ? (
-          <label className="profile-checkbox-label profile-model-multi">
-            <ProfileCheckbox
-              disabled={!hasProvider}
-              checked={hasProvider && model.active}
-              onChange={(e) => onChange({ active: e.target.checked })}
-            />
-            Активна
-          </label>
-        ) : null}
-        {showMultiToggle ? (
-          <label className="profile-checkbox-label profile-model-multi">
-            <ProfileCheckbox
-              disabled={!hasProvider}
-              checked={hasProvider && model.includeInMulti}
-              onChange={(e) => onChange({ includeInMulti: e.target.checked })}
-            />
-            В мультиответ
-          </label>
-        ) : null}
+        <div className="profile-model-footer-checks">
+          {showActiveToggle ? (
+            <label className="profile-checkbox-label profile-model-multi">
+              <ProfileCheckbox
+                disabled={!hasProvider}
+                checked={hasProvider && model.active}
+                onChange={(e) => onChange({ active: e.target.checked })}
+              />
+              Активна
+            </label>
+          ) : null}
+          {showMultiToggle ? (
+            <label className="profile-checkbox-label profile-model-multi">
+              <ProfileCheckbox
+                disabled={!hasProvider}
+                checked={hasProvider && model.includeInMulti}
+                onChange={(e) => onChange({ includeInMulti: e.target.checked })}
+              />
+              В мультиответ
+            </label>
+          ) : null}
+        </div>
         {onRemove ? (
           <button
             type="button"

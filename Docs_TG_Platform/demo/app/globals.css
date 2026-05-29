@@ -6980,7 +6980,8 @@ button.filter-tab {
   width: 100%;
 }
 .profile-model-pickers,
-.profile-model-footer {
+.profile-model-footer,
+.profile-model-footer-checks {
   display: contents;
 }
 .profile-model-row {
@@ -8198,15 +8199,219 @@ button.filter-tab {
 
   .profile-model-row {
     align-items: stretch;
-    flex-wrap: wrap;
   }
 
-  .profile-model-provider,
-  .profile-model-name,
-  .profile-model-key {
-    flex: 1 1 220px;
-    width: auto;
-    min-width: 180px;
+  @media (min-width: 761px) {
+    .profile-model-list {
+      gap: 0;
+    }
+
+    .profile-model-list .profile-model-row {
+      display: grid;
+      gap: 14px;
+      align-items: center;
+      padding-bottom: 12px;
+    }
+
+    .profile-model-list .profile-model-row + .profile-model-row {
+      border-top: 1px dashed var(--profile-control-border);
+      padding-top: 12px;
+    }
+
+    .profile-model-pickers {
+      display: contents;
+    }
+
+    .profile-model-provider {
+      width: 100%;
+      max-width: 170px;
+      flex: none;
+      min-width: 0;
+    }
+
+    .profile-model-name {
+      width: 100%;
+      max-width: 220px;
+      flex: none;
+      min-width: 0;
+    }
+
+    .profile-model-list > .btn {
+      margin-top: 4px;
+    }
+
+    /* 1001–1200: провайдер · модель · API — в первой строке; чекбоксы и корзина — во второй */
+    @media (min-width: 1001px) {
+      .profile-model-list .profile-model-row {
+        grid-template-columns: minmax(0, 170px) minmax(0, 220px) minmax(0, 1fr);
+        grid-template-rows: auto auto;
+      }
+
+      .profile-model-provider {
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      .profile-model-name {
+        grid-column: 2;
+        grid-row: 1;
+      }
+
+      .profile-model-key {
+        grid-column: 3;
+        grid-row: 1;
+        width: 100%;
+        flex: none;
+        min-width: 0;
+        align-self: stretch;
+      }
+
+      .profile-model-footer {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px 16px;
+        width: 100%;
+      }
+
+      .profile-model-footer .profile-model-remove {
+        margin-left: auto;
+      }
+
+      .profile-model-footer .profile-checkbox-label {
+        white-space: nowrap;
+      }
+    }
+
+    /* 761–1000: провайдер · модель · чекбоксы · корзина — в первой строке; API — на всю ширину снизу */
+    @media (max-width: 1000px) {
+      .profile-model-list .profile-model-row {
+        grid-template-columns:
+          minmax(0, clamp(120px, calc(170px - (1000px - 100vw) * 0.36), 170px))
+          minmax(0, clamp(145px, calc(210px - (1000px - 100vw) * 0.46), 210px))
+          minmax(0, 1fr);
+        grid-template-rows: auto auto;
+      }
+
+      .profile-model-provider {
+        grid-column: 1;
+        grid-row: 1;
+        max-width: none;
+      }
+
+      .profile-model-name {
+        grid-column: 2;
+        grid-row: 1;
+        max-width: none;
+      }
+
+      .profile-model-footer {
+        grid-column: 3;
+        grid-row: 1;
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .profile-model-footer .profile-model-remove {
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+
+      .profile-model-footer .profile-checkbox-label {
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      .profile-model-key {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        width: 100%;
+        flex: none;
+        min-width: 0;
+      }
+
+      /* 761–949: чекбоксы у правого края; 14px от селекторов; API почти до корзины */
+      @media (max-width: 949px) {
+        .profile-model-list .profile-model-row {
+          grid-template-columns: minmax(0, 1fr) auto;
+          grid-template-rows: auto auto;
+        }
+
+        .profile-model-pickers {
+          display: flex;
+          grid-column: 1;
+          grid-row: 1;
+          align-items: center;
+          gap: 14px;
+          width: 100%;
+          min-width: 0;
+        }
+
+        .profile-model-provider {
+          width: auto;
+          flex: 1 1 0;
+          max-width: clamp(120px, calc(170px - (950px - 100vw) * 0.42), 170px);
+        }
+
+        .profile-model-name {
+          width: auto;
+          flex: 1 1 0;
+          max-width: clamp(145px, calc(210px - (950px - 100vw) * 0.52), 210px);
+        }
+
+        .profile-model-footer {
+          display: contents;
+        }
+
+        .profile-model-footer-checks {
+          grid-column: 2;
+          grid-row: 1;
+          display: flex;
+          flex-wrap: nowrap;
+          align-items: center;
+          gap: 12px;
+          flex-shrink: 0;
+        }
+
+        .profile-model-footer .profile-model-remove {
+          grid-column: 2;
+          grid-row: 2;
+          margin-left: 0;
+          justify-self: end;
+          align-self: center;
+          position: relative;
+          z-index: 1;
+        }
+
+        .profile-model-key {
+          grid-column: 1 / -1;
+          grid-row: 2;
+          width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
+          padding-right: calc(14px + 36px);
+        }
+
+        .profile-model-key.profile-model-key-wrap {
+          width: 100%;
+          max-width: 100%;
+        }
+
+        .profile-model-key-input {
+          width: 100%;
+          box-sizing: border-box;
+        }
+
+        .profile-model-key .profile-api-key-toggle {
+          right: calc(14px + 36px + 10px);
+        }
+      }
+    }
   }
 
   .telegram-steps,
@@ -8388,6 +8593,30 @@ button.filter-tab {
 @media (max-width: 1000px) {
   #screen-profile .page-header-center {
     display: none;
+  }
+
+  /* Селектор + «← Назад» у правого края: без центра grid auto-placement кладёт right во 2-ю колонку */
+  .page-header.page-header--trailing-select {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .page-header.page-header--trailing-select .page-header-left {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  .page-header.page-header--trailing-select .page-header-center {
+    display: none;
+  }
+
+  .page-header.page-header--trailing-select .page-header-right {
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  .page-header.page-header--trailing-select .page-header-actions--desktop {
+    flex-wrap: nowrap;
+    flex-shrink: 0;
   }
 
   .post-hdr .page-header-actions--mobile {

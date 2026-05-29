@@ -152,12 +152,14 @@ export default function PageHeader({
       hasMobileTrailing ||
       (mobileSearchOpen && hasMobileTrailing));
 
+  const trailingDesktopSelect = !isMobile && !!mobileSelect;
+
   return (
     <div
       ref={headerRef}
       className={`page-header${mobileSearchOpen ? " page-header--search-open" : ""}${
         mobileSearchOpen && mobileSelect ? " page-header--has-mobile-select" : ""
-      }`}
+      }${trailingDesktopSelect ? " page-header--trailing-select" : ""}`}
     >
       <div className="page-header-left" ref={mobileSearchLeftRef}>
         <PageHeaderMenuButton />
