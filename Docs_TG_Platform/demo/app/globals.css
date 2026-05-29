@@ -20,6 +20,10 @@
   --purple:  #9b7cdb;
   --nav-w:   220px;
   --nav-w-rail: 86px;
+  /* Ширина сайдбара до overlay; для расчёта content-adapt-w в JS */
+  --nav-sidebar-w: 220px;
+  /* Эффективная ширина для правил адаптации контента (обновляется в ContentAdaptSync) */
+  --content-adapt-w: 100vw;
   /* Сайдбар: актив = пузырёк user-сообщения; hover — светлее */
   --nav-active-bg: var(--bg3);
   --nav-hover-bg: var(--bg3);
@@ -256,6 +260,7 @@
 
 html.sidebar-collapsed {
   --nav-w: var(--nav-w-rail);
+  --nav-sidebar-w: var(--nav-w-rail);
 }
 
 /* ── Light theme palette ── */
@@ -7062,7 +7067,6 @@ button.filter-tab {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
   padding: 4px;
   margin: 0;
   border: none;
@@ -7070,9 +7074,6 @@ button.filter-tab {
   color: var(--red);
   cursor: pointer;
   transition: opacity 0.15s;
-}
-.profile-model-remove-label {
-  display: none;
 }
 .profile-model-remove:hover:not(:disabled) {
   opacity: 0.72;
@@ -8109,37 +8110,38 @@ button.filter-tab {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  /* Планшет (761–1200): шапка графика канала в колонку; на телефоне — отдельные правила ≤760px */
-  @media (min-width: 761px) {
-    #screen-analytics .analytics-chart-card .analytics-card-head {
-      flex-direction: column;
-      flex-wrap: wrap;
-      align-items: stretch;
-      justify-content: flex-start;
-    }
+  /* Планшет: шапка графика канала в колонку — порог по content-adapt-w, не по 100vw */
+  html[data-content-adapt-ge-761] #screen-analytics .analytics-chart-card .analytics-card-head {
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
 
+  html[data-content-adapt-ge-761]
     #screen-analytics
-      .analytics-chart-card
-      .analytics-card-head
-      .analytics-channel-head-filters.model-filter-stack.model-filter-stack--with-series {
-      display: grid;
-      width: 100%;
-      margin-left: 0;
-    }
+    .analytics-chart-card
+    .analytics-card-head
+    .analytics-channel-head-filters.model-filter-stack.model-filter-stack--with-series {
+    display: grid;
+    width: 100%;
+    margin-left: 0;
+  }
 
+  html[data-content-adapt-ge-761]
     #screen-analytics
-      .analytics-chart-card
-      .analytics-card-head
-      .analytics-channel-head-filters
-      .profile-model-picker,
+    .analytics-chart-card
+    .analytics-card-head
+    .analytics-channel-head-filters
+    .profile-model-picker,
+  html[data-content-adapt-ge-761]
     #screen-analytics
-      .analytics-chart-card
-      .analytics-card-head
-      .analytics-channel-head-filters
-      .chart-series-selector--profile {
-      width: 100%;
-      max-width: none;
-    }
+    .analytics-chart-card
+    .analytics-card-head
+    .analytics-channel-head-filters
+    .chart-series-selector--profile {
+    width: 100%;
+    max-width: none;
   }
 
   .analytics-top-posts-table,
@@ -8201,217 +8203,210 @@ button.filter-tab {
     align-items: stretch;
   }
 
-  @media (min-width: 761px) {
-    .profile-model-list {
-      gap: 0;
-    }
+  /* Планшетная сетка моделей: пороги по --content-adapt-w (vw + сайдбар в overlay), не по 100vw */
+  html[data-content-adapt-ge-761] .profile-model-list {
+    gap: 0;
+  }
 
-    .profile-model-list .profile-model-row {
-      display: grid;
-      gap: 14px;
-      align-items: center;
-      padding-bottom: 12px;
-    }
+  html[data-content-adapt-ge-761] .profile-model-list .profile-model-row {
+    display: grid;
+    gap: 14px;
+    align-items: center;
+    padding-bottom: 12px;
+  }
 
-    .profile-model-list .profile-model-row + .profile-model-row {
-      border-top: 1px dashed var(--profile-control-border);
-      padding-top: 12px;
-    }
+  html[data-content-adapt-ge-761] .profile-model-list .profile-model-row + .profile-model-row {
+    border-top: 1px dashed var(--profile-control-border);
+    padding-top: 12px;
+  }
 
-    .profile-model-pickers {
-      display: contents;
-    }
+  html[data-content-adapt-ge-761] .profile-model-pickers {
+    display: contents;
+  }
 
-    .profile-model-provider {
-      width: 100%;
-      max-width: 170px;
-      flex: none;
-      min-width: 0;
-    }
+  html[data-content-adapt-ge-761] .profile-model-provider {
+    width: 100%;
+    max-width: 170px;
+    flex: none;
+    min-width: 0;
+  }
 
-    .profile-model-name {
-      width: 100%;
-      max-width: 220px;
-      flex: none;
-      min-width: 0;
-    }
+  html[data-content-adapt-ge-761] .profile-model-name {
+    width: 100%;
+    max-width: 220px;
+    flex: none;
+    min-width: 0;
+  }
 
-    .profile-model-list > .btn {
-      margin-top: 4px;
-    }
+  html[data-content-adapt-ge-761] .profile-model-list > .btn {
+    margin-top: 4px;
+  }
 
-    /* 1001–1200: провайдер · модель · API — в первой строке; чекбоксы и корзина — во второй */
-    @media (min-width: 1001px) {
-      .profile-model-list .profile-model-row {
-        grid-template-columns: minmax(0, 170px) minmax(0, 220px) minmax(0, 1fr);
-        grid-template-rows: auto auto;
-      }
+  /* 1001–1200: провайдер · модель · API — в первой строке; чекбоксы и корзина — во второй */
+  html[data-content-adapt-ge-1001] .profile-model-list .profile-model-row {
+    grid-template-columns: minmax(0, 170px) minmax(0, 220px) minmax(0, 1fr);
+    grid-template-rows: auto auto;
+  }
 
-      .profile-model-provider {
-        grid-column: 1;
-        grid-row: 1;
-      }
+  html[data-content-adapt-ge-1001] .profile-model-provider {
+    grid-column: 1;
+    grid-row: 1;
+  }
 
-      .profile-model-name {
-        grid-column: 2;
-        grid-row: 1;
-      }
+  html[data-content-adapt-ge-1001] .profile-model-name {
+    grid-column: 2;
+    grid-row: 1;
+  }
 
-      .profile-model-key {
-        grid-column: 3;
-        grid-row: 1;
-        width: 100%;
-        flex: none;
-        min-width: 0;
-        align-self: stretch;
-      }
+  html[data-content-adapt-ge-1001] .profile-model-key {
+    grid-column: 3;
+    grid-row: 1;
+    width: 100%;
+    flex: none;
+    min-width: 0;
+    align-self: stretch;
+  }
 
-      .profile-model-footer {
-        grid-column: 1 / -1;
-        grid-row: 2;
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 12px 16px;
-        width: 100%;
-      }
+  html[data-content-adapt-ge-1001] .profile-model-footer {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+    width: 100%;
+  }
 
-      .profile-model-footer .profile-model-remove {
-        margin-left: auto;
-      }
+  html[data-content-adapt-ge-1001] .profile-model-footer .profile-model-remove {
+    margin-left: auto;
+  }
 
-      .profile-model-footer .profile-checkbox-label {
-        white-space: nowrap;
-      }
-    }
+  html[data-content-adapt-ge-1001] .profile-model-footer .profile-checkbox-label {
+    white-space: nowrap;
+  }
 
-    /* 761–1000: провайдер · модель · чекбоксы · корзина — в первой строке; API — на всю ширину снизу */
-    @media (max-width: 1000px) {
-      .profile-model-list .profile-model-row {
-        grid-template-columns:
-          minmax(0, clamp(120px, calc(170px - (1000px - 100vw) * 0.36), 170px))
-          minmax(0, clamp(145px, calc(210px - (1000px - 100vw) * 0.46), 210px))
-          minmax(0, 1fr);
-        grid-template-rows: auto auto;
-      }
+  /* 761–1000: провайдер · модель · чекбоксы · корзина — в первой строке; API — на всю ширину снизу */
+  html[data-content-adapt-ge-761][data-content-adapt-le-1000] .profile-model-list .profile-model-row {
+    grid-template-columns:
+      minmax(0, clamp(120px, calc(170px - (1000px - var(--content-adapt-w)) * 0.36), 170px))
+      minmax(0, clamp(145px, calc(210px - (1000px - var(--content-adapt-w)) * 0.46), 210px))
+      minmax(0, 1fr);
+    grid-template-rows: auto auto;
+  }
 
-      .profile-model-provider {
-        grid-column: 1;
-        grid-row: 1;
-        max-width: none;
-      }
+  html[data-content-adapt-ge-761][data-content-adapt-le-1000] .profile-model-provider {
+    grid-column: 1;
+    grid-row: 1;
+    max-width: none;
+  }
 
-      .profile-model-name {
-        grid-column: 2;
-        grid-row: 1;
-        max-width: none;
-      }
+  html[data-content-adapt-ge-761][data-content-adapt-le-1000] .profile-model-name {
+    grid-column: 2;
+    grid-row: 1;
+    max-width: none;
+  }
 
-      .profile-model-footer {
-        grid-column: 3;
-        grid-row: 1;
-        display: flex;
-        flex-wrap: nowrap;
-        align-items: center;
-        gap: 12px;
-        min-width: 0;
-      }
+  html[data-content-adapt-ge-761][data-content-adapt-le-1000] .profile-model-footer {
+    grid-column: 3;
+    grid-row: 1;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
 
-      .profile-model-footer .profile-model-remove {
-        margin-left: auto;
-        flex-shrink: 0;
-      }
+  html[data-content-adapt-ge-761][data-content-adapt-le-1000] .profile-model-footer .profile-model-remove {
+    margin-left: auto;
+    flex-shrink: 0;
+  }
 
-      .profile-model-footer .profile-checkbox-label {
-        white-space: nowrap;
-        flex-shrink: 0;
-      }
+  html[data-content-adapt-ge-761][data-content-adapt-le-1000] .profile-model-footer .profile-checkbox-label {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 
-      .profile-model-key {
-        grid-column: 1 / -1;
-        grid-row: 2;
-        width: 100%;
-        flex: none;
-        min-width: 0;
-      }
+  html[data-content-adapt-ge-761][data-content-adapt-le-1000] .profile-model-key {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    flex: none;
+    min-width: 0;
+  }
 
-      /* 761–949: чекбоксы у правого края; 14px от селекторов; API почти до корзины */
-      @media (max-width: 949px) {
-        .profile-model-list .profile-model-row {
-          grid-template-columns: minmax(0, 1fr) auto;
-          grid-template-rows: auto auto;
-        }
+  /* 761–949: чекбоксы у правого края; 14px от селекторов; API почти до корзины */
+  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-list .profile-model-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+  }
 
-        .profile-model-pickers {
-          display: flex;
-          grid-column: 1;
-          grid-row: 1;
-          align-items: center;
-          gap: 14px;
-          width: 100%;
-          min-width: 0;
-        }
+  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-pickers {
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+  }
 
-        .profile-model-provider {
-          width: auto;
-          flex: 1 1 0;
-          max-width: clamp(120px, calc(170px - (950px - 100vw) * 0.42), 170px);
-        }
+  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-provider {
+    width: auto;
+    flex: 1 1 0;
+    max-width: clamp(120px, calc(170px - (950px - var(--content-adapt-w)) * 0.42), 170px);
+  }
 
-        .profile-model-name {
-          width: auto;
-          flex: 1 1 0;
-          max-width: clamp(145px, calc(210px - (950px - 100vw) * 0.52), 210px);
-        }
+  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-name {
+    width: auto;
+    flex: 1 1 0;
+    max-width: clamp(145px, calc(210px - (950px - var(--content-adapt-w)) * 0.52), 210px);
+  }
 
-        .profile-model-footer {
-          display: contents;
-        }
+  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-footer {
+    display: contents;
+  }
 
-        .profile-model-footer-checks {
-          grid-column: 2;
-          grid-row: 1;
-          display: flex;
-          flex-wrap: nowrap;
-          align-items: center;
-          gap: 12px;
-          flex-shrink: 0;
-        }
+  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-footer-checks {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
 
-        .profile-model-footer .profile-model-remove {
-          grid-column: 2;
-          grid-row: 2;
-          margin-left: 0;
-          justify-self: end;
-          align-self: center;
-          position: relative;
-          z-index: 1;
-        }
+  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-footer .profile-model-remove {
+    grid-column: 2;
+    grid-row: 2;
+    margin-left: 0;
+    justify-self: end;
+    align-self: center;
+    position: relative;
+    z-index: 1;
+  }
 
-        .profile-model-key {
-          grid-column: 1 / -1;
-          grid-row: 2;
-          width: 100%;
-          min-width: 0;
-          box-sizing: border-box;
-          padding-right: calc(14px + 36px);
-        }
+  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-key {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding-right: calc(14px + 36px);
+  }
 
-        .profile-model-key.profile-model-key-wrap {
-          width: 100%;
-          max-width: 100%;
-        }
+  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-key.profile-model-key-wrap {
+    width: 100%;
+    max-width: 100%;
+  }
 
-        .profile-model-key-input {
-          width: 100%;
-          box-sizing: border-box;
-        }
+  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-key-input {
+    width: 100%;
+    box-sizing: border-box;
+  }
 
-        .profile-model-key .profile-api-key-toggle {
-          right: calc(14px + 36px + 10px);
-        }
-      }
-    }
+  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-key .profile-api-key-toggle {
+    right: calc(14px + 36px + 10px);
   }
 
   .telegram-steps,
@@ -10000,13 +9995,6 @@ button.filter-tab {
   .profile-model-key {
     width: 100%;
     flex: none;
-  }
-
-  .profile-model-remove-label {
-    display: inline;
-    font-size: 12px;
-    line-height: 1.3;
-    font-weight: 500;
   }
 
   .profile-model-footer .profile-model-remove {

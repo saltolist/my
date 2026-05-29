@@ -3,6 +3,7 @@
 import { Suspense, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useApp } from "@/state/AppContext";
+import ContentAdaptSync from "./ContentAdaptSync";
 import Sidebar from "./sidebar/Sidebar";
 import RouteSync from "./RouteSync";
 import { screenFromPath } from "@/lib/routes";
@@ -38,6 +39,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div id="app">
+      <ContentAdaptSync />
       <RouteSyncGate />
       <div
         className="mobile-sidebar-backdrop"

@@ -359,7 +359,6 @@ function ModelRow({
             }}
           >
             <MessageTrashIcon />
-            <span className="profile-model-remove-label">Удалить</span>
           </button>
         ) : null}
       </div>
