@@ -27,11 +27,11 @@
   /* Ячейка иконки в сайдбаре и те же отступы слева у списка чатов */
   --nav-icon-slot: 28px;
   --nav-icon-art: 18px;
-  --content-w: 1160px;
-  --composer-w: 720px;
+  --content-w: min(1160px, calc(100vw - var(--nav-w) - 48px));
+  --composer-w: min(720px, calc(100vw - var(--nav-w) - 48px));
   --model-trend-chart-height: 493px;
   /* Базовая ширина только поля поиска в шапке (лента / чаты / заметки); рядом — тумблеры */
-  --page-header-search-w: 350px;
+  --page-header-search-w: min(350px, max(12rem, calc(100vw - var(--nav-w) - 320px)));
   /* Поля и контролы — тот же тон, что карточка composer (.input-box → --bg2) */
   --page-header-control-bg: var(--bg2);
   --page-header-control-bg-hover: var(--bg3);
@@ -90,6 +90,8 @@
   --shadow-strong:    0 8px 24px rgba(0,0,0,.35);
   --shadow-focus:     0 10px 28px rgba(0,0,0,.40);
   --content-card-shadow: 0 8px 26px rgba(0, 0, 0, 0.22);
+  /* Зона под боковое размытие тени карточек (не обрезать overflow-x у scroll-inner) */
+  --content-card-shadow-gutter: 24px;
   --inset-edge:       inset 0 0 0 1px rgba(255,255,255,.05);
   --scroll-thumb:     rgba(255,255,255,0.18);
   --scroll-thumb-hover: rgba(255,255,255,0.32);
@@ -551,6 +553,8 @@ html.sidebar-collapsed {
 }
 html, body {
   height: 100%;
+  max-height: 100vh;
+  max-height: 100dvh;
   background-color: var(--bg);
   background-image: var(--page-bg-grad);
   background-repeat: no-repeat;
@@ -621,8 +625,28 @@ html, body {
   background: transparent;
 }
 
+/* iOS / iPad: инерционный скролл во внутренних контейнерах */
+.profile-page,
+.analytics-page,
+.notes-page,
+.chats-page,
+.chats-scroll,
+.feed-scroll,
+.post-body,
+.post-subpage-scroll,
+.note-page,
+.gchat-messages {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
 /* ── Layout ── */
-#app { display: flex; height: 100vh; }
+#app {
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+}
 .mobile-sidebar-backdrop {
   display: none;
 }
@@ -4407,9 +4431,6 @@ button.nav-item {
   align-items: stretch;
 }
 .notes-grid-inner .note-card { width: calc((100% - 24px) / 3); }
-@media (max-width: 980px) {
-  .notes-grid-inner .note-card { width: calc((100% - 12px) / 2); }
-}
 @media (max-width: 700px) {
   .notes-grid-inner .note-card { width: 100%; }
 }
@@ -5486,9 +5507,6 @@ button.filter-tab {
 .note-card:hover:has(.note-card-context-control--suppress-hover) {
   border-color: var(--border);
 }
-@media (max-width: 1100px) {
-  .notes-grid-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
 @media (max-width: 760px) {
   .notes-grid-layout { grid-template-columns: 1fr; }
 }
@@ -5500,14 +5518,18 @@ button.filter-tab {
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
   align-items: center;
   min-height: 0;
 }
 .analytics-scroll-inner {
   width: min(var(--content-w), 100%);
+  max-width: 100%;
   flex: none;
-  padding: 14px 0 20px;
+  padding: 14px var(--content-card-shadow-gutter) 20px;
   box-sizing: border-box;
 }
 .period-tab {
@@ -5540,12 +5562,31 @@ button.filter-tab {
 .stat-delta { font-size: 12px; margin-top: 4px; display: flex; align-items: center; gap: 3px; }
 .delta-up { color: var(--green); } .delta-dn { color: var(--red); }
 .section-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
-.analytics-card { border-radius: var(--block-r); padding: 18px; margin-bottom: 16px; overflow-x: auto; overflow-y: hidden; }
-.analytics-page .analytics-card {
+.analytics-card {
+  border-radius: var(--block-r);
+  padding: 18px;
+  margin-bottom: 16px;
+  max-width: 100%;
+}
+.analytics-page .analytics-card,
+.analytics-page .stat-card {
+  overflow: visible;
   box-shadow: var(--content-card-shadow);
 }
 .analytics-page .analytics-chart-card {
   overflow: visible;
+}
+.analytics-page .analytics-chart-card .model-trend-plot,
+.analytics-page .analytics-chart-card .trend-chart-wrap,
+.profile-page .platform-analytics-section .model-trend-plot,
+.profile-page .platform-analytics-section .trend-chart-wrap {
+  overflow-x: clip;
+  max-width: 100%;
+}
+@media (min-width: 1201px) {
+  .analytics-card:has(.analytics-top-posts-table) {
+    overflow-x: auto;
+  }
 }
 .analytics-card-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 .analytics-chart-head {
@@ -6013,10 +6054,17 @@ button.filter-tab {
   backdrop-filter: none;
 }
 .model-chart-hint { margin-top: 0; }
-.profile-page .profile-section.platform-analytics-section { overflow: visible; }
+.profile-page .profile-section.platform-analytics-section {
+  overflow: visible;
+  max-width: 100%;
+}
 .platform-analytics-section .profile-section-title { margin-bottom: 0; font-size: 17px; }
 .platform-section-title-spaced { margin-bottom: 18px !important; }
-.platform-table-scroll { overflow-x: auto; }
+.platform-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
 .trend-plot { padding: 16px 34px 0; }
 .model-trend-plot {
   --trend-y-label-inset: 44px;
@@ -6523,12 +6571,12 @@ button.filter-tab {
 }
 .bar-val { font-size: 12px; color: var(--text3); width: 44px; text-align: right; flex-shrink: 0; }
 .bar-meta { font-size: 12px; color: var(--text3); width: 58px; text-align: right; flex-shrink: 0; }
-.top-table { width: 100%; min-width: 640px; border-collapse: collapse; }
+.top-table { width: 100%; min-width: 0; border-collapse: collapse; }
 .analytics-top-posts-table {
   table-layout: fixed;
   width: 100%;
 }
-@media (min-width: 761px) {
+@media (min-width: 1201px) {
   .analytics-top-posts-table {
     min-width: 920px;
   }
@@ -6609,7 +6657,7 @@ button.filter-tab {
   text-align: right;
   width: 40px;
 }
-.model-usage-table { min-width: 760px; }
+.model-usage-table { width: 100%; min-width: 0; }
 .top-table th { text-align: left; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; padding: 0 0 8px; border-bottom: 1px solid var(--border); }
 .top-table td { padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
 .top-table td:first-child { color: var(--text); }
@@ -6626,41 +6674,6 @@ button.filter-tab {
 }
 .top-link { color: var(--accent); cursor: pointer; font-size: 12px; }
 
-@media (max-width: 980px) {
-  .stat-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .analytics-dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .analytics-metrics-row {
-    grid-template-columns: 1fr;
-  }
-  .analytics-metrics-row > .analytics-card.channel-reactions-card {
-    width: 100%;
-    max-width: none;
-  }
-
-  .analytics-card-head {
-    flex-direction: column;
-  }
-
-  .model-type-tabs {
-    justify-content: flex-start;
-  }
-
-  .model-filter-stack {
-    grid-template-columns: 1fr;
-    width: 100%;
-  }
-
-  .model-analytics-summary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 /* ════════════════════════════════
    SCREEN: PROFILE
 ════════════════════════════════ */
@@ -6668,7 +6681,10 @@ button.filter-tab {
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
   align-items: center;
   min-height: 0;
 }
@@ -6678,8 +6694,9 @@ button.filter-tab {
 }
 .profile-scroll-inner {
   width: min(var(--content-w), 100%);
+  max-width: 100%;
   flex: none;
-  padding: 14px 0 20px;
+  padding: 14px var(--content-card-shadow-gutter) 20px;
   box-sizing: border-box;
 }
 .profile-panel { display: none; }
@@ -7734,71 +7751,194 @@ button.filter-tab {
 /* ════════════════════════════════
    RESPONSIVE
 ════════════════════════════════ */
-@media (max-width: 1180px) {
+/* Планшет и узкое окно (iPad 13″ landscape ~1376px, portrait ~1032px) */
+@media (max-width: 1200px) {
   :root {
-    --content-w: calc(100vw - var(--nav-w) - 48px);
-    --composer-w: min(720px, calc(100vw - var(--nav-w) - 48px));
+    /* composer в две строки — больше отступ снизу у скролла */
+    --composer-overlay-h: 220px;
+  }
+
+  #app,
+  .screen {
+    min-width: 0;
+  }
+
+  #main {
+    min-height: 0;
+    max-height: 100dvh;
   }
 
   .profile-scroll-inner,
-  .analytics-scroll-inner,
+  .analytics-scroll-inner {
+    padding-left: max(18px, var(--content-card-shadow-gutter));
+    padding-right: max(18px, var(--content-card-shadow-gutter));
+  }
+
   .chats-scroll,
   .note-page {
     padding-left: 18px;
     padding-right: 18px;
   }
 
+  .profile-scroll-inner,
+  .analytics-scroll-inner,
+  .chats-scroll-inner,
+  .notes-grid-page {
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+
   .chats-filter-row {
     padding-left: 18px;
     padding-right: 18px;
   }
-}
-
-@media (max-width: 920px) {
-  :root {
-    --content-w: calc(100vw - var(--nav-w) - 32px);
-    --composer-w: calc(100vw - var(--nav-w) - 32px);
-  }
 
   .page-header {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 18px;
+    padding-right: 18px;
     column-gap: 10px;
   }
 
   .input-wrap {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 18px;
+    padding-right: 18px;
   }
 
   .post-body .composer-scroll-body,
   .feed-scroll .composer-scroll-body,
   .gchat-messages .composer-scroll-body {
-    --scroll-pad-inline: 16px;
+    --scroll-pad-inline: 18px;
     padding-left: var(--scroll-pad-inline);
     padding-right: var(--scroll-pad-inline);
   }
 
-  .feed-screen-wrap .input-bottom {
-    align-items: flex-start;
-    flex-wrap: wrap;
+  .notes-grid-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .feed-screen-wrap .composer-mode {
-    flex: 1 1 260px;
+  .notes-grid-inner .note-card {
+    width: calc((100% - 12px) / 2);
   }
 
-  .feed-screen-wrap .model-picker {
-    flex: 1 1 140px;
-    min-width: 128px;
+  .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .feed-screen-wrap .model-picker-btn {
+
+  .analytics-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-metrics-row {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-metrics-row > .analytics-card.channel-reactions-card {
     width: 100%;
     max-width: none;
   }
 
-  .feed-screen-wrap .send-btn {
+  .analytics-card-head {
+    flex-direction: column;
+  }
+
+  .model-type-tabs {
+    justify-content: flex-start;
+  }
+
+  .model-filter-stack {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .model-analytics-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Планшет (761–1200): шапка графика канала в колонку; на телефоне — отдельные правила ≤760px */
+  @media (min-width: 761px) {
+    #screen-analytics .analytics-chart-card .analytics-card-head {
+      flex-direction: column;
+      flex-wrap: wrap;
+      align-items: stretch;
+      justify-content: flex-start;
+    }
+
+    #screen-analytics
+      .analytics-chart-card
+      .analytics-card-head
+      .analytics-channel-head-filters.model-filter-stack.model-filter-stack--with-series {
+      display: grid;
+      width: 100%;
+      margin-left: 0;
+    }
+
+    #screen-analytics
+      .analytics-chart-card
+      .analytics-card-head
+      .analytics-channel-head-filters
+      .profile-model-picker,
+    #screen-analytics
+      .analytics-chart-card
+      .analytics-card-head
+      .analytics-channel-head-filters
+      .chart-series-selector--profile {
+      width: 100%;
+      max-width: none;
+    }
+  }
+
+  .analytics-top-posts-table,
+  .top-table {
+    min-width: 0;
+  }
+
+  #screen-analytics .analytics-chart-card .model-trend-plot.trend-plot--no-y-labels {
+    --trend-plot-left-gutter: 34px;
+    padding: 0 14px;
     margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  #screen-profile .platform-analytics-section .model-trend-plot:not(.trend-plot--no-y-labels) {
+    --trend-y-label-inset: 40px;
+    --trend-plot-left-gutter: 40px;
+    padding: 4px 14px 0 40px;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  #screen-profile .platform-analytics-section .trend-y-label {
+    left: 0;
+    max-width: calc(var(--trend-y-label-inset, 40px) - 4px);
+    text-align: right;
+  }
+
+  #screen-analytics .analytics-chart-card .trend-labels,
+  #screen-profile .platform-analytics-section .trend-labels {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .model-usage-grid {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr)
+      minmax(0, max-content)
+      minmax(0, max-content)
+      minmax(0, max-content);
+    max-width: 100%;
+  }
+
+  .model-row-metric {
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .profile-model-row {
@@ -7826,6 +7966,55 @@ button.filter-tab {
 
   .bar-label {
     width: 100%;
+  }
+
+  .feed-screen-wrap .input-bottom {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .feed-screen-wrap .composer-mode {
+    flex: 1 1 260px;
+  }
+
+  .feed-screen-wrap .model-picker {
+    flex: 1 1 140px;
+    min-width: 128px;
+  }
+
+  .feed-screen-wrap .model-picker-btn {
+    width: 100%;
+    max-width: none;
+  }
+
+  .feed-screen-wrap .send-btn {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 920px) {
+  :root {
+    --content-w: calc(100vw - var(--nav-w) - 32px);
+    --composer-w: calc(100vw - var(--nav-w) - 32px);
+  }
+
+  .page-header {
+    padding-left: 16px;
+    padding-right: 16px;
+    column-gap: 10px;
+  }
+
+  .input-wrap {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .post-body .composer-scroll-body,
+  .feed-scroll .composer-scroll-body,
+  .gchat-messages .composer-scroll-body {
+    --scroll-pad-inline: 16px;
+    padding-left: var(--scroll-pad-inline);
+    padding-right: var(--scroll-pad-inline);
   }
 }
 
@@ -9032,7 +9221,8 @@ button.filter-tab {
 
   #screen-analytics .analytics-scroll-inner,
   #screen-profile .profile-scroll-inner {
-    overflow-x: clip;
+    padding-left: max(12px, var(--content-card-shadow-gutter));
+    padding-right: max(12px, var(--content-card-shadow-gutter));
   }
 
   #screen-analytics
@@ -9096,8 +9286,7 @@ button.filter-tab {
     align-items: center;
   }
 
-  .analytics-chart-card .analytics-chart-head .chart-series-selector,
-  .analytics-chart-card .analytics-card-head .chart-series-selector {
+  .analytics-chart-card .analytics-chart-head .chart-series-selector {
     width: 100%;
     max-width: none;
     flex: 1 1 100%;
@@ -9356,20 +9545,21 @@ button.filter-tab {
   }
 
   #screen-analytics .analytics-scroll-inner {
-    overflow-x: hidden;
     max-width: 100%;
     width: 100%;
     box-sizing: border-box;
+    padding-left: max(12px, var(--content-card-shadow-gutter));
+    padding-right: max(12px, var(--content-card-shadow-gutter));
   }
 
   #screen-analytics .analytics-card {
-    overflow-x: hidden;
+    overflow: visible;
     max-width: 100%;
     min-width: 0;
   }
 
   #screen-analytics .analytics-chart-card {
-    overflow-x: visible;
+    overflow: visible;
   }
 
   /* Кластер тултипов графика: не больше 2 карточек в ряд */
@@ -9434,7 +9624,7 @@ button.filter-tab {
     width: 100%;
   }
 
-  /* Аналитика канала: заголовок и селектор метрик в одну строку */
+  /* Аналитика канала: «Динамика прироста» и «Метрики» в одну строку */
   #screen-analytics .analytics-chart-card .analytics-card-head {
     flex-direction: row;
     flex-wrap: nowrap;
@@ -9447,10 +9637,28 @@ button.filter-tab {
   #screen-analytics .analytics-chart-card .analytics-card-head .profile-section-title {
     flex: 1 1 auto;
     min-width: 0;
-    font-size: 15px;
+    margin-bottom: 0;
+    font-size: 14px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  /* Аналитика канала (desktop): два селектора рядом, селектор периода слева от метрик */
+  #screen-analytics
+    .analytics-chart-card
+    .analytics-card-head
+    .analytics-channel-head-filters.model-filter-stack.model-filter-stack--with-series {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    width: auto;
+    max-width: 48%;
+    margin-left: auto;
+  }
+
   #screen-analytics .analytics-chart-card .analytics-card-head .analytics-channel-head-filters {
     display: flex;
     align-items: center;
@@ -9464,15 +9672,17 @@ button.filter-tab {
   #screen-analytics .analytics-chart-card .analytics-card-head .analytics-channel-head-filters .profile-model-picker,
   #screen-analytics .analytics-chart-card .analytics-card-head .analytics-channel-head-filters .chart-series-selector--profile {
     width: auto;
-    max-width: 280px;
+    max-width: 100%;
+    flex: 0 0 auto;
   }
 
   #screen-analytics .analytics-chart-card .analytics-card-head .chart-series-selector,
   #screen-analytics .analytics-chart-card .analytics-card-head .chart-series-selector--profile {
-    flex: 0 1 auto;
+    flex: 0 0 auto;
     width: auto;
-    max-width: 48%;
+    max-width: 100%;
     min-width: 0;
+    margin-left: 0;
   }
 
   #screen-analytics .analytics-chart-card .analytics-card-head .chart-series-selector--profile .model-picker-btn {
