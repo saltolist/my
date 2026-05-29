@@ -1538,6 +1538,23 @@ button.nav-item {
   gap: 6px;
   flex-shrink: 0;
 }
+.feed-post-width-select--compact {
+  display: none;
+  flex-shrink: 0;
+}
+@media (max-width: 1150px) {
+  #screen-feed {
+    --feed-header-width-tabs-w: 9.5rem;
+  }
+
+  .feed-post-width-toggles--tabs {
+    display: none !important;
+  }
+
+  .feed-post-width-select--compact {
+    display: flex;
+  }
+}
 .feed-post-width-btn {
   height: 32px;
   min-width: 40px;
@@ -8092,29 +8109,6 @@ button.filter-tab {
 
   .bar-label {
     width: 100%;
-  }
-
-  .feed-screen-wrap .input-bottom {
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .feed-screen-wrap .composer-mode {
-    flex: 1 1 260px;
-  }
-
-  .feed-screen-wrap .model-picker {
-    flex: 1 1 140px;
-    min-width: 128px;
-  }
-
-  .feed-screen-wrap .model-picker-btn {
-    width: 100%;
-    max-width: none;
-  }
-
-  .feed-screen-wrap .send-btn {
-    margin-left: 0;
   }
 }
 
