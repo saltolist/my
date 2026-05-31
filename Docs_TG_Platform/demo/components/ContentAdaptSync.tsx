@@ -19,7 +19,7 @@ export default function ContentAdaptSync() {
       document.documentElement.removeAttribute("data-content-adapt-le-949");
       document.documentElement.removeAttribute("data-content-adapt-le-1000");
       document.documentElement.removeAttribute("data-content-adapt-ge-1001");
-      document.documentElement.removeAttribute("data-content-adapt-le-1200");
+      document.documentElement.removeAttribute("data-content-adapt-le-1300");
     };
   }, []);
 

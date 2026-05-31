@@ -102,8 +102,8 @@ export default function PageHeader({
       }
       document.documentElement.style.setProperty("--page-header-w", `${w}px`);
       document.documentElement.toggleAttribute(
-        "data-page-header-w-780-980",
-        !isMobile && w >= 780 && w <= 980,
+        "data-page-header-w-780-1080",
+        !isMobile && w >= 780 && w <= 1080,
       );
     };
     const observer = new ResizeObserver(sync);
@@ -114,7 +114,7 @@ export default function PageHeader({
       if (compactSearchAtWidth != null) {
         setHeaderWidth(0);
       }
-      document.documentElement.removeAttribute("data-page-header-w-780-980");
+      document.documentElement.removeAttribute("data-page-header-w-780-1080");
       document.documentElement.style.removeProperty("--page-header-w");
     };
   }, [compactSearchAtWidth, isMobile]);

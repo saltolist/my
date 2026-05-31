@@ -28,6 +28,6 @@ export function syncContentAdaptWidthToDocument(): number {
   root.toggleAttribute("data-content-adapt-le-949", adapt <= 949);
   root.toggleAttribute("data-content-adapt-le-1000", adapt <= 1000);
   root.toggleAttribute("data-content-adapt-ge-1001", adapt >= 1001);
-  root.toggleAttribute("data-content-adapt-le-1200", adapt <= 1200);
+  root.toggleAttribute("data-content-adapt-le-1300", adapt <= 1300);
   return adapt;
 }
