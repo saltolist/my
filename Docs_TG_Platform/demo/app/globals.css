@@ -22,13 +22,9 @@
   --nav-w-rail: 86px;
   /* Ширина сайдбара до overlay; для расчёта content-adapt-w в JS */
   --nav-sidebar-w: 220px;
-  /* Поле «Телефон аккаунта» при content-adapt-w = 761 (≈541px контента с сайдбаром) */
-  --telegram-phone-input-baseline-w: max(
-    12rem,
-    calc(
-      (min(1160px, 761px - var(--nav-sidebar-w) - 48px) - 12px) / 2 - 160px - 12px
-    )
-  );
+  /* Телефон и код (desktop/tablet, не .telegram-auth-mobile) */
+  --telegram-phone-input-w: calc(12.5rem - 18px);
+  --telegram-code-input-w: var(--telegram-phone-input-w);
   /* Эффективная ширина для правил адаптации контента (обновляется в ContentAdaptSync) */
   --content-adapt-w: 100vw;
   /* Сайдбар: актив = пузырёк user-сообщения; hover — светлее */
@@ -7929,13 +7925,16 @@ button.filter-tab {
   gap: 8px;
   flex-wrap: wrap;
 }
-.telegram-code-input {
-  width: 160px;
-}
 .telegram-code-input-field {
   position: relative;
   box-sizing: border-box;
   min-width: 0;
+}
+.telegram-auth-desktop .telegram-code-input-field {
+  flex: 0 0 var(--telegram-code-input-w);
+  width: var(--telegram-code-input-w);
+  min-width: var(--telegram-code-input-w);
+  max-width: var(--telegram-code-input-w);
 }
 .telegram-code-input-field .telegram-code-input {
   width: 100%;
@@ -8011,22 +8010,27 @@ button.filter-tab {
   min-width: 0;
 }
 .telegram-auth-desktop .telegram-desktop-auth-row .telegram-desktop-phone-input {
-  flex: 1 1 0;
-  min-width: 0;
-  width: auto;
+  flex: 0 0 var(--telegram-phone-input-w);
+  width: var(--telegram-phone-input-w);
+  min-width: var(--telegram-phone-input-w);
+  max-width: var(--telegram-phone-input-w);
+  box-sizing: border-box;
 }
 .telegram-auth-desktop .telegram-desktop-auth-row .telegram-inline-button {
   flex: 0 0 160px;
   width: 160px;
 }
 .telegram-auth-desktop .telegram-desktop-auth-wide .telegram-desktop-auth-row--code-sent .telegram-desktop-phone-input {
-  flex: 0 0 calc((100% - 12px) / 2 - 192px);
-  width: calc((100% - 12px) / 2 - 192px);
-  max-width: calc((100% - 12px) / 2 - 192px);
+  flex: 0 0 var(--telegram-phone-input-w);
+  width: var(--telegram-phone-input-w);
+  min-width: var(--telegram-phone-input-w);
+  max-width: var(--telegram-phone-input-w);
 }
 .telegram-auth-desktop .telegram-desktop-auth-wide .telegram-desktop-auth-row--code-sent .telegram-code-input-field {
-  flex: 0 0 180px;
-  width: 180px;
+  flex: 0 0 var(--telegram-code-input-w);
+  width: var(--telegram-code-input-w);
+  min-width: var(--telegram-code-input-w);
+  max-width: var(--telegram-code-input-w);
 }
 .telegram-auth-desktop .telegram-desktop-auth-wide .telegram-desktop-auth-row--code-sent .telegram-resend-code {
   flex: 0 1 auto;
@@ -8065,19 +8069,18 @@ button.filter-tab {
     overflow: visible;
   }
 
-  .telegram-auth-desktop .telegram-desktop-auth-row .telegram-desktop-phone-input,
-  .telegram-auth-desktop .telegram-desktop-auth-narrow .telegram-code-input-field {
-    flex: 0 0 100%;
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
+  .telegram-auth-desktop .telegram-desktop-auth-row .telegram-desktop-phone-input {
+    flex: 0 0 var(--telegram-phone-input-w);
+    width: var(--telegram-phone-input-w);
+    min-width: var(--telegram-phone-input-w);
+    max-width: var(--telegram-phone-input-w);
   }
 
-  .telegram-auth-desktop
-    .telegram-desktop-auth-narrow
-    .telegram-code-input-field
-    .telegram-code-input {
-    width: 100%;
+  .telegram-auth-desktop .telegram-desktop-auth-narrow .telegram-code-input-field {
+    flex: 0 0 var(--telegram-code-input-w);
+    width: var(--telegram-code-input-w);
+    min-width: var(--telegram-code-input-w);
+    max-width: var(--telegram-code-input-w);
   }
 
   .telegram-auth-desktop .telegram-desktop-auth-row .telegram-inline-button,
@@ -8216,67 +8219,73 @@ button.filter-tab {
 /* ════════════════════════════════
    RESPONSIVE
 ════════════════════════════════ */
-/* ИИ-движок: планшетная сетка (порог 1300px по content-adapt-w / окну) */
-@media (max-width: 1300px) {
-  .profile-model-row {
-    align-items: stretch;
-  }
+/*
+ * Профиль · ИИ-движок (desktop/tablet, не mobile).
+ * JS: data-profile-ai-adapt + data-profile-ai-tier = wide | mid | compact
+ *   wide    1001–1300  — поля в 1-й строке, чекбоксы+корзина во 2-й
+ *   mid     950–1000   — селекторы+чекбоксы в 1-й, API во 2-й
+ *   compact 761–949    — плотная сетка, корзина под чекбоксами
+ * Корзина у чекбоксов: data-profile-header-trash-compact (шапка 780–1080px)
+ */
+html[data-profile-ai-adapt] .profile-model-row {
+  align-items: stretch;
+}
 
-  html[data-content-adapt-ge-761] .profile-model-list {
+html[data-profile-ai-adapt] .profile-model-list {
     gap: 0;
   }
 
-  html[data-content-adapt-ge-761] .profile-model-list .profile-model-row {
+html[data-profile-ai-adapt] .profile-model-list .profile-model-row {
     display: grid;
     gap: 14px;
     align-items: center;
     padding-bottom: 12px;
   }
 
-  html[data-content-adapt-ge-761] .profile-model-list .profile-model-row + .profile-model-row {
+html[data-profile-ai-adapt] .profile-model-list .profile-model-row + .profile-model-row {
     border-top: 1px dashed var(--profile-control-border);
     padding-top: 12px;
   }
 
-  html[data-content-adapt-ge-761] .profile-model-pickers {
+html[data-profile-ai-adapt] .profile-model-pickers {
     display: contents;
   }
 
-  html[data-content-adapt-ge-761] .profile-model-provider {
+html[data-profile-ai-adapt] .profile-model-provider {
     width: 100%;
     max-width: 170px;
     flex: none;
     min-width: 0;
   }
 
-  html[data-content-adapt-ge-761] .profile-model-name {
+html[data-profile-ai-adapt] .profile-model-name {
     width: 100%;
     max-width: 220px;
     flex: none;
     min-width: 0;
   }
 
-  html[data-content-adapt-ge-761] .profile-model-list > .btn {
+html[data-profile-ai-adapt] .profile-model-list > .btn {
     margin-top: 4px;
   }
 
-  /* 1001–1300: провайдер · модель · API — в первой строке; чекбоксы и корзина — во второй */
-  html[data-content-adapt-ge-1001] .profile-model-list .profile-model-row {
+/* tier wide: провайдер · модель · API — в первой строке; чекбоксы и корзина — во второй */
+html[data-profile-ai-adapt][data-profile-ai-tier="wide"] .profile-model-list .profile-model-row {
     grid-template-columns: minmax(0, 170px) minmax(0, 220px) minmax(0, 1fr);
     grid-template-rows: auto auto;
   }
 
-  html[data-content-adapt-ge-1001] .profile-model-provider {
+html[data-profile-ai-adapt][data-profile-ai-tier="wide"] .profile-model-provider {
     grid-column: 1;
     grid-row: 1;
   }
 
-  html[data-content-adapt-ge-1001] .profile-model-name {
+html[data-profile-ai-adapt][data-profile-ai-tier="wide"] .profile-model-name {
     grid-column: 2;
     grid-row: 1;
   }
 
-  html[data-content-adapt-ge-1001] .profile-model-key {
+html[data-profile-ai-adapt][data-profile-ai-tier="wide"] .profile-model-key {
     grid-column: 3;
     grid-row: 1;
     width: 100%;
@@ -8285,7 +8294,7 @@ button.filter-tab {
     align-self: stretch;
   }
 
-  html[data-content-adapt-ge-1001] .profile-model-footer {
+html[data-profile-ai-adapt][data-profile-ai-tier="wide"] .profile-model-footer {
     grid-column: 1 / -1;
     grid-row: 2;
     display: flex;
@@ -8295,16 +8304,16 @@ button.filter-tab {
     width: 100%;
   }
 
-  html[data-content-adapt-ge-1001] .profile-model-footer .profile-model-remove {
+html[data-profile-ai-adapt][data-profile-ai-tier="wide"] .profile-model-footer .profile-model-remove {
     margin-left: auto;
   }
 
-  html[data-content-adapt-ge-1001] .profile-model-footer .profile-checkbox-label {
+html[data-profile-ai-adapt][data-profile-ai-tier="wide"] .profile-model-footer .profile-checkbox-label {
     white-space: nowrap;
   }
 
-  /* 761–1000: провайдер · модель · чекбоксы · корзина — в первой строке; API — на всю ширину снизу */
-  html[data-content-adapt-ge-761][data-content-adapt-le-1000] .profile-model-list .profile-model-row {
+/* tier mid: провайдер · модель · чекбоксы · корзина — в первой строке; API — на всю ширину снизу */
+html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-list .profile-model-row {
     grid-template-columns:
       minmax(0, clamp(120px, calc(170px - (1000px - var(--content-adapt-w)) * 0.36), 170px))
       minmax(0, clamp(145px, calc(210px - (1000px - var(--content-adapt-w)) * 0.46), 210px))
@@ -8312,19 +8321,19 @@ button.filter-tab {
     grid-template-rows: auto auto;
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-1000] .profile-model-provider {
+html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-provider {
     grid-column: 1;
     grid-row: 1;
     max-width: none;
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-1000] .profile-model-name {
+html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-name {
     grid-column: 2;
     grid-row: 1;
     max-width: none;
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-1000] .profile-model-footer {
+html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-footer {
     grid-column: 3;
     grid-row: 1;
     display: flex;
@@ -8334,17 +8343,17 @@ button.filter-tab {
     min-width: 0;
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-1000] .profile-model-footer .profile-model-remove {
+html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-footer .profile-model-remove {
     margin-left: auto;
     flex-shrink: 0;
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-1000] .profile-model-footer .profile-checkbox-label {
+html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-footer .profile-checkbox-label {
     white-space: nowrap;
     flex-shrink: 0;
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-1000] .profile-model-key {
+html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-key {
     grid-column: 1 / -1;
     grid-row: 2;
     width: 100%;
@@ -8352,13 +8361,13 @@ button.filter-tab {
     min-width: 0;
   }
 
-  /* 761–949: чекбоксы у правого края; 14px от селекторов; API почти до корзины */
-  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-list .profile-model-row {
+/* tier compact: чекбоксы у правого края; API почти до корзины */
+html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-list .profile-model-row {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: auto auto;
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-pickers {
+html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-pickers {
     display: flex;
     grid-column: 1;
     grid-row: 1;
@@ -8368,23 +8377,23 @@ button.filter-tab {
     min-width: 0;
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-provider {
+html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-provider {
     width: auto;
     flex: 1 1 0;
     max-width: clamp(120px, calc(170px - (950px - var(--content-adapt-w)) * 0.42), 170px);
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-name {
+html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-name {
     width: auto;
     flex: 1 1 0;
     max-width: clamp(145px, calc(210px - (950px - var(--content-adapt-w)) * 0.52), 210px);
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-footer {
+html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-footer {
     display: contents;
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-footer-checks {
+html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-footer-checks {
     grid-column: 2;
     grid-row: 1;
     display: flex;
@@ -8394,7 +8403,7 @@ button.filter-tab {
     flex-shrink: 0;
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-footer .profile-model-remove {
+html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-footer .profile-model-remove {
     grid-column: 2;
     grid-row: 2;
     margin-left: 0;
@@ -8404,7 +8413,7 @@ button.filter-tab {
     z-index: 1;
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-key {
+html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-key {
     grid-column: 1 / -1;
     grid-row: 2;
     width: 100%;
@@ -8413,22 +8422,21 @@ button.filter-tab {
     padding-right: calc(14px + 36px);
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-key.profile-model-key-wrap {
+html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-key.profile-model-key-wrap {
     width: 100%;
     max-width: 100%;
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-key-input {
+html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-key-input {
     width: 100%;
     box-sizing: border-box;
   }
 
-  html[data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-key .profile-api-key-toggle {
+html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-key .profile-api-key-toggle {
     right: calc(14px + 36px + 10px);
   }
 
-  /* Шапка 780–1080px: корзина сразу после чекбоксов, не у правого края */
-  html[data-page-header-w-780-1080] .profile-model-footer {
+html[data-profile-header-trash-compact] .profile-model-footer {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
@@ -8436,7 +8444,7 @@ button.filter-tab {
     min-width: 0;
   }
 
-  html[data-page-header-w-780-1080] .profile-model-footer-checks {
+html[data-profile-header-trash-compact] .profile-model-footer-checks {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
@@ -8444,7 +8452,7 @@ button.filter-tab {
     flex-shrink: 0;
   }
 
-  html[data-page-header-w-780-1080] .profile-model-footer .profile-model-remove {
+html[data-profile-header-trash-compact] .profile-model-footer .profile-model-remove {
     margin-left: 0;
     justify-self: auto;
     align-self: auto;
@@ -8454,7 +8462,7 @@ button.filter-tab {
     padding: 4px 6px 4px 4px;
   }
 
-  html[data-page-header-w-780-1080] .profile-model-remove-label {
+html[data-profile-header-trash-compact] .profile-model-remove-label {
     display: inline;
     font-size: 12px;
     line-height: 1.3;
@@ -8463,34 +8471,33 @@ button.filter-tab {
     white-space: nowrap;
   }
 
-  html[data-page-header-w-780-1080][data-content-adapt-ge-1001] .profile-model-footer .profile-model-remove,
-  html[data-page-header-w-780-1080][data-content-adapt-ge-761][data-content-adapt-le-1000] .profile-model-footer .profile-model-remove {
+html[data-profile-header-trash-compact][data-profile-ai-tier="wide"] .profile-model-footer .profile-model-remove,
+html[data-profile-header-trash-compact][data-profile-ai-tier="mid"] .profile-model-footer .profile-model-remove {
     margin-left: 0;
   }
 
-  html[data-page-header-w-780-1080][data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-footer {
+html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile-model-footer {
     display: flex;
     grid-column: 2;
     grid-row: 1;
   }
 
-  html[data-page-header-w-780-1080][data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-footer-checks {
+html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile-model-footer-checks {
     grid-column: unset;
     grid-row: unset;
   }
 
-  html[data-page-header-w-780-1080][data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-footer .profile-model-remove {
+html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile-model-footer .profile-model-remove {
     grid-column: unset;
     grid-row: unset;
   }
 
-  html[data-page-header-w-780-1080][data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-key {
+html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile-model-key {
     padding-right: 0;
   }
 
-  html[data-page-header-w-780-1080][data-content-adapt-ge-761][data-content-adapt-le-949] .profile-model-key .profile-api-key-toggle {
-    right: 10px;
-  }
+html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile-model-key .profile-api-key-toggle {
+  right: 10px;
 }
 
 /* Планшет и узкое окно (iPad 13″ landscape ~1376px, portrait ~1032px) */
@@ -8510,6 +8517,7 @@ button.filter-tab {
     max-height: 100dvh;
   }
 
+  /* Профиль + аналитика: горизонтальные отступы скролла */
   .profile-scroll-inner,
   .analytics-scroll-inner {
     padding-left: max(18px, var(--content-card-shadow-gutter));
@@ -8860,6 +8868,7 @@ button.filter-tab {
   }
 }
 
+/* Профиль: viewport ≤1000 — дублирует useCompactHeader1000 (вкладки скрыты в JS) */
 @media (max-width: 1000px) {
   #screen-profile .page-header-center {
     display: none;
@@ -10298,7 +10307,7 @@ button.filter-tab {
     display: none;
   }
 
-  /* Overlay-сайдбар, content-adapt-w ≥ 761 (viewport ≥ 541): desktop-авторизация и тот же размер телефона */
+  /* Overlay-сайдбар, content-adapt-w ≥ 761 (viewport ≥ 541): desktop-авторизация */
   html[data-content-adapt-ge-761] .telegram-auth-desktop {
     display: contents;
   }

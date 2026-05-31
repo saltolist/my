@@ -2,6 +2,7 @@
 
 import { useLayoutEffect } from "react";
 import { syncContentAdaptWidthToDocument } from "@/lib/contentAdaptWidth";
+import { clearProfileAdaptFromDocument } from "@/lib/profileBreakpoints";
 
 /** Синхронизирует --content-adapt-w и data-* для CSS-правил адаптации контента. */
 export default function ContentAdaptSync() {
@@ -16,10 +17,7 @@ export default function ContentAdaptSync() {
       mq.removeEventListener("change", update);
       document.documentElement.style.removeProperty("--content-adapt-w");
       document.documentElement.removeAttribute("data-content-adapt-ge-761");
-      document.documentElement.removeAttribute("data-content-adapt-le-949");
-      document.documentElement.removeAttribute("data-content-adapt-le-1000");
-      document.documentElement.removeAttribute("data-content-adapt-ge-1001");
-      document.documentElement.removeAttribute("data-content-adapt-le-1300");
+      clearProfileAdaptFromDocument();
     };
   }, []);
 

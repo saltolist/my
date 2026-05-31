@@ -284,6 +284,10 @@ export default function TelegramBlock() {
               <div className="telegram-desktop-auth-row">
                 <input
                   className="profile-input profile-input-explicit telegram-input telegram-desktop-phone-input"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  maxLength={16}
                   value={cfg.phone}
                   placeholder="+7 999 000-00-00"
                   onChange={(e) => update({ phone: e.target.value })}
@@ -306,6 +310,10 @@ export default function TelegramBlock() {
                   <div className="telegram-desktop-auth-row telegram-desktop-auth-row--code-sent">
                     <input
                       className="profile-input profile-input-explicit telegram-input telegram-desktop-phone-input"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      maxLength={16}
                       value={cfg.phone}
                       placeholder="+7 999 000-00-00"
                       onChange={(e) => update({ phone: e.target.value })}
@@ -324,6 +332,10 @@ export default function TelegramBlock() {
                   <div className="telegram-desktop-auth-row telegram-desktop-auth-row--stacked">
                     <input
                       className="profile-input profile-input-explicit telegram-input telegram-desktop-phone-input"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      maxLength={16}
                       value={cfg.phone}
                       placeholder="+7 999 000-00-00"
                       onChange={(e) => update({ phone: e.target.value })}

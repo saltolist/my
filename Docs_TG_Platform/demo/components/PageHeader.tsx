@@ -13,6 +13,7 @@ import {
 import { useApp } from "@/state/AppContext";
 import type { ScreenId } from "@/lib/types";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
+import { syncProfileHeaderTrashCompactToDocument } from "@/lib/profileBreakpoints";
 import PageHeaderMenuButton from "./PageHeaderMenuButton";
 import PageHeaderOverflow, { type PageHeaderOverflowItem } from "./PageHeaderOverflow";
 import PageHeaderSearchInput, { PageHeaderSearchMagnifier } from "./PageHeaderSearchInput";
@@ -101,10 +102,7 @@ export default function PageHeader({
         setHeaderWidth(w);
       }
       document.documentElement.style.setProperty("--page-header-w", `${w}px`);
-      document.documentElement.toggleAttribute(
-        "data-page-header-w-780-1080",
-        !isMobile && w >= 780 && w <= 1080,
-      );
+      syncProfileHeaderTrashCompactToDocument(w, isMobile);
     };
     const observer = new ResizeObserver(sync);
     observer.observe(el);
@@ -114,7 +112,7 @@ export default function PageHeader({
       if (compactSearchAtWidth != null) {
         setHeaderWidth(0);
       }
-      document.documentElement.removeAttribute("data-page-header-w-780-1080");
+      document.documentElement.removeAttribute("data-profile-header-trash-compact");
       document.documentElement.style.removeProperty("--page-header-w");
     };
   }, [compactSearchAtWidth, isMobile]);
