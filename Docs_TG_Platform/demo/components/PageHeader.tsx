@@ -93,15 +93,31 @@ export default function PageHeader({
   const mobileOverlaySearch = isMobile;
 
   useLayoutEffect(() => {
-    if (compactSearchAtWidth == null) return;
     const el = headerRef.current;
     if (!el) return;
-    const observer = new ResizeObserver(([entry]) => {
-      setHeaderWidth(entry.contentRect.width);
-    });
+    const sync = () => {
+      const w = Math.round(el.getBoundingClientRect().width);
+      if (compactSearchAtWidth != null) {
+        setHeaderWidth(w);
+      }
+      document.documentElement.style.setProperty("--page-header-w", `${w}px`);
+      document.documentElement.toggleAttribute(
+        "data-page-header-w-780-980",
+        !isMobile && w >= 780 && w <= 980,
+      );
+    };
+    const observer = new ResizeObserver(sync);
     observer.observe(el);
-    return () => observer.disconnect();
-  }, [compactSearchAtWidth]);
+    sync();
+    return () => {
+      observer.disconnect();
+      if (compactSearchAtWidth != null) {
+        setHeaderWidth(0);
+      }
+      document.documentElement.removeAttribute("data-page-header-w-780-980");
+      document.documentElement.style.removeProperty("--page-header-w");
+    };
+  }, [compactSearchAtWidth, isMobile]);
 
   useEffect(() => {
     if (!mobileOverlaySearch && !compactSearch) {
