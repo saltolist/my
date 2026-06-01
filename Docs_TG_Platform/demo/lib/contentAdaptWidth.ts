@@ -1,4 +1,7 @@
-import { syncProfileAiAdaptToDocument } from "@/lib/profileBreakpoints";
+import {
+  PROFILE_CHANNEL_INPUT_SHRINK_MAX,
+  syncProfileAiAdaptToDocument,
+} from "@/lib/profileBreakpoints";
 
 /** Ширина viewport для правил адаптации контента (не шапки). */
 export const MOBILE_SHELL_MAX_WIDTH = 760;
@@ -26,7 +29,10 @@ export function syncContentAdaptWidthToDocument(): number {
   const adapt = getContentAdaptWidthPx();
   const root = document.documentElement;
   root.style.setProperty("--content-adapt-w", `${adapt}px`);
+  const overlay = isShellOverlayMode();
   root.toggleAttribute("data-content-adapt-ge-761", adapt >= 761);
+  root.toggleAttribute("data-content-adapt-le-1000", adapt <= PROFILE_CHANNEL_INPUT_SHRINK_MAX);
+  root.toggleAttribute("data-shell-overlay", overlay);
   syncProfileAiAdaptToDocument(adapt);
   return adapt;
 }

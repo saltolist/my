@@ -6,6 +6,37 @@ const LAST_90_DAYS_STEP = 3;
 const LAST_90_DAYS_SPAN = LAST_90_DAYS_POINTS * LAST_90_DAYS_STEP;
 const PLATFORM_LIFETIME_MONTHS = 6;
 
+/** Фиксированные подписи месяцев — без Intl (SSR и браузер расходятся в «short»). */
+const RU_MONTH_GENITIVE = [
+  "января",
+  "февраля",
+  "марта",
+  "апреля",
+  "мая",
+  "июня",
+  "июля",
+  "августа",
+  "сентября",
+  "октября",
+  "ноября",
+  "декабря",
+] as const;
+
+const RU_MONTH_AXIS_SHORT = [
+  "янв",
+  "фев",
+  "мар",
+  "апр",
+  "май",
+  "июн",
+  "июл",
+  "авг",
+  "сен",
+  "окт",
+  "ноя",
+  "дек",
+] as const;
+
 /** Максимум точек на оси X в мобильной версии графиков */
 export const MOBILE_CHART_MAX_POINTS = 8;
 
@@ -58,8 +89,7 @@ function formatAxisHourLabel(date: Date) {
 }
 
 function formatAxisMonthLabel(date: Date) {
-  const label = new Intl.DateTimeFormat("ru-RU", { month: "short" }).format(date);
-  return label.endsWith(".") ? label.slice(0, -1) : label;
+  return RU_MONTH_AXIS_SHORT[date.getMonth()];
 }
 
 function startOfDay(date: Date) {
@@ -206,18 +236,14 @@ function getChartReferenceNow(period: number) {
 }
 
 function formatTrendRangePart(date: Date, withTime: boolean) {
+  const day = date.getDate();
+  const month = RU_MONTH_GENITIVE[date.getMonth()];
   if (withTime) {
-    return new Intl.DateTimeFormat("ru-RU", {
-      day: "numeric",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
+    const hh = String(date.getHours()).padStart(2, "0");
+    const mm = String(date.getMinutes()).padStart(2, "0");
+    return `${day} ${month}, ${hh}:${mm}`;
   }
-  return new Intl.DateTimeFormat("ru-RU", {
-    day: "numeric",
-    month: "short",
-  }).format(date);
+  return `${day} ${month}`;
 }
 
 function getTrendPointPeriodBounds(

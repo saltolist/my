@@ -17,6 +17,8 @@ export default function ContentAdaptSync() {
       mq.removeEventListener("change", update);
       document.documentElement.style.removeProperty("--content-adapt-w");
       document.documentElement.removeAttribute("data-content-adapt-ge-761");
+      document.documentElement.removeAttribute("data-content-adapt-le-1000");
+      document.documentElement.removeAttribute("data-shell-overlay");
       clearProfileAdaptFromDocument();
     };
   }, []);

@@ -23,8 +23,10 @@
   /* Ширина сайдбара до overlay; для расчёта content-adapt-w в JS */
   --nav-sidebar-w: 220px;
   /* Телефон и код (desktop/tablet, не .telegram-auth-mobile) */
-  --telegram-phone-input-w: calc(12.5rem - 18px);
+  --telegram-phone-input-w: calc(12.5rem - 24px);
   --telegram-code-input-w: var(--telegram-phone-input-w);
+  /* Ширина ряда «телефон + gap + кнопка» — только для поля канала */
+  --telegram-auth-row-w: calc(var(--telegram-phone-input-w) + 12px + 160px);
   /* Эффективная ширина для правил адаптации контента (обновляется в ContentAdaptSync) */
   --content-adapt-w: 100vw;
   /* Сайдбар: актив = пузырёк user-сообщения; hover — светлее */
@@ -384,6 +386,7 @@ html.sidebar-collapsed {
   .theme-switch,
   .theme-switch-btn,
   .profile-input-explicit,
+  .telegram-code-input-field,
   .profile-model-picker .model-picker-btn,
   .model-picker-dropdown,
   .btn,
@@ -537,6 +540,7 @@ html.sidebar-collapsed {
     .theme-switch,
     .theme-switch-btn,
     .profile-input-explicit,
+    .telegram-code-input-field,
     .profile-model-picker .model-picker-btn,
     .model-picker-dropdown,
     .btn,
@@ -6974,6 +6978,7 @@ button.filter-tab {
   .theme-switch,
   .profile-input,
   .profile-input-explicit,
+  .telegram-code-input-field,
   .profile-model-picker .model-picker-btn,
   .model-picker-dropdown,
   .btn,
@@ -7248,11 +7253,13 @@ button.filter-tab {
 }
 .telegram-input,
 .telegram-input:hover:not(:disabled),
-.telegram-input:focus,
-.telegram-code-input,
-.telegram-code-input:hover:not(:disabled),
-.telegram-code-input:focus {
+.telegram-input:focus {
   background: var(--profile-select-bg);
+}
+.telegram-code-input-field .telegram-code-input,
+.telegram-code-input-field:hover:not(:has(.telegram-code-input:disabled)) .telegram-code-input,
+.telegram-code-input-field:focus-within .telegram-code-input {
+  background: transparent;
 }
 .profile-input-explicit:disabled {
   opacity: 0.6;
@@ -7929,6 +7936,25 @@ button.filter-tab {
   position: relative;
   box-sizing: border-box;
   min-width: 0;
+  display: flex;
+  align-items: stretch;
+  border-radius: var(--profile-r);
+  background: var(--profile-select-bg);
+  border: 1px solid var(--profile-field-border);
+  color: var(--profile-control-fg-muted);
+  box-shadow: var(--profile-field-shadow);
+  transition: border-color 0.12s, background 0.12s, box-shadow 0.12s, color 0.12s;
+}
+.telegram-code-input-field:hover:not(:has(.telegram-code-input:disabled)) {
+  background: var(--profile-select-bg-hover);
+  color: var(--profile-control-fg);
+  border-color: var(--control-border-active);
+}
+.telegram-code-input-field:focus-within {
+  background: var(--profile-select-bg-active);
+  color: var(--profile-control-fg);
+  border-color: var(--control-border-active);
+  box-shadow: var(--profile-field-shadow);
 }
 .telegram-auth-desktop .telegram-code-input-field {
   flex: 0 0 var(--telegram-code-input-w);
@@ -7937,9 +7963,57 @@ button.filter-tab {
   max-width: var(--telegram-code-input-w);
 }
 .telegram-code-input-field .telegram-code-input {
+  flex: 1 1 auto;
   width: 100%;
-  padding-right: 34px;
+  min-width: 0;
+  /* Крестик absolute — не съедает ширину; справа только зона под иконку */
+  padding: 8px 22px 8px 8px;
   box-sizing: border-box;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  outline: none;
+}
+.telegram-code-input-field .telegram-code-input::placeholder {
+  color: var(--text3);
+}
+.telegram-code-input-field .telegram-code-input:hover:not(:disabled),
+.telegram-code-input-field .telegram-code-input:focus {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.telegram-code-input-dismiss {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  z-index: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.12s;
+}
+.telegram-code-input-dismiss:hover {
+  color: var(--text2);
+}
+.telegram-code-input-dismiss:active {
+  color: var(--text);
+}
+.telegram-code-input-dismiss:focus,
+.telegram-code-input-dismiss:focus-visible {
+  outline: none;
 }
 .telegram-code-block {
   display: flex;
@@ -8126,15 +8200,69 @@ button.filter-tab {
 .telegram-omnibot-mobile {
   display: none;
 }
-.telegram-omnibot-desktop {
-  display: contents;
-}
 .telegram-channel-mobile {
   display: none;
 }
 .telegram-channel-desktop {
-  display: contents;
+  display: block;
+  min-width: 0;
 }
+
+.telegram-channel-desktop-fields,
+.telegram-omnibot-desktop-fields {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.telegram-channel-input {
+  flex: 0 0 var(--telegram-auth-row-w);
+  width: var(--telegram-auth-row-w);
+  min-width: var(--telegram-auth-row-w);
+  max-width: var(--telegram-auth-row-w);
+  box-sizing: border-box;
+}
+
+/*
+ * content-adapt-w ≤ 1000 и сайдбар в колонке: поле канала сжимается.
+ * Overlay (≤760 viewport): ширина «как телефон + Отправить код», без растягивания.
+ */
+html[data-content-adapt-le-1000]:not([data-shell-overlay]) .telegram-channel-input {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  max-width: var(--telegram-auth-row-w);
+}
+
+.telegram-channel-desktop-fields .telegram-inline-button,
+.telegram-omnibot-desktop-fields .telegram-inline-button {
+  flex: 0 0 160px;
+  width: 160px;
+  min-width: 160px;
+  max-width: 160px;
+  height: auto;
+  align-self: stretch;
+}
+
+.telegram-omnibot-desktop {
+  display: block;
+  min-width: 0;
+}
+
+.telegram-omnibot-token-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+}
+
+.telegram-omnibot-token-wrap .telegram-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .telegram-channel-section {
   display: flex;
   flex-direction: column;
@@ -10316,6 +10444,14 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
     display: none;
   }
 
+  html[data-content-adapt-ge-761] .telegram-channel-desktop {
+    display: block;
+  }
+
+  html[data-content-adapt-ge-761] .telegram-channel-mobile {
+    display: none;
+  }
+
   .telegram-auth-mobile {
     display: block;
     grid-column: 1 / -1;
@@ -10412,7 +10548,9 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   }
 
   .telegram-inline-field-row .telegram-code-input-field .telegram-code-input {
-    width: 100%;
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
   }
 
   .telegram-inline-field-row .telegram-inline-button {

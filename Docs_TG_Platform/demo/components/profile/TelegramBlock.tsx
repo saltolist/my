@@ -408,18 +408,16 @@ export default function TelegramBlock() {
       </div>
 
       <div className={`telegram-channel-section${!isAuthorized ? " hidden" : ""}`}>
-        <div className="telegram-form-grid">
-          <div className="telegram-channel-desktop">
-            <Field
-              label="Канал"
-              value={cfg.channel}
-              placeholder="@channel или -100..."
-              onChange={(v) => update({ channel: v })}
-            />
-            <div className="profile-row telegram-inline-action">
-              <div className="profile-label" aria-hidden>
-                &nbsp;
-              </div>
+        <div className="telegram-channel-desktop">
+          <div className="profile-row telegram-channel-desktop-row">
+            <div className="profile-label">Канал</div>
+            <div className="telegram-channel-desktop-fields">
+              <input
+                className="profile-input profile-input-explicit telegram-input telegram-channel-input"
+                value={cfg.channel}
+                placeholder="@channel или -100..."
+                onChange={(e) => update({ channel: e.target.value })}
+              />
               <button
                 className="btn btn-ghost telegram-inline-button"
                 disabled={connectChannelDisabled}
@@ -430,25 +428,25 @@ export default function TelegramBlock() {
               </button>
             </div>
           </div>
-          <div className="telegram-channel-mobile">
-            <div className="profile-row telegram-channel-row">
-              <div className="profile-label">Канал</div>
-              <div className="telegram-inline-field-row">
-                <input
-                  className="profile-input profile-input-explicit telegram-input"
-                  value={cfg.channel}
-                  placeholder="@channel или -100..."
-                  onChange={(e) => update({ channel: e.target.value })}
-                />
-                <button
-                  className="btn btn-ghost telegram-inline-button"
-                  disabled={connectChannelDisabled}
-                  onClick={connectChannel}
-                  type="button"
-                >
-                  Подключить канал
-                </button>
-              </div>
+        </div>
+        <div className="telegram-channel-mobile">
+          <div className="profile-row telegram-channel-row">
+            <div className="profile-label">Канал</div>
+            <div className="telegram-inline-field-row">
+              <input
+                className="profile-input profile-input-explicit telegram-input"
+                value={cfg.channel}
+                placeholder="@channel или -100..."
+                onChange={(e) => update({ channel: e.target.value })}
+              />
+              <button
+                className="btn btn-ghost telegram-inline-button"
+                disabled={connectChannelDisabled}
+                onClick={connectChannel}
+                type="button"
+              >
+                Подключить канал
+              </button>
             </div>
           </div>
         </div>
@@ -478,15 +476,18 @@ export default function TelegramBlock() {
       <div className="telegram-omnibot-section">
         <div className="telegram-omnibot-title">Омниканальный бот</div>
 
-        <div className="telegram-form-grid">
-          <div className="telegram-omnibot-desktop">
-            <Field
-              label="API-токен"
-              type={botApiTokenVisible ? "text" : "password"}
-              value={cfg.botApiToken}
-              placeholder="••••••••••••••••"
-              onChange={(v) => update({ botApiToken: v })}
-              trailing={
+        <div className="telegram-omnibot-desktop">
+          <div className="profile-row telegram-omnibot-desktop-row">
+            <div className="profile-label">API-токен</div>
+            <div className="telegram-omnibot-desktop-fields">
+              <div className="telegram-input-wrap telegram-omnibot-token-wrap">
+                <input
+                  className="profile-input profile-input-explicit telegram-input telegram-input-with-toggle"
+                  type={botApiTokenVisible ? "text" : "password"}
+                  value={cfg.botApiToken}
+                  placeholder="••••••••••••••••"
+                  onChange={(e) => update({ botApiToken: e.target.value })}
+                />
                 <button
                   type="button"
                   className="profile-api-key-toggle"
@@ -496,11 +497,6 @@ export default function TelegramBlock() {
                 >
                   <EyeIcon hidden={!botApiTokenVisible} />
                 </button>
-              }
-            />
-            <div className="profile-row telegram-inline-action">
-              <div className="profile-label" aria-hidden>
-                &nbsp;
               </div>
               <button
                 className="btn btn-ghost telegram-inline-button"
@@ -512,37 +508,37 @@ export default function TelegramBlock() {
               </button>
             </div>
           </div>
-          <div className="telegram-omnibot-mobile">
-            <div className="profile-row telegram-bot-token-row">
-              <div className="profile-label">API-токен</div>
-              <div className="telegram-inline-field-row">
-                <div className="telegram-input-wrap">
-                  <input
-                    className="profile-input profile-input-explicit telegram-input telegram-input-with-toggle"
-                    type={botApiTokenVisible ? "text" : "password"}
-                    value={cfg.botApiToken}
-                    placeholder="••••••••••••••••"
-                    onChange={(e) => update({ botApiToken: e.target.value })}
-                  />
-                  <button
-                    type="button"
-                    className="profile-api-key-toggle"
-                    aria-label={botApiTokenVisible ? "Скрыть API-токен" : "Показать API-токен"}
-                    title={botApiTokenVisible ? "Скрыть API-токен" : "Показать API-токен"}
-                    onClick={() => setBotApiTokenVisible((value) => !value)}
-                  >
-                    <EyeIcon hidden={!botApiTokenVisible} />
-                  </button>
-                </div>
+        </div>
+        <div className="telegram-omnibot-mobile">
+          <div className="profile-row telegram-bot-token-row">
+            <div className="profile-label">API-токен</div>
+            <div className="telegram-inline-field-row">
+              <div className="telegram-input-wrap">
+                <input
+                  className="profile-input profile-input-explicit telegram-input telegram-input-with-toggle"
+                  type={botApiTokenVisible ? "text" : "password"}
+                  value={cfg.botApiToken}
+                  placeholder="••••••••••••••••"
+                  onChange={(e) => update({ botApiToken: e.target.value })}
+                />
                 <button
-                  className="btn btn-ghost telegram-inline-button"
-                  disabled={addBotDisabled}
-                  onClick={connectBot}
                   type="button"
+                  className="profile-api-key-toggle"
+                  aria-label={botApiTokenVisible ? "Скрыть API-токен" : "Показать API-токен"}
+                  title={botApiTokenVisible ? "Скрыть API-токен" : "Показать API-токен"}
+                  onClick={() => setBotApiTokenVisible((value) => !value)}
                 >
-                  Добавить
+                  <EyeIcon hidden={!botApiTokenVisible} />
                 </button>
               </div>
+              <button
+                className="btn btn-ghost telegram-inline-button"
+                disabled={addBotDisabled}
+                onClick={connectBot}
+                type="button"
+              >
+                Добавить
+              </button>
             </div>
           </div>
         </div>
@@ -622,7 +618,7 @@ function TelegramCodeInput({
   return (
     <div className="telegram-code-input-field">
       <input
-        className="profile-input profile-input-explicit telegram-code-input"
+        className="profile-input telegram-code-input"
         placeholder="Код из Telegram"
         maxLength={8}
         value={value}
@@ -630,11 +626,11 @@ function TelegramCodeInput({
       />
       <button
         type="button"
-        className="page-header-search-field-dismiss"
+        className="telegram-code-input-dismiss"
         aria-label="Отменить ввод кода"
         onClick={onDismiss}
       >
-        <CloseIcon size={16} />
+        <CloseIcon size={14} />
       </button>
     </div>
   );

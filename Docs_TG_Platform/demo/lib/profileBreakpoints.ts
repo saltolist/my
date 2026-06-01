@@ -13,6 +13,9 @@ export const PROFILE_AI_TIER_COMPACT_MAX = 949;
 /** Шапка: вкладки → селектор. */
 export const PROFILE_HEADER_TABS_COMPACT_MAX = 1000;
 
+/** Поле канала (desktop): ниже — сжимается, выше — фикс. --telegram-auth-row-w. */
+export const PROFILE_CHANNEL_INPUT_SHRINK_MAX = 1000;
+
 /** Шапка: корзина «Удалить» у чекбоксов (ширина .page-header). */
 export const PROFILE_HEADER_TRASH_COMPACT_MIN = 780;
 export const PROFILE_HEADER_TRASH_COMPACT_MAX = 1080;
