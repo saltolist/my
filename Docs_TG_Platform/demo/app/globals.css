@@ -1500,6 +1500,14 @@ button.nav-item {
   border-color: var(--control-border-active);
   color: var(--text);
 }
+#screen-profile .page-header-select.page-header-select--profile-tabs,
+#screen-profile .page-header-select-ctx .page-header-select.page-header-select--profile-tabs {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+#screen-profile .page-header-select--profile-tabs .page-header-select-trigger {
+  gap: 3px;
+}
 .page-header-feed-search-row,
 .page-header-search-tools-row {
   display: flex;
@@ -9686,6 +9694,12 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
     background: var(--page-header-control-bg);
     border-color: var(--control-border-active);
     color: var(--text);
+  }
+
+  #screen-profile .page-header-select.page-header-select--profile-tabs,
+  #screen-profile .page-header-select-ctx .page-header-select.page-header-select--profile-tabs {
+    padding-left: 5px;
+    padding-right: 5px;
   }
 
   /* Меню селекторов в шапке и меню "•••" в шапках — без эффекта стекла на mobile */

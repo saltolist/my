@@ -14,6 +14,8 @@ type Props = {
   className?: string;
   /** `both` — как селектор вкладок; `down` — одна стрелка вниз */
   chevron?: "both" | "down";
+  /** Уже оболочка под короткие подписи (вкладки профиля) */
+  tightWidth?: boolean;
 };
 
 function PageHeaderSelectChevron({
@@ -53,6 +55,7 @@ export default function PageHeaderSelect({
   ariaLabel,
   className,
   chevron = "both",
+  tightWidth = false,
 }: Props) {
   const isMobile = useMobile760();
 
@@ -64,8 +67,9 @@ export default function PageHeaderSelect({
   /** Ширина под выбранный пункт — без лишней «пустоты» */
   const wrapWidth = useMemo(() => {
     const ch = Math.max(currentLabel.length, 3);
-    return `calc(${ch}ch + 3.1rem)`;
-  }, [currentLabel]);
+    const extra = tightWidth ? "2.1rem" : "3.1rem";
+    return `calc(${ch}ch + ${extra})`;
+  }, [currentLabel, tightWidth]);
 
   /** Меню — по самой широкой подписи, без переносов */
   const panelMinWidth = useMemo(() => {

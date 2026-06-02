@@ -104,7 +104,11 @@ export default function ProfileScreen() {
         mobileSelect={
           isCompactHeader ? (
             <div className="page-header-profile-trailing-toolbar">
-              <PageHeaderSelect {...profileTabSelectProps} />
+              <PageHeaderSelect
+                {...profileTabSelectProps}
+                className="page-header-select--profile-tabs"
+                tightWidth
+              />
               {platformPeriodHeaderPicker}
             </div>
           ) : undefined
