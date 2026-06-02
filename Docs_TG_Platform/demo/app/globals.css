@@ -9306,19 +9306,62 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   }
 }
 
-/* Desktop + шапка ≤1130: «Динамика прироста» — 3×2, селекторы в строке (перекрывает content-adapt) */
+/* Desktop + шапка ≤1130: компактные карточки и график; ≤930 — ещё 3×2; селекторы в строке */
 @media (min-width: 761px) {
+  html[data-page-header-le-1130] #screen-analytics .analytics-chart-card {
+    --model-trend-chart-height: 360px;
+  }
+
   html[data-page-header-le-1130] #screen-analytics .analytics-chart-card .channel-analytics-summary {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  html[data-page-header-le-930] #screen-analytics .analytics-chart-card .channel-analytics-summary {
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 
-  html[data-page-header-le-1130] #screen-analytics .analytics-chart-card .analytics-card-head {
+  html[data-page-header-le-1130]
+    #screen-analytics
+    .analytics-chart-card
+    .channel-analytics-summary
+    .channel-mini-metric {
+    min-height: 0;
+    padding: 10px 8px 10px 10px;
+    border-radius: calc(var(--block-r) - 4px);
+  }
+
+  html[data-page-header-le-1130]
+    #screen-analytics
+    .analytics-chart-card
+    .channel-analytics-summary
+    .channel-mini-metric
+    .mini-metric-value {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 2px;
+    line-height: 1.15;
+  }
+
+  html[data-page-header-le-1130]
+    #screen-analytics
+    .analytics-chart-card
+    .channel-analytics-summary
+    .channel-mini-metric
+    .mini-metric-label {
+    font-size: 10px;
+    line-height: 1.2;
+    white-space: normal;
+  }
+
+  html[data-page-header-le-1130] #screen-analytics .analytics-chart-card .analytics-card-head,
+  html[data-page-header-le-930] #screen-analytics .analytics-chart-card .analytics-card-head {
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    margin-bottom: 18px;
+    margin-bottom: 12px;
   }
 
   html[data-page-header-le-1130]
