@@ -23,10 +23,6 @@ export const PROFILE_CHANNEL_INPUT_SHRINK_MAX = 1000;
 export const PROFILE_AI_REMOVE_FLUSH_MIN = 1000;
 export const PROFILE_AI_REMOVE_FLUSH_MAX = PROFILE_AI_ADAPT_MAX;
 
-/** ИИ-движок 1000–1300: чекбоксы у правого края, слева от «Удалить». */
-export const PROFILE_AI_CHECKS_RIGHT_MIN = PROFILE_AI_REMOVE_FLUSH_MIN;
-export const PROFILE_AI_CHECKS_RIGHT_MAX = PROFILE_AI_ADAPT_MAX;
-
 /** Шапка: корзина «Удалить» у чекбоксов (ширина .page-header). */
 export const PROFILE_HEADER_TRASH_COMPACT_MIN = 780;
 export const PROFILE_HEADER_TRASH_COMPACT_MAX = 1080;
@@ -76,11 +72,6 @@ export function syncProfileAiAdaptToDocument(
     contentAdaptPx >= PROFILE_AI_REMOVE_FLUSH_MIN &&
     contentAdaptPx <= PROFILE_AI_REMOVE_FLUSH_MAX;
   root.toggleAttribute("data-profile-ai-remove-flush", removeFlush);
-  const checksRight =
-    tier !== null &&
-    contentAdaptPx >= PROFILE_AI_CHECKS_RIGHT_MIN &&
-    contentAdaptPx <= PROFILE_AI_CHECKS_RIGHT_MAX;
-  root.toggleAttribute("data-profile-ai-checks-right", checksRight);
 }
 
 export function syncProfileHeaderTrashCompactToDocument(
@@ -101,7 +92,6 @@ export function clearProfileAdaptFromDocument(): void {
   root.removeAttribute("data-profile-ai-tier");
   root.removeAttribute("data-profile-header-trash-compact");
   root.removeAttribute("data-profile-ai-remove-flush");
-  root.removeAttribute("data-profile-ai-checks-right");
 }
 
 export const profileHeaderTabsCompactMq = `(max-width: ${PROFILE_HEADER_TABS_COMPACT_MAX}px)` as const;

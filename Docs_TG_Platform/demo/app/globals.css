@@ -8449,6 +8449,10 @@ html[data-profile-ai-adapt][data-profile-ai-tier="wide"] .profile-model-footer {
     width: 100%;
   }
 
+html[data-profile-ai-adapt][data-profile-ai-tier="wide"] .profile-model-footer .profile-model-remove {
+    margin-left: auto;
+  }
+
 html[data-profile-ai-adapt][data-profile-ai-tier="wide"] .profile-model-footer .profile-checkbox-label {
     white-space: nowrap;
   }
@@ -8555,53 +8559,6 @@ html[data-profile-ai-remove-flush][data-profile-header-trash-compact][data-profi
   .profile-model-footer
   .profile-model-remove {
   margin-left: auto;
-}
-
-/* content-adapt-w 1000–1300: чекбоксы справа, слева от «Удалить» (после remove-flush) */
-html[data-profile-ai-checks-right][data-profile-ai-tier="compact"] .profile-model-footer-checks {
-  justify-content: flex-end;
-  justify-self: end;
-}
-
-html[data-profile-header-trash-compact][data-profile-ai-checks-right][data-profile-ai-tier="compact"]
-  .profile-model-footer {
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-html[data-profile-ai-checks-right][data-profile-ai-tier="wide"] .profile-model-footer-checks {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-html[data-profile-ai-checks-right][data-profile-ai-tier="wide"] .profile-ai-engine-section .profile-model-footer,
-html[data-profile-ai-checks-right][data-profile-ai-tier="wide"] .profile-model-footer {
-  justify-content: flex-end;
-  flex-wrap: nowrap;
-  gap: 12px;
-}
-
-html[data-profile-header-trash-compact][data-profile-ai-checks-right][data-profile-ai-tier="wide"]
-  .profile-model-footer {
-  justify-content: flex-end;
-}
-
-html[data-profile-ai-checks-right] .profile-ai-engine-section .profile-model-footer .profile-model-remove,
-html[data-profile-ai-checks-right][data-profile-ai-remove-flush] .profile-ai-engine-section .profile-model-footer .profile-model-remove,
-html[data-profile-ai-checks-right][data-profile-ai-remove-flush][data-profile-header-trash-compact]
-  .profile-ai-engine-section
-  .profile-model-footer
-  .profile-model-remove,
-html[data-profile-ai-checks-right][data-profile-ai-remove-flush][data-profile-header-trash-compact][data-profile-ai-tier="wide"]
-  .profile-model-footer
-  .profile-model-remove,
-html[data-profile-ai-checks-right][data-profile-header-trash-compact][data-profile-ai-tier="wide"]
-  .profile-model-footer
-  .profile-model-remove {
-  margin-left: 0;
 }
 
 /* tier compact: чекбоксы у правого края; API почти до корзины */
