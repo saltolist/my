@@ -72,6 +72,9 @@ export default function TelegramBlock() {
   const isAuthorized = cfg.authStatus === "authorized" || cfg.authStatus === "connected";
   const codeHidden = cfg.authStatus !== "code-sent";
   const savedSnapshot = parseTelegramSnapshot(state.telegramSettingsSavedSnapshot);
+  const apiIdChangedFromSaved = normalizeTelegramValue(cfg.apiId) !== normalizeTelegramValue(savedSnapshot.apiId);
+  const apiHashChangedFromSaved = normalizeTelegramValue(cfg.apiHash) !== normalizeTelegramValue(savedSnapshot.apiHash);
+  const apiChangedFromSaved = apiIdChangedFromSaved || apiHashChangedFromSaved;
   const phoneChangedFromSaved = normalizeTelegramValue(cfg.phone) !== normalizeTelegramValue(savedSnapshot.phone);
   const channelChangedFromSaved = normalizeTelegramValue(cfg.channel) !== normalizeTelegramValue(savedSnapshot.channel);
   const sendCodeDisabled = isAuthorized && !phoneChangedFromSaved;
@@ -211,6 +214,19 @@ export default function TelegramBlock() {
     });
   };
 
+  const saveApiCredentials = () => {
+    if (!apiChangedFromSaved) return;
+    dispatch({
+      type: "SET_STATE",
+      patch: { telegramSettingsSavedSnapshot: snapshot(cfg) },
+    });
+  };
+
+  const cancelApiCredentials = () => {
+    if (!apiChangedFromSaved) return;
+    update({ apiId: savedSnapshot.apiId, apiHash: savedSnapshot.apiHash });
+  };
+
   return (
     <div className="profile-section">
       <div className="profile-section-title">Telegram</div>
@@ -253,30 +269,60 @@ export default function TelegramBlock() {
       </div>
 
       <div className="telegram-form-grid">
-        <Field
-          label="api_id"
-          value={cfg.apiId}
-          placeholder="12345678"
-          onChange={(v) => update({ apiId: v })}
-        />
-        <Field
-          label="api_hash"
-          type={apiHashVisible ? "text" : "password"}
-          value={cfg.apiHash}
-          placeholder="••••••••••••••••"
-          onChange={(v) => update({ apiHash: v })}
-          trailing={
+        <div className="telegram-api-credentials">
+          <div className="profile-row telegram-api-id-row">
+            <div className="profile-label">api_id</div>
+            <input
+              className="profile-input profile-input-explicit telegram-input telegram-api-id-input"
+              value={cfg.apiId}
+              placeholder="12345678"
+              onChange={(e) => update({ apiId: e.target.value })}
+            />
+          </div>
+
+          <div className="profile-row telegram-api-hash-row">
+            <div className="profile-label">api_hash</div>
+            <div className="telegram-input-wrap telegram-api-hash-input-wrap">
+              <input
+                className="profile-input profile-input-explicit telegram-input telegram-api-hash-input telegram-input-with-toggle"
+                type={apiHashVisible ? "text" : "password"}
+                value={cfg.apiHash}
+                placeholder="••••••••••••••••"
+                onChange={(e) => update({ apiHash: e.target.value })}
+              />
+              <button
+                type="button"
+                className="profile-api-key-toggle"
+                aria-label={apiHashVisible ? "Скрыть api_hash" : "Показать api_hash"}
+                title={apiHashVisible ? "Скрыть api_hash" : "Показать api_hash"}
+                onClick={() => setApiHashVisible((value) => !value)}
+              >
+                <EyeIcon hidden={!apiHashVisible} />
+              </button>
+            </div>
+          </div>
+
+          <div className="profile-action-buttons profile-action-buttons--ai telegram-api-actions">
             <button
+              className="btn btn-primary telegram-api-action-btn"
               type="button"
-              className="profile-api-key-toggle"
-              aria-label={apiHashVisible ? "Скрыть api_hash" : "Показать api_hash"}
-              title={apiHashVisible ? "Скрыть api_hash" : "Показать api_hash"}
-              onClick={() => setApiHashVisible((value) => !value)}
+              disabled={!apiChangedFromSaved}
+              onClick={saveApiCredentials}
             >
-              <EyeIcon hidden={!apiHashVisible} />
+              Сохранить
             </button>
-          }
-        />
+            {apiChangedFromSaved ? (
+              <button
+                className="btn btn-ghost telegram-api-action-btn"
+                type="button"
+                onClick={cancelApiCredentials}
+              >
+                Отменить
+              </button>
+            ) : null}
+          </div>
+        </div>
+
         <div className="telegram-auth-desktop">
           {codeHidden ? (
             <div className="profile-row telegram-phone-desktop-row">

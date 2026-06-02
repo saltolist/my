@@ -103,6 +103,7 @@ export default function PageHeader({
       }
       document.documentElement.style.setProperty("--page-header-w", `${w}px`);
       syncProfileHeaderTrashCompactToDocument(w, isMobile);
+      document.documentElement.toggleAttribute("data-page-header-le-841", !isMobile && w > 0 && w <= 841);
     };
     const observer = new ResizeObserver(sync);
     observer.observe(el);
@@ -113,6 +114,7 @@ export default function PageHeader({
         setHeaderWidth(0);
       }
       document.documentElement.removeAttribute("data-profile-header-trash-compact");
+      document.documentElement.removeAttribute("data-page-header-le-841");
       document.documentElement.style.removeProperty("--page-header-w");
     };
   }, [compactSearchAtWidth, isMobile]);

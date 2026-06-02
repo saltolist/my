@@ -7894,6 +7894,109 @@ button.filter-tab {
 .telegram-form-grid > .profile-row:nth-child(2) .telegram-input-wrap {
   width: 100%;
 }
+
+.telegram-api-credentials {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, var(--telegram-phone-input-w)) minmax(0, 1fr) auto;
+  grid-template-rows: auto;
+  gap: 10px 12px;
+  align-items: start;
+  min-width: 0;
+}
+
+.telegram-api-credentials .telegram-api-id-row {
+  grid-column: 1;
+  grid-row: 1;
+  margin-bottom: 0;
+}
+.telegram-api-credentials .telegram-api-hash-row {
+  grid-column: 2;
+  grid-row: 1;
+  margin-bottom: 0;
+}
+.telegram-api-hash-input-wrap {
+  min-width: 0;
+  width: 100%;
+}
+.telegram-api-hash-input-wrap .telegram-api-hash-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.telegram-api-credentials .telegram-api-actions {
+  grid-column: 3;
+  grid-row: 1;
+  margin-top: 18px; /* под label */
+}
+.telegram-api-action-btn {
+  white-space: nowrap;
+}
+
+@media (min-width: 761px) {
+  .telegram-form-grid {
+    grid-template-columns: minmax(0, var(--telegram-phone-input-w)) minmax(0, 1fr);
+  }
+
+  .telegram-api-id-input {
+    width: var(--telegram-phone-input-w);
+    min-width: var(--telegram-phone-input-w);
+    max-width: var(--telegram-phone-input-w);
+    box-sizing: border-box;
+  }
+
+  .telegram-api-credentials .telegram-api-action-btn {
+    height: auto;
+  }
+}
+
+/* Шапка ≤ 841px (не mobile): 2 строки (api_id + api_hash / кнопки) */
+html[data-page-header-le-841] .telegram-api-credentials {
+  grid-template-columns: minmax(0, var(--telegram-phone-input-w)) minmax(0, 1fr);
+  grid-template-rows: auto auto;
+}
+html[data-page-header-le-841] .telegram-api-credentials .telegram-api-id-row {
+  grid-column: 1;
+  grid-row: 1;
+}
+html[data-page-header-le-841] .telegram-api-credentials .telegram-api-hash-row {
+  grid-column: 2;
+  grid-row: 1;
+}
+html[data-page-header-le-841] .telegram-api-credentials .telegram-api-actions {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin-top: 7px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 760px) {
+  /* Mobile: 3 строки (api_id / api_hash / кнопки) */
+  .telegram-api-credentials {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+  .telegram-api-credentials .telegram-api-id-row {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .telegram-api-credentials .telegram-api-hash-row {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .telegram-api-credentials .telegram-api-actions {
+    grid-column: 1;
+    grid-row: 3;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-top: 7px;
+    margin-bottom: 8px;
+  }
+  .telegram-api-credentials .telegram-api-action-btn {
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+}
 .telegram-inline-action .profile-label {
   visibility: hidden;
 }
