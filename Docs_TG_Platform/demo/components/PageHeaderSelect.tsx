@@ -12,9 +12,17 @@ type Props = {
   onChange: (value: string) => void;
   ariaLabel: string;
   className?: string;
+  /** `both` — как селектор вкладок; `down` — одна стрелка вниз */
+  chevron?: "both" | "down";
 };
 
-function PageHeaderSelectChevron({ inline }: { inline?: boolean }) {
+function PageHeaderSelectChevron({
+  inline,
+  variant = "both",
+}: {
+  inline?: boolean;
+  variant?: "both" | "down";
+}) {
   return (
     <svg
       className={`page-header-select-chevron${inline ? " page-header-select-chevron--inline" : ""}`}
@@ -26,8 +34,14 @@ function PageHeaderSelectChevron({ inline }: { inline?: boolean }) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <polyline points="8 9 12 5 16 9" />
-      <polyline points="8 15 12 19 16 15" />
+      {variant === "down" ? (
+        <polyline points="8 10 12 14 16 10" />
+      ) : (
+        <>
+          <polyline points="8 9 12 5 16 9" />
+          <polyline points="8 15 12 19 16 15" />
+        </>
+      )}
     </svg>
   );
 }
@@ -38,6 +52,7 @@ export default function PageHeaderSelect({
   onChange,
   ariaLabel,
   className,
+  chevron = "both",
 }: Props) {
   const isMobile = useMobile760();
 
@@ -74,7 +89,7 @@ export default function PageHeaderSelect({
         trigger={
           <span className="page-header-select-trigger">
             <span className="page-header-select-trigger-text">{currentLabel}</span>
-            <PageHeaderSelectChevron inline />
+            <PageHeaderSelectChevron inline variant={chevron} />
           </span>
         }
         triggerAriaLabel={ariaLabel}

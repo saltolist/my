@@ -1429,6 +1429,21 @@ button.nav-item {
   width: 100%;
   min-width: 0;
 }
+.page-header-profile-center-toolbar,
+.page-header-profile-trailing-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.page-header-profile-center-toolbar {
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.page-header-profile-trailing-toolbar {
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
 #screen-analytics .page-header-analytics-periods .period-tab {
   height: 32px;
   display: inline-flex;
@@ -6313,6 +6328,9 @@ button.filter-tab {
   background: var(--page-header-control-bg);
 }
 .model-analytics-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+#screen-profile .platform-analytics-section .model-analytics-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
 .platform-analytics-section .model-analytics-summary .mini-metric {
   border: 1px solid var(--profile-field-border);
 }
@@ -9306,10 +9324,33 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   }
 }
 
-/* Desktop + шапка ≤1130: компактные карточки и график; ≤930 — ещё 3×2; селекторы в строке */
+/* Профиль: desktop + шапка ≤650 — период в шапке (справа от вкладок) */
 @media (min-width: 761px) {
-  html[data-page-header-le-1130] #screen-analytics .analytics-chart-card {
+  html[data-page-header-le-650] .page-header-profile-center-toolbar {
+    flex-wrap: nowrap;
+  }
+
+  html[data-page-header-le-650]
+    .page-header.page-header--trailing-select
+    .page-header-profile-trailing-toolbar {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Desktop + шапка ≤1130: компактные карточки и график; канал ≤930 — 3×2; селекторы в строке */
+@media (min-width: 761px) {
+  html[data-page-header-le-1130] #screen-analytics .analytics-chart-card,
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section:has(.model-analytics-summary) {
     --model-trend-chart-height: 360px;
+  }
+
+  html:not([data-page-header-le-1130])
+    #screen-profile
+    .platform-analytics-section
+    .model-analytics-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   html[data-page-header-le-1130] #screen-analytics .analytics-chart-card .channel-analytics-summary {
@@ -9322,10 +9363,24 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   }
 
   html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-analytics-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  html[data-page-header-le-1130]
     #screen-analytics
     .analytics-chart-card
     .channel-analytics-summary
-    .channel-mini-metric {
+    .channel-mini-metric,
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-analytics-summary
+    .mini-metric {
     min-height: 0;
     padding: 10px 8px 10px 10px;
     border-radius: calc(var(--block-r) - 4px);
@@ -9336,6 +9391,11 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
     .analytics-chart-card
     .channel-analytics-summary
     .channel-mini-metric
+    .mini-metric-value,
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-analytics-summary
     .mini-metric-value {
     font-size: 16px;
     font-weight: 700;
@@ -9348,6 +9408,11 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
     .analytics-chart-card
     .channel-analytics-summary
     .channel-mini-metric
+    .mini-metric-label,
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-analytics-summary
     .mini-metric-label {
     font-size: 10px;
     line-height: 1.2;
@@ -9355,7 +9420,9 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   }
 
   html[data-page-header-le-1130] #screen-analytics .analytics-chart-card .analytics-card-head,
-  html[data-page-header-le-930] #screen-analytics .analytics-chart-card .analytics-card-head {
+  html[data-page-header-le-930] #screen-analytics .analytics-chart-card .analytics-card-head,
+  html[data-page-header-le-1130] #screen-profile .platform-analytics-section .analytics-card-head,
+  html[data-page-header-le-930] #screen-profile .platform-analytics-section .analytics-card-head {
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
@@ -9421,6 +9488,85 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
     .analytics-chart-card
     .analytics-card-head
     .analytics-period-picker
+    .model-picker-btn {
+    width: max-content;
+    max-width: 100%;
+  }
+
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .analytics-card-head
+    > div:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+  }
+
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .analytics-card-head
+    .profile-section-title {
+    margin-bottom: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack.model-filter-stack--with-series,
+  html[data-page-header-le-930]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack.model-filter-stack--with-series {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    width: auto;
+    max-width: none;
+    margin-left: auto;
+  }
+
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack--with-series
+    .profile-model-picker,
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack--with-series
+    .chart-series-selector--profile,
+  html[data-page-header-le-930]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack--with-series
+    .profile-model-picker,
+  html[data-page-header-le-930]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack--with-series
+    .chart-series-selector--profile {
+    width: auto;
+    max-width: 280px;
+    flex: 0 0 auto;
+  }
+
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack--with-series
+    .model-picker-btn,
+  html[data-page-header-le-930]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack--with-series
     .model-picker-btn {
     width: max-content;
     max-width: 100%;

@@ -13,30 +13,13 @@ import { getPeriodChartLabels, MOBILE_CHART_MAX_POINTS } from "@/lib/trendChart/
 import { useAnchoredBarRowTooltip } from "@/lib/hooks/useAnchoredBarRowTooltip";
 import { useDesktopBarTooltipPortal } from "@/lib/hooks/useDesktopBarTooltipPortal";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
-
-const PERIODS = [
-  { label: "24 часа", multiplier: 0.06 },
-  { label: "7 дней", multiplier: 0.24 },
-  { label: "30 дней", multiplier: 1 },
-  { label: "90 дней", multiplier: 2.8 },
-  { label: "Всё время", multiplier: 7.4 },
-];
-
-type ModelTypeId = "llm" | "web" | "orchestrator" | "webReasoner" | "ragReasoner";
-type ModelFilterId = "all" | ModelTypeId;
-
-const MODEL_TYPES: { id: ModelTypeId; label: string; hint: string }[] = [
-  { id: "llm", label: "LLM", hint: "генерация ответов и постов" },
-  { id: "web", label: "Web Search", hint: "поиск и сбор источников" },
-  { id: "orchestrator", label: "Оркестратор", hint: "маршрутизация сценариев" },
-  { id: "webReasoner", label: "Web Reasoner", hint: "рассуждения поверх web-источников" },
-  { id: "ragReasoner", label: "RAG Reasoner", hint: "рассуждения поверх базы знаний" },
-];
-
-const MODEL_FILTERS: { id: ModelFilterId; label: string; hint: string }[] = [
-  { id: "all", label: "Все", hint: "сравнение по типам моделей" },
-  ...MODEL_TYPES,
-];
+import { PLATFORM_ANALYTICS_PERIODS } from "@/lib/platformAnalyticsPeriods";
+import {
+  PLATFORM_MODEL_FILTERS,
+  PLATFORM_MODEL_TYPE_OPTIONS,
+  type ModelFilterId,
+  type ModelTypeId,
+} from "@/lib/platformModelFilters";
 
 const MODEL_LINE_COLORS = [
   "#3d7cff",
@@ -51,10 +34,19 @@ const MODEL_LINE_COLORS = [
   "#6f9dfb",
 ];
 
-export default function PlatformAnalyticsBlock() {
+type Props = {
+  period: number;
+  onPeriodChange: (next: number) => void;
+  periodInHeader?: boolean;
+};
+
+export default function PlatformAnalyticsBlock({
+  period,
+  onPeriodChange,
+  periodInHeader = false,
+}: Props) {
   const { state } = useApp();
   const isMobile = useMobile760();
-  const [period, setPeriod] = useState(2);
   const [modelType, setModelType] = useState<ModelFilterId>("all");
 
   const chartLabels = useMemo(
@@ -65,10 +57,16 @@ export default function PlatformAnalyticsBlock() {
     [period, isMobile],
   );
   const modelUsage = useMemo(
-    () => buildModelUsage(state.aiProfileConfig, PERIODS[period].multiplier, chartLabels.length),
+    () =>
+      buildModelUsage(
+        state.aiProfileConfig,
+        PLATFORM_ANALYTICS_PERIODS[period].multiplier,
+        chartLabels.length,
+      ),
     [state.aiProfileConfig, period, chartLabels.length],
   );
-  const selectedTypeMeta = MODEL_FILTERS.find((type) => type.id === modelType) ?? MODEL_FILTERS[0];
+  const selectedTypeMeta =
+    PLATFORM_MODEL_FILTERS.find((type) => type.id === modelType) ?? PLATFORM_MODEL_FILTERS[0];
   const isAllTypes = modelType === "all";
   const selectedModels = isAllTypes
     ? buildTypeUsage(modelUsage)
@@ -114,7 +112,10 @@ export default function PlatformAnalyticsBlock() {
               ariaLabel="Тип модели"
               className="profile-model-picker"
               value={modelType}
-              options={MODEL_FILTERS.map((type) => ({ id: type.id, label: type.label }))}
+              options={PLATFORM_MODEL_FILTERS.map((type) => ({
+                id: type.id,
+                label: type.label,
+              }))}
               placement="down"
               onChange={(id) => setModelType(id as ModelFilterId)}
             />
@@ -125,14 +126,19 @@ export default function PlatformAnalyticsBlock() {
               isVisible={isVisible}
               onVisibleChange={setVisible}
             />
-            <ModelPicker
-              ariaLabel="Период"
-              className="profile-model-picker"
-              value={String(period)}
-              options={PERIODS.map((item, index) => ({ id: String(index), label: item.label }))}
-              placement="down"
-              onChange={(id) => setPeriod(Number(id))}
-            />
+            {!periodInHeader ? (
+              <ModelPicker
+                ariaLabel="Период"
+                className="profile-model-picker platform-period-picker--in-card"
+                value={String(period)}
+                options={PLATFORM_ANALYTICS_PERIODS.map((item, index) => ({
+                  id: String(index),
+                  label: item.label,
+                }))}
+                placement="down"
+                onChange={(id) => onPeriodChange(Number(id))}
+              />
+            ) : null}
           </div>
         </div>
 
@@ -383,7 +389,7 @@ function mapConfigModels(models: LlmModel[], type: ModelTypeId, role: string) {
 function buildTypeUsage(models: ModelUsage[]): ModelUsage[] {
   const totalCalls = models.reduce((sum, model) => sum + model.calls, 0);
 
-  return MODEL_TYPES.map((type, i) => {
+  return PLATFORM_MODEL_TYPE_OPTIONS.map((type, i) => {
     const rows = models.filter((model) => model.type === type.id);
     if (rows.length === 0) return null;
 

@@ -11,14 +11,21 @@ import PageHeader from "../PageHeader";
 import PageHeaderSelect from "../PageHeaderSelect";
 import { useApp } from "@/state/AppContext";
 import { useCompactHeader1000 } from "@/lib/hooks/useCompactHeader1000";
+import { useMobile760 } from "@/lib/hooks/useMobile760";
+import { usePageHeaderLe650 } from "@/lib/hooks/usePageHeaderLe650";
+import { PLATFORM_ANALYTICS_PERIODS } from "@/lib/platformAnalyticsPeriods";
 
 const PROFILE_TABS = ["Настройки", "Канал", "Аналитика платформы"] as const;
 
 export default function ProfileScreen() {
   const [tab, setTab] = useState(0);
+  const [platformPeriod, setPlatformPeriod] = useState(2);
   const { state, profileChannelDirty, profileSettingsDirty, discardProfileEdits } = useApp();
   const profileScreenActive = state.screen === "profile";
+  const isMobile = useMobile760();
   const isCompactHeader = useCompactHeader1000();
+  const isHeaderLe650 = usePageHeaderLe650();
+  const platformPeriodInHeader = tab === 2 && !isMobile && isHeaderLe650;
   const settingsTabActive = tab === 0 && profileScreenActive;
   const channelTabActive = tab === 1 && profileScreenActive;
 
@@ -51,6 +58,19 @@ export default function ProfileScreen() {
     onChange: (v: string) => switchTab(Number(v)),
   };
 
+  const platformPeriodHeaderPicker = platformPeriodInHeader ? (
+    <PageHeaderSelect
+      ariaLabel="Период"
+      chevron="down"
+      value={String(platformPeriod)}
+      options={PLATFORM_ANALYTICS_PERIODS.map((item, index) => ({
+        value: String(index),
+        label: item.label,
+      }))}
+      onChange={(id) => setPlatformPeriod(Number(id))}
+    />
+  ) : null;
+
   const tabToolbar = (
     <div className="page-header-profile-tabs" role="tablist" aria-label="Раздел профиля">
       {PROFILE_TABS.map((label, i) => (
@@ -75,11 +95,19 @@ export default function ProfileScreen() {
         backTo="home"
         center={
           isCompactHeader ? undefined : (
-            <div className="page-header-toolbar--desktop">{tabToolbar}</div>
+            <div className="page-header-toolbar--desktop page-header-profile-center-toolbar">
+              {tabToolbar}
+              {platformPeriodHeaderPicker}
+            </div>
           )
         }
         mobileSelect={
-          isCompactHeader ? <PageHeaderSelect {...profileTabSelectProps} /> : undefined
+          isCompactHeader ? (
+            <div className="page-header-profile-trailing-toolbar">
+              <PageHeaderSelect {...profileTabSelectProps} />
+              {platformPeriodHeaderPicker}
+            </div>
+          ) : undefined
         }
       />
       <div className="profile-page" id="screen-profile">
@@ -94,7 +122,11 @@ export default function ProfileScreen() {
           </div>
 
           <div className={`profile-panel${tab === 2 ? " active" : ""}`}>
-            <PlatformAnalyticsBlock />
+            <PlatformAnalyticsBlock
+              period={platformPeriod}
+              onPeriodChange={setPlatformPeriod}
+              periodInHeader={platformPeriodInHeader}
+            />
           </div>
         </div>
       </div>

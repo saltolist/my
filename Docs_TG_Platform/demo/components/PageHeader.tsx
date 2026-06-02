@@ -16,6 +16,7 @@ import { useMobile760 } from "@/lib/hooks/useMobile760";
 import {
   PROFILE_HEADER_CHANNEL_SUMMARY_COMPACT_MAX,
   PROFILE_HEADER_CHANNEL_SUMMARY_TWO_ROW_MAX,
+  PROFILE_HEADER_PLATFORM_PERIOD_MAX,
   PROFILE_HEADER_TOP_POSTS_COMPACT_MAX,
   syncProfileHeaderTrashCompactToDocument,
 } from "@/lib/profileBreakpoints";
@@ -122,6 +123,10 @@ export default function PageHeader({
         "data-page-header-le-930",
         !isMobile && w > 0 && w <= PROFILE_HEADER_CHANNEL_SUMMARY_TWO_ROW_MAX,
       );
+      document.documentElement.toggleAttribute(
+        "data-page-header-le-650",
+        !isMobile && w > 0 && w <= PROFILE_HEADER_PLATFORM_PERIOD_MAX,
+      );
     };
     const observer = new ResizeObserver(sync);
     observer.observe(el);
@@ -136,6 +141,7 @@ export default function PageHeader({
       document.documentElement.removeAttribute("data-page-header-le-780");
       document.documentElement.removeAttribute("data-page-header-le-1130");
       document.documentElement.removeAttribute("data-page-header-le-930");
+      document.documentElement.removeAttribute("data-page-header-le-650");
       document.documentElement.style.removeProperty("--page-header-w");
       document.documentElement.style.removeProperty("--page-header-w-num");
     };

@@ -30,10 +30,13 @@ export const PROFILE_HEADER_TRASH_COMPACT_MAX = 1080;
 /** «Лучшие посты» (desktop): при шапке ≤780px — только Пост, ER и «к посту». */
 export const PROFILE_HEADER_TOP_POSTS_COMPACT_MAX = 780;
 
-/** «Динамика прироста» (desktop): при шапке ≤1130px — 6 в ряд, компактнее + ниже график. */
+/** Аналитика платформы (desktop): при шапке ≤650px — селектор периода в шапку. */
+export const PROFILE_HEADER_PLATFORM_PERIOD_MAX = 650;
+
+/** Канал + платформа (desktop): при шапке ≤1130px — метрики компактнее + график 360px. */
 export const PROFILE_HEADER_CHANNEL_SUMMARY_COMPACT_MAX = 1130;
 
-/** «Динамика прироста» (desktop): при шапке ≤930px — карточки метрик 3×2 (два ряда). */
+/** Канал (desktop): при шапке ≤930px — 6 карточек 3×2. Платформа: всегда 3 в ряд. */
 export const PROFILE_HEADER_CHANNEL_SUMMARY_TWO_ROW_MAX = 930;
 
 /** Высота графика «Динамика прироста» при узкой шапке (desktop, не mobile). */
