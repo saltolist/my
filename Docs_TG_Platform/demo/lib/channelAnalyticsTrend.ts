@@ -69,9 +69,9 @@ export const CHANNEL_TOP_POSTS_TABLE_METRICS = CHANNEL_POST_TABLE_METRICS.filter
   (metric) => metric.id !== "subscribers",
 );
 
-/** Только для блока «Лучшие посты» на телефоне */
-export function getChannelTopPostsTableMetrics(isMobile: boolean) {
-  if (isMobile) {
+/** Телефон или шапка ≤780px: только ER; иначе все метрики кроме подписчиков */
+export function getChannelTopPostsTableMetrics(compactColumns: boolean) {
+  if (compactColumns) {
     return CHANNEL_POST_TABLE_METRICS.filter((metric) => metric.id === "er");
   }
   return CHANNEL_TOP_POSTS_TABLE_METRICS;

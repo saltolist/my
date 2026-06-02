@@ -27,6 +27,9 @@ export const PROFILE_AI_REMOVE_FLUSH_MAX = PROFILE_AI_ADAPT_MAX;
 export const PROFILE_HEADER_TRASH_COMPACT_MIN = 780;
 export const PROFILE_HEADER_TRASH_COMPACT_MAX = 1080;
 
+/** «Лучшие посты» (desktop): при шапке ≤780px — только Пост, ER и «к посту». */
+export const PROFILE_HEADER_TOP_POSTS_COMPACT_MAX = 780;
+
 export type ProfileAiTier = "wide" | "mid" | "compact";
 
 /** Один из трёх tier или null вне диапазона адаптации. */

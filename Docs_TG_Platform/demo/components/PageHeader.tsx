@@ -13,7 +13,10 @@ import {
 import { useApp } from "@/state/AppContext";
 import type { ScreenId } from "@/lib/types";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
-import { syncProfileHeaderTrashCompactToDocument } from "@/lib/profileBreakpoints";
+import {
+  PROFILE_HEADER_TOP_POSTS_COMPACT_MAX,
+  syncProfileHeaderTrashCompactToDocument,
+} from "@/lib/profileBreakpoints";
 import PageHeaderMenuButton from "./PageHeaderMenuButton";
 import PageHeaderOverflow, { type PageHeaderOverflowItem } from "./PageHeaderOverflow";
 import PageHeaderSearchInput, { PageHeaderSearchMagnifier } from "./PageHeaderSearchInput";
@@ -102,8 +105,13 @@ export default function PageHeader({
         setHeaderWidth(w);
       }
       document.documentElement.style.setProperty("--page-header-w", `${w}px`);
+      document.documentElement.style.setProperty("--page-header-w-num", String(w));
       syncProfileHeaderTrashCompactToDocument(w, isMobile);
       document.documentElement.toggleAttribute("data-page-header-le-841", !isMobile && w > 0 && w <= 841);
+      document.documentElement.toggleAttribute(
+        "data-page-header-le-780",
+        !isMobile && w > 0 && w <= PROFILE_HEADER_TOP_POSTS_COMPACT_MAX,
+      );
     };
     const observer = new ResizeObserver(sync);
     observer.observe(el);
@@ -115,7 +123,9 @@ export default function PageHeader({
       }
       document.documentElement.removeAttribute("data-profile-header-trash-compact");
       document.documentElement.removeAttribute("data-page-header-le-841");
+      document.documentElement.removeAttribute("data-page-header-le-780");
       document.documentElement.style.removeProperty("--page-header-w");
+      document.documentElement.style.removeProperty("--page-header-w-num");
     };
   }, [compactSearchAtWidth, isMobile]);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { Fragment, useMemo, useState, type CSSProperties } from "react";
 import { useApp } from "@/state/AppContext";
 import ChannelAnalyticsSection from "@/components/analytics/ChannelAnalyticsSection";
 import {
@@ -8,6 +8,7 @@ import {
   getChannelTopPostsTableMetrics,
 } from "@/lib/channelAnalyticsTrend";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
+import { usePageHeaderLe780 } from "@/lib/hooks/usePageHeaderLe780";
 import PageHeader from "../PageHeader";
 import PageHeaderSelect from "../PageHeaderSelect";
 
@@ -71,13 +72,21 @@ export default function AnalyticsScreen() {
   const { openPost } = useApp();
   const [period, setPeriod] = useState(1);
   const isMobile = useMobile760();
+  const isHeaderLe780 = usePageHeaderLe780();
   const topPostsTableMetrics = useMemo(
-    () => getChannelTopPostsTableMetrics(isMobile),
-    [isMobile],
+    () => getChannelTopPostsTableMetrics(isMobile || isHeaderLe780),
+    [isMobile, isHeaderLe780],
   );
   const rankedTopPosts = useMemo(
     () => [...topPosts].sort((a, b) => b.subscribers - a.subscribers),
     [],
+  );
+  const topPostsDesktopGridStyle = useMemo(
+    () =>
+      ({
+        gridTemplateColumns: `minmax(11rem, 1fr) repeat(${topPostsTableMetrics.length}, auto) minmax(3.25rem, max-content)`,
+      }) as CSSProperties,
+    [topPostsTableMetrics.length],
   );
 
   return (
@@ -112,51 +121,118 @@ export default function AnalyticsScreen() {
 
           <div className="analytics-card analytics-top-posts-card platform-analytics-section">
             <div className="profile-section-title platform-section-title-spaced">Лучшие посты за период</div>
-            <table
-              className="top-table analytics-top-posts-table"
+            <div
+              className="analytics-top-posts-table-wrap"
               style={
                 {
                   "--top-posts-metric-cols": topPostsTableMetrics.length,
                 } as CSSProperties
               }
             >
-              <colgroup>
-                <col className="analytics-top-posts-col-title" />
-                {topPostsTableMetrics.map((metric) => (
-                  <col key={metric.id} className="analytics-top-posts-col-metric" />
-                ))}
-                <col className="analytics-top-posts-col-action" />
-              </colgroup>
-              <thead>
-                <tr>
-                  <th>Пост</th>
-                  {topPostsTableMetrics.map((metric) => (
-                    <th key={metric.id}>{metric.label}</th>
-                  ))}
-                  <th aria-label="Открыть пост" />
-                </tr>
-              </thead>
-              <tbody>
-                {rankedTopPosts.map((post) => (
-                  <tr key={post.id}>
-                    <td>{post.title}</td>
+              {isMobile ? (
+                <table className="top-table analytics-top-posts-table">
+                  <colgroup>
+                    <col className="analytics-top-posts-col-title" />
                     {topPostsTableMetrics.map((metric) => (
-                      <td key={metric.id}>
-                        {formatChannelPostMetricValue(
-                          metric.id,
-                          post[metric.id as keyof TopPostRow] as number,
-                        )}
-                      </td>
+                      <col key={metric.id} className="analytics-top-posts-col-metric" />
                     ))}
-                    <td>
-                      <span className="top-link" onClick={() => openPost(post.id)}>
-                        →
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    <col className="analytics-top-posts-col-action" />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>Пост</th>
+                      {topPostsTableMetrics.map((metric) => (
+                        <th key={metric.id}>{metric.label}</th>
+                      ))}
+                      <th className="analytics-top-posts-cell-action" aria-label="Открыть пост" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rankedTopPosts.map((post) => (
+                      <tr key={post.id}>
+                        <td>{post.title}</td>
+                        {topPostsTableMetrics.map((metric) => (
+                          <td key={metric.id}>
+                            {formatChannelPostMetricValue(
+                              metric.id,
+                              post[metric.id as keyof TopPostRow] as number,
+                            )}
+                          </td>
+                        ))}
+                        <td className="analytics-top-posts-cell-action">
+                          <span className="top-link" onClick={() => openPost(post.id)}>
+                            →
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div
+                  className="analytics-top-posts-grid top-table"
+                  role="table"
+                  style={topPostsDesktopGridStyle}
+                >
+                  <div
+                    className="analytics-top-posts-grid-cell analytics-top-posts-grid-cell--title analytics-top-posts-grid-cell--head"
+                    role="columnheader"
+                  >
+                    Пост
+                  </div>
+                  {topPostsTableMetrics.map((metric) => (
+                    <div
+                      key={metric.id}
+                      className="analytics-top-posts-grid-cell analytics-top-posts-grid-cell--metric analytics-top-posts-grid-cell--head"
+                      role="columnheader"
+                    >
+                      {metric.label}
+                    </div>
+                  ))}
+                  <div
+                    className="analytics-top-posts-grid-cell analytics-top-posts-grid-cell--action analytics-top-posts-grid-cell--head analytics-top-posts-cell-action"
+                    role="columnheader"
+                  >
+                    к посту
+                  </div>
+                  <div className="analytics-top-posts-grid-line" aria-hidden />
+                  {rankedTopPosts.map((post, rowIndex) => (
+                    <Fragment key={post.id}>
+                      <div
+                        className="analytics-top-posts-grid-cell analytics-top-posts-grid-cell--title analytics-top-posts-grid-cell--body"
+                        role="cell"
+                      >
+                        {post.title}
+                      </div>
+                      {topPostsTableMetrics.map((metric) => (
+                        <div
+                          key={`${post.id}-${metric.id}`}
+                          className="analytics-top-posts-grid-cell analytics-top-posts-grid-cell--metric analytics-top-posts-grid-cell--body"
+                          role="cell"
+                        >
+                          {formatChannelPostMetricValue(
+                            metric.id,
+                            post[metric.id as keyof TopPostRow] as number,
+                          )}
+                        </div>
+                      ))}
+                      <div
+                        key={`${post.id}-action`}
+                        className="analytics-top-posts-grid-cell analytics-top-posts-grid-cell--action analytics-top-posts-grid-cell--body"
+                        role="cell"
+                      >
+                        <span className="top-link" onClick={() => openPost(post.id)}>
+                          →
+                        </span>
+                      </div>
+                      {rowIndex < rankedTopPosts.length - 1 ? (
+                        <div className="analytics-top-posts-grid-line" aria-hidden />
+                      ) : null}
+                    </Fragment>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
