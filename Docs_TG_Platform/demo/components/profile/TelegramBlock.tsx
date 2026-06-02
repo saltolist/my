@@ -269,7 +269,9 @@ export default function TelegramBlock() {
       </div>
 
       <div className="telegram-form-grid">
-        <div className="telegram-api-credentials">
+        <div
+          className={`telegram-api-credentials${apiChangedFromSaved ? " telegram-api-credentials--dirty" : ""}`}
+        >
           <div className="profile-row telegram-api-id-row">
             <div className="profile-label">api_id</div>
             <input
@@ -311,15 +313,14 @@ export default function TelegramBlock() {
             >
               Сохранить
             </button>
-            {apiChangedFromSaved ? (
-              <button
-                className="btn btn-ghost telegram-api-action-btn"
-                type="button"
-                onClick={cancelApiCredentials}
-              >
-                Отменить
-              </button>
-            ) : null}
+            <button
+              className="btn btn-ghost telegram-api-action-btn telegram-api-action-btn--cancel"
+              type="button"
+              disabled={!apiChangedFromSaved}
+              onClick={cancelApiCredentials}
+            >
+              Отменить
+            </button>
           </div>
         </div>
 

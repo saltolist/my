@@ -7933,6 +7933,24 @@ button.filter-tab {
   white-space: nowrap;
 }
 
+/* Отменить: видна в одной строке с api_id/api_hash; в остальных — только при изменениях */
+.telegram-api-credentials .telegram-api-action-btn--cancel {
+  display: none;
+}
+@media (min-width: 761px) {
+  html:not([data-page-header-le-841]) .telegram-api-credentials .telegram-api-action-btn--cancel {
+    display: inline-flex;
+  }
+}
+html[data-page-header-le-841] .telegram-api-credentials--dirty .telegram-api-action-btn--cancel {
+  display: inline-flex;
+}
+@media (max-width: 760px) {
+  .telegram-api-credentials--dirty .telegram-api-action-btn--cancel {
+    display: inline-flex;
+  }
+}
+
 @media (min-width: 761px) {
   .telegram-form-grid {
     grid-template-columns: minmax(0, var(--telegram-phone-input-w)) minmax(0, 1fr);
