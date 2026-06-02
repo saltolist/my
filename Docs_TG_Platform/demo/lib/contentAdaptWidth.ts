@@ -26,6 +26,7 @@ export function getContentAdaptWidthPx(): number {
 }
 
 export function syncContentAdaptWidthToDocument(): number {
+  const viewportPx = typeof window !== "undefined" ? window.innerWidth : 0;
   const adapt = getContentAdaptWidthPx();
   const root = document.documentElement;
   root.style.setProperty("--content-adapt-w", `${adapt}px`);
@@ -33,6 +34,6 @@ export function syncContentAdaptWidthToDocument(): number {
   root.toggleAttribute("data-content-adapt-ge-761", adapt >= 761);
   root.toggleAttribute("data-content-adapt-le-1000", adapt <= PROFILE_CHANNEL_INPUT_SHRINK_MAX);
   root.toggleAttribute("data-shell-overlay", overlay);
-  syncProfileAiAdaptToDocument(adapt);
+  syncProfileAiAdaptToDocument(adapt, { viewportPx, shellOverlay: overlay });
   return adapt;
 }

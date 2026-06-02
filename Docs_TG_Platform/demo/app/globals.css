@@ -8351,10 +8351,27 @@ html[data-content-adapt-le-1000]:not([data-shell-overlay]) .telegram-channel-inp
  * Профиль · ИИ-движок (desktop/tablet, не mobile).
  * JS: data-profile-ai-adapt + data-profile-ai-tier = wide | mid | compact
  *   wide    1001–1300  — поля в 1-й строке, чекбоксы+корзина во 2-й
- *   mid     950–1000   — селекторы+чекбоксы в 1-й, API во 2-й
+ *   compact 761–1000 — чекбоксы в 1-й, API+корзина во 2-й (mid отключён, 1001+ = wide)
  *   compact 761–949    — плотная сетка, корзина под чекбоксами
  * Корзина у чекбоксов: data-profile-header-trash-compact (шапка 780–1080px)
+ * Удалить у правого края секции: data-profile-ai-remove-flush (wide 1001–1300)
+ * Подпись «Удалить» у корзины: data-profile-ai-adapt (761–1300; overlay 541–760 по viewport)
+ * Overlay 541–760: tier compact/mid/wide по viewport, не mobile-колонка (@media ≤760 без adapt)
  */
+html[data-profile-ai-adapt] .profile-model-remove-label {
+  display: inline;
+  font-size: 12px;
+  line-height: 1.3;
+  font-weight: 500;
+  color: inherit;
+  white-space: nowrap;
+}
+
+html[data-profile-ai-adapt] .profile-model-remove {
+  gap: 6px;
+  padding: 4px 6px 4px 4px;
+}
+
 html[data-profile-ai-adapt] .profile-model-row {
   align-items: stretch;
 }
@@ -8432,48 +8449,61 @@ html[data-profile-ai-adapt][data-profile-ai-tier="wide"] .profile-model-footer {
     width: 100%;
   }
 
-html[data-profile-ai-adapt][data-profile-ai-tier="wide"] .profile-model-footer .profile-model-remove {
-    margin-left: auto;
-  }
-
 html[data-profile-ai-adapt][data-profile-ai-tier="wide"] .profile-model-footer .profile-checkbox-label {
     white-space: nowrap;
   }
 
-/* tier mid: провайдер · модель · чекбоксы · корзина — в первой строке; API — на всю ширину снизу */
+/* tier mid (950–1000): как compact — чекбоксы в 1-й строке; API и корзина во 2-й */
 html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-list .profile-model-row {
-    grid-template-columns:
-      minmax(0, clamp(120px, calc(170px - (1000px - var(--content-adapt-w)) * 0.36), 170px))
-      minmax(0, clamp(145px, calc(210px - (1000px - var(--content-adapt-w)) * 0.46), 210px))
-      minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: auto auto;
   }
 
-html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-provider {
+html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-pickers {
+    display: flex;
     grid-column: 1;
     grid-row: 1;
-    max-width: none;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+  }
+
+html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-provider {
+    width: auto;
+    flex: 1 1 0;
+    max-width: clamp(120px, calc(170px - (1000px - var(--content-adapt-w)) * 0.36), 170px);
   }
 
 html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-name {
-    grid-column: 2;
-    grid-row: 1;
-    max-width: none;
+    width: auto;
+    flex: 1 1 0;
+    max-width: clamp(145px, calc(210px - (1000px - var(--content-adapt-w)) * 0.46), 210px);
   }
 
 html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-footer {
-    grid-column: 3;
+    display: contents;
+  }
+
+html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-footer-checks {
+    grid-column: 2;
     grid-row: 1;
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
+    justify-content: flex-end;
     gap: 12px;
-    min-width: 0;
+    flex-shrink: 0;
   }
 
 html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-footer .profile-model-remove {
-    margin-left: auto;
-    flex-shrink: 0;
+    grid-column: 2;
+    grid-row: 2;
+    margin-left: 0;
+    justify-self: end;
+    align-self: center;
+    position: relative;
+    z-index: 1;
   }
 
 html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-footer .profile-checkbox-label {
@@ -8485,9 +8515,94 @@ html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-key {
     grid-column: 1 / -1;
     grid-row: 2;
     width: 100%;
-    flex: none;
     min-width: 0;
+    box-sizing: border-box;
+    padding-right: calc(14px + 36px + 40px);
   }
+
+html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-key.profile-model-key-wrap {
+    width: 100%;
+    max-width: 100%;
+  }
+
+html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-key-input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+html[data-profile-ai-adapt][data-profile-ai-tier="mid"] .profile-model-key .profile-api-key-toggle {
+    right: calc(14px + 36px + 40px + 10px);
+  }
+
+/* content-adapt-w 1000–1300: «Удалить» у правого края блока ИИ-движок */
+html[data-profile-ai-remove-flush] .profile-ai-engine-section .profile-model-footer {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+html[data-profile-ai-remove-flush] .profile-ai-engine-section .profile-model-footer .profile-model-remove {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+html[data-profile-ai-remove-flush][data-profile-header-trash-compact] .profile-ai-engine-section
+  .profile-model-footer
+  .profile-model-remove,
+html[data-profile-ai-remove-flush][data-profile-header-trash-compact][data-profile-ai-tier="wide"]
+  .profile-model-footer
+  .profile-model-remove,
+html[data-profile-ai-remove-flush][data-profile-header-trash-compact][data-profile-ai-tier="mid"]
+  .profile-model-footer
+  .profile-model-remove {
+  margin-left: auto;
+}
+
+/* content-adapt-w 1000–1300: чекбоксы справа, слева от «Удалить» (после remove-flush) */
+html[data-profile-ai-checks-right][data-profile-ai-tier="compact"] .profile-model-footer-checks {
+  justify-content: flex-end;
+  justify-self: end;
+}
+
+html[data-profile-header-trash-compact][data-profile-ai-checks-right][data-profile-ai-tier="compact"]
+  .profile-model-footer {
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+html[data-profile-ai-checks-right][data-profile-ai-tier="wide"] .profile-model-footer-checks {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+html[data-profile-ai-checks-right][data-profile-ai-tier="wide"] .profile-ai-engine-section .profile-model-footer,
+html[data-profile-ai-checks-right][data-profile-ai-tier="wide"] .profile-model-footer {
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  gap: 12px;
+}
+
+html[data-profile-header-trash-compact][data-profile-ai-checks-right][data-profile-ai-tier="wide"]
+  .profile-model-footer {
+  justify-content: flex-end;
+}
+
+html[data-profile-ai-checks-right] .profile-ai-engine-section .profile-model-footer .profile-model-remove,
+html[data-profile-ai-checks-right][data-profile-ai-remove-flush] .profile-ai-engine-section .profile-model-footer .profile-model-remove,
+html[data-profile-ai-checks-right][data-profile-ai-remove-flush][data-profile-header-trash-compact]
+  .profile-ai-engine-section
+  .profile-model-footer
+  .profile-model-remove,
+html[data-profile-ai-checks-right][data-profile-ai-remove-flush][data-profile-header-trash-compact][data-profile-ai-tier="wide"]
+  .profile-model-footer
+  .profile-model-remove,
+html[data-profile-ai-checks-right][data-profile-header-trash-compact][data-profile-ai-tier="wide"]
+  .profile-model-footer
+  .profile-model-remove {
+  margin-left: 0;
+}
 
 /* tier compact: чекбоксы у правого края; API почти до корзины */
 html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-list .profile-model-row {
@@ -8508,13 +8623,13 @@ html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-picke
 html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-provider {
     width: auto;
     flex: 1 1 0;
-    max-width: clamp(120px, calc(170px - (950px - var(--content-adapt-w)) * 0.42), 170px);
+    max-width: clamp(120px, calc(170px - (1000px - var(--content-adapt-w)) * 0.42), 170px);
   }
 
 html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-name {
     width: auto;
     flex: 1 1 0;
-    max-width: clamp(145px, calc(210px - (950px - var(--content-adapt-w)) * 0.52), 210px);
+    max-width: clamp(145px, calc(210px - (1000px - var(--content-adapt-w)) * 0.52), 210px);
   }
 
 html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-footer {
@@ -8564,6 +8679,18 @@ html[data-profile-ai-adapt][data-profile-ai-tier="compact"] .profile-model-key .
     right: calc(14px + 36px + 10px);
   }
 
+/* compact ≤1300: API и «Удалить» в одной строке — поле короче на 40px под подпись */
+html[data-profile-ai-adapt][data-profile-ai-tier="compact"]:not([data-profile-header-trash-compact])
+  .profile-model-key {
+    padding-right: calc(14px + 36px + 40px);
+  }
+
+html[data-profile-ai-adapt][data-profile-ai-tier="compact"]:not([data-profile-header-trash-compact])
+  .profile-model-key
+  .profile-api-key-toggle {
+    right: calc(14px + 36px + 40px + 10px);
+  }
+
 html[data-profile-header-trash-compact] .profile-model-footer {
     display: flex;
     flex-wrap: nowrap;
@@ -8590,19 +8717,39 @@ html[data-profile-header-trash-compact] .profile-model-footer .profile-model-rem
     padding: 4px 6px 4px 4px;
   }
 
-html[data-profile-header-trash-compact] .profile-model-remove-label {
-    display: inline;
-    font-size: 12px;
-    line-height: 1.3;
-    font-weight: 500;
-    color: inherit;
-    white-space: nowrap;
-  }
-
-html[data-profile-header-trash-compact][data-profile-ai-tier="wide"] .profile-model-footer .profile-model-remove,
-html[data-profile-header-trash-compact][data-profile-ai-tier="mid"] .profile-model-footer .profile-model-remove {
+html[data-profile-header-trash-compact][data-profile-ai-tier="wide"] .profile-model-footer .profile-model-remove {
     margin-left: 0;
   }
+
+html[data-profile-header-trash-compact][data-profile-ai-tier="mid"] .profile-model-footer {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    grid-column: 2;
+    grid-row: 1;
+    width: auto;
+    min-width: 0;
+}
+
+html[data-profile-header-trash-compact][data-profile-ai-tier="mid"] .profile-model-footer-checks {
+    grid-column: unset;
+    grid-row: unset;
+}
+
+html[data-profile-header-trash-compact][data-profile-ai-tier="mid"] .profile-model-footer .profile-model-remove {
+    grid-column: unset;
+    grid-row: unset;
+}
+
+html[data-profile-header-trash-compact][data-profile-ai-tier="mid"] .profile-model-key {
+    padding-right: 0;
+}
+
+html[data-profile-header-trash-compact][data-profile-ai-tier="mid"] .profile-model-key .profile-api-key-toggle {
+    right: 10px;
+}
 
 html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile-model-footer {
     display: flex;
@@ -10365,23 +10512,24 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
     flex-wrap: wrap;
   }
 
-  .profile-model-list {
+  /* ИИ-движок: mobile-колонка только без tablet-сетки; overlay 541–760px — data-profile-ai-adapt */
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-list {
     gap: 0;
   }
 
-  .profile-model-list .profile-model-row {
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-list .profile-model-row {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
     padding-bottom: 12px;
   }
 
-  .profile-model-list .profile-model-row + .profile-model-row {
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-list .profile-model-row + .profile-model-row {
     border-top: 1px dashed var(--profile-control-border);
     padding-top: 12px;
   }
 
-  .profile-model-pickers {
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-pickers {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -10389,7 +10537,7 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
     min-width: 0;
   }
 
-  .profile-model-footer {
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-footer {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -10397,28 +10545,39 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
     width: 100%;
   }
 
-  .profile-model-provider,
-  .profile-model-name {
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-provider,
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-name {
     flex: 1 1 0;
     width: auto;
     min-width: 0;
   }
 
-  .profile-model-key {
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-key {
     width: 100%;
     flex: none;
   }
 
-  .profile-model-footer .profile-model-remove {
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-footer .profile-model-remove {
     margin-left: auto;
+    gap: 6px;
+    padding: 4px 6px 4px 4px;
   }
 
-  .profile-model-list > .btn {
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-remove-label {
+    display: inline;
+    font-size: 12px;
+    line-height: 1.3;
+    font-weight: 500;
+    color: inherit;
+    white-space: nowrap;
+  }
+
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-list > .btn {
     margin-top: 4px;
   }
 
-  .profile-checkbox-label,
-  .profile-model-multi {
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-checkbox-label,
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-multi {
     white-space: normal;
   }
 
