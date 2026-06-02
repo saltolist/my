@@ -9,7 +9,11 @@ import { useChartSeriesVisibility } from "@/lib/hooks/useChartSeriesVisibility";
 import { useApp } from "@/state/AppContext";
 import type { AiProfileConfig, LlmModel } from "@/lib/types";
 import { formatTrendDollar } from "@/lib/trendChart/math";
-import { getPeriodChartLabels, MOBILE_CHART_MAX_POINTS } from "@/lib/trendChart/periodLabels";
+import {
+  getPeriodChartLabels,
+  resolveTrendChartMaxPoints,
+} from "@/lib/trendChart/periodLabels";
+import { usePageHeaderLe1080 } from "@/lib/hooks/usePageHeaderLe1080";
 import { useAnchoredBarRowTooltip } from "@/lib/hooks/useAnchoredBarRowTooltip";
 import { useDesktopBarTooltipPortal } from "@/lib/hooks/useDesktopBarTooltipPortal";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
@@ -47,14 +51,16 @@ export default function PlatformAnalyticsBlock({
 }: Props) {
   const { state } = useApp();
   const isMobile = useMobile760();
+  const isHeaderLe1080 = usePageHeaderLe1080();
   const [modelType, setModelType] = useState<ModelFilterId>("all");
+  const chartMaxPoints = resolveTrendChartMaxPoints({
+    isMobile,
+    isHeaderLe1080,
+  });
 
   const chartLabels = useMemo(
-    () =>
-      getPeriodChartLabels(period, {
-        maxPoints: isMobile ? MOBILE_CHART_MAX_POINTS : undefined,
-      }),
-    [period, isMobile],
+    () => getPeriodChartLabels(period, { maxPoints: chartMaxPoints }),
+    [period, chartMaxPoints],
   );
   const modelUsage = useMemo(
     () =>

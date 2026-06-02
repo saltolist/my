@@ -7,9 +7,11 @@ import {
   buildChannelTrendSeries,
   type ChannelMetricSummary,
 } from "@/lib/channelAnalyticsTrend";
+import { resolveTrendChartMaxPoints } from "@/lib/trendChart/periodLabels";
 import { useAnchoredBarRowTooltip } from "@/lib/hooks/useAnchoredBarRowTooltip";
 import { useDesktopBarTooltipPortal } from "@/lib/hooks/useDesktopBarTooltipPortal";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
+import { usePageHeaderLe1080 } from "@/lib/hooks/usePageHeaderLe1080";
 
 type ChannelMetricBarsProps = {
   periodIndex: number;
@@ -17,7 +19,15 @@ type ChannelMetricBarsProps = {
 
 export default function ChannelMetricBars({ periodIndex }: ChannelMetricBarsProps) {
   const isMobile = useMobile760();
-  const { series } = useMemo(() => buildChannelTrendSeries(periodIndex), [periodIndex]);
+  const isHeaderLe1080 = usePageHeaderLe1080();
+  const chartMaxPoints = resolveTrendChartMaxPoints({
+    isMobile,
+    isHeaderLe1080,
+  });
+  const { series } = useMemo(
+    () => buildChannelTrendSeries(periodIndex, { maxPoints: chartMaxPoints }),
+    [periodIndex, chartMaxPoints],
+  );
   const metrics = useMemo(
     () => buildChannelMetricSummaries(series, periodIndex),
     [series, periodIndex],

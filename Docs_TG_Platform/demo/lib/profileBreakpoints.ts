@@ -27,6 +27,9 @@ export const PROFILE_AI_REMOVE_FLUSH_MAX = PROFILE_AI_ADAPT_MAX;
 export const PROFILE_HEADER_TRASH_COMPACT_MIN = 780;
 export const PROFILE_HEADER_TRASH_COMPACT_MAX = 1080;
 
+/** Графики (desktop): при шапке ≤1080px — максимум 15 точек на оси X. */
+export const PROFILE_HEADER_CHART_MAX_POINTS_MAX = 1080;
+
 /** «Лучшие посты» (desktop): при шапке ≤780px — только Пост, ER и «к посту». */
 export const PROFILE_HEADER_TOP_POSTS_COMPACT_MAX = 780;
 

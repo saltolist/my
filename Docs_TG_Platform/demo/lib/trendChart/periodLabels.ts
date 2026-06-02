@@ -40,9 +40,21 @@ const RU_MONTH_AXIS_SHORT = [
 /** Максимум точек на оси X в мобильной версии графиков */
 export const MOBILE_CHART_MAX_POINTS = 8;
 
+/** Desktop/tablet: при шапке ≤1080px — не более 15 диапазонов (вместо 30). */
+export const COMPACT_HEADER_CHART_MAX_POINTS = 15;
+
 export type PeriodChartLabelOptions = {
   maxPoints?: number;
 };
+
+export function resolveTrendChartMaxPoints(options: {
+  isMobile: boolean;
+  isHeaderLe1080: boolean;
+}): number | undefined {
+  if (options.isMobile) return MOBILE_CHART_MAX_POINTS;
+  if (options.isHeaderLe1080) return COMPACT_HEADER_CHART_MAX_POINTS;
+  return undefined;
+}
 
 export function getFullPeriodPointCount(period: number): number {
   if (period === 0) return LAST_24_HOURS_POINTS;

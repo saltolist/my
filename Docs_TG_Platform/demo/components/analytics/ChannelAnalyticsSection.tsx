@@ -15,11 +15,12 @@ import {
   formatChannelPointPercentGrowth,
 } from "@/lib/channelAnalyticsTrend";
 import {
-  MOBILE_CHART_MAX_POINTS,
   formatTrendChartRangeFromStart,
+  resolveTrendChartMaxPoints,
 } from "@/lib/trendChart/periodLabels";
 import { useChartSeriesVisibility } from "@/lib/hooks/useChartSeriesVisibility";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
+import { usePageHeaderLe1080 } from "@/lib/hooks/usePageHeaderLe1080";
 
 export default function ChannelAnalyticsSection({
   periodIndex,
@@ -31,13 +32,15 @@ export default function ChannelAnalyticsSection({
   onPeriodChange: (next: number) => void;
 }) {
   const isMobile = useMobile760();
+  const isHeaderLe1080 = usePageHeaderLe1080();
+  const chartMaxPoints = resolveTrendChartMaxPoints({
+    isMobile,
+    isHeaderLe1080,
+  });
   const chartPeriod = ANALYTICS_SCREEN_PERIOD_TO_CHART[periodIndex] ?? 1;
   const { labels, series } = useMemo(
-    () =>
-      buildChannelTrendSeries(periodIndex, {
-        maxPoints: isMobile ? MOBILE_CHART_MAX_POINTS : undefined,
-      }),
-    [periodIndex, isMobile],
+    () => buildChannelTrendSeries(periodIndex, { maxPoints: chartMaxPoints }),
+    [periodIndex, chartMaxPoints],
   );
   const seriesIds = useMemo(() => series.map((row) => row.id), [series]);
   const { isVisible, setVisible, filterSeries } = useChartSeriesVisibility(seriesIds);
