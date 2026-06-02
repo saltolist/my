@@ -9306,6 +9306,84 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   }
 }
 
+/* Desktop + шапка ≤1130: «Динамика прироста» — 3×2, селекторы в строке (перекрывает content-adapt) */
+@media (min-width: 761px) {
+  html[data-page-header-le-1130] #screen-analytics .analytics-chart-card .channel-analytics-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  html[data-page-header-le-1130] #screen-analytics .analytics-chart-card .analytics-card-head {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  html[data-page-header-le-1130]
+    #screen-analytics
+    .analytics-chart-card
+    .analytics-card-head
+    .profile-section-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-bottom: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  html[data-page-header-le-1130]
+    #screen-analytics
+    .analytics-chart-card
+    .analytics-card-head
+    .analytics-channel-head-filters.model-filter-stack.model-filter-stack--with-series {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    width: auto;
+    max-width: none;
+    margin-left: auto;
+  }
+
+  html[data-page-header-le-1130]
+    #screen-analytics
+    .analytics-chart-card
+    .analytics-card-head
+    .analytics-channel-head-filters
+    .profile-model-picker,
+  html[data-page-header-le-1130]
+    #screen-analytics
+    .analytics-chart-card
+    .analytics-card-head
+    .analytics-channel-head-filters
+    .chart-series-selector--profile {
+    width: auto;
+    max-width: 280px;
+    flex: 0 0 auto;
+  }
+
+  html[data-page-header-le-1130]
+    #screen-analytics
+    .analytics-chart-card
+    .analytics-card-head
+    .chart-series-selector--profile
+    .model-picker-btn,
+  html[data-page-header-le-1130]
+    #screen-analytics
+    .analytics-chart-card
+    .analytics-card-head
+    .analytics-period-picker
+    .model-picker-btn {
+    width: max-content;
+    max-width: 100%;
+  }
+}
+
 /* Профиль: viewport ≤1000 — дублирует useCompactHeader1000 (вкладки скрыты в JS) */
 @media (max-width: 1000px) {
   #screen-profile .page-header-center {

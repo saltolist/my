@@ -30,6 +30,9 @@ export const PROFILE_HEADER_TRASH_COMPACT_MAX = 1080;
 /** «Лучшие посты» (desktop): при шапке ≤780px — только Пост, ER и «к посту». */
 export const PROFILE_HEADER_TOP_POSTS_COMPACT_MAX = 780;
 
+/** «Динамика прироста» (desktop): при шапке ≤1130px — карточки метрик 3×2. */
+export const PROFILE_HEADER_CHANNEL_SUMMARY_COMPACT_MAX = 1130;
+
 export type ProfileAiTier = "wide" | "mid" | "compact";
 
 /** Один из трёх tier или null вне диапазона адаптации. */
