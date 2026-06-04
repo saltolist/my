@@ -88,8 +88,8 @@ export default function ChannelAnalyticsSection({
           >
             {summaryCards.map((card) => (
               <div className="mini-metric channel-mini-metric" key={card.id}>
+                <div className="mini-metric-label">{card.label}</div>
                 <div className="mini-metric-value">{card.value}</div>
-                <div className="mini-metric-label">{`${card.label}  ${card.displayGrowth}`}</div>
               </div>
             ))}
           </div>

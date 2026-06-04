@@ -211,8 +211,8 @@ export default function PlatformAnalyticsBlock({
 function MiniMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="mini-metric">
-      <div className="mini-metric-value">{value}</div>
       <div className="mini-metric-label">{label}</div>
+      <div className="mini-metric-value">{value}</div>
     </div>
   );
 }

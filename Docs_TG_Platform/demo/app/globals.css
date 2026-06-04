@@ -6070,15 +6070,15 @@ button.filter-tab {
   margin-bottom: 14px;
   grid-template-columns: repeat(var(--summary-cols, 6), minmax(0, 1fr));
 }
-.analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-value {
-  margin-bottom: 4px;
-}
 .analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-label {
   color: var(--text3);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.25;
   min-width: 0;
-  white-space: pre;
+}
+.model-analytics-summary .mini-metric,
+.analytics-chart-card .channel-analytics-summary .channel-mini-metric {
+  gap: 4px;
 }
 .analytics-chart-card .analytics-chart-head .chart-series-selector,
 .analytics-chart-card .analytics-card-head .chart-series-selector {
@@ -6848,8 +6848,8 @@ button.filter-tab {
 .analytics-metric-row em { font-size: 12px; font-style: normal; text-align: right; }
 .engagement-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .mini-metric { border-radius: var(--block-r); padding: 14px; min-height: 74px; display: flex; flex-direction: column; justify-content: center; }
-.mini-metric-value { color: var(--text); font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-.mini-metric-label { color: var(--text3); font-size: 12px; }
+.mini-metric-value { color: var(--text); font-size: 20px; font-weight: 400; }
+.mini-metric-label { color: var(--text3); font-size: 13px; }
 .reaction-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .reaction-strip span {
   background: var(--reaction-pill-bg);
@@ -9874,8 +9874,7 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
     .model-analytics-summary
     .mini-metric-value {
     font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 2px;
+    font-weight: 400;
     line-height: 1.15;
   }
 
@@ -9890,7 +9889,7 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
     .platform-analytics-section
     .model-analytics-summary
     .mini-metric-label {
-    font-size: 10px;
+    font-size: 12px;
     line-height: 1.2;
     white-space: normal;
   }
@@ -11948,15 +11947,14 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-value,
   #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric-value {
     font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 0;
+    font-weight: 400;
     line-height: 1.15;
   }
 
   #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-label,
   #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric-label {
     white-space: normal;
-    font-size: 9px;
+    font-size: 11px;
     line-height: 1.2;
   }
 
