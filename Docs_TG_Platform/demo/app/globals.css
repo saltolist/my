@@ -9141,14 +9141,19 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
     max-width: 100%;
   }
 
+  /* Модели за период: колонка названия — по содержимому, полоса — 1fr (не две равные 1fr). */
   .model-usage-grid {
     grid-template-columns:
-      minmax(0, 1fr)
+      max-content
       minmax(0, 1fr)
       minmax(0, max-content)
       minmax(0, max-content)
       minmax(0, max-content);
     max-width: 100%;
+  }
+
+  .bar-row.model-usage-bar > .bar-label {
+    width: auto;
   }
 
   .model-row-metric {
@@ -9159,15 +9164,6 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   .telegram-steps,
   .telegram-sync-card {
     grid-template-columns: 1fr;
-  }
-
-  .bar-row {
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .bar-label {
-    width: 100%;
   }
 
   /* Пост <1200: лупа вместо постоянного поля поиска (как на мобильной) */
