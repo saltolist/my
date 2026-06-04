@@ -7463,10 +7463,18 @@ button.filter-tab {
   width: 100%;
   box-sizing: border-box;
 }
+.profile-user-password-requirements {
+  margin: 0 0 12px;
+  max-width: 420px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text3);
+}
 .profile-user-password-hint {
   margin: -4px 0 8px;
   max-width: 420px;
   font-size: 12px;
+  line-height: 1.4;
   color: var(--red);
 }
 .profile-user-password-form > .profile-row:last-of-type {
@@ -7478,6 +7486,7 @@ button.filter-tab {
 @media (max-width: 760px) {
   .profile-user-password-form .profile-user-password-input-wrap,
   .profile-user-password-hint,
+  .profile-user-password-requirements,
   .profile-user-password-confirm {
     max-width: none;
   }

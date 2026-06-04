@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { checkPasswordStrength, PASSWORD_REQUIREMENTS_HINT } from "@/lib/check-password-strength";
 
 const DEMO_USER = {
   nick: "researcher",
@@ -94,14 +95,20 @@ export default function UserBlock() {
   const confirmNewPassword = () => {
     const next = password.trim();
     const repeat = passwordConfirm.trim();
-    if (!next || next !== repeat) return;
+    if (!next || next !== repeat || checkPasswordStrength(next).isWeak) return;
     resetFlow();
   };
 
+  const passwordStrength = checkPasswordStrength(password);
   const passwordsMismatch =
     flow === "password" &&
     passwordConfirm.length > 0 &&
     password.trim() !== passwordConfirm.trim();
+  const canConfirmPassword =
+    password.trim().length > 0 &&
+    passwordConfirm.trim().length > 0 &&
+    password.trim() === passwordConfirm.trim() &&
+    !passwordStrength.isWeak;
 
   return (
     <div className="profile-section profile-user-section">
@@ -170,6 +177,7 @@ export default function UserBlock() {
 
       {flow === "password" ? (
         <div className="profile-user-password-form">
+          <p className="profile-user-password-requirements">{PASSWORD_REQUIREMENTS_HINT}</p>
           <div className="profile-row">
             <div className="profile-label">Новый пароль</div>
             <PasswordInput
@@ -182,6 +190,11 @@ export default function UserBlock() {
               onToggleVisible={() => setPasswordVisible((v) => !v)}
             />
           </div>
+          {passwordStrength.message ? (
+            <p className="profile-user-password-hint" role="alert">
+              {passwordStrength.message}
+            </p>
+          ) : null}
           <div className="profile-row">
             <div className="profile-label">Повтор пароля</div>
             <PasswordInput
@@ -203,11 +216,7 @@ export default function UserBlock() {
             <button
               type="button"
               className="btn btn-ghost telegram-inline-button"
-              disabled={
-                !password.trim() ||
-                !passwordConfirm.trim() ||
-                password.trim() !== passwordConfirm.trim()
-              }
+              disabled={!canConfirmPassword}
               onClick={confirmNewPassword}
             >
               Подтвердить
