@@ -11557,7 +11557,11 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   }
 
   .telegram-auth-mobile .telegram-phone-row:has(+ .telegram-code-action-row) {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+  }
+
+  .telegram-auth-mobile .telegram-code-block .telegram-resend-code {
+    margin: 12px 0 0;
   }
 
   .telegram-auth-mobile > .profile-row:last-child {
