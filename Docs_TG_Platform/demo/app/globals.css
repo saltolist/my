@@ -9128,7 +9128,7 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   }
 
   #screen-profile .platform-analytics-section .trend-y-label {
-    left: 0;
+    left: calc(-1 * var(--trend-y-label-inset, 40px));
     max-width: calc(var(--trend-y-label-inset, 40px) - 4px);
     text-align: right;
   }
