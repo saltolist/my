@@ -84,12 +84,13 @@ export default function FeedScreen() {
     syncScroll();
 
     const scrollBody = el.querySelector<HTMLElement>(".composer-scroll-body");
-    const ro =
-      scrollBody &&
-      new ResizeObserver(() => {
+    let ro: ResizeObserver | null = null;
+    if (scrollBody) {
+      ro = new ResizeObserver(() => {
         syncScroll();
       });
-    ro?.observe(scrollBody);
+      ro.observe(scrollBody);
+    }
 
     let raf1 = 0;
     let raf2 = 0;
