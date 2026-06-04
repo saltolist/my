@@ -12,7 +12,7 @@ import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/lib/chatPaths
 import Composer from "../composer/Composer";
 import ChatMessage from "../chat/ChatMessage";
 import ChatListCardMenu from "../chat/ChatListCardMenu";
-import NoteCardAiToggle from "../note/NoteCardAiToggle";
+import NoteListCard from "../note/NoteListCard";
 import NoteListCardMenu from "../note/NoteListCardMenu";
 import { NoteIconAttach } from "../note/NoteHeaderIcons";
 import PostMediaBlock from "../post/PostMediaBlock";
@@ -797,28 +797,20 @@ function PostNotes({ search, contextFilter }: { search: string; contextFilter: N
           </div>
         ) : null}
         {notes.map((n) => (
-          <div key={n.id} className="note-card" onClick={() => openNote(n)}>
-            <div className="note-card-body">
-              <div className="note-card-page-head">
-                <div className="note-card-title">{n.title}</div>
-                <div className="chat-card-menu-slot" onClick={(e) => e.stopPropagation()}>
-                  <NoteListCardMenu isGlobal={false} postId={post.id} noteId={n.id} title={n.title} />
-                </div>
-              </div>
-              <div className="note-card-preview-post">{n.body || "Пустая заметка"}</div>
-            </div>
-            <div className="note-card-footer">
-              <div className="note-card-footer-start">
-                <NoteCardAiToggle
-                  ai={n.ai}
-                  onClick={() =>
-                    dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: post.id, noteId: n.id })
-                  }
-                />
-              </div>
-              <span className="note-card-meta">{n.date}</span>
-            </div>
-          </div>
+          <NoteListCard
+            key={n.id}
+            title={n.title}
+            body={n.body}
+            meta={n.date}
+            ai={n.ai}
+            onClick={() => openNote(n)}
+            onToggleAi={() =>
+              dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: post.id, noteId: n.id })
+            }
+            menu={
+              <NoteListCardMenu isGlobal={false} postId={post.id} noteId={n.id} title={n.title} />
+            }
+          />
         ))}
       </div>
     </div>

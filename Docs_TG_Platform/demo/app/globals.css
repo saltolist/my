@@ -5881,6 +5881,31 @@ button.filter-tab {
 }
 @media (max-width: 760px) {
   .notes-grid-layout { grid-template-columns: 1fr; }
+
+  /* Экран «Заметки»: список как на вкладке заметок в посте */
+  #screen-notes .notes-grid-page .notes-grid--screen.visible {
+    display: flex;
+    width: 100%;
+    padding: 0;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  #screen-notes .notes-grid--screen .notes-grid-inner {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+  #screen-notes .notes-grid--screen .notes-grid-inner .note-card,
+  #screen-notes .notes-grid--screen .notes-grid-inner > .empty {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    box-sizing: border-box;
+  }
 }
 
 /* ════════════════════════════════
@@ -10917,7 +10942,9 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   }
 
   #screen-notes .note-card-page,
-  #screen-notes .notes-grid-layout > .empty {
+  #screen-notes .notes-grid-layout > .empty,
+  #screen-notes .notes-grid--screen .notes-grid-inner .note-card,
+  #screen-notes .notes-grid--screen .notes-grid-inner > .empty {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;

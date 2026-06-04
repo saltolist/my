@@ -7,6 +7,7 @@ import { useMobile760 } from "@/lib/hooks/useMobile760";
 import PageHeader from "../PageHeader";
 import PageHeaderSearchInput from "../PageHeaderSearchInput";
 import PageHeaderSelect from "../PageHeaderSelect";
+import NoteListCard from "../note/NoteListCard";
 import NoteCardAiToggle from "../note/NoteCardAiToggle";
 import NotesScopeFilterSelect from "../note/NotesScopeFilterSelect";
 import NoteListCardMenu from "../note/NoteListCardMenu";
@@ -149,56 +150,96 @@ export default function NotesScreen() {
           ) : null}
         </div>
         <div className="notes-grid-page">
-          <div className="notes-grid-layout">
-            {filtered.length === 0 ? (
-              <div className="empty" style={{ gridColumn: "1/-1" }}>
-                <div className="eico">📝</div>
-                <p>
-                  {scope === "global"
-                    ? "Нет глобальных заметок"
-                    : scope === "local"
-                      ? "Нет локальных заметок"
-                      : "Нет заметок"}
-                </p>
+          {isMobile ? (
+            <div className="notes-grid notes-grid--screen visible">
+              <div className="notes-grid-inner">
+                {filtered.length === 0 ? (
+                  <div className="empty">
+                    <div className="eico">📝</div>
+                    <p>
+                      {scope === "global"
+                        ? "Нет глобальных заметок"
+                        : scope === "local"
+                          ? "Нет локальных заметок"
+                          : "Нет заметок"}
+                    </p>
+                  </div>
+                ) : (
+                  filtered.map((n) => (
+                    <NoteListCard
+                      key={`${n.isGlobal ? "g" : `l-${n.postId}`}-${n.id}`}
+                      title={n.title}
+                      body={n.body}
+                      meta={`${n.date} · ${n.isGlobal ? "Глобальная" : "Локальная"}`}
+                      ai={n.ai}
+                      onClick={() => openNote(n)}
+                      onToggleAi={() => toggleAi(n)}
+                      menu={
+                        n.isGlobal ? (
+                          <NoteListCardMenu isGlobal noteId={n.id} title={n.title} />
+                        ) : (
+                          <NoteListCardMenu
+                            isGlobal={false}
+                            postId={n.postId}
+                            noteId={n.id}
+                            title={n.title}
+                          />
+                        )
+                      }
+                    />
+                  ))
+                )}
               </div>
-            ) : (
-              filtered.map((n) => (
-                <div
-                  key={`${n.isGlobal ? "g" : `l-${n.postId}`}-${n.id}`}
-                  className="note-card-page"
-                  onClick={() => openNote(n)}
-                >
-                  <div className="note-card-page-head">
-                    <div className="note-card-name">{n.title}</div>
-                    <div className="chat-card-menu-slot" onClick={(e) => e.stopPropagation()}>
-                      {n.isGlobal ? (
-                        <NoteListCardMenu isGlobal noteId={n.id} title={n.title} />
-                      ) : (
-                        <NoteListCardMenu
-                          isGlobal={false}
-                          postId={n.postId}
-                          noteId={n.id}
-                          title={n.title}
-                        />
-                      )}
-                    </div>
-                  </div>
-                  <div className="note-card-preview">{n.body}</div>
-                  <div className="note-card-footer-pg">
-                    <div className="note-card-footer-start">
-                      <NoteCardAiToggle
-                        ai={n.ai}
-                        onClick={() => toggleAi(n)}
-                      />
-                    </div>
-                    <span className="note-card-meta-pg">
-                      {n.date} · {n.isGlobal ? "Глобальная" : "Локальная"}
-                    </span>
-                  </div>
+            </div>
+          ) : (
+            <div className="notes-grid-layout">
+              {filtered.length === 0 ? (
+                <div className="empty" style={{ gridColumn: "1/-1" }}>
+                  <div className="eico">📝</div>
+                  <p>
+                    {scope === "global"
+                      ? "Нет глобальных заметок"
+                      : scope === "local"
+                        ? "Нет локальных заметок"
+                        : "Нет заметок"}
+                  </p>
                 </div>
-              ))
-            )}
-          </div>
+              ) : (
+                filtered.map((n) => (
+                  <div
+                    key={`${n.isGlobal ? "g" : `l-${n.postId}`}-${n.id}`}
+                    className="note-card-page"
+                    onClick={() => openNote(n)}
+                  >
+                    <div className="note-card-page-head">
+                      <div className="note-card-name">{n.title}</div>
+                      <div className="chat-card-menu-slot" onClick={(e) => e.stopPropagation()}>
+                        {n.isGlobal ? (
+                          <NoteListCardMenu isGlobal noteId={n.id} title={n.title} />
+                        ) : (
+                          <NoteListCardMenu
+                            isGlobal={false}
+                            postId={n.postId}
+                            noteId={n.id}
+                            title={n.title}
+                          />
+                        )}
+                      </div>
+                    </div>
+                    <div className="note-card-preview">{n.body}</div>
+                    <div className="note-card-footer-pg">
+                      <div className="note-card-footer-start">
+                        <NoteCardAiToggle ai={n.ai} onClick={() => toggleAi(n)} />
+                      </div>
+                      <span className="note-card-meta-pg">
+                        {n.date} · {n.isGlobal ? "Глобальная" : "Локальная"}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
       </div>
     </>
