@@ -64,13 +64,6 @@ export default function PageHeaderSelect({
     [options, value],
   );
 
-  /** Ширина под выбранный пункт — без лишней «пустоты» */
-  const wrapWidth = useMemo(() => {
-    const ch = Math.max(currentLabel.length, 3);
-    const extra = tightWidth ? "2.1rem" : "3.1rem";
-    return `calc(${ch}ch + ${extra})`;
-  }, [currentLabel, tightWidth]);
-
   /** Меню — по самой широкой подписи, без переносов */
   const panelMinWidth = useMemo(() => {
     const longest = options.reduce((max, o) => Math.max(max, o.label.length), 0);
@@ -83,8 +76,9 @@ export default function PageHeaderSelect({
 
   return (
     <div
-      className={`page-header-select-wrap${isMobile ? " page-header-select-wrap--mobile" : ""}`}
-      style={{ width: wrapWidth }}
+      className={`page-header-select-wrap${isMobile ? " page-header-select-wrap--mobile" : ""}${
+        tightWidth ? " page-header-select-wrap--tight" : ""
+      }`}
     >
       <ContextMenu
         className="page-header-select-ctx"

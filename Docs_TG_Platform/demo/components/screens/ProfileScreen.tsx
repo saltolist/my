@@ -62,6 +62,7 @@ export default function ProfileScreen() {
     <PageHeaderSelect
       ariaLabel="Период"
       chevron="down"
+      className="page-header-select--profile-tabs"
       value={String(platformPeriod)}
       options={PLATFORM_ANALYTICS_PERIODS.map((item, index) => ({
         value: String(index),
@@ -107,7 +108,6 @@ export default function ProfileScreen() {
               <PageHeaderSelect
                 {...profileTabSelectProps}
                 className="page-header-select--profile-tabs"
-                tightWidth
               />
               {platformPeriodHeaderPicker}
             </div>
