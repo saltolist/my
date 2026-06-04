@@ -14,6 +14,7 @@ import {
   resolveTrendChartMaxPoints,
 } from "@/lib/trendChart/periodLabels";
 import { usePageHeaderLe1080 } from "@/lib/hooks/usePageHeaderLe1080";
+import { usePageHeaderLe640 } from "@/lib/hooks/usePageHeaderLe640";
 import { useAnchoredBarRowTooltip } from "@/lib/hooks/useAnchoredBarRowTooltip";
 import { useDesktopBarTooltipPortal } from "@/lib/hooks/useDesktopBarTooltipPortal";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
@@ -52,10 +53,12 @@ export default function PlatformAnalyticsBlock({
   const { state } = useApp();
   const isMobile = useMobile760();
   const isHeaderLe1080 = usePageHeaderLe1080();
+  const isHeaderLe640 = usePageHeaderLe640();
   const [modelType, setModelType] = useState<ModelFilterId>("all");
   const chartMaxPoints = resolveTrendChartMaxPoints({
     isMobile,
     isHeaderLe1080,
+    isHeaderLe640,
   });
 
   const chartLabels = useMemo(

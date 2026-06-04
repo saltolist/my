@@ -21,6 +21,7 @@ import {
 import { useChartSeriesVisibility } from "@/lib/hooks/useChartSeriesVisibility";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 import { usePageHeaderLe1080 } from "@/lib/hooks/usePageHeaderLe1080";
+import { usePageHeaderLe640 } from "@/lib/hooks/usePageHeaderLe640";
 
 export default function ChannelAnalyticsSection({
   periodIndex,
@@ -33,9 +34,11 @@ export default function ChannelAnalyticsSection({
 }) {
   const isMobile = useMobile760();
   const isHeaderLe1080 = usePageHeaderLe1080();
+  const isHeaderLe640 = usePageHeaderLe640();
   const chartMaxPoints = resolveTrendChartMaxPoints({
     isMobile,
     isHeaderLe1080,
+    isHeaderLe640,
   });
   const chartPeriod = ANALYTICS_SCREEN_PERIOD_TO_CHART[periodIndex] ?? 1;
   const { labels, series } = useMemo(

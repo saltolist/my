@@ -17,6 +17,7 @@ import {
   PROFILE_HEADER_CHANNEL_SUMMARY_COMPACT_MAX,
   PROFILE_HEADER_CHANNEL_SUMMARY_TWO_ROW_MAX,
   PROFILE_HEADER_CHART_MAX_POINTS_MAX,
+  PROFILE_HEADER_CHART_NARROW_MAX,
   PROFILE_HEADER_PLATFORM_PERIOD_MAX,
   PROFILE_HEADER_TOP_POSTS_COMPACT_MAX,
   syncProfileHeaderTrashCompactToDocument,
@@ -121,6 +122,10 @@ export default function PageHeader({
         !isMobile && w > 0 && w <= PROFILE_HEADER_CHART_MAX_POINTS_MAX,
       );
       document.documentElement.toggleAttribute(
+        "data-page-header-le-640",
+        !isMobile && w > 0 && w <= PROFILE_HEADER_CHART_NARROW_MAX,
+      );
+      document.documentElement.toggleAttribute(
         "data-page-header-le-1130",
         !isMobile && w > 0 && w <= PROFILE_HEADER_CHANNEL_SUMMARY_COMPACT_MAX,
       );
@@ -145,6 +150,7 @@ export default function PageHeader({
       document.documentElement.removeAttribute("data-page-header-le-841");
       document.documentElement.removeAttribute("data-page-header-le-780");
       document.documentElement.removeAttribute("data-page-header-le-1080");
+      document.documentElement.removeAttribute("data-page-header-le-640");
       document.documentElement.removeAttribute("data-page-header-le-1130");
       document.documentElement.removeAttribute("data-page-header-le-930");
       document.documentElement.removeAttribute("data-page-header-le-650");

@@ -43,6 +43,9 @@ export const MOBILE_CHART_MAX_POINTS = 8;
 /** Desktop/tablet: при шапке ≤1080px — не более 15 диапазонов (вместо 30). */
 export const COMPACT_HEADER_CHART_MAX_POINTS = 15;
 
+/** Desktop/tablet: при шапке ≤640px — не более 10 диапазонов. */
+export const NARROW_HEADER_CHART_MAX_POINTS = 10;
+
 export type PeriodChartLabelOptions = {
   maxPoints?: number;
 };
@@ -50,8 +53,10 @@ export type PeriodChartLabelOptions = {
 export function resolveTrendChartMaxPoints(options: {
   isMobile: boolean;
   isHeaderLe1080: boolean;
+  isHeaderLe640: boolean;
 }): number | undefined {
   if (options.isMobile) return MOBILE_CHART_MAX_POINTS;
+  if (options.isHeaderLe640) return NARROW_HEADER_CHART_MAX_POINTS;
   if (options.isHeaderLe1080) return COMPACT_HEADER_CHART_MAX_POINTS;
   return undefined;
 }
