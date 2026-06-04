@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { formatTelegramPhoneInput, TELEGRAM_PHONE_FORMATTED_MAX_LENGTH } from "@/lib/format-telegram-phone";
 import { useApp } from "@/state/AppContext";
 import type { TelegramProfileConfig } from "@/lib/types";
 
@@ -329,15 +330,10 @@ export default function TelegramBlock() {
             <div className="profile-row telegram-phone-desktop-row">
               <div className="profile-label">Телефон аккаунта</div>
               <div className="telegram-desktop-auth-row">
-                <input
-                  className="profile-input profile-input-explicit telegram-input telegram-desktop-phone-input"
-                  type="tel"
-                  inputMode="tel"
-                  autoComplete="tel"
-                  maxLength={16}
+                <TelegramPhoneInput
+                  className="telegram-desktop-phone-input"
                   value={cfg.phone}
-                  placeholder="+7 999 000-00-00"
-                  onChange={(e) => update({ phone: e.target.value })}
+                  onChange={(phone) => update({ phone })}
                 />
                 <button
                   className="btn btn-ghost telegram-inline-button"
@@ -355,15 +351,10 @@ export default function TelegramBlock() {
                 <div className="profile-row telegram-phone-desktop-row telegram-phone-desktop-row--code-sent">
                   <div className="profile-label">Телефон аккаунта</div>
                   <div className="telegram-desktop-auth-row telegram-desktop-auth-row--code-sent">
-                    <input
-                      className="profile-input profile-input-explicit telegram-input telegram-desktop-phone-input"
-                      type="tel"
-                      inputMode="tel"
-                      autoComplete="tel"
-                      maxLength={16}
+                    <TelegramPhoneInput
+                      className="telegram-desktop-phone-input"
                       value={cfg.phone}
-                      placeholder="+7 999 000-00-00"
-                      onChange={(e) => update({ phone: e.target.value })}
+                      onChange={(phone) => update({ phone })}
                     />
                     <TelegramCodeInput value={code} onChange={setCode} onDismiss={cancelCodeEntry} />
                     <button className="btn btn-ghost telegram-inline-button" onClick={confirmCode} type="button">
@@ -377,15 +368,10 @@ export default function TelegramBlock() {
                 <div className="profile-row telegram-phone-desktop-row telegram-phone-desktop-row--code-sent">
                   <div className="profile-label">Телефон аккаунта</div>
                   <div className="telegram-desktop-auth-row telegram-desktop-auth-row--stacked">
-                    <input
-                      className="profile-input profile-input-explicit telegram-input telegram-desktop-phone-input"
-                      type="tel"
-                      inputMode="tel"
-                      autoComplete="tel"
-                      maxLength={16}
+                    <TelegramPhoneInput
+                      className="telegram-desktop-phone-input"
                       value={cfg.phone}
-                      placeholder="+7 999 000-00-00"
-                      onChange={(e) => update({ phone: e.target.value })}
+                      onChange={(phone) => update({ phone })}
                     />
                     <button
                       className="btn btn-ghost telegram-inline-button"
@@ -419,12 +405,7 @@ export default function TelegramBlock() {
           <div className="profile-row telegram-phone-row">
             <div className="profile-label">Телефон аккаунта</div>
             <div className="telegram-inline-field-row">
-              <input
-                className="profile-input profile-input-explicit telegram-input"
-                value={cfg.phone}
-                placeholder="+7 999 000-00-00"
-                onChange={(e) => update({ phone: e.target.value })}
-              />
+              <TelegramPhoneInput value={cfg.phone} onChange={(phone) => update({ phone })} />
               <button
                 className="btn btn-ghost telegram-inline-button"
                 disabled={sendCodeDisabled}
@@ -650,6 +631,29 @@ function Field({
         />
       )}
     </div>
+  );
+}
+
+function TelegramPhoneInput({
+  value,
+  onChange,
+  className = "",
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+}) {
+  return (
+    <input
+      className={`profile-input profile-input-explicit telegram-input ${className}`.trim()}
+      type="tel"
+      inputMode="tel"
+      autoComplete="tel"
+      maxLength={TELEGRAM_PHONE_FORMATTED_MAX_LENGTH}
+      placeholder="+7 999 000-00-00"
+      value={value}
+      onChange={(e) => onChange(formatTelegramPhoneInput(e.target.value))}
+    />
   );
 }
 
