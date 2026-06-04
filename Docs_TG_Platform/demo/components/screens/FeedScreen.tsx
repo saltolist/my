@@ -159,7 +159,6 @@ export default function FeedScreen() {
         title="Лента"
         backTo="home"
         compactSearchAtWidth={804}
-        mobileSelect={<PageHeaderSelect {...feedPostWidthSelectProps} />}
         search={
           <div className="page-header-search-tools-row page-header-feed-search-row">
             <PageHeaderSearchInput
