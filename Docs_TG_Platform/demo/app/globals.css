@@ -5959,6 +5959,59 @@ button.filter-tab {
   padding: 0 var(--trend-chart-inset-x, 34px);
 }
 .analytics-chart-card .model-trend-plot .trend-chart { height: var(--model-trend-chart-height); }
+
+/* Аналитика канала + платформа (профиль): выравнивание и ширина, не mobile */
+@media (min-width: 761px) {
+  #screen-analytics .analytics-chart-card {
+    --trend-chart-inset-end: 20px;
+  }
+
+  /* Аналитика канала: симметричные боковые отступы под крайние точки */
+  #screen-analytics .analytics-chart-card .model-trend-plot.trend-plot--no-y-labels {
+    --trend-plot-left-gutter: 0;
+    --trend-y-label-inset: 0;
+    padding: 0 var(--trend-chart-inset-end, 20px);
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  #screen-analytics .analytics-chart-card .trend-labels {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* $ с левого края блока; линии графика — справа от колонки подписей Y */
+  #screen-profile .platform-analytics-section .model-trend-plot:not(.trend-plot--no-y-labels) {
+    --trend-chart-inset-end: 12px;
+    --trend-y-label-inset: 44px;
+    --trend-plot-left-gutter: 50px;
+    padding: 0 var(--trend-chart-inset-end, 12px) 0 var(--trend-plot-left-gutter);
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  #screen-profile .platform-analytics-section .trend-y-label {
+    left: calc(-1 * var(--trend-y-label-inset, 44px));
+    max-width: calc(var(--trend-y-label-inset, 44px) - 4px);
+    text-align: right;
+  }
+
+  #screen-profile .platform-analytics-section .trend-labels {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
 .analytics-metrics-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 248px;
@@ -9107,8 +9160,8 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   }
 
   #screen-analytics .analytics-chart-card .model-trend-plot.trend-plot--no-y-labels {
-    --trend-plot-left-gutter: 34px;
-    padding: 0 var(--trend-chart-inset-x, 34px);
+    --trend-plot-left-gutter: 0;
+    padding: 0 var(--trend-chart-inset-end, 20px);
     margin-left: 0;
     margin-right: 0;
     width: 100%;
@@ -9117,9 +9170,9 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   }
 
   #screen-profile .platform-analytics-section .model-trend-plot:not(.trend-plot--no-y-labels) {
-    --trend-y-label-inset: 40px;
-    --trend-plot-left-gutter: 40px;
-    padding: 4px var(--trend-chart-inset-x, 34px) 0 40px;
+    --trend-y-label-inset: 36px;
+    --trend-plot-left-gutter: 42px;
+    padding: 4px var(--trend-chart-inset-end, 12px) 0 var(--trend-plot-left-gutter);
     margin-left: 0;
     margin-right: 0;
     width: 100%;
@@ -9128,8 +9181,8 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   }
 
   #screen-profile .platform-analytics-section .trend-y-label {
-    left: calc(-1 * var(--trend-y-label-inset, 40px));
-    max-width: calc(var(--trend-y-label-inset, 40px) - 4px);
+    left: calc(-1 * var(--trend-y-label-inset, 36px));
+    max-width: calc(var(--trend-y-label-inset, 36px) - 4px);
     text-align: right;
   }
 
@@ -9348,6 +9401,13 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
     #screen-profile
     .platform-analytics-section:has(.model-analytics-summary) {
     --model-trend-chart-height: 360px;
+  }
+
+  html[data-page-header-le-804] #screen-analytics .analytics-chart-card,
+  html[data-page-header-le-804]
+    #screen-profile
+    .platform-analytics-section:has(.model-analytics-summary) {
+    --model-trend-chart-height: 300px;
   }
 
   html:not([data-page-header-le-1130])

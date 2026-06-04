@@ -45,8 +45,17 @@ export const PROFILE_HEADER_CHANNEL_SUMMARY_COMPACT_MAX = 1130;
 /** Канал (desktop): при шапке ≤930px — 6 карточек 3×2. Платформа: всегда 3 в ряд. */
 export const PROFILE_HEADER_CHANNEL_SUMMARY_TWO_ROW_MAX = 930;
 
-/** Высота графика «Динамика прироста» при узкой шапке (desktop, не mobile). */
+/** Высота графика при шапке ≤1130px (desktop/tablet, не mobile). */
 export const PROFILE_HEADER_CHANNEL_CHART_HEIGHT_COMPACT_PX = 360;
+
+/** Шапка ≤1130px — компактная высота графиков аналитики. */
+export const PROFILE_HEADER_CHART_COMPACT_MAX = PROFILE_HEADER_CHANNEL_SUMMARY_COMPACT_MAX;
+
+/** Шапка ≤804px — ещё ниже графики аналитики / платформы. */
+export const PROFILE_HEADER_CHART_SHORT_MAX = 804;
+
+/** Высота графика при шапке ≤804px (desktop/tablet, не mobile). */
+export const PROFILE_HEADER_CHART_HEIGHT_SHORT_PX = 300;
 
 export type ProfileAiTier = "wide" | "mid" | "compact";
 
