@@ -1619,6 +1619,13 @@ button.nav-item {
 #screen-profile .page-header-select--profile-tabs .page-header-select-trigger {
   gap: 0;
 }
+.page-header-select-wrap:has(.page-header-select--profile-tabs) {
+  --page-header-select-chevron-size: 13px;
+}
+#screen-profile .page-header-select--profile-tabs .page-header-select-chevron {
+  width: 13px;
+  height: 13px;
+}
 .page-header-feed-search-row,
 .page-header-search-tools-row {
   display: flex;
@@ -7368,6 +7375,119 @@ button.filter-tab {
 }
 .theme-switch-icon { font-size: 15px; line-height: 1; }
 .profile-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.profile-user-summary-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 20px;
+  width: max-content;
+  max-width: 100%;
+  margin-bottom: 0;
+}
+.profile-user-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.profile-user-text-action {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: normal;
+  color: var(--text2);
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: color 0.12s;
+}
+.profile-user-action-line {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  margin: 14px 0 6px;
+}
+.profile-user-text-action:hover:not(:disabled),
+.profile-user-text-action:active:not(:disabled) {
+  color: var(--text);
+}
+.profile-user-text-action:focus-visible {
+  outline: 2px solid var(--control-border-active);
+  outline-offset: 2px;
+}
+.profile-user-text-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.profile-user-section .profile-val {
+  word-break: break-word;
+}
+.profile-user-password-hint {
+  margin: -4px 0 8px;
+  font-size: 12px;
+  color: var(--red);
+}
+.profile-user-password-form > .profile-row:last-child {
+  margin-bottom: 0;
+}
+.profile-user-code-row {
+  gap: 10px;
+  margin-top: 14px;
+  margin-bottom: 12px;
+}
+.profile-user-code-row .profile-user-code-field {
+  flex: 0 0 var(--telegram-code-input-w);
+  width: var(--telegram-code-input-w);
+  min-width: var(--telegram-code-input-w);
+  max-width: var(--telegram-code-input-w);
+}
+.telegram-inline-field-row--with-resend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.telegram-inline-field-row--with-resend .telegram-resend-code {
+  margin: 0;
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  text-align: left;
+  align-self: center;
+}
+.telegram-inline-field-row--with-resend > .telegram-inline-button {
+  margin-left: 0;
+}
+.profile-user-code-row .telegram-inline-field-row--with-resend {
+  width: 100%;
+}
+.profile-user-code-row .telegram-code-input-field,
+.profile-user-code-row .telegram-inline-button {
+  box-sizing: border-box;
+  min-height: 36px;
+}
+.profile-user-code-row .telegram-inline-button {
+  padding: 8px 12px;
+  line-height: 1.2;
+}
+.profile-user-password-form {
+  margin-top: 14px;
+  margin-bottom: 12px;
+}
+.profile-user-inline-row {
+  width: 100%;
+  min-width: 0;
+}
 .profile-ai-engine-section > .profile-section-title {
   margin-bottom: 20px;
 }
@@ -8571,7 +8691,8 @@ html[data-page-header-le-841] .telegram-api-credentials .telegram-api-actions {
 }
 .telegram-auth-desktop .telegram-desktop-auth-row {
   display: flex;
-  align-items: stretch;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 12px;
   width: 100%;
   min-width: 0;
@@ -8625,12 +8746,21 @@ html[data-page-header-le-841] .telegram-api-credentials .telegram-api-actions {
   }
 
   .telegram-auth-desktop .telegram-desktop-auth-row,
-  .telegram-auth-desktop .telegram-desktop-auth-narrow .telegram-desktop-auth-row--stacked,
-  .telegram-auth-desktop .telegram-desktop-auth-narrow .telegram-desktop-code-inline {
+  .telegram-auth-desktop .telegram-desktop-auth-narrow .telegram-desktop-auth-row--stacked {
     display: flex;
     flex-wrap: nowrap;
     align-items: stretch;
     gap: 0;
+    width: 100%;
+    min-width: 0;
+    overflow: visible;
+  }
+
+  .telegram-auth-desktop .telegram-desktop-auth-narrow .telegram-inline-field-row--with-resend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
     width: 100%;
     min-width: 0;
     overflow: visible;
@@ -8657,14 +8787,6 @@ html[data-page-header-le-841] .telegram-api-credentials .telegram-api-actions {
     margin-left: 12px;
   }
 
-  .telegram-auth-desktop .telegram-desktop-auth-narrow .telegram-desktop-code-block {
-    align-items: flex-start;
-    gap: 0;
-    width: 100%;
-    min-width: 0;
-    overflow: visible;
-  }
-
   .telegram-auth-desktop .telegram-desktop-auth-narrow .telegram-phone-desktop-row--code-sent {
     margin-bottom: 0;
   }
@@ -8679,9 +8801,9 @@ html[data-page-header-le-841] .telegram-api-credentials .telegram-api-actions {
   }
 
   .telegram-auth-desktop .telegram-desktop-auth-narrow .telegram-resend-code {
-    margin: 12px 0 0;
+    margin: 0;
     text-align: left;
-    align-self: flex-start;
+    align-self: center;
   }
 
   .telegram-form-grid:has(.telegram-code-desktop-row)
@@ -11370,6 +11492,31 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
     width: 100%;
     min-width: 0;
     max-width: 100%;
+  }
+
+  .telegram-inline-field-row--with-resend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+  }
+
+  .telegram-inline-field-row--with-resend .telegram-inline-button {
+    margin-left: 0;
+  }
+
+  .telegram-inline-field-row--with-resend .telegram-code-input-field,
+  .telegram-inline-field-row--with-resend .telegram-inline-button {
+    width: auto;
+    max-width: 100%;
+    flex: 0 0 auto;
+  }
+
+  .profile-user-code-row .telegram-inline-field-row--with-resend .profile-user-code-field {
+    flex: 0 0 var(--telegram-code-input-w);
+    width: var(--telegram-code-input-w);
+    min-width: var(--telegram-code-input-w);
+    max-width: var(--telegram-code-input-w);
   }
 
   .telegram-inline-field-row .telegram-inline-button,

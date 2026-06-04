@@ -6,6 +6,7 @@ import AiModelsBlock from "../profile/AiModelsBlock";
 import SystemPromptBlock from "../profile/SystemPromptBlock";
 import TelegramBlock from "../profile/TelegramBlock";
 import ThemeBlock from "../profile/ThemeBlock";
+import UserBlock from "../profile/UserBlock";
 import PlatformAnalyticsBlock from "../profile/PlatformAnalyticsBlock";
 import PageHeader from "../PageHeader";
 import PageHeaderSelect from "../PageHeaderSelect";
@@ -120,6 +121,7 @@ export default function ProfileScreen() {
 
           <div className={`profile-panel profile-panel--settings${tab === 0 ? " active" : ""}`}>
             <ThemeBlock />
+            <UserBlock />
             <AiModelsBlock />
             <SystemPromptBlock active={settingsTabActive} />
             <TelegramBlock />

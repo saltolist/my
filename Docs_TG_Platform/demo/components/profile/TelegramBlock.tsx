@@ -3,8 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useApp } from "@/state/AppContext";
 import type { TelegramProfileConfig } from "@/lib/types";
-
-const RESEND_COOLDOWN_SECONDS = 60;
+import ProfileResendCode, { useProfileResendCooldown } from "./ProfileResendCode";
 
 export default function TelegramBlock() {
   const { state, dispatch, setDirty } = useApp();
@@ -13,10 +12,11 @@ export default function TelegramBlock() {
   const [syncing, setSyncing] = useState(false);
   const [apiHashVisible, setApiHashVisible] = useState(false);
   const [botApiTokenVisible, setBotApiTokenVisible] = useState(false);
-  const [resendCooldownSec, setResendCooldownSec] = useState(0);
   const syncTimerRef = useRef<number | null>(null);
-  const resendIntervalRef = useRef<number | null>(null);
   const authBeforeCodeSentRef = useRef<Partial<TelegramProfileConfig> | null>(null);
+  const codeSentActive = cfg.authStatus === "code-sent";
+  const { secondsLeft: resendCooldownSec, resend: resendTelegramCode } =
+    useProfileResendCooldown(codeSentActive);
 
   const update = (patch: Partial<TelegramProfileConfig>) =>
     dispatch({ type: "UPDATE_TELEGRAM_CONFIG", config: { ...cfg, ...patch } });
@@ -28,42 +28,10 @@ export default function TelegramBlock() {
     setDirty("profile-telegram", dirty);
   }, [dirty, setDirty]);
 
-  const clearResendCooldown = () => {
-    if (resendIntervalRef.current !== null) {
-      window.clearInterval(resendIntervalRef.current);
-      resendIntervalRef.current = null;
-    }
-    setResendCooldownSec(0);
-  };
-
-  const beginResendCooldown = () => {
-    clearResendCooldown();
-    setResendCooldownSec(RESEND_COOLDOWN_SECONDS);
-    resendIntervalRef.current = window.setInterval(() => {
-      setResendCooldownSec((prev) => {
-        if (prev <= 1) {
-          if (resendIntervalRef.current !== null) {
-            window.clearInterval(resendIntervalRef.current);
-            resendIntervalRef.current = null;
-          }
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  useEffect(() => {
-    if (cfg.authStatus === "code-sent") beginResendCooldown();
-    else clearResendCooldown();
-    return () => clearResendCooldown();
-  }, [cfg.authStatus]);
-
   useEffect(() => {
     return () => {
       setDirty("profile-telegram", false);
       if (syncTimerRef.current !== null) window.clearTimeout(syncTimerRef.current);
-      clearResendCooldown();
     };
   }, [setDirty]);
 
@@ -117,8 +85,8 @@ export default function TelegramBlock() {
   };
 
   const resendCode = () => {
-    if (resendCooldownSec > 0 || sendCodeDisabled || cfg.authStatus !== "code-sent") return;
-    beginResendCooldown();
+    if (resendCooldownSec > 0 || sendCodeDisabled || !codeSentActive) return;
+    resendTelegramCode();
   };
 
   const cancelCodeEntry = () => {
@@ -369,7 +337,7 @@ export default function TelegramBlock() {
                     <button className="btn btn-ghost telegram-inline-button" onClick={confirmCode} type="button">
                       Подтвердить
                     </button>
-                    <TelegramResendCode secondsLeft={resendCooldownSec} onResend={resendCode} />
+                    <ProfileResendCode secondsLeft={resendCooldownSec} onResend={resendCode} />
                   </div>
                 </div>
               </div>
@@ -401,14 +369,12 @@ export default function TelegramBlock() {
                   <div className="profile-label" aria-hidden>
                     &nbsp;
                   </div>
-                  <div className="telegram-code-block telegram-desktop-code-block">
-                    <div className="telegram-inline-field-row telegram-desktop-code-inline">
-                      <TelegramCodeInput value={code} onChange={setCode} onDismiss={cancelCodeEntry} />
-                      <button className="btn btn-ghost telegram-inline-button" onClick={confirmCode} type="button">
-                        Подтвердить
-                      </button>
-                    </div>
-                    <TelegramResendCode secondsLeft={resendCooldownSec} onResend={resendCode} />
+                  <div className="telegram-inline-field-row telegram-inline-field-row--with-resend telegram-desktop-code-inline">
+                    <TelegramCodeInput value={code} onChange={setCode} onDismiss={cancelCodeEntry} />
+                    <button className="btn btn-ghost telegram-inline-button" onClick={confirmCode} type="button">
+                      Подтвердить
+                    </button>
+                    <ProfileResendCode secondsLeft={resendCooldownSec} onResend={resendCode} />
                   </div>
                 </div>
               </div>
@@ -440,14 +406,12 @@ export default function TelegramBlock() {
               <div className="profile-label" aria-hidden>
                 &nbsp;
               </div>
-              <div className="telegram-code-block">
-                <div className="telegram-inline-field-row">
-                  <TelegramCodeInput value={code} onChange={setCode} onDismiss={cancelCodeEntry} />
-                  <button className="btn btn-ghost telegram-inline-button" onClick={confirmCode} type="button">
-                    Подтвердить
-                  </button>
-                </div>
-                <TelegramResendCode secondsLeft={resendCooldownSec} onResend={resendCode} />
+              <div className="telegram-inline-field-row telegram-inline-field-row--with-resend">
+                <TelegramCodeInput value={code} onChange={setCode} onDismiss={cancelCodeEntry} />
+                <button className="btn btn-ghost telegram-inline-button" onClick={confirmCode} type="button">
+                  Подтвердить
+                </button>
+                <ProfileResendCode secondsLeft={resendCooldownSec} onResend={resendCode} />
               </div>
             </div>
           )}
@@ -699,34 +663,6 @@ function CloseIcon({ size = 16 }: { size?: number }) {
       <line x1="6.5" y1="6.5" x2="17.5" y2="17.5" />
       <line x1="17.5" y1="6.5" x2="6.5" y2="17.5" />
     </svg>
-  );
-}
-
-function formatResendTimer(secondsLeft: number) {
-  const minutes = Math.floor(secondsLeft / 60);
-  const seconds = secondsLeft % 60;
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-}
-
-function TelegramResendCode({
-  secondsLeft,
-  onResend,
-}: {
-  secondsLeft: number;
-  onResend: () => void;
-}) {
-  if (secondsLeft > 0) {
-    return (
-      <p className="telegram-resend-code" aria-live="polite">
-        Отправить код повторно ({formatResendTimer(secondsLeft)})
-      </p>
-    );
-  }
-
-  return (
-    <button className="telegram-resend-code telegram-resend-code--ready" onClick={onResend} type="button">
-      Отправить код повторно
-    </button>
   );
 }
 
