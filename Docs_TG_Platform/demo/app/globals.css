@@ -178,6 +178,8 @@
   --profile-control-blur: none;
   --profile-telegram-card-bg: var(--bg2);
   --control-border-active: var(--border2);
+  /* Поля ввода: hover/focus — ярче обводка, фон без подсветки */
+  --profile-field-border-active: color-mix(in srgb, var(--border2) 30%, var(--text2) 70%);
   --reaction-pill-bg: color-mix(in srgb, var(--bg3) 82%, var(--bg4));
   --reaction-pill-border: var(--border);
   --reaction-pill-fg: var(--text2);
@@ -244,7 +246,8 @@
 }
 :root[data-theme="dark"] .sched-time-input:focus {
   color: var(--text);
-  background: var(--bg3);
+  background: var(--profile-control-bg);
+  border-color: var(--profile-field-border-active);
 }
 :root[data-theme="dark"] .model-type-tab {
   background: var(--bg2);
@@ -252,9 +255,40 @@
 :root[data-theme="dark"] .model-type-tab.active {
   background: var(--bg3);
 }
+:root[data-theme="dark"] :is(
+  .profile-input-explicit,
+  .page-header-search
+):hover:not(:disabled),
+:root[data-theme="dark"] :is(
+  .profile-input-explicit,
+  .page-header-search
+):focus {
+  border-color: var(--profile-field-border-active);
+}
+:root[data-theme="dark"] .profile-input-explicit:hover:not(:disabled),
+:root[data-theme="dark"] .profile-input-explicit:focus {
+  background: var(--profile-field-bg);
+}
+:root[data-theme="dark"] .page-header-search:hover,
+:root[data-theme="dark"] .page-header-search:focus,
+:root[data-theme="dark"] .page-header-search:focus:hover {
+  background: var(--page-header-control-bg);
+}
+:root[data-theme="dark"] .telegram-code-input-field:hover:not(:has(.telegram-code-input:disabled)),
+:root[data-theme="dark"] .telegram-code-input-field:focus-within {
+  background: var(--profile-select-bg);
+  border-color: var(--profile-field-border-active);
+}
 :root[data-theme="dark"] .platform-filter-select:hover,
 :root[data-theme="dark"] .platform-filter-select:focus {
-  background: var(--bg3);
+  background: var(--profile-select-bg);
+  border-color: var(--profile-field-border-active);
+}
+:root[data-theme="dark"] .profile-ai-engine-section .profile-model-picker .model-picker-btn:hover:not(:disabled),
+:root[data-theme="dark"] .profile-ai-engine-section .profile-model-picker.is-open > .model-picker-btn {
+  background: var(--profile-select-bg);
+  border-color: var(--profile-field-border-active);
+  color: var(--text);
 }
 
 /* Реакции: без «светящихся» голубых пилюль на тёмных карточках */
@@ -341,6 +375,8 @@ html.sidebar-collapsed {
   --profile-select-bg-hover: color-mix(in srgb, var(--bg4) 33%, transparent);
   --profile-select-bg-active: color-mix(in srgb, var(--bg4) 36%, transparent);
   --profile-control-border: var(--page-header-control-border);
+  /* Поля ввода: hover/focus — темнее обводка, фон без подсветки */
+  --profile-field-border-active: color-mix(in srgb, var(--profile-field-border) 28%, var(--text2) 72%);
   --profile-green-border: color-mix(in srgb, var(--green) 68%, var(--profile-control-border));
   --profile-green-card-border: color-mix(in srgb, var(--green) 58%, var(--profile-control-border));
   --profile-green-number-bg: color-mix(in srgb, var(--green) 22%, #fff 78%);
@@ -422,6 +458,45 @@ html.sidebar-collapsed {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
+:root[data-theme="light"] :is(
+  .profile-input-explicit,
+  .page-header-search
+):hover:not(:disabled),
+:root[data-theme="light"] :is(
+  .profile-input-explicit,
+  .page-header-search
+):focus {
+  border-color: var(--profile-field-border-active);
+}
+:root[data-theme="light"] .profile-input-explicit:hover:not(:disabled),
+:root[data-theme="light"] .profile-input-explicit:focus {
+  background: var(--profile-field-bg);
+}
+:root[data-theme="light"] .page-header-search:hover,
+:root[data-theme="light"] .page-header-search:focus,
+:root[data-theme="light"] .page-header-search:focus:hover {
+  background: var(--page-header-control-bg);
+}
+:root[data-theme="light"] .telegram-code-input-field:hover:not(:has(.telegram-code-input:disabled)),
+:root[data-theme="light"] .telegram-code-input-field:focus-within {
+  background: var(--profile-select-bg);
+  border-color: var(--profile-field-border-active);
+}
+:root[data-theme="light"] .platform-filter-select:hover,
+:root[data-theme="light"] .platform-filter-select:focus {
+  background: var(--profile-select-bg);
+  border-color: var(--profile-field-border-active);
+}
+:root[data-theme="light"] .sched-time-input:focus {
+  background: var(--profile-control-bg);
+  border-color: var(--profile-field-border-active);
+}
+:root[data-theme="light"] .profile-ai-engine-section .profile-model-picker .model-picker-btn:hover:not(:disabled),
+:root[data-theme="light"] .profile-ai-engine-section .profile-model-picker.is-open > .model-picker-btn {
+  background: var(--profile-select-bg);
+  border-color: var(--profile-field-border-active);
+  color: var(--text);
+}
 /* "system" → follow OS preference */
 @media (prefers-color-scheme: light) {
   :root[data-theme="system"] {
@@ -496,6 +571,7 @@ html.sidebar-collapsed {
     --profile-select-bg-hover: color-mix(in srgb, var(--bg4) 33%, transparent);
     --profile-select-bg-active: color-mix(in srgb, var(--bg4) 36%, transparent);
     --profile-control-border: var(--page-header-control-border);
+    --profile-field-border-active: color-mix(in srgb, var(--profile-field-border) 28%, var(--text2) 72%);
     --profile-green-border: color-mix(in srgb, var(--green) 68%, var(--profile-control-border));
     --profile-green-card-border: color-mix(in srgb, var(--green) 58%, var(--profile-control-border));
     --profile-green-number-bg: color-mix(in srgb, var(--green) 22%, #fff 78%);
@@ -505,6 +581,46 @@ html.sidebar-collapsed {
       radial-gradient(100% 82% at 94% 0%, rgba(37, 99, 235, 0.075) 0%, transparent 50%),
       radial-gradient(88% 72% at 0% 100%, rgba(124, 58, 237, 0.05) 0%, transparent 52%),
       linear-gradient(178deg, #f7f8fc 0%, var(--bg) 38%, #f3f4f8 100%);
+  }
+
+  :root[data-theme="system"] :is(
+    .profile-input-explicit,
+    .page-header-search
+  ):hover:not(:disabled),
+  :root[data-theme="system"] :is(
+    .profile-input-explicit,
+    .page-header-search
+  ):focus {
+    border-color: var(--profile-field-border-active);
+  }
+  :root[data-theme="system"] .profile-input-explicit:hover:not(:disabled),
+  :root[data-theme="system"] .profile-input-explicit:focus {
+    background: var(--profile-field-bg);
+  }
+  :root[data-theme="system"] .page-header-search:hover,
+  :root[data-theme="system"] .page-header-search:focus,
+  :root[data-theme="system"] .page-header-search:focus:hover {
+    background: var(--page-header-control-bg);
+  }
+  :root[data-theme="system"] .telegram-code-input-field:hover:not(:has(.telegram-code-input:disabled)),
+  :root[data-theme="system"] .telegram-code-input-field:focus-within {
+    background: var(--profile-select-bg);
+    border-color: var(--profile-field-border-active);
+  }
+  :root[data-theme="system"] .platform-filter-select:hover,
+  :root[data-theme="system"] .platform-filter-select:focus {
+    background: var(--profile-select-bg);
+    border-color: var(--profile-field-border-active);
+  }
+  :root[data-theme="system"] .sched-time-input:focus {
+    background: var(--profile-control-bg);
+    border-color: var(--profile-field-border-active);
+  }
+  :root[data-theme="system"] .profile-ai-engine-section .profile-model-picker .model-picker-btn:hover:not(:disabled),
+  :root[data-theme="system"] .profile-ai-engine-section .profile-model-picker.is-open > .model-picker-btn {
+    background: var(--profile-select-bg);
+    border-color: var(--profile-field-border-active);
+    color: var(--text);
   }
 
   :root[data-theme="system"] .post-card,
@@ -7466,12 +7582,12 @@ button.filter-tab {
 }
 .profile-model-picker .model-picker-btn:hover:not(:disabled) {
   background: var(--profile-select-bg);
-  border-color: var(--control-border-active);
+  border-color: var(--profile-field-border-active);
   color: var(--text);
 }
 .profile-model-picker.is-open .model-picker-btn {
-  background: var(--profile-select-bg-active);
-  border-color: var(--control-border-active);
+  background: var(--profile-select-bg);
+  border-color: var(--profile-field-border-active);
   box-shadow: none;
 }
 .profile-page .model-picker-dropdown {
