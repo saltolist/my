@@ -1,3 +1,8 @@
+import {
+  formatTrendChartRangeFromStart,
+  formatTrendPointPeriod,
+  getPeriodChartLabels,
+} from "@/lib/trendChart/periodLabels";
 import channelMetricsData from "@/data/channelMetrics110d.json";
 
 export type ChannelMetricId =
@@ -21,6 +26,162 @@ export type ChannelMetricsDatabase = {
 const db = channelMetricsData as ChannelMetricsDatabase;
 
 export const CHANNEL_METRICS_DB = db;
+export const CHANNEL_METRICS_DAY_COUNT = db.dayCount;
+
+/** «Всё время»: не больше 30 подписей на оси, данные — все {dayCount} дней. */
+const CHANNEL_ALL_TIME_MAX_LABELS = 30;
+
+const RU_MONTH_GENITIVE = [
+  "января",
+  "февраля",
+  "марта",
+  "апреля",
+  "мая",
+  "июня",
+  "июля",
+  "августа",
+  "сентября",
+  "октября",
+  "ноября",
+  "декабря",
+] as const;
+
+function displayIndexToSpan(
+  pointIndex: number,
+  pointCount: number,
+  totalUnits: number,
+): { start: number; end: number } {
+  if (totalUnits <= 1 || pointCount <= 1) {
+    return { start: 0, end: Math.max(0, totalUnits - 1) };
+  }
+  const start = Math.round((pointIndex / (pointCount - 1)) * (totalUnits - 1));
+  const end =
+    pointIndex >= pointCount - 1
+      ? totalUnits - 1
+      : Math.max(
+          start,
+          Math.round(((pointIndex + 1) / (pointCount - 1)) * (totalUnits - 1)) - 1,
+        );
+  return { start, end };
+}
+
+function getChannelDataAnchorNow() {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  return now;
+}
+
+function getChannelDayDate(dayIndex: number) {
+  const day = getChannelDataAnchorNow();
+  day.setDate(day.getDate() - (db.dayCount - 1 - dayIndex));
+  return day;
+}
+
+function startOfDay(date: Date) {
+  const next = new Date(date);
+  next.setHours(0, 0, 0, 0);
+  return next;
+}
+
+function endOfDay(date: Date) {
+  const next = new Date(date);
+  next.setHours(23, 59, 59, 999);
+  return next;
+}
+
+function formatAxisDateLabel(date: Date) {
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${day}.${month}`;
+}
+
+function formatTrendRangePart(date: Date) {
+  const day = date.getDate();
+  const month = RU_MONTH_GENITIVE[date.getMonth()];
+  return `${day} ${month}`;
+}
+
+function resolveChannelPointCount(
+  chartPeriod: number,
+  windowDays: number,
+  maxPoints?: number,
+) {
+  if (maxPoints != null && maxPoints > 0) {
+    return Math.min(maxPoints, windowDays);
+  }
+  if (chartPeriod === 4) {
+    return Math.min(windowDays, CHANNEL_ALL_TIME_MAX_LABELS);
+  }
+  return windowDays;
+}
+
+export function buildChannelChartLabels(
+  chartPeriod: number,
+  options?: { maxPoints?: number },
+) {
+  if (chartPeriod === 0) {
+    return getPeriodChartLabels(0, options);
+  }
+
+  const daySpan = Math.min(chartPeriodToDaySpan(chartPeriod), db.dayCount);
+  const sliceStart = db.days.length - daySpan;
+  const pointCount = resolveChannelPointCount(chartPeriod, daySpan, options?.maxPoints);
+
+  if (pointCount >= daySpan) {
+    return Array.from({ length: daySpan }, (_, index) =>
+      formatAxisDateLabel(getChannelDayDate(sliceStart + index)),
+    );
+  }
+
+  return Array.from({ length: pointCount }, (_, index) => {
+    const { start } = displayIndexToSpan(index, pointCount, daySpan);
+    return formatAxisDateLabel(getChannelDayDate(sliceStart + start));
+  });
+}
+
+export function getChannelTrendPointPeriodBounds(
+  chartPeriod: number,
+  pointIndex: number,
+  pointCount: number,
+) {
+  const daySpan = Math.min(chartPeriodToDaySpan(chartPeriod), db.dayCount);
+  const sliceStart = db.days.length - daySpan;
+
+  if (pointCount >= daySpan) {
+    const from = startOfDay(getChannelDayDate(sliceStart + pointIndex));
+    return { from, to: endOfDay(from) };
+  }
+
+  const { start, end } = displayIndexToSpan(pointIndex, pointCount, daySpan);
+  const from = startOfDay(getChannelDayDate(sliceStart + start));
+  const to = endOfDay(getChannelDayDate(sliceStart + end));
+  return { from, to };
+}
+
+export function formatChannelTrendPointPeriod(
+  chartPeriod: number,
+  pointIndex: number,
+  pointCount: number,
+) {
+  if (chartPeriod === 0) {
+    return formatTrendPointPeriod(0, pointIndex, pointCount);
+  }
+  const { from, to } = getChannelTrendPointPeriodBounds(chartPeriod, pointIndex, pointCount);
+  return `${formatTrendRangePart(from)} — ${formatTrendRangePart(to)}`;
+}
+
+export function formatChannelTrendChartRangeFromStart(
+  chartPeriod: number,
+  pointIndex: number,
+  pointCount: number,
+) {
+  if (chartPeriod === 0) {
+    return formatTrendChartRangeFromStart(0, pointIndex, pointCount);
+  }
+  const start = getChannelTrendPointPeriodBounds(chartPeriod, 0, pointCount);
+  const end = getChannelTrendPointPeriodBounds(chartPeriod, pointIndex, pointCount);
+  return `${formatTrendRangePart(start.from)} — ${formatTrendRangePart(end.to)}`;
+}
 
 export function getChannelEndTotals(): ChannelDayRecord {
   return { ...db.endTotals };

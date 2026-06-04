@@ -74,9 +74,7 @@ function ChannelMetricTooltipBody({ metric }: { metric: ChannelMetricSummary }) 
   return (
     <>
       <b>{metric.label}</b>
-      <span>
-        Прирост: {metric.displayGrowth} {metric.displayGrowthRelativePercent}
-      </span>
+      <span>Прирост: {metric.displayGrowth}</span>
       <span>Количество: {metric.displayQuantity}</span>
       <span>
         Ср. прирост за период: {metric.displayPeriodAverageGrowth}

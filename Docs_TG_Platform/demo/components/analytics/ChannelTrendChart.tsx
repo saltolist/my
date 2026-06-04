@@ -9,7 +9,7 @@ import {
   formatChannelGrowthPrimary,
   formatChannelPointPercentGrowth,
 } from "@/lib/channelAnalyticsTrend";
-import { formatTrendChartRangeFromStart } from "@/lib/trendChart/periodLabels";
+import { formatChannelTrendChartRangeFromStart } from "@/lib/channelMetricsDb";
 
 export default function ChannelTrendChart({ periodIndex }: { periodIndex: number }) {
   const chartPeriod = ANALYTICS_SCREEN_PERIOD_TO_CHART[periodIndex] ?? 1;
@@ -39,7 +39,7 @@ export default function ChannelTrendChart({ periodIndex }: { periodIndex: number
         formatChannelGrowthPrimary(row.id, value, pointIndex, row.values, row.priorCumulative ?? 0)
       }
       getDotRangeFromStartLine={(_, __, pointIndex) =>
-        formatTrendChartRangeFromStart(chartPeriod, pointIndex, labels.length)
+        formatChannelTrendChartRangeFromStart(chartPeriod, pointIndex, labels.length)
       }
       getDotPercentGrowthLine={(row, _, pointIndex) =>
         formatChannelPointPercentGrowth(

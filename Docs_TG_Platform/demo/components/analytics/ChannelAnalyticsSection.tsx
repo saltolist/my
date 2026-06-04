@@ -14,10 +14,8 @@ import {
   formatChannelGrowthPrimary,
   formatChannelPointPercentGrowth,
 } from "@/lib/channelAnalyticsTrend";
-import {
-  formatTrendChartRangeFromStart,
-  resolveTrendChartMaxPoints,
-} from "@/lib/trendChart/periodLabels";
+import { formatChannelTrendChartRangeFromStart } from "@/lib/channelMetricsDb";
+import { resolveTrendChartMaxPoints } from "@/lib/trendChart/periodLabels";
 import { useChartSeriesVisibility } from "@/lib/hooks/useChartSeriesVisibility";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 import { usePageHeaderLe1080 } from "@/lib/hooks/usePageHeaderLe1080";
@@ -122,7 +120,7 @@ export default function ChannelAnalyticsSection({
             )
           }
           getDotRangeFromStartLine={(_, __, pointIndex) =>
-            formatTrendChartRangeFromStart(chartPeriod, pointIndex, labels.length)
+            formatChannelTrendChartRangeFromStart(chartPeriod, pointIndex, labels.length)
           }
           getDotPercentGrowthLine={(row, _, pointIndex) =>
             formatChannelPointPercentGrowth(

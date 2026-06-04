@@ -1,4 +1,5 @@
 import {
+  buildChannelChartLabels,
   extractChannelMetricSeriesForChart,
   getChannelChartPeriodDaySpan,
   getChannelEndTotals,
@@ -6,7 +7,6 @@ import {
   isChannelErMetric,
   type ChannelMetricId,
 } from "@/lib/channelMetricsDb";
-import { getPeriodChartLabels } from "@/lib/trendChart/periodLabels";
 import { formatNumber } from "@/lib/trendChart/math";
 import type { TrendSeriesRow } from "@/components/charts/MultiSeriesTrendChart";
 
@@ -142,7 +142,7 @@ export function buildChannelTrendSeries(
   series: TrendSeriesRow[];
 } {
   const chartPeriod = ANALYTICS_SCREEN_PERIOD_TO_CHART[analyticsPeriodIndex] ?? 1;
-  const labels = getPeriodChartLabels(chartPeriod, { maxPoints: options?.maxPoints });
+  const labels = buildChannelChartLabels(chartPeriod, { maxPoints: options?.maxPoints });
   const pointCount = labels.length;
 
   const series: TrendSeriesRow[] = CHANNEL_METRICS.map((metric) => {
