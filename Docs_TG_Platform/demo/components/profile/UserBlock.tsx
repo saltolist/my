@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import ProfileResendCode, { useProfileResendCooldown } from "./ProfileResendCode";
 
 const DEMO_USER = {
   nick: "researcher",
@@ -15,16 +14,12 @@ export default function UserBlock() {
   const [emailCode, setEmailCode] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
-  const codeFlowActive = flow === "code";
-  const { secondsLeft: resendCooldownSec, clearCooldown, resend: resendEmailCode } =
-    useProfileResendCooldown(codeFlowActive);
 
   const resetFlow = () => {
     setFlow("idle");
     setEmailCode("");
     setPassword("");
     setPasswordConfirm("");
-    clearCooldown();
   };
 
   const startChangePassword = () => {
@@ -36,7 +31,6 @@ export default function UserBlock() {
 
   const confirmEmailCode = () => {
     if (!emailCode.trim()) return;
-    clearCooldown();
     setFlow("password");
     setPassword("");
     setPasswordConfirm("");
@@ -67,24 +61,21 @@ export default function UserBlock() {
           <div className="profile-label">Почта</div>
           <div className="profile-val">{DEMO_USER.email}</div>
         </div>
-      </div>
-
-      {flow === "idle" ? (
-        <div className="profile-user-action-line">
+        {flow === "idle" ? (
           <button
             type="button"
-            className="profile-user-text-action"
+            className="btn btn-ghost telegram-inline-button profile-user-change-password-btn"
             onClick={startChangePassword}
           >
             Сменить пароль
           </button>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
 
       {flow === "code" ? (
         <div className="profile-row profile-user-code-row">
-          <div className="profile-label">Код отправлен на вашу почту</div>
-          <div className="telegram-inline-field-row telegram-inline-field-row--with-resend profile-user-inline-row">
+          <div className="profile-label">Код из почты</div>
+          <div className="telegram-inline-field-row profile-user-inline-row">
             <div className="telegram-code-input-field profile-user-code-field">
               <input
                 className="profile-input telegram-code-input"
@@ -113,7 +104,6 @@ export default function UserBlock() {
             >
               Подтвердить
             </button>
-            <ProfileResendCode secondsLeft={resendCooldownSec} onResend={resendEmailCode} />
           </div>
         </div>
       ) : null}
