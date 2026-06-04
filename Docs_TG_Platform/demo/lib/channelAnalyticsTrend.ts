@@ -1,8 +1,14 @@
+import {
+  extractChannelMetricSeriesForChart,
+  getChannelChartPeriodDaySpan,
+  getChannelEndTotals,
+  getMetricTypicalPeriodGrowth,
+  isChannelErMetric,
+  type ChannelMetricId,
+} from "@/lib/channelMetricsDb";
 import { getPeriodChartLabels } from "@/lib/trendChart/periodLabels";
-import { buildTrend, formatNumber, hashString } from "@/lib/trendChart/math";
+import { formatNumber } from "@/lib/trendChart/math";
 import type { TrendSeriesRow } from "@/components/charts/MultiSeriesTrendChart";
-
-const CHANNEL_PERIOD_MULTIPLIERS = [0.06, 0.24, 1, 2.8, 7.4];
 
 const CHANNEL_METRICS = [
   {
@@ -77,27 +83,10 @@ export function getChannelTopPostsTableMetrics(compactColumns: boolean) {
   return CHANNEL_TOP_POSTS_TABLE_METRICS;
 }
 
-const CHANNEL_CURRENT_TOTALS: Record<string, number> = {
-  subscribers: 8412,
-  reactions: 1286,
-  views: 38200,
-  comments: 94,
-  reposts: 61,
-  er: 4.8,
-};
-
 export const ANALYTICS_SCREEN_PERIOD_TO_CHART = [0, 1, 2, 3, 4] as const;
 
-function buildPriorCumulative(seed: number, firstIncrement: number, metricId: string) {
-  if (firstIncrement <= 0) return 0;
-
-  if (isErMetric(metricId)) {
-    const first = firstIncrement / 10;
-    const prior = first * (0.9 + (seed % 6) * 0.012);
-    return Math.max(1, Math.round(prior * 10));
-  }
-
-  return Math.max(1, Math.round(firstIncrement * (0.62 + (seed % 9) * 0.028)));
+export function getChannelCurrentTotals() {
+  return getChannelEndTotals();
 }
 
 function cumulativeChannelValue(values: number[], pointIndex: number, priorCumulative = 0) {
@@ -106,8 +95,7 @@ function cumulativeChannelValue(values: number[], pointIndex: number, priorCumul
 }
 
 function isErMetric(metricId: string) {
-  const metric = CHANNEL_METRICS.find((item) => item.id === metricId);
-  return metric != null && "isEr" in metric && metric.isEr;
+  return isChannelErMetric(metricId);
 }
 
 /**
@@ -155,14 +143,14 @@ export function buildChannelTrendSeries(
 } {
   const chartPeriod = ANALYTICS_SCREEN_PERIOD_TO_CHART[analyticsPeriodIndex] ?? 1;
   const labels = getPeriodChartLabels(chartPeriod, { maxPoints: options?.maxPoints });
-  const multiplier = CHANNEL_PERIOD_MULTIPLIERS[analyticsPeriodIndex] ?? 1;
   const pointCount = labels.length;
 
   const series: TrendSeriesRow[] = CHANNEL_METRICS.map((metric) => {
-    const seed = hashString(`channel:${metric.id}:${chartPeriod}`);
-    const total = Math.max(1, Math.round(metric.base * multiplier));
-    const values = buildTrend(seed, total, pointCount);
-    const priorCumulative = buildPriorCumulative(seed, values[0] ?? 0, metric.id);
+    const { values, priorCumulative } = extractChannelMetricSeriesForChart(
+      metric.id as ChannelMetricId,
+      chartPeriod,
+      pointCount,
+    );
 
     return {
       id: metric.id,
@@ -185,30 +173,51 @@ export type ChannelMetricSummary = {
   /** Доля прироста от количества для тултипа, например «(5.9%)». */
   displayGrowthRelativePercent: string;
   displayQuantity: string;
-  /** Ширина полосы: прирост за период относительно текущего количества, %. */
+  /** Ширина полосы: прирост относительно среднего прироста за период (50% = средний). */
   barFillPercent: number;
+  /** Типичный (средний) прирост этой метрики за выбранный период — шкала полос и тултип. */
+  displayPeriodAverageGrowth: string;
 };
+
+/** 50% полосы = типичный прирост этой метрики за период. */
+const CHANNEL_BAR_FILL_AVERAGE_ANCHOR_PERCENT = 50;
+const CHANNEL_BAR_FILL_MIN_PERCENT = 4;
 
 function computePeriodGrowth(metricId: string, values: number[]): number {
   if (isErMetric(metricId)) {
     const last = values[values.length - 1] ?? 0;
     const first = values[0] ?? last;
-    return Math.max(0, (last - first) / 10);
+    return (last - first) / 10;
   }
   return values.reduce((sum, value) => sum + value, 0);
 }
 
 function formatGrowthDelta(metricId: string, growth: number) {
   if (isErMetric(metricId)) {
-    return `${growth >= 0 ? "+" : ""}${growth.toFixed(1)}%`;
+    const sign = growth >= 0 ? "+" : "−";
+    return `${sign}${Math.abs(growth).toFixed(1)}%`;
   }
-  return `+${formatNumber(Math.round(growth))}`;
+  const sign = growth >= 0 ? "+" : "−";
+  return `${sign}${formatNumber(Math.round(Math.abs(growth)))}`;
 }
 
 function formatGrowthRelativeToQuantityPercent(growth: number, quantity: number) {
   if (quantity <= 0) return "(0%)";
   const percent = (growth / quantity) * 100;
   return `(${percent.toFixed(1)}%)`;
+}
+
+function barFillPercentForPeriodGrowth(growth: number, typicalPeriodGrowth: number) {
+  if (growth <= 0) return CHANNEL_BAR_FILL_MIN_PERCENT;
+  if (typicalPeriodGrowth <= 0) {
+    return Math.min(100, Math.max(CHANNEL_BAR_FILL_MIN_PERCENT, 100));
+  }
+  const fill =
+    CHANNEL_BAR_FILL_AVERAGE_ANCHOR_PERCENT * (growth / typicalPeriodGrowth);
+  return Math.min(
+    100,
+    Math.max(CHANNEL_BAR_FILL_MIN_PERCENT, Math.round(fill)),
+  );
 }
 
 export type ChannelSummaryCard = {
@@ -225,7 +234,7 @@ export function buildChannelSummaryCards(
   return buildChannelMetricSummaries(series, periodIndex).map((item) => ({
     id: item.id,
     label: item.label,
-    value: formatChannelPostMetricValue(item.id, CHANNEL_CURRENT_TOTALS[item.id] ?? 0),
+    value: formatChannelPostMetricValue(item.id, getChannelCurrentTotals()[item.id as ChannelMetricId] ?? 0),
     displayGrowth: item.displayGrowth,
   }));
 }
@@ -234,36 +243,21 @@ export function buildChannelMetricSummaries(
   series: TrendSeriesRow[],
   periodIndex: number,
 ): ChannelMetricSummary[] {
-  const rows = series.map((row) => {
-    const total = CHANNEL_CURRENT_TOTALS[row.id] ?? 0;
-    let growth = computePeriodGrowth(row.id, row.values);
+  const chartPeriod = ANALYTICS_SCREEN_PERIOD_TO_CHART[periodIndex] ?? 1;
+  const periodDaySpan = getChannelChartPeriodDaySpan(chartPeriod);
 
-    if (!isErMetric(row.id)) {
-      const maxGrowth = total * (0.12 + periodIndex * 0.08);
-      if (growth > maxGrowth) {
-        growth = Math.round(maxGrowth);
-      }
-    } else {
-      growth = Math.min(growth, Math.max(0, total - 0.5));
-    }
-
-    return { row, growth };
-  });
-
-  return rows.map(({ row, growth }) => {
-    const quantity = CHANNEL_CURRENT_TOTALS[row.id] ?? 0;
-    const growthToQuantityPercent =
-      quantity > 0 ? (growth / quantity) * 100 : 0;
-    const barFillPercent = Math.min(
-      100,
-      Math.max(4, Math.round(growthToQuantityPercent)),
-    );
+  return series.map((row) => {
+    const metricId = row.id as ChannelMetricId;
+    const growth = computePeriodGrowth(row.id, row.values);
+    const typicalPeriodGrowth = getMetricTypicalPeriodGrowth(metricId, periodDaySpan);
+    const quantity = getChannelCurrentTotals()[metricId] ?? 0;
 
     return {
       id: row.id,
       label: row.label,
       color: row.color,
-      barFillPercent,
+      barFillPercent: barFillPercentForPeriodGrowth(growth, typicalPeriodGrowth),
+      displayPeriodAverageGrowth: formatGrowthDelta(metricId, typicalPeriodGrowth),
       displayGrowth: formatGrowthDelta(row.id, growth),
       displayGrowthRelativePercent: formatGrowthRelativeToQuantityPercent(growth, quantity),
       displayQuantity: formatChannelPostMetricValue(row.id, quantity),

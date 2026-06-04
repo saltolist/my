@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build && node scripts/copy-404.mjs",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate:channel-metrics": "node scripts/generate-channel-metrics-110d.mjs"
   },
   "dependencies": {
     "next": "^15.0.0",

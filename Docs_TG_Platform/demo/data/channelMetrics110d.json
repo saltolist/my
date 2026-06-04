@@ -1,0 +1,902 @@
+{
+  "version": 1,
+  "dayCount": 110,
+  "startTotals": {
+    "subscribers": 200,
+    "reactions": 0,
+    "views": 0,
+    "comments": 0,
+    "reposts": 0,
+    "er": 2.2
+  },
+  "endTotals": {
+    "subscribers": 5510,
+    "reactions": 1749,
+    "views": 29755,
+    "comments": 244,
+    "reposts": 141,
+    "er": 1.5
+  },
+  "days": [
+    {
+      "subscribers": 1,
+      "reactions": 4,
+      "views": -42,
+      "comments": 1,
+      "reposts": 1,
+      "er": 2.2
+    },
+    {
+      "subscribers": -3,
+      "reactions": 10,
+      "views": 93,
+      "comments": -2,
+      "reposts": 0,
+      "er": 2.3
+    },
+    {
+      "subscribers": -2,
+      "reactions": 1,
+      "views": 2,
+      "comments": 1,
+      "reposts": -1,
+      "er": 2.3
+    },
+    {
+      "subscribers": 0,
+      "reactions": 9,
+      "views": 65,
+      "comments": 1,
+      "reposts": 1,
+      "er": 2.3
+    },
+    {
+      "subscribers": -1,
+      "reactions": 9,
+      "views": -46,
+      "comments": 1,
+      "reposts": 0,
+      "er": 2.3
+    },
+    {
+      "subscribers": 15,
+      "reactions": 0,
+      "views": -33,
+      "comments": 0,
+      "reposts": 0,
+      "er": 2.3
+    },
+    {
+      "subscribers": -4,
+      "reactions": 3,
+      "views": 66,
+      "comments": 0,
+      "reposts": 1,
+      "er": 2.2
+    },
+    {
+      "subscribers": 7,
+      "reactions": 16,
+      "views": 40,
+      "comments": 2,
+      "reposts": 1,
+      "er": 2.3
+    },
+    {
+      "subscribers": 19,
+      "reactions": 13,
+      "views": 22,
+      "comments": 1,
+      "reposts": 1,
+      "er": 2.2
+    },
+    {
+      "subscribers": 18,
+      "reactions": -3,
+      "views": 105,
+      "comments": 1,
+      "reposts": 0,
+      "er": 2.3
+    },
+    {
+      "subscribers": 19,
+      "reactions": 5,
+      "views": 164,
+      "comments": 1,
+      "reposts": 1,
+      "er": 2.3
+    },
+    {
+      "subscribers": 7,
+      "reactions": 3,
+      "views": 26,
+      "comments": 2,
+      "reposts": 1,
+      "er": 2
+    },
+    {
+      "subscribers": 2,
+      "reactions": 16,
+      "views": 123,
+      "comments": 2,
+      "reposts": 1,
+      "er": 2
+    },
+    {
+      "subscribers": 2,
+      "reactions": 11,
+      "views": -24,
+      "comments": 2,
+      "reposts": 1,
+      "er": 2
+    },
+    {
+      "subscribers": 1,
+      "reactions": 3,
+      "views": -45,
+      "comments": -2,
+      "reposts": 1,
+      "er": 1.9
+    },
+    {
+      "subscribers": 5,
+      "reactions": 10,
+      "views": 47,
+      "comments": 2,
+      "reposts": -1,
+      "er": 2
+    },
+    {
+      "subscribers": 17,
+      "reactions": 6,
+      "views": 140,
+      "comments": 0,
+      "reposts": 0,
+      "er": 2.1
+    },
+    {
+      "subscribers": 2,
+      "reactions": -1,
+      "views": 13,
+      "comments": 0,
+      "reposts": 0,
+      "er": 2
+    },
+    {
+      "subscribers": 23,
+      "reactions": 15,
+      "views": 12,
+      "comments": -2,
+      "reposts": 1,
+      "er": 2
+    },
+    {
+      "subscribers": 0,
+      "reactions": 15,
+      "views": 93,
+      "comments": -1,
+      "reposts": 1,
+      "er": 2
+    },
+    {
+      "subscribers": 7,
+      "reactions": 10,
+      "views": 226,
+      "comments": -1,
+      "reposts": 1,
+      "er": 2
+    },
+    {
+      "subscribers": 18,
+      "reactions": -4,
+      "views": 192,
+      "comments": 2,
+      "reposts": 1,
+      "er": 1.7
+    },
+    {
+      "subscribers": 12,
+      "reactions": 15,
+      "views": 202,
+      "comments": 3,
+      "reposts": 1,
+      "er": 1.7
+    },
+    {
+      "subscribers": 9,
+      "reactions": 12,
+      "views": 146,
+      "comments": 3,
+      "reposts": 1,
+      "er": 1.8
+    },
+    {
+      "subscribers": 4,
+      "reactions": -3,
+      "views": 222,
+      "comments": 2,
+      "reposts": 1,
+      "er": 1.8
+    },
+    {
+      "subscribers": 23,
+      "reactions": 2,
+      "views": 109,
+      "comments": 0,
+      "reposts": 0,
+      "er": 1.8
+    },
+    {
+      "subscribers": 23,
+      "reactions": 12,
+      "views": -10,
+      "comments": 2,
+      "reposts": 0,
+      "er": 1.4
+    },
+    {
+      "subscribers": 8,
+      "reactions": 3,
+      "views": 155,
+      "comments": 1,
+      "reposts": 2,
+      "er": 1.4
+    },
+    {
+      "subscribers": 16,
+      "reactions": 9,
+      "views": 209,
+      "comments": -2,
+      "reposts": 2,
+      "er": 1.4
+    },
+    {
+      "subscribers": -26,
+      "reactions": 2,
+      "views": 94,
+      "comments": -1,
+      "reposts": 0,
+      "er": 1.4
+    },
+    {
+      "subscribers": 20,
+      "reactions": -2,
+      "views": -53,
+      "comments": 1,
+      "reposts": 1,
+      "er": 1.4
+    },
+    {
+      "subscribers": 39,
+      "reactions": 11,
+      "views": 291,
+      "comments": 1,
+      "reposts": -1,
+      "er": 1.4
+    },
+    {
+      "subscribers": 24,
+      "reactions": 15,
+      "views": 113,
+      "comments": 3,
+      "reposts": 0,
+      "er": 1.4
+    },
+    {
+      "subscribers": 38,
+      "reactions": -1,
+      "views": 182,
+      "comments": -1,
+      "reposts": 2,
+      "er": 1.4
+    },
+    {
+      "subscribers": 32,
+      "reactions": 6,
+      "views": -122,
+      "comments": 2,
+      "reposts": 2,
+      "er": 1.4
+    },
+    {
+      "subscribers": 16,
+      "reactions": 10,
+      "views": 245,
+      "comments": 2,
+      "reposts": 2,
+      "er": 1.4
+    },
+    {
+      "subscribers": 14,
+      "reactions": 11,
+      "views": 136,
+      "comments": 0,
+      "reposts": 0,
+      "er": 1.4
+    },
+    {
+      "subscribers": 17,
+      "reactions": 6,
+      "views": 136,
+      "comments": 0,
+      "reposts": 2,
+      "er": 1.4
+    },
+    {
+      "subscribers": 17,
+      "reactions": -13,
+      "views": 224,
+      "comments": 1,
+      "reposts": 2,
+      "er": 1.4
+    },
+    {
+      "subscribers": -17,
+      "reactions": 22,
+      "views": 267,
+      "comments": 2,
+      "reposts": 1,
+      "er": 1.4
+    },
+    {
+      "subscribers": 34,
+      "reactions": 4,
+      "views": -63,
+      "comments": 3,
+      "reposts": -1,
+      "er": 1.4
+    },
+    {
+      "subscribers": 25,
+      "reactions": 28,
+      "views": 120,
+      "comments": 1,
+      "reposts": 1,
+      "er": 1.4
+    },
+    {
+      "subscribers": 29,
+      "reactions": -20,
+      "views": 261,
+      "comments": 2,
+      "reposts": 1,
+      "er": 1.5
+    },
+    {
+      "subscribers": 41,
+      "reactions": 27,
+      "views": 222,
+      "comments": 3,
+      "reposts": 2,
+      "er": 1.5
+    },
+    {
+      "subscribers": 48,
+      "reactions": 29,
+      "views": 130,
+      "comments": 3,
+      "reposts": 2,
+      "er": 1.4
+    },
+    {
+      "subscribers": 39,
+      "reactions": 13,
+      "views": 272,
+      "comments": 1,
+      "reposts": 1,
+      "er": 1.4
+    },
+    {
+      "subscribers": 32,
+      "reactions": 26,
+      "views": 221,
+      "comments": 3,
+      "reposts": 1,
+      "er": 1.5
+    },
+    {
+      "subscribers": 35,
+      "reactions": 23,
+      "views": 198,
+      "comments": 3,
+      "reposts": 1,
+      "er": 1.4
+    },
+    {
+      "subscribers": 56,
+      "reactions": 2,
+      "views": 121,
+      "comments": 2,
+      "reposts": 2,
+      "er": 1.4
+    },
+    {
+      "subscribers": 58,
+      "reactions": 10,
+      "views": -75,
+      "comments": 1,
+      "reposts": 2,
+      "er": 1.4
+    },
+    {
+      "subscribers": 48,
+      "reactions": 4,
+      "views": -72,
+      "comments": 3,
+      "reposts": 1,
+      "er": 1.4
+    },
+    {
+      "subscribers": 54,
+      "reactions": 32,
+      "views": 247,
+      "comments": 2,
+      "reposts": 2,
+      "er": 1.4
+    },
+    {
+      "subscribers": 58,
+      "reactions": 13,
+      "views": 267,
+      "comments": -2,
+      "reposts": 3,
+      "er": 1.4
+    },
+    {
+      "subscribers": 46,
+      "reactions": 18,
+      "views": -50,
+      "comments": 3,
+      "reposts": 3,
+      "er": 1.4
+    },
+    {
+      "subscribers": 54,
+      "reactions": 30,
+      "views": 327,
+      "comments": -2,
+      "reposts": 3,
+      "er": 1.4
+    },
+    {
+      "subscribers": 56,
+      "reactions": 15,
+      "views": 316,
+      "comments": -2,
+      "reposts": -2,
+      "er": 1.4
+    },
+    {
+      "subscribers": 51,
+      "reactions": 14,
+      "views": -54,
+      "comments": 2,
+      "reposts": 2,
+      "er": 1.5
+    },
+    {
+      "subscribers": -37,
+      "reactions": 12,
+      "views": 274,
+      "comments": 2,
+      "reposts": 3,
+      "er": 1.4
+    },
+    {
+      "subscribers": 66,
+      "reactions": -9,
+      "views": -67,
+      "comments": 5,
+      "reposts": 1,
+      "er": 1.4
+    },
+    {
+      "subscribers": 55,
+      "reactions": 17,
+      "views": 375,
+      "comments": 4,
+      "reposts": 1,
+      "er": 1.4
+    },
+    {
+      "subscribers": 65,
+      "reactions": 15,
+      "views": 458,
+      "comments": 3,
+      "reposts": 3,
+      "er": 1.4
+    },
+    {
+      "subscribers": 70,
+      "reactions": 43,
+      "views": 282,
+      "comments": 4,
+      "reposts": 1,
+      "er": 1.4
+    },
+    {
+      "subscribers": 82,
+      "reactions": 12,
+      "views": 522,
+      "comments": 4,
+      "reposts": 2,
+      "er": 1.4
+    },
+    {
+      "subscribers": 51,
+      "reactions": 21,
+      "views": 392,
+      "comments": 3,
+      "reposts": 0,
+      "er": 1.5
+    },
+    {
+      "subscribers": 64,
+      "reactions": 11,
+      "views": 274,
+      "comments": 5,
+      "reposts": 1,
+      "er": 1.5
+    },
+    {
+      "subscribers": 49,
+      "reactions": 50,
+      "views": -314,
+      "comments": 3,
+      "reposts": 2,
+      "er": 1.4
+    },
+    {
+      "subscribers": 66,
+      "reactions": 7,
+      "views": 469,
+      "comments": 4,
+      "reposts": 2,
+      "er": 1.5
+    },
+    {
+      "subscribers": 51,
+      "reactions": 34,
+      "views": 496,
+      "comments": 6,
+      "reposts": -1,
+      "er": 1.5
+    },
+    {
+      "subscribers": -56,
+      "reactions": 26,
+      "views": 480,
+      "comments": -1,
+      "reposts": -2,
+      "er": 1.4
+    },
+    {
+      "subscribers": 75,
+      "reactions": 29,
+      "views": 420,
+      "comments": 3,
+      "reposts": 3,
+      "er": 1.5
+    },
+    {
+      "subscribers": 59,
+      "reactions": 38,
+      "views": 557,
+      "comments": -1,
+      "reposts": 2,
+      "er": 1.5
+    },
+    {
+      "subscribers": 56,
+      "reactions": 48,
+      "views": 294,
+      "comments": -2,
+      "reposts": 3,
+      "er": 1.5
+    },
+    {
+      "subscribers": 66,
+      "reactions": 46,
+      "views": 346,
+      "comments": -2,
+      "reposts": 1,
+      "er": 1.4
+    },
+    {
+      "subscribers": 101,
+      "reactions": -6,
+      "views": 626,
+      "comments": 3,
+      "reposts": 2,
+      "er": 1.5
+    },
+    {
+      "subscribers": 100,
+      "reactions": 17,
+      "views": 610,
+      "comments": 6,
+      "reposts": 2,
+      "er": 1.5
+    },
+    {
+      "subscribers": 66,
+      "reactions": 31,
+      "views": -253,
+      "comments": 3,
+      "reposts": 3,
+      "er": 1.5
+    },
+    {
+      "subscribers": 83,
+      "reactions": -16,
+      "views": 308,
+      "comments": 3,
+      "reposts": 1,
+      "er": 1.4
+    },
+    {
+      "subscribers": 101,
+      "reactions": 28,
+      "views": 422,
+      "comments": 5,
+      "reposts": 3,
+      "er": 1.5
+    },
+    {
+      "subscribers": 104,
+      "reactions": 42,
+      "views": 567,
+      "comments": 6,
+      "reposts": 3,
+      "er": 1.4
+    },
+    {
+      "subscribers": 84,
+      "reactions": 18,
+      "views": 306,
+      "comments": 4,
+      "reposts": 1,
+      "er": 1.4
+    },
+    {
+      "subscribers": 99,
+      "reactions": 41,
+      "views": 285,
+      "comments": 6,
+      "reposts": 2,
+      "er": 1.4
+    },
+    {
+      "subscribers": 80,
+      "reactions": 52,
+      "views": -352,
+      "comments": -2,
+      "reposts": 3,
+      "er": 1.4
+    },
+    {
+      "subscribers": 71,
+      "reactions": 40,
+      "views": -444,
+      "comments": 3,
+      "reposts": 4,
+      "er": 1.4
+    },
+    {
+      "subscribers": -88,
+      "reactions": -14,
+      "views": 620,
+      "comments": 3,
+      "reposts": 4,
+      "er": 1.4
+    },
+    {
+      "subscribers": 84,
+      "reactions": -8,
+      "views": -79,
+      "comments": 4,
+      "reposts": 3,
+      "er": 1.4
+    },
+    {
+      "subscribers": 69,
+      "reactions": 47,
+      "views": 554,
+      "comments": 4,
+      "reposts": -2,
+      "er": 1.4
+    },
+    {
+      "subscribers": 72,
+      "reactions": -27,
+      "views": 485,
+      "comments": 3,
+      "reposts": 4,
+      "er": 1.5
+    },
+    {
+      "subscribers": 97,
+      "reactions": 23,
+      "views": 365,
+      "comments": 5,
+      "reposts": 2,
+      "er": 1.6
+    },
+    {
+      "subscribers": 74,
+      "reactions": 36,
+      "views": 315,
+      "comments": 3,
+      "reposts": 1,
+      "er": 1.6
+    },
+    {
+      "subscribers": 82,
+      "reactions": 60,
+      "views": 476,
+      "comments": -6,
+      "reposts": 2,
+      "er": 1.6
+    },
+    {
+      "subscribers": 101,
+      "reactions": 37,
+      "views": 625,
+      "comments": 5,
+      "reposts": 3,
+      "er": 1.6
+    },
+    {
+      "subscribers": 99,
+      "reactions": 19,
+      "views": 870,
+      "comments": 6,
+      "reposts": 2,
+      "er": 1.7
+    },
+    {
+      "subscribers": 91,
+      "reactions": 38,
+      "views": 639,
+      "comments": 4,
+      "reposts": 2,
+      "er": 1.6
+    },
+    {
+      "subscribers": -26,
+      "reactions": 37,
+      "views": 478,
+      "comments": 7,
+      "reposts": 4,
+      "er": 1.7
+    },
+    {
+      "subscribers": 105,
+      "reactions": -19,
+      "views": 919,
+      "comments": 5,
+      "reposts": 3,
+      "er": 1.6
+    },
+    {
+      "subscribers": 114,
+      "reactions": 38,
+      "views": -91,
+      "comments": 4,
+      "reposts": -1,
+      "er": 1.6
+    },
+    {
+      "subscribers": 109,
+      "reactions": 22,
+      "views": 706,
+      "comments": 5,
+      "reposts": -4,
+      "er": 1.4
+    },
+    {
+      "subscribers": 83,
+      "reactions": -45,
+      "views": 433,
+      "comments": 7,
+      "reposts": 3,
+      "er": 1.5
+    },
+    {
+      "subscribers": 90,
+      "reactions": 51,
+      "views": 693,
+      "comments": 7,
+      "reposts": 2,
+      "er": 1.6
+    },
+    {
+      "subscribers": 91,
+      "reactions": 25,
+      "views": 943,
+      "comments": 4,
+      "reposts": 2,
+      "er": 1.6
+    },
+    {
+      "subscribers": 107,
+      "reactions": 53,
+      "views": 613,
+      "comments": 6,
+      "reposts": 2,
+      "er": 1.7
+    },
+    {
+      "subscribers": 116,
+      "reactions": 25,
+      "views": 439,
+      "comments": 7,
+      "reposts": 3,
+      "er": 1.7
+    },
+    {
+      "subscribers": 95,
+      "reactions": 21,
+      "views": 597,
+      "comments": 7,
+      "reposts": 2,
+      "er": 1.7
+    },
+    {
+      "subscribers": 125,
+      "reactions": 28,
+      "views": 596,
+      "comments": 5,
+      "reposts": 4,
+      "er": 1.4
+    },
+    {
+      "subscribers": 106,
+      "reactions": -15,
+      "views": 688,
+      "comments": -1,
+      "reposts": -3,
+      "er": 1.4
+    },
+    {
+      "subscribers": 106,
+      "reactions": 45,
+      "views": 1047,
+      "comments": 7,
+      "reposts": 0,
+      "er": 1.4
+    },
+    {
+      "subscribers": 127,
+      "reactions": -40,
+      "views": 826,
+      "comments": 6,
+      "reposts": -2,
+      "er": 1.5
+    },
+    {
+      "subscribers": 145,
+      "reactions": 49,
+      "views": 825,
+      "comments": -7,
+      "reposts": 2,
+      "er": 1.5
+    },
+    {
+      "subscribers": 151,
+      "reactions": 53,
+      "views": 908,
+      "comments": 5,
+      "reposts": -1,
+      "er": 1.4
+    },
+    {
+      "subscribers": 128,
+      "reactions": 27,
+      "views": 759,
+      "comments": 6,
+      "reposts": 4,
+      "er": 1.5
+    }
+  ]
+}
