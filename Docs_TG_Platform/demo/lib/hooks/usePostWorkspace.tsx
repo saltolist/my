@@ -1,21 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RefObject } from "react";
 import { postById, useDomain } from "@/state/domain-store";
 import { useComposer } from "@/state/composer-store";
 import { useNavigation } from "@/state/navigation-store";
 import type { NavigationPatch } from "@/state/navigation/types";
-import { postTitle } from "@/lib/helpers";
 import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/lib/chatPaths";
 import { usePostCtxMenuItems } from "@/components/post/postCtxMenu";
-import { NavIconChats, NavIconFeed, NavIconNotes } from "@/components/sidebar/NavIcons";
 import { useFeedPostLayout } from "@/lib/hooks/useFeedPostLayout";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 import { usePostHeaderCompact1200 } from "@/lib/hooks/usePostHeaderCompact1200";
 import { useCompactHeader1000 } from "@/lib/hooks/useCompactHeader1000";
+import { usePostScreenHeader } from "@/lib/hooks/usePostScreenHeader";
 import { routes } from "@/lib/routes";
-import type { PageHeaderOverflowItem } from "@/components/PageHeaderOverflow";
 import type { LocalChat, LocalNote, Post, PostMedia, PostMode, NoteListFilter } from "@/lib/types";
 
 export function usePostWorkspace() {
@@ -49,17 +47,9 @@ export function usePostWorkspace() {
 
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const postCardRef = useRef<HTMLDivElement>(null);
-  const postHdrTopRef = useRef<HTMLDivElement>(null);
-  const mobileSearchLeftRef = useRef<HTMLDivElement>(null);
-  const postOverflowWrapRef = useRef<HTMLDivElement>(null);
-  const postHeaderRightRef = useRef<HTMLDivElement>(null);
-  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
-  const mobileSearchWrapRef = useRef<HTMLDivElement>(null);
 
-  const [showJump, setShowJump] = useState(false);
   const [listSearch, setListSearch] = useState("");
   const [listContextFilter, setListContextFilter] = useState<NoteListFilter>("all");
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const mediaItems: PostMedia[] = post?.media ?? [];
   const activeChat: LocalChat | null =
@@ -73,10 +63,6 @@ export function usePostWorkspace() {
     () => lastAssistantFlatIndex(flatMessages),
     [flatMessages],
   );
-
-  const scrollToPost = useCallback(() => {
-    chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
 
   const applyPostView = useCallback(
     (nextMode: PostMode, nextChatId: number | null = null) => {
@@ -114,6 +100,25 @@ export function usePostWorkspace() {
       isEditing: false,
     });
   }, [confirmDiscardAnyEdit, discardPendingEdits, patchNav]);
+
+  const postHeader = usePostScreenHeader({
+    post,
+    postMode,
+    currentPostChatId,
+    activeChat,
+    isEditing,
+    isMobile,
+    postHeaderCompact,
+    postHeaderCompact1000,
+    ctxItems,
+    listSearch,
+    setListSearch,
+    chatScrollRef,
+    postCardRef,
+    openPostView,
+    goToPostNotes,
+    goToPostChats,
+  });
 
   const startEdit = useCallback(() => {
     patchNav({ isEditing: true });
@@ -164,158 +169,8 @@ export function usePostWorkspace() {
   }, [flatMessages.length, postMode]);
 
   useEffect(() => {
-    if (postMode !== "chat") {
-      setShowJump(false);
-      return;
-    }
-    const sync = () => {
-      if (!chatScrollRef.current || !postCardRef.current) return;
-      const hdr = chatScrollRef.current
-        .closest(".screen")
-        ?.querySelector<HTMLElement>(".post-hdr");
-      const revealLine =
-        hdr?.getBoundingClientRect().bottom ??
-        chatScrollRef.current.getBoundingClientRect().top;
-      const cr = postCardRef.current.getBoundingClientRect();
-      setShowJump(cr.bottom < revealLine + 4);
-    };
-    sync();
-    const el = chatScrollRef.current;
-    el?.addEventListener("scroll", sync, { passive: true });
-    window.addEventListener("resize", sync);
-    return () => {
-      el?.removeEventListener("scroll", sync);
-      window.removeEventListener("resize", sync);
-    };
-  }, [postMode, isEditing, post?.id, activeChat?.id]);
-
-  const postSubPage =
-    postMode === "comments"
-      ? "Комментарии"
-      : postMode === "notes"
-        ? "Заметки"
-        : postMode === "chats"
-          ? "Чаты"
-          : null;
-  const showListHeaderSearch = postSubPage != null;
-
-  useEffect(() => {
-    setMobileSearchOpen(false);
-  }, [postMode, showListHeaderSearch]);
-
-  useEffect(() => {
     setListContextFilter("all");
   }, [post?.id]);
-
-  const postHeaderOverflowItems = useMemo((): PageHeaderOverflowItem[] => {
-    if (!post) return [];
-    const items: PageHeaderOverflowItem[] = [];
-
-    if (postMode === "chat" && showJump) {
-      items.push({
-        label: "↑ К посту",
-        icon: <NavIconFeed />,
-        onClick: scrollToPost,
-      });
-    }
-
-    if (postMode !== "chat") {
-      items.push({
-        label: "К посту",
-        onClick: openPostView,
-        icon: <NavIconFeed />,
-      });
-    }
-
-    items.push({
-      label: "Заметки",
-      onClick: goToPostNotes,
-      active: postMode === "notes",
-      icon: <NavIconNotes />,
-    });
-    items.push({
-      label: "Чаты",
-      onClick: goToPostChats,
-      active: postMode === "chats",
-      icon: <NavIconChats />,
-    });
-
-    return [
-      ...items,
-      ...ctxItems.map((item) => ({
-        label: item.label,
-        onClick: item.onClick,
-        icon: item.icon,
-        danger: item.danger,
-        disabled: item.disabled,
-      })),
-    ];
-  }, [
-    ctxItems,
-    goToPostChats,
-    goToPostNotes,
-    openPostView,
-    post,
-    scrollToPost,
-    showJump,
-    postMode,
-  ]);
-
-  const hasPostMobileTrailing = postHeaderOverflowItems.length > 0;
-
-  useLayoutEffect(() => {
-    if (!post || !mobileSearchOpen || !postHeaderCompact || !showListHeaderSearch) return;
-    const header = postHdrTopRef.current;
-    const left = mobileSearchLeftRef.current;
-    const right = postHeaderRightRef.current;
-    if (!header || !left || !right) return;
-
-    const updateSearchSpan = () => {
-      const headerRect = header.getBoundingClientRect();
-      const leftRect = left.getBoundingClientRect();
-      const rightRect = right.getBoundingClientRect();
-      header.style.setProperty(
-        "--page-header-search-span-left",
-        `${leftRect.right - headerRect.left}px`,
-      );
-      header.style.setProperty(
-        "--page-header-search-span-right",
-        `${headerRect.right - rightRect.left}px`,
-      );
-    };
-
-    updateSearchSpan();
-    const observer = new ResizeObserver(updateSearchSpan);
-    observer.observe(header);
-    observer.observe(left);
-    observer.observe(right);
-    window.addEventListener("resize", updateSearchSpan);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", updateSearchSpan);
-    };
-  }, [post, mobileSearchOpen, postHeaderCompact, showListHeaderSearch]);
-
-  const listSearchPlaceholder =
-    postMode === "comments"
-      ? "Поиск по комментариям..."
-      : postMode === "notes"
-        ? "Поиск по заметкам..."
-        : "Поиск по чатам...";
-
-  const postIntermediateCrumb = post ? postTitle(post) : "";
-  const showPostModeButtons = !postHeaderCompact1000;
-  const showPostMobileRight =
-    isMobile &&
-    ((showListHeaderSearch && !mobileSearchOpen) ||
-      hasPostMobileTrailing ||
-      (mobileSearchOpen && hasPostMobileTrailing));
-  const showPostTabletOverflow =
-    postHeaderCompact1000 && !isMobile && hasPostMobileTrailing;
-  const showPostTabletSearchToggle =
-    postHeaderCompact && !isMobile && showListHeaderSearch && !mobileSearchOpen;
-  const showPostTabletCompactRight =
-    postHeaderCompact && !isMobile && showListHeaderSearch;
 
   return {
     post,
@@ -333,33 +188,14 @@ export function usePostWorkspace() {
     setListSearch,
     listContextFilter,
     setListContextFilter,
-    mobileSearchOpen,
-    setMobileSearchOpen,
-    postSubPage,
-    showListHeaderSearch,
-    listSearchPlaceholder,
-    postIntermediateCrumb,
-    showJump,
-    postHeaderOverflowItems,
     ctxItems,
     ctxModal,
     isMobile,
     postHeaderCompact,
     postHeaderCompact1000,
-    showPostModeButtons,
-    showPostMobileRight,
-    showPostTabletOverflow,
-    showPostTabletSearchToggle,
-    showPostTabletCompactRight,
-    hasPostMobileTrailing,
+    postHeader,
     chatScrollRef,
     postCardRef,
-    postHdrTopRef,
-    mobileSearchLeftRef,
-    postOverflowWrapRef,
-    postHeaderRightRef,
-    mobileSearchInputRef,
-    mobileSearchWrapRef,
     navigate,
     navigateBack,
     goToPostNotes,
@@ -369,7 +205,7 @@ export function usePostWorkspace() {
     startNewChat,
     startNewNote,
     handleBack,
-    scrollToPost,
+    scrollToPost: postHeader.scrollToPost,
     resetToPostChatRoot,
     startEdit,
     cancelEdit,
@@ -386,10 +222,4 @@ export type PostWorkspace = ReturnType<typeof usePostWorkspace>;
 export type PostWorkspaceRefs = {
   chatScrollRef: RefObject<HTMLDivElement | null>;
   postCardRef: RefObject<HTMLDivElement | null>;
-  postHdrTopRef: RefObject<HTMLDivElement | null>;
-  mobileSearchLeftRef: RefObject<HTMLDivElement | null>;
-  postOverflowWrapRef: RefObject<HTMLDivElement | null>;
-  postHeaderRightRef: RefObject<HTMLDivElement | null>;
-  mobileSearchInputRef: RefObject<HTMLInputElement | null>;
-  mobileSearchWrapRef: RefObject<HTMLDivElement | null>;
 };

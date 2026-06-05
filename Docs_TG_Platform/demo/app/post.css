@@ -985,7 +985,7 @@
     min-width: 0;
     padding: 0;
     pointer-events: none;
-    z-index: 0;
+    z-index: 2;
   }
 .post-hdr--with-search-mobile.post-hdr--search-open
     .post-header-search-expand
@@ -1148,12 +1148,12 @@ textarea,
     min-width: 0;
     padding: 0;
     pointer-events: none;
-    z-index: 0;
+    z-index: 2;
   }
 .post-hdr--with-search-mobile.post-hdr--search-open
     .post-header-search-expand
     .page-header-search-field {
-    width: calc(100% - var(--page-header-mobile-search-shrink));
+    width: calc(100% - var(--page-header-mobile-search-shrink, 50px));
     max-width: none;
     flex: 0 0 auto;
     pointer-events: auto;

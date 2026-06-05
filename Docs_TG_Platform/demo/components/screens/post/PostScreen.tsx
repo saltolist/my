@@ -35,7 +35,20 @@ export default function PostScreen() {
 
   return (
     <div className={`post-screen-wrap${ws.layoutClassName}`} style={ws.layoutStyle}>
-      <PostScreenHeader {...ws} post={post} activeChat={ws.activeChat} />
+      <PostScreenHeader
+        {...ws.postHeader}
+        post={post}
+        activeChat={ws.activeChat}
+        ctxItems={ws.ctxItems}
+        ctxModal={ws.ctxModal}
+        isMobile={ws.isMobile}
+        onNavigateFeed={() => ws.navigate("feed")}
+        onOpenPostView={ws.openPostView}
+        onResetToPostChatRoot={ws.resetToPostChatRoot}
+        onGoToPostNotes={ws.goToPostNotes}
+        onGoToPostChats={ws.goToPostChats}
+        onBack={ws.handleBack}
+      />
       {ws.postMode === "chat" ? (
         <PostChatView {...ws} post={post} />
       ) : ws.postMode === "chats" ? (
