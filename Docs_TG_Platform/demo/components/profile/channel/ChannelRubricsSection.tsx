@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  FormSection,
-  RubricNoteFields,
-} from "@/components/profile/channel/ChannelFormPrimitives";
+import { RubricNoteFields } from "@/components/profile/channel/ChannelFormPrimitives";
 import type { ChannelProfileConfig } from "@/lib/types";
 
 type Props = {
@@ -26,29 +23,8 @@ export default function ChannelRubricsSection({
   onReset,
 }: Props) {
   return (
-    <FormSection
-      title="Рубрики"
-      action={
-        <div className="profile-rubric-actions">
-          <button
-            className="btn btn-ghost btn-sm profile-rubric-save"
-            disabled={!rubricsDirty}
-            onClick={onSave}
-            type="button"
-          >
-            Сохранить
-          </button>
-          {rubricsDirty ? (
-            <button className="btn btn-ghost btn-sm" onClick={onReset} type="button">
-              Отменить
-            </button>
-          ) : null}
-          <button className="btn btn-ghost btn-sm" onClick={onAddRubric} type="button">
-            + Рубрика
-          </button>
-        </div>
-      }
-    >
+    <div className="profile-section profile-rubrics-section">
+      <div className="profile-section-title">Рубрики</div>
       <div className="profile-rubrics-grid">
         {cfg.rubrics.map((rubric) => (
           <div className="rubric-editor" key={rubric.id}>
@@ -63,6 +39,19 @@ export default function ChannelRubricsSection({
           </div>
         ))}
       </div>
-    </FormSection>
+      <div className="profile-action-buttons profile-action-buttons--ai">
+        <button className="btn btn-ghost" onClick={onAddRubric} type="button">
+          + Рубрика
+        </button>
+        <button className="btn btn-primary" disabled={!rubricsDirty} onClick={onSave} type="button">
+          Сохранить
+        </button>
+        {rubricsDirty ? (
+          <button className="btn btn-ghost" onClick={onReset} type="button">
+            Отменить
+          </button>
+        ) : null}
+      </div>
+    </div>
   );
 }

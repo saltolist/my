@@ -5,26 +5,6 @@ import MessageTrashIcon from "@/components/chat/MessageTrashIcon";
 import { useProfileTextareaAutoResize } from "@/lib/use-profile-textarea-auto-resize";
 import { useFitTitleSize } from "@/lib/use-fit-title";
 
-export function FormSection({
-  title,
-  action,
-  children,
-}: {
-  title: string;
-  action?: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <div className="profile-section">
-      <div className="profile-section-title">
-        {title}
-        {action}
-      </div>
-      {children}
-    </div>
-  );
-}
-
 export function ChannelSubsection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="profile-channel-subsection">

@@ -22,11 +22,6 @@
   --nav-w-rail: 86px;
   /* Ширина сайдбара до overlay; для расчёта content-adapt-w в JS */
   --nav-sidebar-w: 220px;
-  /* Телефон и код (desktop/tablet, не .telegram-auth-mobile) */
-  --telegram-phone-input-w: calc(12.5rem - 24px);
-  --telegram-code-input-w: var(--telegram-phone-input-w);
-  /* Ширина ряда «телефон + gap + кнопка» — только для поля канала */
-  --telegram-auth-row-w: calc(var(--telegram-phone-input-w) + 12px + 160px);
   /* Эффективная ширина для правил адаптации контента (обновляется в ContentAdaptSync) */
   --content-adapt-w: 100vw;
   /* Сайдбар: актив = пузырёк user-сообщения; hover — светлее */
@@ -48,28 +43,6 @@
   --page-header-control-bg-hover: var(--bg3);
   --page-header-control-bg-focus: var(--bg3);
   --page-header-control-border: var(--border2);
-  --profile-control-fg: var(--text);
-  --profile-control-fg-muted: var(--text2);
-  --profile-field-border: var(--border2);
-  --profile-field-shadow: var(--inset-edge);
-  /* Профиль: фон секций не трогаем; интерактив — сплошной --bg2 */
-  --profile-block-bg: color-mix(in srgb, var(--bg4) 43%, transparent);
-  --profile-control-bg: var(--bg2);
-  --profile-control-bg-hover: var(--bg3);
-  --profile-control-bg-active: var(--bg3);
-  --profile-field-bg: var(--bg2);
-  --profile-field-bg-hover: var(--bg3);
-  --profile-field-bg-active: var(--bg3);
-  --profile-select-bg: var(--bg2);
-  --profile-select-bg-hover: var(--bg3);
-  --profile-select-bg-active: var(--bg3);
-  --profile-control-border: var(--border2);
-  --profile-control-blur: none;
-  --profile-green-border: color-mix(in srgb, var(--green) 38%, var(--profile-control-border));
-  --profile-green-card-border: color-mix(in srgb, var(--green) 32%, var(--profile-control-border));
-  --profile-green-number-bg: color-mix(in srgb, var(--green) 22%, var(--profile-control-bg-hover));
-  --profile-telegram-card-bg: var(--profile-control-bg);
-  --profile-r: 15px;
   /* Активный контур полей и контролов */
   --control-border-active: var(--border2);
   /* Ширина карточки поста в ленте (переопределяется с экрана ленты) */
@@ -161,25 +134,7 @@
   --page-header-control-bg-hover: var(--bg3);
   --page-header-control-bg-focus: var(--bg3);
   --page-header-control-border: var(--border2);
-  --profile-control-fg: var(--text);
-  --profile-control-fg-muted: var(--text2);
-  --profile-field-border: var(--border2);
-  --profile-field-shadow: var(--inset-edge);
-  --profile-control-bg: var(--bg2);
-  --profile-control-bg-hover: var(--bg3);
-  --profile-control-bg-active: var(--bg3);
-  --profile-field-bg: var(--bg2);
-  --profile-field-bg-hover: var(--bg3);
-  --profile-field-bg-active: var(--bg3);
-  --profile-select-bg: var(--bg2);
-  --profile-select-bg-hover: var(--bg3);
-  --profile-select-bg-active: var(--bg3);
-  --profile-control-border: var(--border2);
-  --profile-control-blur: none;
-  --profile-telegram-card-bg: var(--bg2);
   --control-border-active: var(--border2);
-  /* Поля ввода: hover/focus — ярче обводка, фон без подсветки */
-  --profile-field-border-active: color-mix(in srgb, var(--border2) 30%, var(--text2) 70%);
   --reaction-pill-bg: color-mix(in srgb, var(--bg3) 82%, var(--bg4));
   --reaction-pill-border: var(--border);
   --reaction-pill-fg: var(--text2);
@@ -223,8 +178,7 @@
   background: var(--bg2);
   border-color: var(--border2);
 }
-:root[data-theme="dark"] .chart-series-selector-panel--profile,
-:root[data-theme="dark"] .profile-page .model-picker-dropdown {
+:root[data-theme="dark"] .chart-series-selector-panel--profile {
   background: var(--bg2);
   border-color: var(--border2);
   -webkit-backdrop-filter: none;
@@ -236,9 +190,6 @@
 :root[data-theme="dark"] .note-ai-toggle.on,
 :root[data-theme="dark"] .note-ai-toggle.on.note-ai-toggle--suppress-hover:hover:not(:disabled) {
   color: var(--text);
-}
-:root[data-theme="dark"] .profile-page input[type="checkbox"]::after {
-  border-color: var(--text2);
 }
 :root[data-theme="dark"] .sched-cal-cell:hover:not(:disabled):not(.sched-cal-cell--sel) {
   background: var(--bg3);
@@ -255,42 +206,16 @@
 :root[data-theme="dark"] .model-type-tab.active {
   background: var(--bg3);
 }
-:root[data-theme="dark"] :is(
-  .profile-input-explicit,
-  .page-header-search
-):hover:not(:disabled),
-:root[data-theme="dark"] :is(
-  .profile-input-explicit,
-  .page-header-search
-):focus {
-  border-color: var(--profile-field-border-active);
-}
-:root[data-theme="dark"] .profile-input-explicit:hover:not(:disabled),
-:root[data-theme="dark"] .profile-input-explicit:focus {
-  background: var(--profile-field-bg);
-}
 :root[data-theme="dark"] .page-header-search:hover,
 :root[data-theme="dark"] .page-header-search:focus,
 :root[data-theme="dark"] .page-header-search:focus:hover {
   background: var(--page-header-control-bg);
-}
-:root[data-theme="dark"] .telegram-code-input-field:hover:not(:has(.telegram-code-input:disabled)),
-:root[data-theme="dark"] .telegram-code-input-field:focus-within {
-  background: var(--profile-select-bg);
-  border-color: var(--profile-field-border-active);
 }
 :root[data-theme="dark"] .platform-filter-select:hover,
 :root[data-theme="dark"] .platform-filter-select:focus {
   background: var(--profile-select-bg);
   border-color: var(--profile-field-border-active);
 }
-:root[data-theme="dark"] .profile-ai-engine-section .profile-model-picker .model-picker-btn:hover:not(:disabled),
-:root[data-theme="dark"] .profile-ai-engine-section .profile-model-picker.is-open > .model-picker-btn {
-  background: var(--profile-select-bg);
-  border-color: var(--profile-field-border-active);
-  color: var(--text);
-}
-
 /* Реакции: без «светящихся» голубых пилюль на тёмных карточках */
 :root[data-theme="dark"] .post-reaction-pill {
   --reaction-pill-shadow: var(--inset-edge);
@@ -360,28 +285,6 @@ html.sidebar-collapsed {
   --reaction-pill-border: transparent;
   --reaction-pill-fg: rgb(65, 135, 200);
 
-  --profile-block-bg: #ffffff;
-  --profile-control-fg: #3a3a3a;
-  --profile-control-fg-muted: #3a3a3a;
-  --profile-field-border: color-mix(in srgb, var(--text2) 44%, #fff 56%);
-  --profile-field-shadow: none;
-  --profile-control-bg: var(--page-header-control-bg);
-  --profile-control-bg-hover: var(--page-header-control-bg-hover);
-  --profile-control-bg-active: var(--page-header-control-bg-focus);
-  --profile-field-bg: #ffffff;
-  --profile-field-bg-hover: #ffffff;
-  --profile-field-bg-active: #ffffff;
-  --profile-select-bg: color-mix(in srgb, var(--bg3) 31%, transparent);
-  --profile-select-bg-hover: color-mix(in srgb, var(--bg4) 33%, transparent);
-  --profile-select-bg-active: color-mix(in srgb, var(--bg4) 36%, transparent);
-  --profile-control-border: var(--page-header-control-border);
-  /* Поля ввода: hover/focus — темнее обводка, фон без подсветки */
-  --profile-field-border-active: color-mix(in srgb, var(--profile-field-border) 28%, var(--text2) 72%);
-  --profile-green-border: color-mix(in srgb, var(--green) 68%, var(--profile-control-border));
-  --profile-green-card-border: color-mix(in srgb, var(--green) 58%, var(--profile-control-border));
-  --profile-green-number-bg: color-mix(in srgb, var(--green) 22%, #fff 78%);
-  --profile-telegram-card-bg: #ffffff;
-
   --page-bg-grad:
     radial-gradient(100% 82% at 94% 0%, rgba(37, 99, 235, 0.075) 0%, transparent 50%),
     radial-gradient(88% 72% at 0% 100%, rgba(124, 58, 237, 0.05) 0%, transparent 52%),
@@ -404,9 +307,6 @@ html.sidebar-collapsed {
   background: #ffffff;
 }
 
-:root[data-theme="light"] .profile-page .profile-section::before,
-:root[data-theme="light"] .profile-page .profile-channel-actions::before,
-:root[data-theme="light"] .profile-page .stat-card::before,
 :root[data-theme="light"] :is(
   .glass-surface,
   .stat-card,
@@ -418,24 +318,6 @@ html.sidebar-collapsed {
   backdrop-filter: none;
 }
 
-:root[data-theme="light"] .profile-page :is(
-  .theme-switch,
-  .theme-switch-btn,
-  .profile-input-explicit,
-  .telegram-code-input-field,
-  .profile-model-picker .model-picker-btn,
-  .model-picker-dropdown,
-  .btn,
-  input[type="checkbox"],
-  .rubric-editor,
-  .rubric-item,
-  .telegram-step,
-  .telegram-sync-card
-),
-:root[data-theme="light"] #screen-profile .page-header-profile-tabs .period-tab {
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
 :root[data-theme="light"] :is(
   .model-picker-dropdown,
   .chart-series-selector-panel,
@@ -458,29 +340,10 @@ html.sidebar-collapsed {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
-:root[data-theme="light"] :is(
-  .profile-input-explicit,
-  .page-header-search
-):hover:not(:disabled),
-:root[data-theme="light"] :is(
-  .profile-input-explicit,
-  .page-header-search
-):focus {
-  border-color: var(--profile-field-border-active);
-}
-:root[data-theme="light"] .profile-input-explicit:hover:not(:disabled),
-:root[data-theme="light"] .profile-input-explicit:focus {
-  background: var(--profile-field-bg);
-}
 :root[data-theme="light"] .page-header-search:hover,
 :root[data-theme="light"] .page-header-search:focus,
 :root[data-theme="light"] .page-header-search:focus:hover {
   background: var(--page-header-control-bg);
-}
-:root[data-theme="light"] .telegram-code-input-field:hover:not(:has(.telegram-code-input:disabled)),
-:root[data-theme="light"] .telegram-code-input-field:focus-within {
-  background: #ffffff;
-  border-color: var(--profile-field-border-active);
 }
 :root[data-theme="light"] .platform-filter-select:hover,
 :root[data-theme="light"] .platform-filter-select:focus {
@@ -490,12 +353,6 @@ html.sidebar-collapsed {
 :root[data-theme="light"] .sched-time-input:focus {
   background: var(--profile-control-bg);
   border-color: var(--profile-field-border-active);
-}
-:root[data-theme="light"] .profile-ai-engine-section .profile-model-picker .model-picker-btn:hover:not(:disabled),
-:root[data-theme="light"] .profile-ai-engine-section .profile-model-picker.is-open > .model-picker-btn {
-  background: var(--profile-select-bg);
-  border-color: var(--profile-field-border-active);
-  color: var(--text);
 }
 /* "system" → follow OS preference */
 @media (prefers-color-scheme: light) {
@@ -556,56 +413,16 @@ html.sidebar-collapsed {
     --reaction-pill-border: transparent;
     --reaction-pill-fg: rgb(65, 135, 200);
 
-    --profile-block-bg: #ffffff;
-    --profile-control-fg: #3a3a3a;
-    --profile-control-fg-muted: #3a3a3a;
-    --profile-field-border: color-mix(in srgb, var(--text2) 44%, #fff 56%);
-    --profile-field-shadow: none;
-    --profile-control-bg: var(--page-header-control-bg);
-    --profile-control-bg-hover: var(--page-header-control-bg-hover);
-    --profile-control-bg-active: var(--page-header-control-bg-focus);
-    --profile-field-bg: #ffffff;
-    --profile-field-bg-hover: #ffffff;
-    --profile-field-bg-active: #ffffff;
-    --profile-select-bg: color-mix(in srgb, var(--bg3) 31%, transparent);
-    --profile-select-bg-hover: color-mix(in srgb, var(--bg4) 33%, transparent);
-    --profile-select-bg-active: color-mix(in srgb, var(--bg4) 36%, transparent);
-    --profile-control-border: var(--page-header-control-border);
-    --profile-field-border-active: color-mix(in srgb, var(--profile-field-border) 28%, var(--text2) 72%);
-    --profile-green-border: color-mix(in srgb, var(--green) 68%, var(--profile-control-border));
-    --profile-green-card-border: color-mix(in srgb, var(--green) 58%, var(--profile-control-border));
-    --profile-green-number-bg: color-mix(in srgb, var(--green) 22%, #fff 78%);
-    --profile-telegram-card-bg: #ffffff;
-
     --page-bg-grad:
       radial-gradient(100% 82% at 94% 0%, rgba(37, 99, 235, 0.075) 0%, transparent 50%),
       radial-gradient(88% 72% at 0% 100%, rgba(124, 58, 237, 0.05) 0%, transparent 52%),
       linear-gradient(178deg, #f7f8fc 0%, var(--bg) 38%, #f3f4f8 100%);
   }
 
-  :root[data-theme="system"] :is(
-    .profile-input-explicit,
-    .page-header-search
-  ):hover:not(:disabled),
-  :root[data-theme="system"] :is(
-    .profile-input-explicit,
-    .page-header-search
-  ):focus {
-    border-color: var(--profile-field-border-active);
-  }
-  :root[data-theme="system"] .profile-input-explicit:hover:not(:disabled),
-  :root[data-theme="system"] .profile-input-explicit:focus {
-    background: var(--profile-field-bg);
-  }
   :root[data-theme="system"] .page-header-search:hover,
   :root[data-theme="system"] .page-header-search:focus,
   :root[data-theme="system"] .page-header-search:focus:hover {
     background: var(--page-header-control-bg);
-  }
-  :root[data-theme="system"] .telegram-code-input-field:hover:not(:has(.telegram-code-input:disabled)),
-  :root[data-theme="system"] .telegram-code-input-field:focus-within {
-    background: #ffffff;
-    border-color: var(--profile-field-border-active);
   }
   :root[data-theme="system"] .platform-filter-select:hover,
   :root[data-theme="system"] .platform-filter-select:focus {
@@ -616,13 +433,6 @@ html.sidebar-collapsed {
     background: var(--profile-control-bg);
     border-color: var(--profile-field-border-active);
   }
-  :root[data-theme="system"] .profile-ai-engine-section .profile-model-picker .model-picker-btn:hover:not(:disabled),
-  :root[data-theme="system"] .profile-ai-engine-section .profile-model-picker.is-open > .model-picker-btn {
-    background: var(--profile-select-bg);
-    border-color: var(--profile-field-border-active);
-    color: var(--text);
-  }
-
   :root[data-theme="system"] .post-card,
   :root[data-theme="system"] .post-msg-card,
   :root[data-theme="system"] .chat-card,
@@ -638,9 +448,6 @@ html.sidebar-collapsed {
     background: #ffffff;
   }
 
-  :root[data-theme="system"] .profile-page .profile-section::before,
-  :root[data-theme="system"] .profile-page .profile-channel-actions::before,
-  :root[data-theme="system"] .profile-page .stat-card::before,
   :root[data-theme="system"] :is(
     .glass-surface,
     .stat-card,
@@ -652,33 +459,12 @@ html.sidebar-collapsed {
     backdrop-filter: none;
   }
 
-  :root[data-theme="system"] .profile-page :is(
-    .theme-switch,
-    .theme-switch-btn,
-    .profile-input-explicit,
-    .telegram-code-input-field,
-    .profile-model-picker .model-picker-btn,
-    .model-picker-dropdown,
-    .btn,
-    input[type="checkbox"],
-    .rubric-editor,
-    .rubric-item,
-    .telegram-step,
-    .telegram-sync-card
-  ) {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
   :root[data-theme="system"] .note-ai-toggle {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
   :root[data-theme="system"] .model-picker-dropdown--composer {
     background: color-mix(in srgb, var(--bg3) 88%, #ffffff 12%);
-  }
-  :root[data-theme="system"] #screen-profile .page-header-profile-tabs .period-tab {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
   }
 }
 html, body {
@@ -1359,32 +1145,6 @@ button.nav-item {
 .post-hdr > * {
   position: relative;
   z-index: 1;
-}
-
-/* Блоки профиля — тот же серый, что у неактивной btn-primary «Сохранить» */
-.profile-page .profile-section,
-.profile-page .profile-channel-actions,
-.profile-page .stat-card {
-  position: relative;
-  isolation: isolate;
-  background: transparent;
-  border: 1px solid var(--profile-control-border);
-  border-radius: var(--block-r);
-  overflow: hidden;
-}
-
-.profile-page .profile-section::before,
-.profile-page .profile-channel-actions::before,
-.profile-page .stat-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background: var(--profile-block-bg);
-  -webkit-backdrop-filter: var(--profile-control-blur);
-  backdrop-filter: var(--profile-control-blur);
-  pointer-events: none;
 }
 
 /* ── Main wrapper ── */
@@ -5946,23 +5706,18 @@ button.filter-tab {
     overflow-x: visible;
   }
 
-  #screen-analytics.active,
-  #screen-profile.active {
+  #screen-analytics.active {
     overflow-x: visible;
   }
 
-  .analytics-page,
-  .profile-page {
+  .analytics-page {
     overflow-x: visible;
   }
 
   /* Тени карточек не обрезаются overflow: hidden у glass / таблицы */
   .analytics-page .analytics-card,
   .analytics-page .stat-card,
-  .analytics-page .mini-metric,
-  .profile-page .profile-section,
-  .profile-page .profile-channel-actions,
-  .profile-page .stat-card {
+  .analytics-page .mini-metric {
     overflow: visible;
   }
 
@@ -9138,81 +8893,6 @@ button.filter-tab {
 
   .engagement-grid {
     grid-template-columns: 1fr;
-  }
-
-  .profile-section-title {
-    gap: 10px;
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  /* ИИ-движок: mobile-колонка только без tablet-сетки; overlay 541–760px — data-profile-ai-adapt */
-  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-list {
-    gap: 0;
-  }
-
-  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-list .profile-model-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    padding-bottom: 12px;
-  }
-
-  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-list .profile-model-row + .profile-model-row {
-    border-top: 1px dashed var(--profile-control-border);
-    padding-top: 12px;
-  }
-
-  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-pickers {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    min-width: 0;
-  }
-
-  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-footer {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px 16px;
-    width: 100%;
-  }
-
-  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-provider,
-  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-name {
-    flex: 1 1 0;
-    width: auto;
-    min-width: 0;
-  }
-
-  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-key {
-    width: 100%;
-    flex: none;
-  }
-
-  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-footer .profile-model-remove {
-    margin-left: auto;
-    gap: 6px;
-    padding: 4px 6px 4px 4px;
-  }
-
-  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-remove-label {
-    display: inline;
-    font-size: 12px;
-    line-height: 1.3;
-    font-weight: 500;
-    color: inherit;
-    white-space: nowrap;
-  }
-
-  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-list > .btn {
-    margin-top: 4px;
-  }
-
-  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-checkbox-label,
-  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-multi {
-    white-space: normal;
   }
 
   .note-file-item {

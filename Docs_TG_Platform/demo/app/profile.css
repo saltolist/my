@@ -1,6 +1,228 @@
 /* Profile screen + profile-specific responsive adapt rules */
 /* Extracted from globals.css */
 
+/* ── Profile theme tokens ── */
+:root {
+  --telegram-phone-input-w: calc(12.5rem - 24px);
+  --telegram-code-input-w: var(--telegram-phone-input-w);
+  --telegram-auth-row-w: calc(var(--telegram-phone-input-w) + 12px + 160px);
+  --profile-control-fg: var(--text);
+  --profile-control-fg-muted: var(--text2);
+  --profile-field-border: var(--border2);
+  --profile-field-shadow: var(--inset-edge);
+  --profile-block-bg: color-mix(in srgb, var(--bg4) 43%, transparent);
+  --profile-control-bg: var(--bg2);
+  --profile-control-bg-hover: var(--bg3);
+  --profile-control-bg-active: var(--bg3);
+  --profile-field-bg: var(--bg2);
+  --profile-field-bg-hover: var(--bg3);
+  --profile-field-bg-active: var(--bg3);
+  --profile-select-bg: var(--bg2);
+  --profile-select-bg-hover: var(--bg3);
+  --profile-select-bg-active: var(--bg3);
+  --profile-control-border: var(--border2);
+  --profile-control-blur: none;
+  --profile-green-border: color-mix(in srgb, var(--green) 38%, var(--profile-control-border));
+  --profile-green-card-border: color-mix(in srgb, var(--green) 32%, var(--profile-control-border));
+  --profile-green-number-bg: color-mix(in srgb, var(--green) 22%, var(--profile-control-bg-hover));
+  --profile-telegram-card-bg: var(--profile-control-bg);
+  --profile-r: 15px;
+}
+
+:root[data-theme="dark"] {
+  --profile-control-fg: var(--text);
+  --profile-control-fg-muted: var(--text2);
+  --profile-field-border: var(--border2);
+  --profile-field-shadow: var(--inset-edge);
+  --profile-control-bg: var(--bg2);
+  --profile-control-bg-hover: var(--bg3);
+  --profile-control-bg-active: var(--bg3);
+  --profile-field-bg: var(--bg2);
+  --profile-field-bg-hover: var(--bg3);
+  --profile-field-bg-active: var(--bg3);
+  --profile-select-bg: var(--bg2);
+  --profile-select-bg-hover: var(--bg3);
+  --profile-select-bg-active: var(--bg3);
+  --profile-control-border: var(--border2);
+  --profile-control-blur: none;
+  --profile-telegram-card-bg: var(--bg2);
+  --profile-field-border-active: color-mix(in srgb, var(--border2) 30%, var(--text2) 70%);
+}
+
+:root[data-theme="dark"] .profile-page .model-picker-dropdown {
+  background: var(--bg2);
+  border-color: var(--border2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+:root[data-theme="dark"] .profile-page input[type="checkbox"]::after {
+  border-color: var(--text2);
+}
+
+:root[data-theme="dark"] .profile-input-explicit:hover:not(:disabled),
+:root[data-theme="dark"] .profile-input-explicit:focus {
+  border-color: var(--profile-field-border-active);
+  background: var(--profile-field-bg);
+}
+
+:root[data-theme="dark"] .telegram-code-input-field:hover:not(:has(.telegram-code-input:disabled)),
+:root[data-theme="dark"] .telegram-code-input-field:focus-within {
+  background: var(--profile-select-bg);
+  border-color: var(--profile-field-border-active);
+}
+
+:root[data-theme="dark"] .profile-ai-engine-section .profile-model-picker .model-picker-btn:hover:not(:disabled),
+:root[data-theme="dark"] .profile-ai-engine-section .profile-model-picker.is-open > .model-picker-btn {
+  background: var(--profile-select-bg);
+  border-color: var(--profile-field-border-active);
+  color: var(--text);
+}
+
+:root[data-theme="light"] {
+  --profile-block-bg: #ffffff;
+  --profile-control-fg: #3a3a3a;
+  --profile-control-fg-muted: #3a3a3a;
+  --profile-field-border: color-mix(in srgb, var(--text2) 44%, #fff 56%);
+  --profile-field-shadow: none;
+  --profile-control-bg: var(--page-header-control-bg);
+  --profile-control-bg-hover: var(--page-header-control-bg-hover);
+  --profile-control-bg-active: var(--page-header-control-bg-focus);
+  --profile-field-bg: #ffffff;
+  --profile-field-bg-hover: #ffffff;
+  --profile-field-bg-active: #ffffff;
+  --profile-select-bg: color-mix(in srgb, var(--bg3) 31%, transparent);
+  --profile-select-bg-hover: color-mix(in srgb, var(--bg4) 33%, transparent);
+  --profile-select-bg-active: color-mix(in srgb, var(--bg4) 36%, transparent);
+  --profile-control-border: var(--page-header-control-border);
+  --profile-field-border-active: color-mix(in srgb, var(--profile-field-border) 28%, var(--text2) 72%);
+  --profile-green-border: color-mix(in srgb, var(--green) 68%, var(--profile-control-border));
+  --profile-green-card-border: color-mix(in srgb, var(--green) 58%, var(--profile-control-border));
+  --profile-green-number-bg: color-mix(in srgb, var(--green) 22%, #fff 78%);
+  --profile-telegram-card-bg: #ffffff;
+}
+
+:root[data-theme="light"] .profile-page .profile-section::before,
+:root[data-theme="light"] .profile-page .profile-channel-actions::before,
+:root[data-theme="light"] .profile-page .stat-card::before {
+  background: #ffffff;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+:root[data-theme="light"] .profile-page :is(
+  .theme-switch,
+  .theme-switch-btn,
+  .profile-input-explicit,
+  .telegram-code-input-field,
+  .profile-model-picker .model-picker-btn,
+  .model-picker-dropdown,
+  .btn,
+  input[type="checkbox"],
+  .rubric-editor,
+  .rubric-item,
+  .telegram-step,
+  .telegram-sync-card
+),
+:root[data-theme="light"] #screen-profile .page-header-profile-tabs .period-tab {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+:root[data-theme="light"] .profile-input-explicit:hover:not(:disabled),
+:root[data-theme="light"] .profile-input-explicit:focus {
+  border-color: var(--profile-field-border-active);
+  background: var(--profile-field-bg);
+}
+
+:root[data-theme="light"] .telegram-code-input-field:hover:not(:has(.telegram-code-input:disabled)),
+:root[data-theme="light"] .telegram-code-input-field:focus-within {
+  background: #ffffff;
+  border-color: var(--profile-field-border-active);
+}
+
+:root[data-theme="light"] .profile-ai-engine-section .profile-model-picker .model-picker-btn:hover:not(:disabled),
+:root[data-theme="light"] .profile-ai-engine-section .profile-model-picker.is-open > .model-picker-btn {
+  background: var(--profile-select-bg);
+  border-color: var(--profile-field-border-active);
+  color: var(--text);
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] {
+    --profile-block-bg: #ffffff;
+    --profile-control-fg: #3a3a3a;
+    --profile-control-fg-muted: #3a3a3a;
+    --profile-field-border: color-mix(in srgb, var(--text2) 44%, #fff 56%);
+    --profile-field-shadow: none;
+    --profile-control-bg: var(--page-header-control-bg);
+    --profile-control-bg-hover: var(--page-header-control-bg-hover);
+    --profile-control-bg-active: var(--page-header-control-bg-focus);
+    --profile-field-bg: #ffffff;
+    --profile-field-bg-hover: #ffffff;
+    --profile-field-bg-active: #ffffff;
+    --profile-select-bg: color-mix(in srgb, var(--bg3) 31%, transparent);
+    --profile-select-bg-hover: color-mix(in srgb, var(--bg4) 33%, transparent);
+    --profile-select-bg-active: color-mix(in srgb, var(--bg4) 36%, transparent);
+    --profile-control-border: var(--page-header-control-border);
+    --profile-field-border-active: color-mix(in srgb, var(--profile-field-border) 28%, var(--text2) 72%);
+    --profile-green-border: color-mix(in srgb, var(--green) 68%, var(--profile-control-border));
+    --profile-green-card-border: color-mix(in srgb, var(--green) 58%, var(--profile-control-border));
+    --profile-green-number-bg: color-mix(in srgb, var(--green) 22%, #fff 78%);
+    --profile-telegram-card-bg: #ffffff;
+  }
+
+  :root[data-theme="system"] .profile-input-explicit:hover:not(:disabled),
+  :root[data-theme="system"] .profile-input-explicit:focus {
+    border-color: var(--profile-field-border-active);
+    background: var(--profile-field-bg);
+  }
+
+  :root[data-theme="system"] .telegram-code-input-field:hover:not(:has(.telegram-code-input:disabled)),
+  :root[data-theme="system"] .telegram-code-input-field:focus-within {
+    background: #ffffff;
+    border-color: var(--profile-field-border-active);
+  }
+
+  :root[data-theme="system"] .profile-ai-engine-section .profile-model-picker .model-picker-btn:hover:not(:disabled),
+  :root[data-theme="system"] .profile-ai-engine-section .profile-model-picker.is-open > .model-picker-btn {
+    background: var(--profile-select-bg);
+    border-color: var(--profile-field-border-active);
+    color: var(--text);
+  }
+
+  :root[data-theme="system"] .profile-page .profile-section::before,
+  :root[data-theme="system"] .profile-page .profile-channel-actions::before,
+  :root[data-theme="system"] .profile-page .stat-card::before {
+    background: #ffffff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  :root[data-theme="system"] .profile-page :is(
+    .theme-switch,
+    .theme-switch-btn,
+    .profile-input-explicit,
+    .telegram-code-input-field,
+    .profile-model-picker .model-picker-btn,
+    .model-picker-dropdown,
+    .btn,
+    input[type="checkbox"],
+    .rubric-editor,
+    .rubric-item,
+    .telegram-step,
+    .telegram-sync-card
+  ) {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  :root[data-theme="system"] #screen-profile .page-header-profile-tabs .period-tab {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
 /* ════════════════════════════════
    SCREEN: PROFILE
 ════════════════════════════════ */
@@ -16,8 +238,25 @@
   min-height: 0;
 }
 .profile-page :is(.profile-section, .profile-channel-actions, .stat-card) {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+  border: 1px solid var(--profile-control-border);
+  border-radius: var(--block-r);
   overflow: visible;
   box-shadow: var(--content-card-shadow);
+}
+
+.profile-page :is(.profile-section, .profile-channel-actions, .stat-card)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--profile-block-bg);
+  -webkit-backdrop-filter: var(--profile-control-blur);
+  backdrop-filter: var(--profile-control-blur);
+  pointer-events: none;
 }
 .profile-scroll-inner {
   width: min(var(--content-w), 100%);
@@ -832,45 +1071,6 @@
 .profile-action-buttons--ai .btn {
   padding: 8px 18px;
   font-size: 13px;
-}
-.profile-rubric-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-.profile-rubric-actions .btn.btn-ghost.btn-sm {
-  height: 32px;
-  min-width: 40px;
-  padding: 0 10px;
-  border-radius: 999px;
-  border: 1px solid var(--page-header-control-border);
-  background: var(--page-header-control-bg);
-  color: var(--text2);
-  font-family: var(--font);
-  font-size: 12px;
-  font-weight: 600;
-  opacity: 1;
-  transition: border-color 0.12s, background 0.12s, color 0.12s;
-}
-.profile-rubric-actions .btn.btn-ghost.btn-sm:hover:not(:disabled) {
-  background: var(--page-header-control-bg-hover);
-  color: var(--text);
-  border-color: var(--control-border-active);
-  opacity: 1;
-}
-.profile-rubric-actions .btn.btn-ghost.btn-sm:active:not(:disabled) {
-  border-color: var(--control-border-active);
-  opacity: 1;
-}
-.profile-rubric-actions .btn.btn-ghost.btn-sm:disabled,
-.profile-rubric-actions .btn.profile-rubric-save:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-.profile-rubric-actions .btn.profile-rubric-save:not(:disabled) {
-  color: var(--text);
-  border-color: var(--control-border-active);
 }
 .profile-muted {
   color: var(--text2);
@@ -2272,6 +2472,17 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   }
 }
 
+/* Desktop/tablet: тени карточек не обрезаются overflow у glass */
+@media (min-width: 761px) {
+  #screen-profile.active {
+    overflow-x: visible;
+  }
+
+  .profile-page {
+    overflow-x: visible;
+  }
+}
+
 /* ── Channel tab: шапка ≤804px (desktop/tablet, не mobile) ── */
 @media (min-width: 761px) {
   html[data-page-header-le-804] .profile-channel-actions,
@@ -2484,6 +2695,81 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
 
   html[data-content-adapt-ge-761] .telegram-form-grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .profile-section-title {
+    gap: 10px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  /* ИИ-движок: mobile-колонка только без tablet-сетки; overlay 541–760px — data-profile-ai-adapt */
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-list {
+    gap: 0;
+  }
+
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-list .profile-model-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding-bottom: 12px;
+  }
+
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-list .profile-model-row + .profile-model-row {
+    border-top: 1px dashed var(--profile-control-border);
+    padding-top: 12px;
+  }
+
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-pickers {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+    width: 100%;
+  }
+
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-provider,
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-name {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-key {
+    width: 100%;
+    flex: none;
+  }
+
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-footer .profile-model-remove {
+    margin-left: auto;
+    gap: 6px;
+    padding: 4px 6px 4px 4px;
+  }
+
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-remove-label {
+    display: inline;
+    font-size: 12px;
+    line-height: 1.3;
+    font-weight: 500;
+    color: inherit;
+    white-space: nowrap;
+  }
+
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-list > .btn {
+    margin-top: 4px;
+  }
+
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-checkbox-label,
+  html:not([data-profile-ai-adapt]) .profile-ai-engine-section .profile-model-multi {
+    white-space: normal;
   }
 
   /* Channel tab: single column on narrow viewports */
