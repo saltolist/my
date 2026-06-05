@@ -1,7 +1,8 @@
 "use client";
 
 import { ContextMenu, type CtxMenuItem } from "@/components/ContextMenu";
-import { useApp } from "@/state/AppContext";
+import { useDomain } from "@/state/domain-store";
+import { useNavigation } from "@/state/navigation-store";
 import { routes } from "@/lib/routes";
 import MessageTrashIcon from "../chat/MessageTrashIcon";
 import MessageRenameIcon from "../chat/MessageRenameIcon";
@@ -21,7 +22,8 @@ type Props =
   | { isGlobal: false; postId: number; noteId: number; title: string };
 
 export default function NoteListCardMenu(props: Props) {
-  const { dispatch, goToHref, state } = useApp();
+  const { state, dispatch } = useDomain();
+  const { goToHref, screen, currentNote, noteFrom } = useNavigation();
   const { title } = props;
 
   const items: CtxMenuItem[] = [
@@ -55,22 +57,22 @@ export default function NoteListCardMenu(props: Props) {
         if (!window.confirm(`Удалить заметку «${title}»?`)) return;
         if (props.isGlobal) {
           dispatch({ type: "DELETE_GLOBAL_NOTE", noteId: props.noteId });
-          const cur = state.currentNote;
-          if (state.screen === "note" && cur?.isGlobal === true && cur.id === props.noteId) {
+          const cur = currentNote;
+          if (screen === "note" && cur?.isGlobal === true && cur.id === props.noteId) {
             goToHref(routes.notes(), { replace: true });
           }
         } else {
           dispatch({ type: "DELETE_POST_NOTE", postId: props.postId, noteId: props.noteId });
-          const cur = state.currentNote;
+          const cur = currentNote;
           if (
-            state.screen === "note" &&
+            screen === "note" &&
             cur &&
             cur.isGlobal === false &&
             cur.postId === props.postId &&
             cur.id === props.noteId
           ) {
             goToHref(
-              state.noteFrom === "post"
+              noteFrom === "post"
                 ? routes.post(props.postId)
                 : routes.notes(),
               { replace: true },

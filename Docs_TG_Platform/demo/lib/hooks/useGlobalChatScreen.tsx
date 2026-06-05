@@ -5,19 +5,23 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/lib/chatPaths";
 import { isOmnichannelChat, isOmnichannelChatId } from "@/lib/omnichannel";
 import { parseAppPath, parseGChatSearchParam, routes } from "@/lib/routes";
-import { globalChatById, useApp } from "@/state/AppContext";
+import { globalChatById, useDomain } from "@/state/domain-store";
+import { useComposer } from "@/state/composer-store";
+import { useNavigation } from "@/state/navigation-store";
 
 export function useGlobalChatScreen() {
-  const { state, navigateBack, goToHref, dispatch, sendGChat } = useApp();
+  const { state: domain, dispatch } = useDomain();
+  const { currentGChatId, navigateBack, goToHref } = useNavigation();
+  const { sendGChat } = useComposer();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
 
   const chatId =
     parseAppPath(pathname).gchatId ??
     parseGChatSearchParam(searchParams.get("id")) ??
-    state.currentGChatId;
+    currentGChatId;
 
-  const chat = globalChatById(state, chatId);
+  const chat = globalChatById(domain, chatId);
   const omnichannel = chat ? isOmnichannelChat(chat) : isOmnichannelChatId(chatId);
   const messagesRef = useRef<HTMLDivElement>(null);
   const chatHistory = chat?.history;

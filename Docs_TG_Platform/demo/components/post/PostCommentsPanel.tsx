@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useApp } from "@/state/AppContext";
+import { useDomain } from "@/state/domain-store";
 import type { Post, PostComment, PostMedia, PostMetrics } from "@/lib/types";
 import PostMediaBlock from "./PostMediaBlock";
 import { PostReactionPills, PostViewsReposts } from "../feed/PostEngagement";
@@ -27,7 +27,7 @@ export default function PostCommentsPanel({
   media,
   phoneFormat = false,
 }: Props) {
-  const { dispatch } = useApp();
+  const { dispatch } = useDomain();
   const [replyTo, setReplyTo] = useState<PostComment | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const comments = post.comments ?? [];

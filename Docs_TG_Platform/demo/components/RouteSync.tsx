@@ -2,7 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useApp } from "@/state/AppContext";
+import { useDomain } from "@/state/domain-store";
+import { useNavigation } from "@/state/navigation-store";
+import { processCombinedPatch } from "@/state/navigation/buildPatch";
 import {
   POST_NEW_SLUG,
   buildRoutePatch,
@@ -29,7 +31,8 @@ function ensureNewPost(posts: Post[]): { posts: Post[]; postId: number } {
 }
 
 export default function RouteSync() {
-  const { state, dispatch } = useApp();
+  const { state: domain, applyPatchWithTelegram } = useDomain();
+  const { navDispatch, ...navState } = useNavigation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -76,7 +79,7 @@ export default function RouteSync() {
           : parsed.notePostId,
     };
 
-    let posts = state.posts;
+    let posts = domain.posts;
     let postId = parsed.postId;
 
     if (parsed.screen === "post" && pathForParse.includes(`/post/${POST_NEW_SLUG}/`)) {
@@ -87,21 +90,34 @@ export default function RouteSync() {
 
     const routePatch = buildRoutePatch(
       { ...parsedNote, postId },
-      { posts, globalChats: state.globalChats, globalNotes: state.globalNotes },
+      { posts, globalChats: domain.globalChats, globalNotes: domain.globalNotes },
       chatId,
       noteFrom,
     );
 
     const patch: Record<string, unknown> = { ...routePatch };
-    if (posts !== state.posts) patch.posts = posts;
+    if (posts !== domain.posts) patch.posts = posts;
     if (postId != null && parsed.screen === "post") patch.currentPostId = postId;
     if (postModeOverride) {
       patch.postMode = postModeOverride;
       patch.postViewStack = [];
     }
 
-    dispatch({ type: "SET_STATE", patch });
-  }, [pathname, searchParams, dispatch, router, state.posts, state.globalChats, state.globalNotes]);
+    const { domainPatch, navPatch } = processCombinedPatch(navState, domain, patch);
+    applyPatchWithTelegram(domainPatch);
+    if (Object.keys(navPatch).length) {
+      navDispatch({ type: "SET_NAV", patch: navPatch });
+    }
+  }, [
+    pathname,
+    searchParams,
+    navDispatch,
+    applyPatchWithTelegram,
+    router,
+    domain.posts,
+    domain.globalChats,
+    domain.globalNotes,
+  ]);
 
   return null;
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useApp } from "@/state/AppContext";
+import { useDomain } from "@/state/domain-store";
+import { useNavigation } from "@/state/navigation-store";
 import type { Post } from "@/lib/types";
 import PostCard from "./PostCard";
 
@@ -122,7 +123,8 @@ function buildDisplayList(
 }
 
 export default function DraftsSection({ drafts }: { drafts: Post[] }) {
-  const { state, dispatch, openPost } = useApp();
+  const { state, dispatch } = useDomain();
+  const { openPost } = useNavigation();
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const draggingIdRef = useRef<number | null>(null);

@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { useApp } from "@/state/AppContext";
+import { useDomain } from "@/state/domain-store";
+import { useNavigation } from "@/state/navigation-store";
 import { useUi } from "@/state/ui-store";
 import {
   FEED_POST_WIDTH_SELECT_OPTIONS,
@@ -19,7 +20,8 @@ let feedScrollTopMemory = 0;
 let feedSessionDidInitialScroll = false;
 
 export function useFeedScreen() {
-  const { state, dispatch, openPost, openPostComments } = useApp();
+  const { state: domain, dispatch } = useDomain();
+  const { openPost, openPostComments } = useNavigation();
   const { setFeedPostWidth } = useUi();
   const pathname = usePathname() ?? "/";
   const onFeed = pathname === "/feed/" || pathname === "/feed";
@@ -48,8 +50,8 @@ export function useFeedScreen() {
   );
 
   const published = useMemo(
-    () => state.posts.filter((p) => p.status === "published" && matchPost(p)),
-    [state.posts, matchPost],
+    () => domain.posts.filter((p) => p.status === "published" && matchPost(p)),
+    [domain.posts, matchPost],
   );
   const publishedDayGroups = useMemo(
     () => buildPublishedFeedDayGroups(published),
@@ -58,14 +60,14 @@ export function useFeedScreen() {
   const scheduled = useMemo(
     () =>
       sortPostsByPublicationTime(
-        state.posts.filter((p) => p.status === "scheduled" && matchPost(p)),
+        domain.posts.filter((p) => p.status === "scheduled" && matchPost(p)),
         "asc",
       ),
-    [state.posts, matchPost],
+    [domain.posts, matchPost],
   );
   const drafts = useMemo(
-    () => state.posts.filter((p) => p.status === "draft" && matchPost(p)),
-    [state.posts, matchPost],
+    () => domain.posts.filter((p) => p.status === "draft" && matchPost(p)),
+    [domain.posts, matchPost],
   );
 
   useEffect(() => {
@@ -144,10 +146,10 @@ export function useFeedScreen() {
       chats: [],
       ...(pendingMedia.length > 0 ? { media: [...pendingMedia] } : {}),
     };
-    dispatch({ type: "UPDATE_POSTS", posts: [...state.posts, newPost] });
+    dispatch({ type: "UPDATE_POSTS", posts: [...domain.posts, newPost] });
     setDraft("");
     setPendingMedia([]);
-  }, [draft, dispatch, pendingMedia, state.posts]);
+  }, [draft, dispatch, pendingMedia, domain.posts]);
 
   const removePendingMedia = useCallback((index: number) => {
     setPendingMedia((arr) => arr.filter((_, i) => i !== index));

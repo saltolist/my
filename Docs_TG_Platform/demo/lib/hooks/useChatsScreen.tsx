@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { useApp } from "@/state/AppContext";
+import { useDomain } from "@/state/domain-store";
+import { useNavigation } from "@/state/navigation-store";
 import { postTitle, chatListUserLine, chatListAssistantLine } from "@/lib/helpers";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
-import type { ChatMessage, ChatsTab, GlobalChat } from "@/lib/types";
+import type { ChatMessage, ChatsTab } from "@/lib/types";
 
 export type LocalChatRow = {
   postId: number;
@@ -17,32 +18,32 @@ export type LocalChatRow = {
 };
 
 export function useChatsScreen() {
-  const { state, dispatch, openGChat, goToHref } = useApp();
-  const tab = state.chatsTab;
+  const { state: domain } = useDomain();
+  const { chatsTab: tab, openGChat, goToHref, navDispatch } = useNavigation();
   const isMobile = useMobile760();
   const [search, setSearch] = useState("");
 
   const setTab = useCallback(
-    (t: ChatsTab) => dispatch({ type: "SET_STATE", patch: { chatsTab: t } }),
-    [dispatch],
+    (t: ChatsTab) => navDispatch({ type: "SET_NAV", patch: { chatsTab: t } }),
+    [navDispatch],
   );
 
   const q = search.trim().toLowerCase();
 
   const globalChats = useMemo(
     () =>
-      state.globalChats.filter((c) => {
+      domain.globalChats.filter((c) => {
         if (!q) return true;
         const u = chatListUserLine(c.history, c.title);
         const a = chatListAssistantLine(c.history, c.preview);
         return `${u} ${a}`.toLowerCase().includes(q);
       }),
-    [state.globalChats, q],
+    [domain.globalChats, q],
   );
 
   const localChats = useMemo(
     () =>
-      state.posts
+      domain.posts
         .flatMap((p) =>
           p.chats.map<LocalChatRow>((c) => ({
             postId: p.id,
@@ -60,7 +61,7 @@ export function useChatsScreen() {
           const a = chatListAssistantLine(row.history, row.preview);
           return `${u} ${a} ${row.postTitle}`.toLowerCase().includes(q);
         }),
-    [state.posts, q],
+    [domain.posts, q],
   );
 
   const chatsScopeSelectProps = useMemo(

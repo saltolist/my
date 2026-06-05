@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useProfileTextareaAutoResize } from "@/lib/use-profile-textarea-auto-resize";
-import { useApp } from "@/state/AppContext";
+import { useDomain } from "@/state/domain-store";
 import { useUi } from "@/state/ui-store";
 
 export default function SystemPromptBlock({ active = true }: { active?: boolean }) {
-  const { state, dispatch } = useApp();
+  const { state, dispatch, applyPatch } = useDomain();
   const { setDirty } = useUi();
   const [draft, setDraft] = useState(state.aiProfileConfig.systemPrompt);
   const dirty = draft !== state.systemPromptSavedSnapshot;
@@ -30,7 +30,7 @@ export default function SystemPromptBlock({ active = true }: { active?: boolean 
       type: "UPDATE_AI_CONFIG",
       config: { ...state.aiProfileConfig, systemPrompt: draft },
     });
-    dispatch({ type: "SET_STATE", patch: { systemPromptSavedSnapshot: draft } });
+    applyPatch({ systemPromptSavedSnapshot: draft });
   };
 
   const cancel = () => {

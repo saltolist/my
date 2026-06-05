@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useApp } from "@/state/AppContext";
+import { useDomain } from "@/state/domain-store";
+import { useNavigation } from "@/state/navigation-store";
 import { useUi } from "@/state/ui-store";
 import { normalizeNoteBody } from "@/lib/noteEmbeds";
 import {
@@ -13,14 +14,23 @@ import {
 import { usePreventIosInputZoom } from "@/lib/hooks/usePreventIosInputZoom";
 import { useFitTitleSize } from "@/lib/use-fit-title";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
+import type { NavigationPatch } from "@/state/navigation/types";
 import type { ActiveNote, NoteFile } from "@/lib/types";
 
 export function useNoteEditor(note: ActiveNote) {
-  const { state, dispatch, registerNotePersist } = useApp();
+  const { dispatch } = useDomain();
+  const { noteMode, navDispatch, registerNotePersist } = useNavigation();
   const { setDirty } = useUi();
   const isMobile = useMobile760();
   const noteKey = noteIdentityKey(note);
-  const isView = state.noteMode === "view" && !note.isNew;
+  const isView = noteMode === "view" && !note.isNew;
+
+  const patchNote = useCallback(
+    (patch: NavigationPatch) => {
+      navDispatch({ type: "SET_NAV", patch });
+    },
+    [navDispatch],
+  );
 
   const noteFiles = useMemo(() => (Array.isArray(note.files) ? note.files : []), [note.files]);
   const initialBody = normalizeNoteBody(note.body, noteFiles);
@@ -61,12 +71,12 @@ export function useNoteEditor(note: ActiveNote) {
   usePreventIosInputZoom(titleRef, isMobile);
 
   const setViewMode = useCallback(() => {
-    dispatch({ type: "SET_STATE", patch: { noteMode: "view" } });
-  }, [dispatch]);
+    patchNote({ noteMode: "view" });
+  }, [patchNote]);
 
   const setEditMode = useCallback(() => {
-    dispatch({ type: "SET_STATE", patch: { noteMode: "edit" } });
-  }, [dispatch]);
+    patchNote({ noteMode: "edit" });
+  }, [patchNote]);
 
   const cancel = useCallback(() => {
     const nextBody = normalizeNoteBody(note.body, noteFiles);
@@ -93,13 +103,10 @@ export function useNoteEditor(note: ActiveNote) {
           date: "сейчас",
         };
         dispatch({ type: "UPSERT_GLOBAL_NOTE", note: saved });
-        dispatch({
-          type: "SET_STATE",
-          patch: {
-            currentNote: { ...saved, isGlobal: true, files },
-            noteMode: "view",
-            noteSavedSnapshot: buildNoteSnapshot(finalTitle, body, note.ai, files),
-          },
+        patchNote({
+          currentNote: { ...saved, isGlobal: true, files },
+          noteMode: "view",
+          noteSavedSnapshot: buildNoteSnapshot(finalTitle, body, note.ai, files),
         });
       } else {
         const saved = {
@@ -111,13 +118,10 @@ export function useNoteEditor(note: ActiveNote) {
           files,
         };
         dispatch({ type: "ADD_POST_NOTE", postId: note.postId, note: saved });
-        dispatch({
-          type: "SET_STATE",
-          patch: {
-            currentNote: { ...saved, isGlobal: false, postId: note.postId, files },
-            noteMode: "view",
-            noteSavedSnapshot: buildNoteSnapshot(finalTitle, body, note.ai, files),
-          },
+        patchNote({
+          currentNote: { ...saved, isGlobal: false, postId: note.postId, files },
+          noteMode: "view",
+          noteSavedSnapshot: buildNoteSnapshot(finalTitle, body, note.ai, files),
         });
       }
       setBaselineSnapshot(snapshot);
@@ -128,13 +132,10 @@ export function useNoteEditor(note: ActiveNote) {
     if (note.isGlobal) {
       const next = { ...note, title: finalTitle, body, files };
       dispatch({ type: "UPSERT_GLOBAL_NOTE", note: next });
-      dispatch({
-        type: "SET_STATE",
-        patch: {
-          currentNote: next,
-          noteMode: "view",
-          noteSavedSnapshot: buildNoteSnapshot(finalTitle, body, note.ai, files),
-        },
+      patchNote({
+        currentNote: next,
+        noteMode: "view",
+        noteSavedSnapshot: buildNoteSnapshot(finalTitle, body, note.ai, files),
       });
     } else {
       dispatch({
@@ -143,18 +144,15 @@ export function useNoteEditor(note: ActiveNote) {
         noteId: note.id,
         patch: { title: finalTitle, body, files },
       });
-      dispatch({
-        type: "SET_STATE",
-        patch: {
-          currentNote: { ...note, title: finalTitle, body, files },
-          noteMode: "view",
-          noteSavedSnapshot: buildNoteSnapshot(finalTitle, body, note.ai, files),
-        },
+      patchNote({
+        currentNote: { ...note, title: finalTitle, body, files },
+        noteMode: "view",
+        noteSavedSnapshot: buildNoteSnapshot(finalTitle, body, note.ai, files),
       });
     }
     setBaselineSnapshot(snapshot);
     setDirty("note", false);
-  }, [baselineSnapshot, body, dispatch, files, note, setDirty, title]);
+  }, [baselineSnapshot, body, dispatch, files, note, patchNote, setDirty, title]);
 
   useEffect(() => {
     registerNotePersist(save);

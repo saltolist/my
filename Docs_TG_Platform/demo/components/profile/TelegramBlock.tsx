@@ -2,14 +2,14 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { formatTelegramPhoneInput, TELEGRAM_PHONE_FORMATTED_MAX_LENGTH } from "@/lib/format-telegram-phone";
-import { useApp } from "@/state/AppContext";
+import { useDomain } from "@/state/domain-store";
 import { useUi } from "@/state/ui-store";
 import type { TelegramProfileConfig } from "@/lib/types";
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
 export default function TelegramBlock() {
-  const { state, dispatch } = useApp();
+  const { state, dispatch, applyPatch } = useDomain();
   const { setDirty } = useUi();
   const cfg = state.telegramProfileConfig;
   const [code, setCode] = useState("");
@@ -158,10 +158,7 @@ export default function TelegramBlock() {
       importedPosts: Math.max(cfg.importedPosts, 128),
     };
     update(next);
-    dispatch({
-      type: "SET_STATE",
-      patch: { telegramSettingsSavedSnapshot: snapshot({ ...cfg, ...next }) },
-    });
+    applyPatch({ telegramSettingsSavedSnapshot: snapshot({ ...cfg, ...next }) });
     setSyncing(true);
     syncTimerRef.current = window.setTimeout(() => {
       setSyncing(false);
@@ -179,10 +176,7 @@ export default function TelegramBlock() {
       botMessageCount: 0,
     };
     update(next);
-    dispatch({
-      type: "SET_STATE",
-      patch: { telegramSettingsSavedSnapshot: snapshot({ ...cfg, ...next }) },
-    });
+    applyPatch({ telegramSettingsSavedSnapshot: snapshot({ ...cfg, ...next }) });
   };
 
   const reset = () => {
@@ -203,26 +197,20 @@ export default function TelegramBlock() {
       botLastActivity: "—",
       botMessageCount: 0,
     });
-    dispatch({
-      type: "SET_STATE",
-      patch: {
-        telegramSettingsSavedSnapshot: snapshot({
-          ...cfg,
-          authStatus: "idle",
-          channelStatus: "idle",
-          botApiToken: "",
-          botStatus: "idle",
-        }),
-      },
+    applyPatch({
+      telegramSettingsSavedSnapshot: snapshot({
+        ...cfg,
+        authStatus: "idle",
+        channelStatus: "idle",
+        botApiToken: "",
+        botStatus: "idle",
+      }),
     });
   };
 
   const saveApiCredentials = () => {
     if (!apiChangedFromSaved) return;
-    dispatch({
-      type: "SET_STATE",
-      patch: { telegramSettingsSavedSnapshot: snapshot(cfg) },
-    });
+    applyPatch({ telegramSettingsSavedSnapshot: snapshot(cfg) });
   };
 
   const cancelApiCredentials = () => {

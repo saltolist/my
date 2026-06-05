@@ -21,6 +21,7 @@ export type NavigationContextValue = NavigationState & {
   discardProfileEdits: () => void;
   registerUserMessageEdit: (discard: () => void) => void;
   unregisterUserMessageEdit: (discard: () => void) => void;
+  registerNotePersist: (fn: (() => void) | null) => void;
   navDispatch: React.Dispatch<NavigationAction>;
 };
 
@@ -28,7 +29,7 @@ const NavigationContext = createContext<NavigationContextValue | null>(null);
 
 export function useNavigation(): NavigationContextValue {
   const ctx = useContext(NavigationContext);
-  if (!ctx) throw new Error("useNavigation must be used inside <AppProvider>");
+  if (!ctx) throw new Error("useNavigation must be used inside <NavigationProvider>");
   return ctx;
 }
 

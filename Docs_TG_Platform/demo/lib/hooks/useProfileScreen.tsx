@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { useApp } from "@/state/AppContext";
+import { useNavigation } from "@/state/navigation-store";
 import { useUi } from "@/state/ui-store";
 import { useCompactHeader1000 } from "@/lib/hooks/useCompactHeader1000";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
@@ -11,9 +11,9 @@ import { PROFILE_TABS } from "@/lib/profileTabs";
 export function useProfileScreen() {
   const [tab, setTab] = useState(0);
   const [platformPeriod, setPlatformPeriod] = useState(2);
-  const { state, discardProfileEdits } = useApp();
+  const { screen, discardProfileEdits } = useNavigation();
   const { profileChannelDirty, profileSettingsDirty } = useUi();
-  const profileScreenActive = state.screen === "profile";
+  const profileScreenActive = screen === "profile";
   const isMobile = useMobile760();
   const isCompactHeader = useCompactHeader1000();
   const isHeaderLe650 = usePageHeaderLe650();

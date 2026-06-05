@@ -2,7 +2,10 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { RefObject } from "react";
-import { postById, useApp } from "@/state/AppContext";
+import { postById, useDomain } from "@/state/domain-store";
+import { useComposer } from "@/state/composer-store";
+import { useNavigation } from "@/state/navigation-store";
+import type { NavigationPatch } from "@/state/navigation/types";
 import { postTitle } from "@/lib/helpers";
 import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/lib/chatPaths";
 import { usePostCtxMenuItems } from "@/components/post/postCtxMenu";
@@ -16,19 +19,28 @@ import type { PageHeaderOverflowItem } from "@/components/PageHeaderOverflow";
 import type { LocalChat, LocalNote, Post, PostMedia, PostMode, NoteListFilter } from "@/lib/types";
 
 export function usePostWorkspace() {
+  const { state: domain, dispatch } = useDomain();
   const {
-    state,
-    dispatch,
+    currentPostId,
+    currentPostChatId,
+    postMode,
+    isEditing,
     navigate,
     navigateBack,
     setPostView,
     goToHref,
     confirmDiscardAnyEdit,
     discardPendingEdits,
-    sendPost,
-  } = useApp();
+    navDispatch,
+  } = useNavigation();
+  const { sendPost } = useComposer();
 
-  const post = postById(state, state.currentPostId);
+  const patchNav = useCallback(
+    (patch: NavigationPatch) => navDispatch({ type: "SET_NAV", patch }),
+    [navDispatch],
+  );
+
+  const post = postById(domain, currentPostId);
   const isMobile = useMobile760();
   const postHeaderCompact = usePostHeaderCompact1200();
   const postHeaderCompact1000 = useCompactHeader1000();
@@ -51,7 +63,7 @@ export function usePostWorkspace() {
 
   const mediaItems: PostMedia[] = post?.media ?? [];
   const activeChat: LocalChat | null =
-    post?.chats.find((c) => c.id === state.currentPostChatId) ?? null;
+    post?.chats.find((c) => c.id === currentPostChatId) ?? null;
   const chatHistory = activeChat?.history;
   const flatMessages = useMemo(
     () => flattenVisibleWithPaths(chatHistory ?? []),
@@ -78,8 +90,8 @@ export function usePostWorkspace() {
   const goToPostNotes = useCallback(() => applyPostView("notes", null), [applyPostView]);
   const goToPostChats = useCallback(() => applyPostView("chats", null), [applyPostView]);
   const openPostView = useCallback(
-    () => applyPostView("chat", state.currentPostChatId),
-    [applyPostView, state.currentPostChatId],
+    () => applyPostView("chat", currentPostChatId),
+    [applyPostView, currentPostChatId],
   );
   const openLocalChat = useCallback(
     (chatId: number) => applyPostView("chat", chatId),
@@ -95,24 +107,21 @@ export function usePostWorkspace() {
   const resetToPostChatRoot = useCallback(() => {
     if (!confirmDiscardAnyEdit()) return;
     discardPendingEdits();
-    dispatch({
-      type: "SET_STATE",
-      patch: {
-        postMode: "chat",
-        currentPostChatId: null,
-        postViewStack: [],
-        isEditing: false,
-      },
+    patchNav({
+      postMode: "chat",
+      currentPostChatId: null,
+      postViewStack: [],
+      isEditing: false,
     });
-  }, [confirmDiscardAnyEdit, discardPendingEdits, dispatch]);
+  }, [confirmDiscardAnyEdit, discardPendingEdits, patchNav]);
 
   const startEdit = useCallback(() => {
-    dispatch({ type: "SET_STATE", patch: { isEditing: true } });
-  }, [dispatch]);
+    patchNav({ isEditing: true });
+  }, [patchNav]);
 
   const cancelEdit = useCallback(() => {
-    dispatch({ type: "SET_STATE", patch: { isEditing: false } });
-  }, [dispatch]);
+    patchNav({ isEditing: false });
+  }, [patchNav]);
 
   const savePost = useCallback(
     (text: string, media: PostMedia[]) => {
@@ -122,9 +131,9 @@ export function usePostWorkspace() {
         postId: post.id,
         patch: { text, media: media.length > 0 ? [...media] : undefined },
       });
-      dispatch({ type: "SET_STATE", patch: { isEditing: false } });
+      patchNav({ isEditing: false });
     },
-    [dispatch, post],
+    [dispatch, patchNav, post],
   );
 
   const openComments = useCallback(
@@ -149,13 +158,13 @@ export function usePostWorkspace() {
   );
 
   useEffect(() => {
-    if (state.postMode === "chat" && chatScrollRef.current) {
+    if (postMode === "chat" && chatScrollRef.current) {
       chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
     }
-  }, [flatMessages.length, state.postMode]);
+  }, [flatMessages.length, postMode]);
 
   useEffect(() => {
-    if (state.postMode !== "chat") {
+    if (postMode !== "chat") {
       setShowJump(false);
       return;
     }
@@ -178,21 +187,21 @@ export function usePostWorkspace() {
       el?.removeEventListener("scroll", sync);
       window.removeEventListener("resize", sync);
     };
-  }, [state.postMode, state.isEditing, post?.id, activeChat?.id]);
+  }, [postMode, isEditing, post?.id, activeChat?.id]);
 
   const postSubPage =
-    state.postMode === "comments"
+    postMode === "comments"
       ? "Комментарии"
-      : state.postMode === "notes"
+      : postMode === "notes"
         ? "Заметки"
-        : state.postMode === "chats"
+        : postMode === "chats"
           ? "Чаты"
           : null;
   const showListHeaderSearch = postSubPage != null;
 
   useEffect(() => {
     setMobileSearchOpen(false);
-  }, [state.postMode, showListHeaderSearch]);
+  }, [postMode, showListHeaderSearch]);
 
   useEffect(() => {
     setListContextFilter("all");
@@ -202,7 +211,7 @@ export function usePostWorkspace() {
     if (!post) return [];
     const items: PageHeaderOverflowItem[] = [];
 
-    if (state.postMode === "chat" && showJump) {
+    if (postMode === "chat" && showJump) {
       items.push({
         label: "↑ К посту",
         icon: <NavIconFeed />,
@@ -210,7 +219,7 @@ export function usePostWorkspace() {
       });
     }
 
-    if (state.postMode !== "chat") {
+    if (postMode !== "chat") {
       items.push({
         label: "К посту",
         onClick: openPostView,
@@ -221,13 +230,13 @@ export function usePostWorkspace() {
     items.push({
       label: "Заметки",
       onClick: goToPostNotes,
-      active: state.postMode === "notes",
+      active: postMode === "notes",
       icon: <NavIconNotes />,
     });
     items.push({
       label: "Чаты",
       onClick: goToPostChats,
-      active: state.postMode === "chats",
+      active: postMode === "chats",
       icon: <NavIconChats />,
     });
 
@@ -249,7 +258,7 @@ export function usePostWorkspace() {
     post,
     scrollToPost,
     showJump,
-    state.postMode,
+    postMode,
   ]);
 
   const hasPostMobileTrailing = postHeaderOverflowItems.length > 0;
@@ -288,9 +297,9 @@ export function usePostWorkspace() {
   }, [post, mobileSearchOpen, postHeaderCompact, showListHeaderSearch]);
 
   const listSearchPlaceholder =
-    state.postMode === "comments"
+    postMode === "comments"
       ? "Поиск по комментариям..."
-      : state.postMode === "notes"
+      : postMode === "notes"
         ? "Поиск по заметкам..."
         : "Поиск по чатам...";
 
@@ -310,9 +319,9 @@ export function usePostWorkspace() {
 
   return {
     post,
-    postMode: state.postMode,
-    isEditing: state.isEditing,
-    currentPostChatId: state.currentPostChatId,
+    postMode,
+    isEditing,
+    currentPostChatId,
     activeChat,
     flatMessages,
     lastAssistantFlat,

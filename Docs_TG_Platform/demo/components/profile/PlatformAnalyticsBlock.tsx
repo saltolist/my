@@ -6,7 +6,7 @@ import ChartSeriesSelector from "@/components/charts/ChartSeriesSelector";
 import ModelPicker from "@/components/composer/ModelPicker";
 import MultiSeriesTrendChart, { type TrendSeriesRow } from "@/components/charts/MultiSeriesTrendChart";
 import { useChartSeriesVisibility } from "@/lib/hooks/useChartSeriesVisibility";
-import { useApp } from "@/state/AppContext";
+import { useDomain } from "@/state/domain-store";
 import type { AiProfileConfig, LlmModel } from "@/lib/types";
 import { formatTrendDollar } from "@/lib/trendChart/math";
 import {
@@ -50,7 +50,7 @@ export default function PlatformAnalyticsBlock({
   onPeriodChange,
   periodInHeader = false,
 }: Props) {
-  const { state } = useApp();
+  const { state } = useDomain();
   const isMobile = useMobile760();
   const isHeaderLe1080 = usePageHeaderLe1080();
   const isHeaderLe640 = usePageHeaderLe640();

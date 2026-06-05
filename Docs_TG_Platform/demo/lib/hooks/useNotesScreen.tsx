@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { useApp } from "@/state/AppContext";
+import { useDomain } from "@/state/domain-store";
+import { useNavigation } from "@/state/navigation-store";
 import { postTitle } from "@/lib/helpers";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 import { routes } from "@/lib/routes";
@@ -12,25 +13,24 @@ export type AnyNote =
   | (LocalNote & { isGlobal: false; postId: number; postTitle: string });
 
 export function useNotesScreen() {
-  const { state, dispatch, goToHref } = useApp();
+  const { state: domain, dispatch } = useDomain();
+  const { noteScope: scope, noteFilter: filter, goToHref, navDispatch } = useNavigation();
   const isMobile = useMobile760();
   const [search, setSearch] = useState("");
-  const scope = state.noteScope;
-  const filter = state.noteFilter;
 
   const setScope = useCallback(
-    (v: NoteScope) => dispatch({ type: "SET_STATE", patch: { noteScope: v } }),
-    [dispatch],
+    (v: NoteScope) => navDispatch({ type: "SET_NAV", patch: { noteScope: v } }),
+    [navDispatch],
   );
 
   const setFilter = useCallback(
-    (v: NoteListFilter) => dispatch({ type: "SET_STATE", patch: { noteFilter: v } }),
-    [dispatch],
+    (v: NoteListFilter) => navDispatch({ type: "SET_NAV", patch: { noteFilter: v } }),
+    [navDispatch],
   );
 
   const items = useMemo(() => {
-    const globalItems: AnyNote[] = state.globalNotes.map((n) => ({ ...n, isGlobal: true }));
-    const localItems: AnyNote[] = state.posts.flatMap((p) =>
+    const globalItems: AnyNote[] = domain.globalNotes.map((n) => ({ ...n, isGlobal: true }));
+    const localItems: AnyNote[] = domain.posts.flatMap((p) =>
       p.notes.map((n) => ({
         ...n,
         isGlobal: false as const,
@@ -41,7 +41,7 @@ export function useNotesScreen() {
     if (scope === "global") return globalItems;
     if (scope === "local") return localItems;
     return [...globalItems, ...localItems];
-  }, [scope, state.globalNotes, state.posts]);
+  }, [scope, domain.globalNotes, domain.posts]);
 
   const q = search.trim().toLowerCase();
   const filtered = useMemo(

@@ -1,6 +1,6 @@
 "use client";
 
-import { AppProvider } from "@/state/AppContext";
+import { NavigationProvider } from "@/state/navigation-provider";
 import { ComposerProvider } from "@/state/composer-store";
 import { DomainProvider } from "@/state/domain-store";
 import { UiProvider } from "@/state/ui-store";
@@ -11,9 +11,9 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
     <UiProvider>
       <DomainProvider>
         <ComposerProvider>
-          <AppProvider>
+          <NavigationProvider>
             <AppShell>{children}</AppShell>
-          </AppProvider>
+          </NavigationProvider>
         </ComposerProvider>
       </DomainProvider>
     </UiProvider>

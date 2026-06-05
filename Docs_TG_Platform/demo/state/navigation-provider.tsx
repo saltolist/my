@@ -1,9 +1,7 @@
 "use client";
 
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useReducer,
@@ -24,9 +22,7 @@ import { buildProfileDiscardPatch } from "@/lib/profileDiscard";
 import { useComposer } from "@/state/composer-store";
 import { useDomain } from "@/state/domain-store";
 import type { DomainState } from "@/state/domain/types";
-import {
-  processCombinedPatch,
-} from "@/state/navigation/buildPatch";
+import { processCombinedPatch } from "@/state/navigation/buildPatch";
 import {
   initialNavigationState,
   navigationReducer,
@@ -34,22 +30,7 @@ import {
 import type { NavigationState } from "@/state/navigation/types";
 import { NavigationContext, type NavigationContextValue } from "@/state/navigation-store";
 import { useUi } from "@/state/ui-store";
-import type {
-  ComposerScope,
-  NoteFile,
-  PostMode,
-  ScreenId,
-} from "@/lib/types";
-
-type State = DomainState & NavigationState;
-
-type LegacyAction =
-  | { type: "SET_SCREEN"; screen: ScreenId }
-  | { type: "SET_STATE"; patch: Partial<State> };
-
-type Action = LegacyAction | import("@/state/domain-store").DomainDispatchAction;
-
-export type { DirtyKey } from "@/state/ui-store";
+import type { PostMode, ScreenId } from "@/lib/types";
 
 const POST_EDIT_LEAVE_MSG =
   "Вы редактируете пост. Покинуть страницу без сохранения?";
@@ -58,47 +39,9 @@ const USER_MSG_EDIT_LEAVE_MSG =
 
 type UserMessageEditSession = { discard: () => void };
 
-type AppContextValue = {
-  state: State;
-  dispatch: React.Dispatch<Action>;
+type CombinedPatch = Partial<NavigationState & DomainState>;
 
-  navigate: (screen: ScreenId, opts?: { skipHistory?: boolean; clearHistory?: boolean }) => void;
-  navigateBack: (fallback?: ScreenId) => void;
-  navigateWithState: (patch: Partial<State>) => void;
-  /** Переход по URL (с проверкой несохранённых правок). */
-  goToHref: (href: string, opts?: { replace?: boolean }) => boolean;
-  goHome: () => void;
-  openPost: (id: number | "new") => void;
-  /** Вкладки поста (заметки / чаты / комментарии) без смены URL. */
-  setPostView: (mode: PostMode, chatId?: number | null) => void;
-  openPostComments: (id: number) => void;
-  openGChat: (id: string) => void;
-  sendHome: (text: string) => boolean;
-  sendGChat: (text: string) => boolean;
-  sendPost: (text: string) => boolean;
-  hasLlmForSend: (scope: ComposerScope) => boolean;
-  setComposerLlm: (scope: ComposerScope, llmId: string) => void;
-  setComposerWeb: (scope: ComposerScope, webId: string) => void;
-  multiResponsePairs: () => { id: string; llmId: string; webId: string; label: string }[];
-  llmLabel: (id: string) => string;
-  webLabel: (id: string) => string;
-
-  registerNotePersist: (fn: (() => void) | null) => void;
-  canLeaveCurrentScreen: (next: ScreenId) => boolean;
-  /** Подтверждение ухода из режима редактирования поста (вкладки и стек внутри поста). */
-  confirmDiscardPostEdit: () => boolean;
-  registerUserMessageEdit: (discard: () => void) => void;
-  unregisterUserMessageEdit: (discard: () => void) => void;
-  /** Пост и/или сообщение: подтверждение без сброса (сброс — discardPendingEdits). */
-  confirmDiscardAnyEdit: () => boolean;
-  discardPendingEdits: () => void;
-  /** Сброс несохранённых правок профиля к последним сохранённым снимкам. */
-  discardProfileEdits: () => void;
-};
-
-const AppContext = createContext<AppContextValue | null>(null);
-
-export function AppProvider({ children }: { children: ReactNode }) {
+export function NavigationProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const {
@@ -110,12 +53,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   } = useUi();
   const {
     state: domainState,
-    dispatch: domainDispatch,
     applyPatchWithTelegram,
     registerNavBridge,
   } = useDomain();
   const composer = useComposer();
-  const [navState, navDispatchBase] = useReducer(navigationReducer, initialNavigationState);
+  const [navState, navDispatch] = useReducer(navigationReducer, initialNavigationState);
 
   const domainRef = useRef(domainState);
   const navRef = useRef(navState);
@@ -124,20 +66,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     return registerNavBridge({
-      emitNavPatch: (patch) => navDispatchBase({ type: "SET_NAV", patch }),
+      emitNavPatch: (patch) => navDispatch({ type: "SET_NAV", patch }),
       getNavState: () => navRef.current,
     });
   }, [registerNavBridge]);
 
-  const state = useMemo<State>(
-    () => ({ ...domainState, ...navState }),
-    [domainState, navState],
-  );
-  const stateRef = useRef(state);
-  stateRef.current = state;
-
   const applyCombinedPatch = useCallback(
-    (patch: Partial<State>) => {
+    (patch: CombinedPatch) => {
       const { domainPatch, navPatch } = processCombinedPatch(
         navRef.current,
         domainRef.current,
@@ -145,25 +80,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       );
       applyPatchWithTelegram(domainPatch);
       if (Object.keys(navPatch).length) {
-        navDispatchBase({ type: "SET_NAV", patch: navPatch });
+        navDispatch({ type: "SET_NAV", patch: navPatch });
       }
     },
     [applyPatchWithTelegram],
-  );
-
-  const dispatch = useCallback(
-    (action: Action) => {
-      if (action.type === "SET_STATE") {
-        applyCombinedPatch(action.patch);
-        return;
-      }
-      if (action.type === "SET_SCREEN") {
-        navDispatchBase({ type: "SET_SCREEN", screen: action.screen });
-        return;
-      }
-      domainDispatch(action);
-    },
-    [applyCombinedPatch, domainDispatch],
   );
 
   const notePersistRef = useRef<(() => void) | null>(null);
@@ -175,8 +95,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const canLeaveCurrentScreen = useCallback(
     (next: ScreenId): boolean => {
-      if (state.screen === "note" && next !== "note") {
-        if (state.currentNote?.isNew) {
+      const nav = navRef.current;
+      if (nav.screen === "note" && next !== "note") {
+        if (nav.currentNote?.isNew) {
           if (noteDirty) notePersistRef.current?.();
           return true;
         }
@@ -186,12 +107,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
           );
         }
       }
-      if (state.screen === "profile" && next !== "profile" && profileDirty) {
+      if (nav.screen === "profile" && next !== "profile" && profileDirty) {
         return window.confirm(
           "Есть несохранённые изменения в профиле. Уйти без сохранения?",
         );
       }
-      if (state.screen === "post" && state.isEditing && next !== "post") {
+      if (nav.screen === "post" && nav.isEditing && next !== "post") {
         if (!window.confirm(POST_EDIT_LEAVE_MSG)) return false;
       }
       if (userMessageEditRef.current) {
@@ -199,7 +120,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       return true;
     },
-    [state.screen, state.currentNote, noteDirty, profileDirty, state.isEditing],
+    [noteDirty, profileDirty],
   );
 
   const discardUserMessageEditSession = useCallback(() => {
@@ -220,8 +141,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const confirmDiscardPostEdit = useCallback((): boolean => {
-    const cur = stateRef.current;
-    if (cur.screen === "post" && cur.isEditing) {
+    const nav = navRef.current;
+    if (nav.screen === "post" && nav.isEditing) {
       if (!window.confirm(POST_EDIT_LEAVE_MSG)) return false;
     }
     return true;
@@ -249,7 +170,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [applyPatchWithTelegram, clearProfileDirtyFlags]);
 
   const commitNavigationPatch = useCallback(
-    (patch: Partial<State>) => {
+    (patch: CombinedPatch) => {
       const cur = navRef.current;
       const nextScreen = patch.screen ?? cur.screen;
       const leavingProfile = cur.screen === "profile" && nextScreen !== "profile";
@@ -272,7 +193,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       else router.push(href);
       return true;
     },
-    [canLeaveCurrentScreen, discardPendingEdits, router],
+    [canLeaveCurrentScreen, discardPendingEdits, router, setMobileSidebarOpen],
   );
 
   const navigate = useCallback(
@@ -280,7 +201,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       void opts?.clearHistory;
       const href = screenToHref(screen);
       const curPath = pathname.endsWith("/") ? pathname : `${pathname}/`;
-      if (href === curPath && screen === stateRef.current.screen) return;
+      if (href === curPath && screen === navRef.current.screen) return;
       goToHref(href, { replace: opts?.skipHistory });
     },
     [goToHref, pathname],
@@ -310,14 +231,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       discardPendingEdits,
       pathname,
       router,
+      setMobileSidebarOpen,
     ],
   );
 
   const navigateWithState = useCallback(
-    (patch: Partial<State>) => {
-      const nextScreen = patch.screen ?? stateRef.current.screen;
+    (patch: CombinedPatch) => {
+      const nextScreen = patch.screen ?? navRef.current.screen;
       if (!canLeaveCurrentScreen(nextScreen)) return;
-      const href = statePatchToHref(patch, stateRef.current);
+      const href = statePatchToHref(patch, navRef.current);
       const routeOnly =
         patch.screen != null ||
         patch.currentPostId != null ||
@@ -334,12 +256,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       discardPendingEdits();
       router.push(href);
     },
-    [canLeaveCurrentScreen, commitNavigationPatch, discardPendingEdits, router],
+    [
+      canLeaveCurrentScreen,
+      commitNavigationPatch,
+      discardPendingEdits,
+      router,
+      setMobileSidebarOpen,
+    ],
   );
 
   useEffect(() => {
     function onBeforeUnload(e: BeforeUnloadEvent) {
-      const postEditing = stateRef.current.screen === "post" && stateRef.current.isEditing;
+      const nav = navRef.current;
+      const postEditing = nav.screen === "post" && nav.isEditing;
       const msgEditing = !!userMessageEditRef.current;
       if (!noteDirty && !profileDirty && !postEditing && !msgEditing) return;
       e.preventDefault();
@@ -363,14 +292,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (nextMode: PostMode, nextChatId: number | null = null) => {
       if (!confirmDiscardAnyEdit()) return;
       discardPendingEdits();
-      const cur = stateRef.current;
+      const cur = navRef.current;
       const postMode = resolvePostViewMode(cur.postMode, nextMode);
       let chatId: number | null = null;
       if (postMode === "chat") {
         chatId = nextMode === "chat" ? nextChatId : cur.currentPostChatId;
       }
-      dispatch({
-        type: "SET_STATE",
+      navDispatch({
+        type: "SET_NAV",
         patch: {
           screen: "post",
           postMode,
@@ -380,12 +309,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
       });
     },
-    [confirmDiscardAnyEdit, discardPendingEdits, dispatch],
+    [confirmDiscardAnyEdit, discardPendingEdits],
   );
 
   const openPostComments = useCallback(
     (id: number) => {
-      const cur = stateRef.current;
+      const cur = navRef.current;
       if (cur.screen !== "post" || cur.currentPostId !== id) {
         if (!goToHref(routes.post(id))) return;
       }
@@ -408,65 +337,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       getCurrentGChatId: () => navRef.current.currentGChatId,
       getCurrentPostId: () => navRef.current.currentPostId,
       getCurrentPostChatId: () => navRef.current.currentPostChatId,
-      applyNavPatch: (patch) => navDispatchBase({ type: "SET_NAV", patch }),
+      applyNavPatch: (patch) => navDispatch({ type: "SET_NAV", patch }),
     });
   }, [composer, goToHref, canLeaveCurrentScreen]);
 
-  const value = useMemo<AppContextValue>(
-    () => ({
-      state,
-      dispatch,
-      navigate,
-      navigateBack,
-      navigateWithState,
-      goToHref,
-      goHome,
-      openPost,
-      setPostView,
-      openPostComments,
-      openGChat,
-      sendHome: composer.sendHome,
-      sendGChat: composer.sendGChat,
-      sendPost: composer.sendPost,
-      hasLlmForSend: composer.hasLlmForSend,
-      setComposerLlm: composer.setComposerLlm,
-      setComposerWeb: composer.setComposerWeb,
-      multiResponsePairs: composer.multiResponsePairs,
-      llmLabel: composer.llmLabel,
-      webLabel: composer.webLabel,
-      registerNotePersist,
-      canLeaveCurrentScreen,
-      confirmDiscardPostEdit,
-      registerUserMessageEdit,
-      unregisterUserMessageEdit,
-      confirmDiscardAnyEdit,
-      discardPendingEdits,
-      discardProfileEdits,
-    }),
-    [
-      state,
-      navigate,
-      navigateBack,
-      navigateWithState,
-      goToHref,
-      goHome,
-      openPost,
-      setPostView,
-      openPostComments,
-      openGChat,
-      composer,
-      registerNotePersist,
-      canLeaveCurrentScreen,
-      confirmDiscardPostEdit,
-      registerUserMessageEdit,
-      unregisterUserMessageEdit,
-      confirmDiscardAnyEdit,
-      discardPendingEdits,
-      discardProfileEdits,
-    ],
-  );
-
-  const navigationValue = useMemo<NavigationContextValue>(
+  const value = useMemo<NavigationContextValue>(
     () => ({
       ...navState,
       navigate,
@@ -485,7 +360,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       discardProfileEdits,
       registerUserMessageEdit,
       unregisterUserMessageEdit,
-      navDispatch: navDispatchBase,
+      registerNotePersist,
+      navDispatch,
     }),
     [
       navState,
@@ -505,26 +381,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       discardProfileEdits,
       registerUserMessageEdit,
       unregisterUserMessageEdit,
+      registerNotePersist,
     ],
   );
 
-  return (
-    <NavigationContext.Provider value={navigationValue}>
-      <AppContext.Provider value={value}>{children}</AppContext.Provider>
-    </NavigationContext.Provider>
-  );
+  return <NavigationContext.Provider value={value}>{children}</NavigationContext.Provider>;
 }
-
-export function useApp(): AppContextValue {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error("useApp must be used inside <AppProvider>");
-  return ctx;
-}
-
-export type { State as AppState, Action as AppAction };
-
-export { postById, globalChatById } from "@/state/domain-store";
-export type { DomainState } from "@/state/domain/types";
-export type { DomainDispatchAction } from "@/state/domain-store";
-
-export type { NoteFile };

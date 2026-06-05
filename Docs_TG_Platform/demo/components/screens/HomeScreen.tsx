@@ -1,11 +1,13 @@
 "use client";
 
-import { useApp } from "@/state/AppContext";
+import { useComposer } from "@/state/composer-store";
+import { useNavigation } from "@/state/navigation-store";
 import Composer from "../composer/Composer";
 import PageHeader from "../PageHeader";
 
 export default function HomeScreen() {
-  const { sendHome, goHome } = useApp();
+  const { sendHome } = useComposer();
+  const { goHome } = useNavigation();
   return (
     <>
       <PageHeader

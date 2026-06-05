@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { postById, useApp } from "@/state/AppContext";
+import { postById, useDomain } from "@/state/domain-store";
+import { useNavigation } from "@/state/navigation-store";
 import { useUi } from "@/state/ui-store";
 import {
   MenuIconBrain,
@@ -10,44 +11,60 @@ import {
   MenuIconTrash,
 } from "@/components/HeaderMenuIcons";
 import { routes } from "@/lib/routes";
+import type { NavigationPatch } from "@/state/navigation/types";
 import type { ScreenId } from "@/lib/types";
 import type { PageHeaderOverflowItem } from "@/components/PageHeaderOverflow";
 
 export function useNoteScreen() {
-  const { state, dispatch, navigate, navigateBack, openPost, goToHref } = useApp();
+  const { state: domain, dispatch } = useDomain();
+  const {
+    currentNote: note,
+    noteFrom,
+    navigate,
+    navigateBack,
+    openPost,
+    goToHref,
+    navDispatch,
+  } = useNavigation();
   const { setDirty } = useUi();
-  const note = state.currentNote;
-  const backFallback: ScreenId = state.noteFrom === "post" ? "post" : "notes";
-  const parentPost = note && !note.isGlobal ? postById(state, note.postId) : null;
+  const backFallback: ScreenId = noteFrom === "post" ? "post" : "notes";
+  const parentPost = note && !note.isGlobal ? postById(domain, note.postId) : null;
+
+  const patchNote = useCallback(
+    (patch: NavigationPatch) => {
+      navDispatch({ type: "SET_NAV", patch });
+    },
+    [navDispatch],
+  );
 
   const discardNewNote = useCallback(() => {
     setDirty("note", false);
-    if (state.noteFrom === "post" && note && !note.isGlobal) {
+    if (noteFrom === "post" && note && !note.isGlobal) {
       goToHref(routes.post(note.postId), { replace: true });
     } else {
       goToHref(routes.notes(), { replace: true });
     }
-  }, [goToHref, note, setDirty, state.noteFrom]);
+  }, [goToHref, note, noteFrom, setDirty]);
 
   const setNoteAi = useCallback(
     (ai: boolean) => {
       if (!note) return;
       if (note.ai === ai) return;
       if (note.isNew) {
-        dispatch({ type: "SET_STATE", patch: { currentNote: { ...note, ai } } });
+        patchNote({ currentNote: { ...note, ai } });
         return;
       }
       if (note.isGlobal) {
         dispatch({ type: "UPSERT_GLOBAL_NOTE", note: { ...note, ai } });
-        dispatch({ type: "SET_STATE", patch: { currentNote: { ...note, ai } } });
+        patchNote({ currentNote: { ...note, ai } });
       } else {
         if (note.ai !== ai) {
           dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: note.postId, noteId: note.id });
         }
-        dispatch({ type: "SET_STATE", patch: { currentNote: { ...note, ai } } });
+        patchNote({ currentNote: { ...note, ai } });
       }
     },
-    [dispatch, note],
+    [dispatch, note, patchNote],
   );
 
   const deleteNote = useCallback(() => {

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useApp } from "@/state/AppContext";
+import { useComposer } from "@/state/composer-store";
+import { useDomain } from "@/state/domain-store";
 import { useUi } from "@/state/ui-store";
 import { LLM_PROVIDER_MODELS, WEB_SEARCH_PROVIDER_MODELS } from "@/lib/composer-config";
 import type { AiProfileConfig, LlmModel } from "@/lib/types";
@@ -11,7 +12,8 @@ import ProfileCheckbox from "@/components/profile/ProfileCheckbox";
 import { restoreAiConfigFromSnapshot } from "@/lib/profileDiscard";
 
 export default function AiModelsBlock() {
-  const { state, dispatch, multiResponsePairs } = useApp();
+  const { state, dispatch, applyPatch } = useDomain();
+  const { multiResponsePairs } = useComposer();
   const { setDirty } = useUi();
   const cfg = state.aiProfileConfig;
 
@@ -33,7 +35,7 @@ export default function AiModelsBlock() {
 
   const save = () => {
     if (!dirty) return;
-    dispatch({ type: "SET_STATE", patch: { modelSettingsSavedSnapshot: currentSnapshot } });
+    applyPatch({ modelSettingsSavedSnapshot: currentSnapshot });
   };
 
   const cancel = () => {

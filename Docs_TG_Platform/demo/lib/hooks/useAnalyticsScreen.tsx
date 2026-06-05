@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type CSSProperties } from "react";
-import { useApp } from "@/state/AppContext";
+import { useNavigation } from "@/state/navigation-store";
 import { ANALYTICS_TOP_POSTS_DEMO } from "@/lib/analyticsDemoData";
 import { getChannelTopPostsTableMetrics } from "@/lib/channelAnalyticsTrend";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
@@ -11,7 +11,7 @@ import { PLATFORM_ANALYTICS_PERIODS } from "@/lib/platformAnalyticsPeriods";
 const PERIOD_LABELS = PLATFORM_ANALYTICS_PERIODS.map((item) => item.label);
 
 export function useAnalyticsScreen() {
-  const { openPost } = useApp();
+  const { openPost } = useNavigation();
   const [period, setPeriod] = useState(1);
   const isMobile = useMobile760();
   const isHeaderLe780 = usePageHeaderLe780();

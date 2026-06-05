@@ -6,12 +6,12 @@ import MessageTrashIcon from "@/components/chat/MessageTrashIcon";
 import ProfileSyncRow from "@/components/profile/ProfileSyncRow";
 import { useProfileTextareaAutoResize } from "@/lib/use-profile-textarea-auto-resize";
 import { useFitTitleSize } from "@/lib/use-fit-title";
-import { useApp } from "@/state/AppContext";
+import { useDomain } from "@/state/domain-store";
 import { useUi } from "@/state/ui-store";
 import type { ChannelProfileConfig, ChannelProfileRubric } from "@/lib/types";
 
 export default function ChannelTab({ active }: { active: boolean }) {
-  const { state, dispatch } = useApp();
+  const { state, dispatch, applyPatch } = useDomain();
   const { setDirty } = useUi();
   const cfg = state.channelProfileConfig;
   const savedCfg = useMemo(
@@ -45,16 +45,13 @@ export default function ChannelTab({ active }: { active: boolean }) {
 
   const saveChannelProfile = () => {
     if (!channelProfileDirty) return;
-    dispatch({
-      type: "SET_STATE",
-      patch: {
-        channelProfileSavedSnapshot: JSON.stringify({
-          ...savedCfg,
-          core: cfg.core,
-          voice: cfg.voice,
-          rules: cfg.rules,
-        }),
-      },
+    applyPatch({
+      channelProfileSavedSnapshot: JSON.stringify({
+        ...savedCfg,
+        core: cfg.core,
+        voice: cfg.voice,
+        rules: cfg.rules,
+      }),
     });
   };
 
@@ -70,14 +67,11 @@ export default function ChannelTab({ active }: { active: boolean }) {
 
   const saveRubrics = () => {
     if (!rubricsDirty) return;
-    dispatch({
-      type: "SET_STATE",
-      patch: {
-        channelProfileSavedSnapshot: JSON.stringify({
-          ...savedCfg,
-          rubrics: cfg.rubrics,
-        }),
-      },
+    applyPatch({
+      channelProfileSavedSnapshot: JSON.stringify({
+        ...savedCfg,
+        rubrics: cfg.rubrics,
+      }),
     });
   };
 

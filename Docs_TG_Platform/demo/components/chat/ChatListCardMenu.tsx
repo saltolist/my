@@ -2,7 +2,8 @@
 
 import { ContextMenu, type CtxMenuItem } from "@/components/ContextMenu";
 import { isOmnichannelChatId } from "@/lib/omnichannel";
-import { useApp } from "@/state/AppContext";
+import { useDomain } from "@/state/domain-store";
+import { useNavigation } from "@/state/navigation-store";
 import { routes } from "@/lib/routes";
 import MessageTrashIcon from "./MessageTrashIcon";
 import MessageRenameIcon from "./MessageRenameIcon";
@@ -22,7 +23,8 @@ type Props =
   | { scope: "local"; postId: number; chatId: number; title: string };
 
 export default function ChatListCardMenu(props: Props) {
-  const { dispatch, goToHref, state } = useApp();
+  const { dispatch } = useDomain();
+  const { goToHref, screen, currentGChatId } = useNavigation();
   const { title } = props;
 
   const isOmnichannel = props.scope === "global" && isOmnichannelChatId(props.chatId);
@@ -59,7 +61,7 @@ export default function ChatListCardMenu(props: Props) {
               if (!window.confirm(`Удалить чат «${title}»?`)) return;
               if (props.scope === "global") {
                 dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: props.chatId });
-                if (state.screen === "gchat" && state.currentGChatId === props.chatId) {
+                if (screen === "gchat" && currentGChatId === props.chatId) {
                   goToHref(routes.chats(), { replace: true });
                 }
               } else {

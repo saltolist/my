@@ -10,7 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useApp } from "@/state/AppContext";
+import { useNavigation } from "@/state/navigation-store";
 import type { ScreenId } from "@/lib/types";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
 import {
@@ -84,7 +84,7 @@ export default function PageHeader({
   overflowItems,
   compactSearchAtWidth,
 }: Props) {
-  const { navigateBack } = useApp();
+  const { navigateBack } = useNavigation();
   const handleBack = onBack ?? (backTo ? () => navigateBack(backTo) : undefined);
   const isMobile = useMobile760();
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
