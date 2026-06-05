@@ -1,6 +1,6 @@
 "use client";
 
-import PlatformAnalyticsBlock from "@/widgets/profile-settings/ui/PlatformAnalyticsBlock";
+import { PlatformAnalyticsBlock } from "@/widgets/profile-settings";
 
 type Props = {
   active: boolean;

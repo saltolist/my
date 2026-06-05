@@ -1,7 +1,6 @@
 "use client";
 
-import NoteCardAiToggle from "@/widgets/note-editor/ui/NoteCardAiToggle";
-import NoteListCardMenu from "@/widgets/note-editor/ui/NoteListCardMenu";
+import { NoteCardAiToggle, NoteListCardMenu } from "@/widgets/note-editor";
 import type { AnyNote } from "@/screens/notes/model/useNotesScreen";
 
 type Props = {

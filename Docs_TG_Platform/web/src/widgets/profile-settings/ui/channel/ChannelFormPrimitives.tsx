@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef, type ReactNode } from "react";
-import MessageTrashIcon from "@/entities/message/ui/MessageTrashIcon";
+import { MessageTrashIcon } from "@/entities/message";
 import { useProfileTextareaAutoResize } from "@/shared/lib/use-profile-textarea-auto-resize";
 import { useFitTitleSize } from "@/shared/lib/use-fit-title";
 

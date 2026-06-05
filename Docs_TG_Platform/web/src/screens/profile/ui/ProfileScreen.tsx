@@ -1,6 +1,6 @@
 "use client";
 
-import ChannelTab from "@/widgets/profile-settings/ui/ChannelTab";
+import { ChannelTab } from "@/widgets/profile-settings";
 import ProfileAnalyticsPanel from "@/screens/profile/ui/ProfileAnalyticsPanel";
 import ProfileScreenHeader from "@/screens/profile/ui/ProfileScreenHeader";
 import ProfileSettingsPanel from "@/screens/profile/ui/ProfileSettingsPanel";

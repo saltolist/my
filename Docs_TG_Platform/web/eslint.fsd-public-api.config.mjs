@@ -1,9 +1,31 @@
 import boundaries from "eslint-plugin-boundaries";
+import tsParser from "@typescript-eslint/parser";
+import nextPlugin from "@next/eslint-plugin-next";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
+
+const fsdSliceTypes = ["screens", "widgets", "features", "entities"];
 
 /** Warn on cross-slice imports that bypass index.ts public API. */
 export default [
   {
-    plugins: { boundaries },
+    files: ["src/**/*.{ts,tsx}"],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+        ecmaFeatures: { jsx: true },
+        project: "./tsconfig.json",
+      },
+    },
+    linterOptions: {
+      reportUnusedDisableDirectives: false,
+    },
+    plugins: {
+      boundaries,
+      "@next/next": nextPlugin,
+      "react-hooks": reactHooksPlugin,
+    },
     settings: {
       "boundaries/root-path": import.meta.dirname,
       "boundaries/elements": [
@@ -22,6 +44,8 @@ export default [
       },
     },
     rules: {
+      "@next/next/no-img-element": "off",
+      "react-hooks/exhaustive-deps": "off",
       "boundaries/dependencies": [
         "warn",
         {
@@ -30,12 +54,18 @@ export default [
           rules: [
             { allow: { dependency: { relationship: { to: "internal" } } } },
             {
-              to: { type: ["screens", "widgets", "features", "entities"], internalPath: "!index.ts" },
-              disallow: { dependency: { relationship: { to: ["sibling", "parent", "ancestor"] } } },
+              from: { captured: { slice: "{{to.captured.slice}}" } },
+              allow: { to: { type: fsdSliceTypes } },
+            },
+            {
+              to: { type: fsdSliceTypes, internalPath: "!index.ts" },
+              disallow: { from: { type: "*" } },
             },
           ],
         },
       ],
+      "boundaries/no-unknown": "off",
+      "boundaries/no-unknown-files": "off",
     },
   },
 ];

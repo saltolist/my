@@ -9,11 +9,11 @@ import {
   MenuIconBrainOff,
   MenuIconCancel,
   MenuIconTrash,
-} from "@/widgets/page-header/ui/HeaderMenuIcons";
+  type PageHeaderOverflowItem,
+} from "@/widgets/page-header";
 import { routes } from "@/shared/lib/routes";
 import type { NavigationPatch } from "@/app/model/store/navigation/types";
 import type { ScreenId } from "@/shared/types";
-import type { PageHeaderOverflowItem } from "@/widgets/page-header/ui/PageHeaderOverflow";
 
 export function useNoteScreen() {
   const { state: domain, dispatch } = useDomain();

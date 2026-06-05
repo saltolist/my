@@ -5,7 +5,7 @@ import { useNavigation } from "@/app/model/store/navigation-store";
 import { ANALYTICS_TOP_POSTS_SEED } from "@/shared/lib/analyticsSeedData";
 import { getChannelTopPostsTableMetrics } from "@/shared/lib/channelAnalyticsTrend";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
-import { usePageHeaderLe780 } from "@/widgets/page-header/model/usePageHeaderLe780";
+import { usePageHeaderLe780 } from "@/widgets/page-header";
 import { PLATFORM_ANALYTICS_PERIODS } from "@/shared/lib/platformAnalyticsPeriods";
 
 const PERIOD_LABELS = PLATFORM_ANALYTICS_PERIODS.map((item) => item.label);

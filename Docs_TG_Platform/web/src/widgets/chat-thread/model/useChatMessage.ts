@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import type { ChatMessageCtx } from "@/entities/message/model/types";
 import {
   USER_EDIT_MAX_W,
   assistantPlainText,
@@ -9,7 +8,8 @@ import {
   measureUserEditTextWidth,
   messageTextHtml,
   modelTooltipText,
-} from "@/entities/message/lib/utils";
+  type ChatMessageCtx,
+} from "@/entities/message";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import { clampActiveBranchIndex, displayUserText } from "@/shared/lib/chatPaths";
 import { isOmnichannelChatId } from "@/shared/lib/omnichannel";

@@ -7,7 +7,8 @@
     "build": "next build && node scripts/copy-404.mjs",
     "start": "next start",
     "lint": "next lint",
-    "lint:fsd-public-api": "eslint src --config eslint.fsd-public-api.config.mjs",
+    "lint:fsd-public-api": "eslint \"src/**/*.{ts,tsx}\" --config eslint.fsd-public-api.config.mjs",
+    "lint:fsd-public-api:summary": "eslint \"src/**/*.{ts,tsx}\" --config eslint.fsd-public-api.config.mjs --format json | node scripts/fsd-public-api-report.mjs",
     "generate:channel-metrics": "node scripts/generate-channel-metrics-110d.mjs"
   },
   "dependencies": {

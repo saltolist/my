@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { RefObject } from "react";
 import { postTitle } from "@/shared/lib/helpers";
-import { NavIconChats, NavIconFeed, NavIconNotes } from "@/widgets/sidebar/ui/NavIcons";
-import type { PageHeaderOverflowItem } from "@/widgets/page-header/ui/PageHeaderOverflow";
+import { NavIconChats, NavIconFeed, NavIconNotes } from "@/widgets/sidebar";
+import type { PageHeaderOverflowItem } from "@/widgets/page-header";
 import type { CtxMenuItem } from "@/shared/ui/context-menu";
 import {
   buildPostHeaderRightClassName,

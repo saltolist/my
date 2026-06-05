@@ -1,7 +1,7 @@
 "use client";
 
-import AttachMenu from "@/widgets/composer/ui/AttachMenu";
-import PostMediaBlock from "@/entities/post/ui/PostMediaBlock";
+import { AttachMenu } from "@/widgets/composer";
+import { PostMediaBlock } from "@/entities/post";
 import { onComposerShellMouseDown } from "@/shared/lib/composerPointerDown";
 import type { FeedScreenState } from "@/screens/feed/model/useFeedScreen";
 

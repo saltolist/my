@@ -2,8 +2,8 @@
 
 import { useComposer } from "@/app/model/store/composer-store";
 import { useNavigation } from "@/app/model/store/navigation-store";
-import Composer from "@/widgets/composer/ui/Composer";
-import PageHeader from "@/widgets/page-header/ui/PageHeader";
+import { Composer } from "@/widgets/composer";
+import { PageHeader } from "@/widgets/page-header";
 
 export default function HomeScreen() {
   const { sendHome } = useComposer();

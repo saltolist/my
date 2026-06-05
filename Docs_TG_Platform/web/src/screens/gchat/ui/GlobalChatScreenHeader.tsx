@@ -1,9 +1,11 @@
 "use client";
 
 import { ContextMenu } from "@/shared/ui/context-menu";
-import { MenuIconTrash } from "@/widgets/page-header/ui/HeaderMenuIcons";
-import PageHeaderMenuButton from "@/widgets/page-header/ui/PageHeaderMenuButton";
-import PageHeaderOverflow from "@/widgets/page-header/ui/PageHeaderOverflow";
+import {
+  MenuIconTrash,
+  PageHeaderMenuButton,
+  PageHeaderOverflow,
+} from "@/widgets/page-header";
 import type { GlobalChatScreenState } from "@/screens/gchat/model/useGlobalChatScreen";
 
 type Props = Pick<

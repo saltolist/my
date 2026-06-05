@@ -1,10 +1,12 @@
 "use client";
 
 import type { RefObject } from "react";
-import { PageHeaderSearchMagnifier } from "@/widgets/page-header/ui/PageHeaderSearchInput";
-import PageHeaderOverflow from "@/widgets/page-header/ui/PageHeaderOverflow";
+import {
+  PageHeaderOverflow,
+  PageHeaderSearchMagnifier,
+  type PageHeaderOverflowItem,
+} from "@/widgets/page-header";
 import { ContextMenu, type CtxMenuItem } from "@/shared/ui/context-menu";
-import type { PageHeaderOverflowItem } from "@/widgets/page-header/ui/PageHeaderOverflow";
 import type { PostMode } from "@/shared/types";
 
 type Props = {

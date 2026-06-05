@@ -2,7 +2,7 @@
 
 import ChatAiMessage from "./ChatAiMessage";
 import ChatUserMessage from "./ChatUserMessage";
-import type { ChatMessageCtx } from "@/entities/message/model/types";
+import type { ChatMessageCtx } from "@/entities/message";
 import { useChatMessage } from "@/widgets/chat-thread/model/useChatMessage";
 import type { ChatMessage as ChatMessageType } from "@/shared/types";
 

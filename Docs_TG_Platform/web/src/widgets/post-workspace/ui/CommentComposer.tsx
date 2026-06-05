@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import AttachMenu from "@/widgets/composer/ui/AttachMenu";
+import { AttachMenu } from "@/widgets/composer";
 import { autoResize, readFileAsMedia } from "@/shared/lib/helpers";
 import { onComposerShellMouseDown } from "@/shared/lib/composerPointerDown";
 import type { PostComment, PostMedia } from "@/shared/types";
-import PostMediaBlock from "@/entities/post/ui/PostMediaBlock";
+import { PostMediaBlock } from "@/entities/post";
 
 type Props = {
   replyTo: PostComment | null;

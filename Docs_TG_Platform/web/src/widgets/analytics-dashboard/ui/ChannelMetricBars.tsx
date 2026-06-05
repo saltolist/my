@@ -11,8 +11,7 @@ import { resolveTrendChartMaxPoints } from "@/shared/lib/trendChart/periodLabels
 import { useAnchoredBarRowTooltip } from "@/shared/lib/hooks/useAnchoredBarRowTooltip";
 import { useDesktopBarTooltipPortal } from "@/shared/lib/hooks/useDesktopBarTooltipPortal";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
-import { usePageHeaderLe1080 } from "@/widgets/page-header/model/usePageHeaderLe1080";
-import { usePageHeaderLe640 } from "@/widgets/page-header/model/usePageHeaderLe640";
+import { usePageHeaderLe1080, usePageHeaderLe640 } from "@/widgets/page-header";
 
 type ChannelMetricBarsProps = {
   periodIndex: number;

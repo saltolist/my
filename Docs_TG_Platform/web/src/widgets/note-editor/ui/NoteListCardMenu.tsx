@@ -4,8 +4,7 @@ import { ContextMenu, type CtxMenuItem } from "@/shared/ui/context-menu";
 import { useDomain } from "@/app/model/store/domain-store";
 import { useNavigation } from "@/app/model/store/navigation-store";
 import { routes } from "@/shared/lib/routes";
-import MessageTrashIcon from "@/entities/message/ui/MessageTrashIcon";
-import MessageRenameIcon from "@/entities/message/ui/MessageRenameIcon";
+import { MessageRenameIcon, MessageTrashIcon } from "@/entities/message";
 
 function MoreDotsTrigger() {
   return (

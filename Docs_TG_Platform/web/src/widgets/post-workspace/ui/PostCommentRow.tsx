@@ -2,7 +2,7 @@
 
 import { avatarHue, avatarInitials } from "@/shared/lib/postComments";
 import type { PostComment } from "@/shared/types";
-import PostMediaBlock from "@/entities/post/ui/PostMediaBlock";
+import { PostMediaBlock } from "@/entities/post";
 
 type Props = {
   comment: PostComment;

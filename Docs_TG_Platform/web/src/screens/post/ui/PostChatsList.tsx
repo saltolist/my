@@ -1,6 +1,6 @@
 "use client";
 
-import ChatListCardMenu from "@/widgets/chat-thread/ui/ChatListCardMenu";
+import { ChatListCardMenu } from "@/widgets/chat-thread";
 import { chatListAssistantLine, chatListUserLine } from "@/shared/lib/helpers";
 import { matchesListContextFilter } from "@/shared/lib/listContextFilter";
 import type { NoteListFilter, Post } from "@/shared/types";

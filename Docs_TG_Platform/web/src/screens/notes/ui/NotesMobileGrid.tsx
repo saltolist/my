@@ -1,7 +1,6 @@
 "use client";
 
-import NoteListCard from "@/widgets/note-editor/ui/NoteListCard";
-import NoteListCardMenu from "@/widgets/note-editor/ui/NoteListCardMenu";
+import { NoteListCard, NoteListCardMenu } from "@/widgets/note-editor";
 import type { AnyNote } from "@/screens/notes/model/useNotesScreen";
 
 type Props = {

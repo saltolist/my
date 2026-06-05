@@ -1,6 +1,6 @@
 "use client";
 
-import { PostReactionPills } from "@/widgets/feed/ui/PostEngagement";
+import { PostReactionPills } from "@/widgets/feed";
 import type { PostReaction } from "@/shared/types";
 
 const REACTIONS: PostReaction[] = [

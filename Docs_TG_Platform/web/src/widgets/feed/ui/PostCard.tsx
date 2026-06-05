@@ -2,9 +2,8 @@
 
 import { getPostMediaItems } from "@/shared/lib/helpers";
 import type { Post } from "@/shared/types";
-import PostMediaBlock from "@/entities/post/ui/PostMediaBlock";
-import PostStatus from "@/entities/post/ui/PostStatus";
-import PostCommentsRow from "@/widgets/post-workspace/ui/PostCommentsRow";
+import { PostMediaBlock, PostStatus } from "@/entities/post";
+import { PostCommentsRow } from "@/widgets/post-workspace";
 import { PostReactionPills, PostViewsReposts } from "./PostEngagement";
 
 export default function PostCard({

@@ -1,6 +1,6 @@
 "use client";
 
-import PageHeader from "@/widgets/page-header/ui/PageHeader";
+import { PageHeader } from "@/widgets/page-header";
 import NoteBreadcrumb from "@/screens/note/ui/NoteBreadcrumb";
 import NoteEditor from "@/screens/note/ui/NoteEditor";
 import { useNoteScreen } from "@/screens/note/model/useNoteScreen";

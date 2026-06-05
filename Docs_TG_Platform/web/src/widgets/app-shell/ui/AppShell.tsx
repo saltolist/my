@@ -4,7 +4,7 @@ import { Suspense, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useUi } from "@/app/model/store/ui-store";
 import ContentAdaptSync from "./ContentAdaptSync";
-import Sidebar from "@/widgets/sidebar/ui/Sidebar";
+import { Sidebar } from "@/widgets/sidebar";
 import RouteSync from "./RouteSync";
 import { screenFromPath } from "@/shared/lib/routes";
 

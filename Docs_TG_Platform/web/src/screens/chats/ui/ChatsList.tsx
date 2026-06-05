@@ -1,6 +1,6 @@
 "use client";
 
-import { MenuIconPlus } from "@/widgets/page-header/ui/HeaderMenuIcons";
+import { MenuIconPlus } from "@/widgets/page-header";
 import { GlobalChatCard, LocalChatCard } from "@/screens/chats/ui/ChatListCards";
 import { routes } from "@/shared/lib/routes";
 import type { ChatsScreenState } from "@/screens/chats/model/useChatsScreen";

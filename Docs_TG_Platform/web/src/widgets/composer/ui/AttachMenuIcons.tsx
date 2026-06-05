@@ -1,6 +1,6 @@
 "use client";
 
-import { NoteIconAttach, NoteIconImage } from "@/widgets/note-editor/ui/NoteHeaderIcons";
+import { NoteIconAttach, NoteIconImage } from "@/widgets/note-editor";
 
 export function AttachMenuIconAttach() {
   return (

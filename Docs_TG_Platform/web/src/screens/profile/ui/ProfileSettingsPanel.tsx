@@ -1,10 +1,12 @@
 "use client";
 
-import AiModelsBlock from "@/widgets/profile-settings/ui/AiModelsBlock";
-import SystemPromptBlock from "@/widgets/profile-settings/ui/SystemPromptBlock";
-import TelegramBlock from "@/widgets/profile-settings/ui/TelegramBlock";
-import ThemeBlock from "@/widgets/profile-settings/ui/ThemeBlock";
-import UserBlock from "@/widgets/profile-settings/ui/UserBlock";
+import {
+  AiModelsBlock,
+  SystemPromptBlock,
+  TelegramBlock,
+  ThemeBlock,
+  UserBlock,
+} from "@/widgets/profile-settings";
 
 type Props = {
   active: boolean;

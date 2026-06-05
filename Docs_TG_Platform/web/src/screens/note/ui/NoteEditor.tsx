@@ -1,8 +1,6 @@
 "use client";
 
-import NoteBodyEditor from "@/widgets/note-editor/ui/NoteBodyEditor";
-import NoteFilesPanel from "@/widgets/note-editor/ui/NoteFilesPanel";
-import NoteHeaderToolbar from "@/widgets/note-editor/ui/NoteHeaderToolbar";
+import { NoteBodyEditor, NoteFilesPanel, NoteHeaderToolbar } from "@/widgets/note-editor";
 import { useNoteEditor } from "@/screens/note/model/useNoteEditor";
 import type { ActiveNote } from "@/shared/types";
 

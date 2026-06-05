@@ -1,9 +1,8 @@
 "use client";
 
-import { usePostWorkspace } from "@/widgets/post-workspace/model/usePostWorkspace";
-import PageHeaderMenuButton from "@/widgets/page-header/ui/PageHeaderMenuButton";
-import PostCommentsPanel from "@/widgets/post-workspace/ui/PostCommentsPanel";
-import { PostStatusBadge } from "@/entities/post/ui/PostStatusBadge";
+import { PostCommentsPanel, usePostWorkspace } from "@/widgets/post-workspace";
+import { PageHeaderMenuButton } from "@/widgets/page-header";
+import { PostStatusBadge } from "@/entities/post";
 import PostScreenHeader from "@/screens/post/ui/PostScreenHeader";
 import PostChatView from "@/screens/post/ui/PostChatView";
 import PostChatsView from "@/screens/post/ui/PostChatsView";

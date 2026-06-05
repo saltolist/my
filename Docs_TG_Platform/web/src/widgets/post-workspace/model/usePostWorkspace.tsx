@@ -8,7 +8,7 @@ import { useNavigation } from "@/app/model/store/navigation-store";
 import type { NavigationPatch } from "@/app/model/store/navigation/types";
 import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/shared/lib/chatPaths";
 import { usePostCtxMenuItems } from "@/features/post-context-menu";
-import { useFeedPostLayout } from "@/widgets/feed/model/useFeedPostLayout";
+import { useFeedPostLayout } from "@/widgets/feed";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import { usePostHeaderCompact1200 } from "@/widgets/post-workspace/model/usePostHeaderCompact1200";
 import { useCompactHeader1000 } from "@/shared/lib/hooks/useCompactHeader1000";

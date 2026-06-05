@@ -1,4 +1,4 @@
-import { feedNavIconSvgMarkup } from "@/widgets/sidebar/ui/NavIcons";
+import { feedNavIconSvgMarkup } from "@/widgets/sidebar";
 import { truncate } from "@/shared/lib/helpers";
 import type { ComposerAttachment } from "@/shared/types";
 

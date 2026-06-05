@@ -1,9 +1,8 @@
 "use client";
 
-import { MenuIconPlus } from "@/widgets/page-header/ui/HeaderMenuIcons";
-import PostSubpageToolbar from "@/widgets/post-workspace/ui/PostSubpageToolbar";
+import { MenuIconPlus } from "@/widgets/page-header";
+import { PostSubpageToolbar, type PostWorkspace } from "@/widgets/post-workspace";
 import PostNotesList from "@/screens/post/ui/PostNotesList";
-import type { PostWorkspace } from "@/widgets/post-workspace/model/usePostWorkspace";
 import type { Post } from "@/shared/types";
 
 type Props = Pick<

@@ -5,7 +5,7 @@ import { useNavigation } from "@/app/model/store/navigation-store";
 import { useUi } from "@/app/model/store/ui-store";
 import { useCompactHeader1000 } from "@/shared/lib/hooks/useCompactHeader1000";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
-import { usePageHeaderLe650 } from "@/widgets/page-header/model/usePageHeaderLe650";
+import { usePageHeaderLe650 } from "@/widgets/page-header";
 import { PROFILE_TABS } from "@/shared/lib/profileTabs";
 
 export function useProfileScreen() {

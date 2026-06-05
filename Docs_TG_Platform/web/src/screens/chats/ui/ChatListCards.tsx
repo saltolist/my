@@ -1,7 +1,7 @@
 "use client";
 
-import ChatListCardMenu from "@/widgets/chat-thread/ui/ChatListCardMenu";
-import { NavIconChats, NavIconFeed, NavIconSend } from "@/widgets/sidebar/ui/NavIcons";
+import { ChatListCardMenu } from "@/widgets/chat-thread";
+import { NavIconChats, NavIconFeed, NavIconSend } from "@/widgets/sidebar";
 import { chatListAssistantLine, chatListUserLine } from "@/shared/lib/helpers";
 import { isOmnichannelChat } from "@/shared/lib/omnichannel";
 import { routes } from "@/shared/lib/routes";

@@ -1,6 +1,6 @@
 "use client";
 
-import PostCard from "@/widgets/feed/ui/PostCard";
+import { PostCard } from "@/widgets/feed";
 import type { FeedDayGroup } from "@/shared/lib/feedTimeline";
 
 type Props = {

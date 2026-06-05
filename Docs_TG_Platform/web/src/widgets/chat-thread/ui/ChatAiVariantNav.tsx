@@ -1,7 +1,7 @@
 "use client";
 
 import { BrainIcon } from "@/shared/ui/model-picker/ui/ModelPicker";
-import { BranchChevronIcon } from "@/entities/message/ui/MessageIcons";
+import { BranchChevronIcon } from "@/entities/message";
 
 type Props = {
   modelTitle: string;

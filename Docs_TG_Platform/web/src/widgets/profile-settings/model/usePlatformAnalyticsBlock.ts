@@ -1,10 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { TrendSeriesRow } from "@/widgets/charts/ui/MultiSeriesTrendChart";
+import type { TrendSeriesRow } from "@/widgets/charts";
 import { useChartSeriesVisibility } from "@/shared/lib/hooks/useChartSeriesVisibility";
-import { usePageHeaderLe1080 } from "@/widgets/page-header/model/usePageHeaderLe1080";
-import { usePageHeaderLe640 } from "@/widgets/page-header/model/usePageHeaderLe640";
+import { usePageHeaderLe1080, usePageHeaderLe640 } from "@/widgets/page-header";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import { PLATFORM_ANALYTICS_PERIODS } from "@/shared/lib/platformAnalyticsPeriods";
 import {

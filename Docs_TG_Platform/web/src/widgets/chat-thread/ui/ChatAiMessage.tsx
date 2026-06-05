@@ -2,7 +2,7 @@
 
 import AiMessageToolbar from "./AiMessageToolbar";
 import ChatAiVariantNav from "./ChatAiVariantNav";
-import type { ChatMessageCtx } from "@/entities/message/model/types";
+import type { ChatMessageCtx } from "@/entities/message";
 
 type Props = {
   textHtml: string;

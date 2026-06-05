@@ -1,6 +1,6 @@
 "use client";
 
-import { BranchChevronIcon } from "@/entities/message/ui/MessageIcons";
+import { BranchChevronIcon } from "@/entities/message";
 
 type Props = {
   index: number;

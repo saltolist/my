@@ -1,7 +1,6 @@
 "use client";
 
-import PageHeader from "@/widgets/page-header/ui/PageHeader";
-import PageHeaderSelect from "@/widgets/page-header/ui/PageHeaderSelect";
+import { PageHeader, PageHeaderSelect } from "@/widgets/page-header";
 import { PLATFORM_ANALYTICS_PERIODS } from "@/shared/lib/platformAnalyticsPeriods";
 import { PROFILE_TABS } from "@/shared/lib/profileTabs";
 import type { ProfileScreenState } from "@/screens/profile/model/useProfileScreen";

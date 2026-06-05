@@ -1,8 +1,6 @@
 "use client";
 
-import PageHeader from "@/widgets/page-header/ui/PageHeader";
-import PageHeaderSearchInput from "@/widgets/page-header/ui/PageHeaderSearchInput";
-import PageHeaderSelect from "@/widgets/page-header/ui/PageHeaderSelect";
+import { PageHeader, PageHeaderSearchInput, PageHeaderSelect } from "@/widgets/page-header";
 import type { ChatsScreenState } from "@/screens/chats/model/useChatsScreen";
 
 type Props = Pick<

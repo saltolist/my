@@ -1,7 +1,6 @@
 "use client";
 
-import PageHeader from "@/widgets/page-header/ui/PageHeader";
-import PageHeaderSelect from "@/widgets/page-header/ui/PageHeaderSelect";
+import { PageHeader, PageHeaderSelect } from "@/widgets/page-header";
 import type { AnalyticsScreenState } from "@/screens/analytics/model/useAnalyticsScreen";
 
 type Props = Pick<AnalyticsScreenState, "isMobile" | "periodSelectProps">;

@@ -1,7 +1,7 @@
 "use client";
 
 import type { RefObject } from "react";
-import PageHeaderSearchInput from "@/widgets/page-header/ui/PageHeaderSearchInput";
+import { PageHeaderSearchInput } from "@/widgets/page-header";
 
 type Props = {
   postHeaderCompact: boolean;

@@ -1,12 +1,12 @@
 "use client";
 
-import PageHeaderMenuButton from "@/widgets/page-header/ui/PageHeaderMenuButton";
+import { PageHeaderMenuButton } from "@/widgets/page-header";
 import PostScreenBreadcrumb from "@/screens/post/ui/header/PostScreenBreadcrumb";
 import PostScreenHeaderDesktopActions from "@/screens/post/ui/header/PostScreenHeaderDesktopActions";
 import PostScreenHeaderMobileActions from "@/screens/post/ui/header/PostScreenHeaderMobileActions";
 import PostScreenHeaderSearch from "@/screens/post/ui/header/PostScreenHeaderSearch";
 import type { CtxMenuItem } from "@/shared/ui/context-menu";
-import type { PostScreenHeaderState } from "@/widgets/post-workspace/model/usePostScreenHeader";
+import type { PostScreenHeaderState } from "@/widgets/post-workspace";
 import type { LocalChat, Post } from "@/shared/types";
 import type { ReactNode } from "react";
 

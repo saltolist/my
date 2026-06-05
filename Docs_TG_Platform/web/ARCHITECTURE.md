@@ -78,6 +78,7 @@ app → screens → widgets → features → entities → shared
 
 - `npm run lint` — Next.js + **слои FSD** (`boundaries/dependencies`, error): app → screens → widgets → features → entities → shared; нижние слои могут импортировать `@/app/model/store` (global store).
 - `npm run lint:fsd-public-api` — **public API** (warn): cross-slice импорты только через `index.ts`.
+- `npm run lint:fsd-public-api:summary` — сводка нарушений (по target slice и файлам).
 
 Конфиг: `eslint.config.mjs`, `eslint.fsd-public-api.config.mjs`.
 

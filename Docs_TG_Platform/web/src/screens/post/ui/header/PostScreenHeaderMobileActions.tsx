@@ -1,9 +1,11 @@
 "use client";
 
 import type { RefObject } from "react";
-import { PageHeaderSearchMagnifier } from "@/widgets/page-header/ui/PageHeaderSearchInput";
-import PageHeaderOverflow from "@/widgets/page-header/ui/PageHeaderOverflow";
-import type { PageHeaderOverflowItem } from "@/widgets/page-header/ui/PageHeaderOverflow";
+import {
+  PageHeaderOverflow,
+  PageHeaderSearchMagnifier,
+  type PageHeaderOverflowItem,
+} from "@/widgets/page-header";
 
 type Props = {
   showListHeaderSearch: boolean;

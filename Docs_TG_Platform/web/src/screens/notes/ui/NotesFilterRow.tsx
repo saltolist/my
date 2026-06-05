@@ -1,7 +1,7 @@
 "use client";
 
-import { MenuIconPlus } from "@/widgets/page-header/ui/HeaderMenuIcons";
-import NotesScopeFilterSelect from "@/widgets/note-editor/ui/NotesScopeFilterSelect";
+import { MenuIconPlus } from "@/widgets/page-header";
+import { NotesScopeFilterSelect } from "@/widgets/note-editor";
 import type { NotesScreenState } from "@/screens/notes/model/useNotesScreen";
 import type { NoteListFilter } from "@/shared/types";
 

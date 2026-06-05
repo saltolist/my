@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, type CSSProperties } from "react";
-import ChartSeriesSelector from "@/widgets/charts/ui/ChartSeriesSelector";
-import MultiSeriesTrendChart from "@/widgets/charts/ui/MultiSeriesTrendChart";
+import { ChartSeriesSelector, MultiSeriesTrendChart } from "@/widgets/charts";
 import ChannelMetricBars from "@/widgets/analytics-dashboard/ui/ChannelMetricBars";
 import ChannelReactionsPanel from "@/widgets/analytics-dashboard/ui/ChannelReactionsPanel";
 import ModelPicker from "@/shared/ui/model-picker/ui/ModelPicker";
@@ -18,8 +17,7 @@ import { formatChannelTrendChartRangeFromStart } from "@/shared/lib/channelMetri
 import { resolveTrendChartMaxPoints } from "@/shared/lib/trendChart/periodLabels";
 import { useChartSeriesVisibility } from "@/shared/lib/hooks/useChartSeriesVisibility";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
-import { usePageHeaderLe1080 } from "@/widgets/page-header/model/usePageHeaderLe1080";
-import { usePageHeaderLe640 } from "@/widgets/page-header/model/usePageHeaderLe640";
+import { usePageHeaderLe1080, usePageHeaderLe640 } from "@/widgets/page-header";
 
 export default function ChannelAnalyticsSection({
   periodIndex,

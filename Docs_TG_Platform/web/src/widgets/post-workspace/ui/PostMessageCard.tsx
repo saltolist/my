@@ -2,11 +2,11 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { readFileAsMedia } from "@/shared/lib/helpers";
-import PostMediaBlock from "@/entities/post/ui/PostMediaBlock";
-import { PostReactionPills, PostViewsReposts } from "@/widgets/feed/ui/PostEngagement";
+import { PostMediaBlock } from "@/entities/post";
+import { PostReactionPills, PostViewsReposts } from "@/widgets/feed";
 import PostCommentsRow from "@/widgets/post-workspace/ui/PostCommentsRow";
 import PostCardToolbar from "@/widgets/post-workspace/ui/PostCardToolbar";
-import { NoteIconAttach } from "@/widgets/note-editor/ui/NoteHeaderIcons";
+import { NoteIconAttach } from "@/widgets/note-editor";
 import type { PostComment, PostMedia, PostMetrics } from "@/shared/types";
 
 type Props = {

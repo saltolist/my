@@ -1,6 +1,6 @@
 "use client";
 
-import { NoteIconAttach } from "@/widgets/note-editor/ui/NoteHeaderIcons";
+import { NoteIconAttach } from "@/widgets/note-editor";
 import { isImageMedia, isVideoMedia } from "@/shared/lib/helpers";
 import type { PostMedia } from "@/shared/types";
 

@@ -1,8 +1,12 @@
 "use client";
 
 import ChatBranchNav from "./ChatBranchNav";
-import { IcUserCopied, IcUserCopy, IcUserEdit } from "@/entities/message/ui/MessageIcons";
-import type { ChatMessageCtx } from "@/entities/message/model/types";
+import {
+  IcUserCopied,
+  IcUserCopy,
+  IcUserEdit,
+  type ChatMessageCtx,
+} from "@/entities/message";
 
 type Props = {
   ctx?: ChatMessageCtx;

@@ -1,10 +1,9 @@
 "use client";
 
-import Composer from "@/widgets/composer/ui/Composer";
-import ChatMessage from "@/widgets/chat-thread/ui/ChatMessage";
-import PostMessageCard from "@/widgets/post-workspace/ui/PostMessageCard";
-import { PostStatusBadge } from "@/entities/post/ui/PostStatusBadge";
-import type { PostWorkspace } from "@/widgets/post-workspace/model/usePostWorkspace";
+import { Composer } from "@/widgets/composer";
+import { ChatMessage } from "@/widgets/chat-thread";
+import { PostMessageCard, type PostWorkspace } from "@/widgets/post-workspace";
+import { PostStatusBadge } from "@/entities/post";
 import type { Post } from "@/shared/types";
 
 type Props = Pick<

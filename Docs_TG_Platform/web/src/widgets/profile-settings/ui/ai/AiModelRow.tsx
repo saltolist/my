@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import ModelPicker from "@/shared/ui/model-picker/ui/ModelPicker";
-import MessageTrashIcon from "@/entities/message/ui/MessageTrashIcon";
+import { MessageTrashIcon } from "@/entities/message";
 import ProfileCheckbox from "@/widgets/profile-settings/ui/ProfileCheckbox";
 import ProfileEyeIcon from "@/widgets/profile-settings/ui/ProfileEyeIcon";
 import type { LlmModel } from "@/shared/types";

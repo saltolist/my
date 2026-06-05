@@ -1,6 +1,6 @@
 "use client";
 
-import DraftsSection from "@/widgets/feed/ui/DraftsSection";
+import { DraftsSection } from "@/widgets/feed";
 import FeedComposer from "@/screens/feed/ui/FeedComposer";
 import FeedPublishedSection from "@/screens/feed/ui/FeedPublishedSection";
 import FeedScheduledSection from "@/screens/feed/ui/FeedScheduledSection";

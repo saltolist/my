@@ -9,7 +9,7 @@ import {
   FEED_POST_WIDTH_SELECT_OPTIONS,
   isFeedPostWidth,
 } from "@/shared/lib/feedPostWidth";
-import { useFeedPostLayout } from "@/widgets/feed/model/useFeedPostLayout";
+import { useFeedPostLayout } from "@/widgets/feed";
 import { buildPublishedFeedDayGroups, sortPostsByPublicationTime } from "@/shared/lib/feedTimeline";
 import { autoResize, postTitle, readFileAsMedia } from "@/shared/lib/helpers";
 import type { Post, PostMedia } from "@/shared/types";

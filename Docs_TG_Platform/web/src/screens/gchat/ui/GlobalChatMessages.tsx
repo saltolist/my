@@ -1,6 +1,6 @@
 "use client";
 
-import ChatMessage from "@/widgets/chat-thread/ui/ChatMessage";
+import { ChatMessage } from "@/widgets/chat-thread";
 import type { GlobalChatScreenState } from "@/screens/gchat/model/useGlobalChatScreen";
 
 type Props = Pick<

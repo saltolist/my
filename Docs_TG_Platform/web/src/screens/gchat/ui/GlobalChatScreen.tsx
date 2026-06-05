@@ -1,6 +1,6 @@
 "use client";
 
-import Composer from "@/widgets/composer/ui/Composer";
+import { Composer } from "@/widgets/composer";
 import GlobalChatMessages from "@/screens/gchat/ui/GlobalChatMessages";
 import GlobalChatScreenHeader from "@/screens/gchat/ui/GlobalChatScreenHeader";
 import { useGlobalChatScreen } from "@/screens/gchat/model/useGlobalChatScreen";

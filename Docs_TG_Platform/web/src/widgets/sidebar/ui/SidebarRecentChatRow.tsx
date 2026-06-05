@@ -1,8 +1,7 @@
 "use client";
 
 import { ContextMenu } from "@/shared/ui/context-menu";
-import MessageRenameIcon from "@/entities/message/ui/MessageRenameIcon";
-import MessageTrashIcon from "@/entities/message/ui/MessageTrashIcon";
+import { MessageRenameIcon, MessageTrashIcon } from "@/entities/message";
 import type { RecentRow } from "@/widgets/sidebar/model/types";
 
 type Props = {

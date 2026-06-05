@@ -1,7 +1,7 @@
 "use client";
 
 import type { PostMetrics } from "@/shared/types";
-import { RepostIcon, ViewsEyeIcon } from "@/entities/post/ui/PostMetricIcons";
+import { RepostIcon, ViewsEyeIcon } from "@/entities/post";
 
 export function PostReactionPills({ reactions }: { reactions: PostMetrics["reactions"] }) {
   if (!reactions.length) return null;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { NoteIconEdit } from "@/widgets/note-editor/ui/NoteHeaderIcons";
+import { NoteIconEdit } from "@/widgets/note-editor";
 
 async function copyPlainText(text: string): Promise<boolean> {
   try {

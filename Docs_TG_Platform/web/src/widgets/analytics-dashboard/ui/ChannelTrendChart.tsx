@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import MultiSeriesTrendChart from "@/widgets/charts/ui/MultiSeriesTrendChart";
+import { MultiSeriesTrendChart } from "@/widgets/charts";
 import {
   ANALYTICS_SCREEN_PERIOD_TO_CHART,
   buildChannelTrendSeries,

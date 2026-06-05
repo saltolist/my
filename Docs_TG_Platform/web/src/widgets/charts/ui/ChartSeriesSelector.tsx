@@ -2,7 +2,7 @@
 
 import { useCallback, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import ProfileCheckbox from "@/widgets/profile-settings/ui/ProfileCheckbox";
+import { ProfileCheckbox } from "@/widgets/profile-settings";
 import { clampFloatingPanelLeft } from "@/shared/lib/floatingPanel";
 import { useFloatingPanelScrollListeners } from "@/shared/lib/hooks/useFloatingPanelScrollListeners";
 import { useOverlayDismissOnPointer } from "@/shared/lib/hooks/useOverlayDismissOnPointer";

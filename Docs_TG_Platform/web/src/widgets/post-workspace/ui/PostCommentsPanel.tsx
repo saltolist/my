@@ -3,8 +3,8 @@
 import { useRef, useState } from "react";
 import { useDomain } from "@/app/model/store/domain-store";
 import type { Post, PostComment, PostMedia, PostMetrics } from "@/shared/types";
-import PostMediaBlock from "@/entities/post/ui/PostMediaBlock";
-import { PostReactionPills, PostViewsReposts } from "@/widgets/feed/ui/PostEngagement";
+import { PostMediaBlock } from "@/entities/post";
+import { PostReactionPills, PostViewsReposts } from "@/widgets/feed";
 import CommentComposer from "./CommentComposer";
 import PostCardCommentsSection from "./PostCardCommentsSection";
 

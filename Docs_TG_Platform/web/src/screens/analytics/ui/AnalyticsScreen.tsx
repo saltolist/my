@@ -1,6 +1,6 @@
 "use client";
 
-import ChannelAnalyticsSection from "@/widgets/analytics-dashboard/ui/ChannelAnalyticsSection";
+import { ChannelAnalyticsSection } from "@/widgets/analytics-dashboard";
 import AnalyticsHeatmap from "@/screens/analytics/ui/AnalyticsHeatmap";
 import AnalyticsScreenHeader from "@/screens/analytics/ui/AnalyticsScreenHeader";
 import AnalyticsTopPostsTable from "@/screens/analytics/ui/AnalyticsTopPostsTable";
