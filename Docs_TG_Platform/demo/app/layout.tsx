@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./profile.css";
+import "./analytics.css";
 
 export const metadata: Metadata = {
   title: "TG Platform — Demo",
