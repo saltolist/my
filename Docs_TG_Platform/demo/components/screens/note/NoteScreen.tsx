@@ -1,6 +1,5 @@
 "use client";
 
-import { ContextMenu } from "@/components/ContextMenu";
 import PageHeader from "@/components/PageHeader";
 import NoteBreadcrumb from "@/components/screens/note/NoteBreadcrumb";
 import NoteEditor from "@/components/screens/note/NoteEditor";
@@ -27,7 +26,6 @@ export default function NoteScreen() {
             onOpenPost={(id) => ns.openPost(id)}
           />
         }
-        actions={<ContextMenu items={ns.noteHeaderMenuItems} />}
       />
       <div className="note-page" id="note-page-body">
         <NoteEditor note={ns.note} />

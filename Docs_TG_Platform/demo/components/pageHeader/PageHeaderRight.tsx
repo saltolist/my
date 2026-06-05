@@ -81,6 +81,9 @@ export default function PageHeaderRight({
             </button>
           ) : null}
           {actions}
+          {overflowItems && overflowItems.length > 0 ? (
+            <PageHeaderOverflow items={overflowItems} />
+          ) : null}
         </div>
       ) : null}
       {showMobileRight ? (

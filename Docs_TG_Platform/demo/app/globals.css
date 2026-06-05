@@ -1517,13 +1517,18 @@ button.nav-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-width: 0;
+  min-width: min-content;
 }
 .page-header-actions--desktop {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-width: 0;
+  flex-shrink: 0;
+  min-width: min-content;
+}
+.page-header-actions--desktop .page-header-overflow,
+.page-header-actions--desktop .ctx-wrap {
+  flex-shrink: 0;
 }
 .page-header-toolbar--desktop-select {
   display: flex;
