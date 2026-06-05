@@ -2481,6 +2481,12 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   .profile-page {
     overflow-x: visible;
   }
+
+  /* Вкладка «Аналитика»: графики с подписями Y не раздувают горизонтальный скролл */
+  #screen-profile.active:has(.profile-panel.active .platform-analytics-section),
+  .profile-page:has(.profile-panel.active .platform-analytics-section) {
+    overflow-x: hidden;
+  }
 }
 
 /* ── Channel tab: шапка ≤804px (desktop/tablet, не mobile) ── */
@@ -2810,5 +2816,548 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   .telegram-inline-field-row .telegram-code-input,
   .telegram-inline-field-row .telegram-code-input-field {
     font-size: 16px;
+  }
+}
+
+/* ── Extracted from globals.css (profile-screen rules) ── */
+.profile-page::-webkit-scrollbar {
+
+  width: var(--sb-w);
+  height: var(--sb-w);
+
+}
+.profile-page::-webkit-scrollbar-track {
+
+  background: transparent;
+
+}
+.profile-page::-webkit-scrollbar-thumb {
+
+  background: var(--scroll-thumb);
+  border-radius: 999px;
+
+}
+.profile-page::-webkit-scrollbar-thumb:hover {
+
+  background: var(--scroll-thumb-hover);
+
+}
+.profile-page::-webkit-scrollbar-corner {
+
+  background: transparent;
+
+}
+.profile-page {
+
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+
+}
+.profile-page .platform-analytics-section .model-trend-plot,
+.profile-page .platform-analytics-section .trend-chart-wrap {
+
+  overflow: visible;
+  max-width: 100%;
+
+}
+@media (min-width: 1201px) {
+  #main:has(#screen-profile.active) {
+    overflow-x: visible;
+  }
+
+  #main:has(.profile-panel.active .platform-analytics-section) {
+    overflow-x: hidden;
+  }
+}
+@media (min-width: 761px) {
+  #screen-profile .platform-analytics-section .model-trend-plot:not(.trend-plot--no-y-labels) {
+
+    --trend-chart-inset-end: 12px;
+    --trend-y-label-inset: 44px;
+    --trend-plot-left-gutter: 50px;
+    padding: 0 var(--trend-chart-inset-end, 12px) 0 var(--trend-plot-left-gutter);
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+
+  }
+  #screen-profile .platform-analytics-section .trend-y-label {
+
+    left: calc(-1 * var(--trend-y-label-inset, 44px));
+    max-width: calc(var(--trend-y-label-inset, 44px) - 4px);
+    text-align: right;
+
+  }
+  #screen-profile .platform-analytics-section .trend-labels {
+
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+
+  }
+}
+#screen-profile .platform-analytics-section .model-analytics-summary {
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+}
+.profile-page .profile-section.platform-analytics-section {
+
+  overflow: visible;
+  max-width: 100%;
+
+}
+@media (max-width: 1200px) {
+  .profile-scroll-inner {
+
+    padding-left: max(18px, var(--content-card-shadow-gutter));
+    padding-right: max(18px, var(--content-card-shadow-gutter));
+
+  }
+  .profile-scroll-inner {
+
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+
+  }
+  #screen-profile .platform-analytics-section .model-trend-plot:not(.trend-plot--no-y-labels) {
+
+    --trend-y-label-inset: 36px;
+    --trend-plot-left-gutter: 42px;
+    padding: 4px var(--trend-chart-inset-end, 12px) 0 var(--trend-plot-left-gutter);
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+
+  }
+  #screen-profile .platform-analytics-section .trend-y-label {
+
+    left: calc(-1 * var(--trend-y-label-inset, 36px));
+    max-width: calc(var(--trend-y-label-inset, 36px) - 4px);
+    text-align: right;
+
+  }
+  #screen-profile .platform-analytics-section .trend-labels {
+
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+
+  }
+}
+@media (min-width: 761px) {
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section:has(.model-analytics-summary) {
+
+    --model-trend-chart-height: 360px;
+
+  }
+  html[data-page-header-le-804]
+    #screen-profile
+    .platform-analytics-section:has(.model-analytics-summary) {
+
+    --model-trend-chart-height: 300px;
+
+  }
+  html:not([data-page-header-le-1130])
+    #screen-profile
+    .platform-analytics-section
+    .model-analytics-summary {
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  }
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-analytics-summary {
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 10px;
+
+  }
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-analytics-summary
+    .mini-metric {
+
+    min-height: 0;
+    padding: 10px 8px 10px 10px;
+    border-radius: calc(var(--block-r) - 4px);
+
+  }
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-analytics-summary
+    .mini-metric-value {
+
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.15;
+
+  }
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-analytics-summary
+    .mini-metric-label {
+
+    font-size: 12px;
+    line-height: 1.2;
+    white-space: normal;
+
+  }
+  html[data-page-header-le-1130] #screen-profile .platform-analytics-section .analytics-card-head,
+html[data-page-header-le-930] #screen-profile .platform-analytics-section .analytics-card-head {
+
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+
+  }
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .analytics-card-head
+    > div:first-child {
+
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+
+  }
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .analytics-card-head
+    .profile-section-title {
+
+    margin-bottom: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+  }
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack.model-filter-stack--with-series,
+  html[data-page-header-le-930]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack.model-filter-stack--with-series {
+
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    width: auto;
+    max-width: none;
+    margin-left: auto;
+
+  }
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack--with-series
+    .profile-model-picker,
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack--with-series
+    .chart-series-selector--profile,
+  html[data-page-header-le-930]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack--with-series
+    .profile-model-picker,
+  html[data-page-header-le-930]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack--with-series
+    .chart-series-selector--profile {
+
+    width: auto;
+    max-width: 280px;
+    flex: 0 0 auto;
+
+  }
+  html[data-page-header-le-1130]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack--with-series
+    .model-picker-btn,
+  html[data-page-header-le-930]
+    #screen-profile
+    .platform-analytics-section
+    .model-filter-stack--with-series
+    .model-picker-btn {
+
+    width: max-content;
+    max-width: 100%;
+
+  }
+}
+@media (max-width: 760px) {
+  .profile-scroll-inner {
+
+    padding: 14px 12px 18px;
+
+  }
+  #screen-profile .platform-analytics-section .model-usage-head .model-usage-head-bar,
+  #screen-profile .bar-row.model-usage-bar > .bar-track {
+
+    display: none;
+
+  }
+  #screen-profile .platform-analytics-section .model-usage-grid {
+
+    grid-template-columns: minmax(0, 1fr) max-content max-content max-content;
+    column-gap: 8px;
+
+  }
+  #screen-profile .platform-analytics-section .model-usage-head > span:nth-child(3) {
+
+    grid-column: 2;
+
+  }
+  #screen-profile .platform-analytics-section .model-usage-head > span:nth-child(4) {
+
+    grid-column: 3;
+
+  }
+  #screen-profile .platform-analytics-section .model-usage-head > span:nth-child(5) {
+
+    grid-column: 4;
+
+  }
+  #screen-profile .bar-row.model-usage-bar > .bar-label {
+
+    grid-column: 1;
+
+  }
+  #screen-profile .bar-row.model-usage-bar > .model-row-metric--calls {
+
+    grid-column: 2;
+
+  }
+  #screen-profile .bar-row.model-usage-bar > .model-row-metric--tokens {
+
+    grid-column: 3;
+
+  }
+  #screen-profile .bar-row.model-usage-bar > .model-row-metric--cost {
+
+    grid-column: 4;
+
+  }
+  #screen-profile .profile-page {
+
+    scrollbar-gutter: stable;
+
+  }
+  #screen-profile .bar-row.model-usage-bar:focus-visible {
+
+    outline: none;
+
+  }
+  #screen-profile .bar-row.model-usage-bar:focus-visible .bar-label-text-clip {
+
+    border-radius: 4px;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
+
+  }
+  #screen-profile .bar-row.model-usage-bar > .model-row-metric {
+
+    min-width: max-content;
+
+  }
+  #screen-profile .profile-scroll-inner {
+
+    padding-left: max(12px, var(--content-card-shadow-gutter));
+    padding-right: max(12px, var(--content-card-shadow-gutter));
+
+  }
+  #screen-profile .platform-analytics-section .model-usage-grid {
+
+    overflow: visible;
+
+  }
+  #screen-profile .bar-row.model-usage-bar {
+
+    position: relative;
+
+  }
+  #screen-profile .bar-row.model-usage-bar.bar-row--tooltip-open {
+
+    z-index: 2;
+
+  }
+  #screen-profile .bar-row.model-usage-bar > .bar-label {
+
+    position: relative;
+    overflow: visible;
+
+  }
+  #screen-profile .bar-row.model-usage-bar > .bar-label > .bar-label-text-clip {
+
+    display: inline-block;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+
+  }
+  #screen-profile .platform-analytics-section .model-trend-plot,
+#screen-profile .platform-analytics-section .trend-chart-wrap {
+
+    overflow: visible;
+    max-width: 100%;
+
+  }
+  #screen-profile .platform-analytics-section .model-trend-plot:not(.trend-plot--no-y-labels) {
+
+    --trend-y-label-inset: 36px;
+    --trend-plot-left-gutter: 36px;
+    padding: 4px var(--mobile-trend-chart-inset-x, 14px) 0 36px;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+
+  }
+  #screen-profile .platform-analytics-section .trend-plot.model-trend-plot:not(.trend-plot--no-y-labels) {
+
+    padding-top: 4px;
+
+  }
+  #screen-profile .platform-analytics-section .trend-y-label {
+
+    left: calc(-1 * var(--trend-y-label-inset, 36px));
+    transform: translateY(-50%);
+    transform-origin: right center;
+    text-align: right;
+    font-size: 9px;
+    max-width: calc(var(--trend-y-label-inset, 36px) - 4px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+  }
+  #screen-profile .platform-analytics-section .trend-labels {
+
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+
+  }
+  #screen-profile .platform-analytics-section .analytics-card-head {
+
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 10px;
+
+  }
+  #screen-profile .platform-analytics-section .analytics-card-head > div:first-child {
+
+    width: 100%;
+
+  }
+  #screen-profile .platform-analytics-section .model-filter-stack.model-filter-stack--with-series {
+
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    width: 100%;
+    align-items: stretch;
+
+  }
+  #screen-profile .platform-analytics-section .model-filter-stack--with-series .profile-model-picker,
+  #screen-profile .platform-analytics-section .model-filter-stack--with-series .chart-series-selector--profile {
+
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+
+  }
+  #screen-profile .platform-analytics-section .model-filter-stack--with-series .model-picker-btn {
+
+    width: 100%;
+    font-size: 11px;
+    height: 32px;
+    padding: 0 6px;
+
+  }
+  #screen-profile .platform-analytics-section .model-filter-stack--with-series .model-picker-label {
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+  }
+  #screen-profile .platform-analytics-section .model-analytics-summary {
+
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px;
+    margin-bottom: 10px;
+
+  }
+  #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric {
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    min-height: 0;
+    padding: 8px 6px 8px 10px;
+    border-radius: calc(var(--block-r) - 4px);
+
+  }
+  #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric-value {
+
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.15;
+
+  }
+  #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric-label {
+
+    white-space: normal;
+    font-size: 11px;
+    line-height: 1.2;
+
+  }
+}
+@media (max-width: 430px) {
+  .profile-page .model-picker {
+
+    flex-basis: 100%;
+
+  }
+  #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric {
+
+    padding: 7px 5px 7px 9px;
+
+  }
+  #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric-value {
+
+    font-size: 13px;
+
   }
 }

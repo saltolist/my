@@ -488,7 +488,6 @@ html, body {
 .post-subpage-scroll::-webkit-scrollbar,
 .feed-scroll::-webkit-scrollbar,
 .analytics-page::-webkit-scrollbar,
-.profile-page::-webkit-scrollbar,
 .notes-page::-webkit-scrollbar,
 .chats-scroll::-webkit-scrollbar,
 .note-page::-webkit-scrollbar {
@@ -500,7 +499,6 @@ html, body {
 .post-subpage-scroll::-webkit-scrollbar-track,
 .feed-scroll::-webkit-scrollbar-track,
 .analytics-page::-webkit-scrollbar-track,
-.profile-page::-webkit-scrollbar-track,
 .notes-page::-webkit-scrollbar-track,
 .chats-scroll::-webkit-scrollbar-track,
 .note-page::-webkit-scrollbar-track {
@@ -511,7 +509,6 @@ html, body {
 .post-subpage-scroll::-webkit-scrollbar-thumb,
 .feed-scroll::-webkit-scrollbar-thumb,
 .analytics-page::-webkit-scrollbar-thumb,
-.profile-page::-webkit-scrollbar-thumb,
 .notes-page::-webkit-scrollbar-thumb,
 .chats-scroll::-webkit-scrollbar-thumb,
 .note-page::-webkit-scrollbar-thumb {
@@ -523,7 +520,6 @@ html, body {
 .post-subpage-scroll::-webkit-scrollbar-thumb:hover,
 .feed-scroll::-webkit-scrollbar-thumb:hover,
 .analytics-page::-webkit-scrollbar-thumb:hover,
-.profile-page::-webkit-scrollbar-thumb:hover,
 .notes-page::-webkit-scrollbar-thumb:hover,
 .chats-scroll::-webkit-scrollbar-thumb:hover,
 .note-page::-webkit-scrollbar-thumb:hover {
@@ -534,7 +530,6 @@ html, body {
 .post-subpage-scroll::-webkit-scrollbar-corner,
 .feed-scroll::-webkit-scrollbar-corner,
 .analytics-page::-webkit-scrollbar-corner,
-.profile-page::-webkit-scrollbar-corner,
 .notes-page::-webkit-scrollbar-corner,
 .chats-scroll::-webkit-scrollbar-corner,
 .note-page::-webkit-scrollbar-corner {
@@ -542,7 +537,6 @@ html, body {
 }
 
 /* iOS / iPad: инерционный скролл во внутренних контейнерах */
-.profile-page,
 .analytics-page,
 .notes-page,
 .chats-page,
@@ -5690,9 +5684,7 @@ button.filter-tab {
   overflow: visible;
 }
 .analytics-page .analytics-chart-card .model-trend-plot,
-.analytics-page .analytics-chart-card .trend-chart-wrap,
-.profile-page .platform-analytics-section .model-trend-plot,
-.profile-page .platform-analytics-section .trend-chart-wrap {
+.analytics-page .analytics-chart-card .trend-chart-wrap {
   overflow: visible;
   max-width: 100%;
 }
@@ -5701,8 +5693,7 @@ button.filter-tab {
     --content-card-shadow-gutter: 32px;
   }
 
-  #main:has(#screen-analytics.active),
-  #main:has(#screen-profile.active) {
+  #main:has(#screen-analytics.active) {
     overflow-x: visible;
   }
 
@@ -5837,31 +5828,6 @@ button.filter-tab {
     max-width: 100%;
   }
 
-  /* $ с левого края блока; линии графика — справа от колонки подписей Y */
-  #screen-profile .platform-analytics-section .model-trend-plot:not(.trend-plot--no-y-labels) {
-    --trend-chart-inset-end: 12px;
-    --trend-y-label-inset: 44px;
-    --trend-plot-left-gutter: 50px;
-    padding: 0 var(--trend-chart-inset-end, 12px) 0 var(--trend-plot-left-gutter);
-    margin-left: 0;
-    margin-right: 0;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-
-  #screen-profile .platform-analytics-section .trend-y-label {
-    left: calc(-1 * var(--trend-y-label-inset, 44px));
-    max-width: calc(var(--trend-y-label-inset, 44px) - 4px);
-    text-align: right;
-  }
-
-  #screen-profile .platform-analytics-section .trend-labels {
-    margin-left: 0;
-    margin-right: 0;
-    width: 100%;
-    max-width: 100%;
-  }
 }
 
 .analytics-metrics-row {
@@ -6241,9 +6207,6 @@ button.filter-tab {
   background: var(--page-header-control-bg);
 }
 .model-analytics-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
-#screen-profile .platform-analytics-section .model-analytics-summary {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
 .platform-analytics-section .model-analytics-summary .mini-metric {
   border: 1px solid var(--profile-field-border);
 }
@@ -6253,10 +6216,6 @@ button.filter-tab {
   backdrop-filter: none;
 }
 .model-chart-hint { margin-top: 0; }
-.profile-page .profile-section.platform-analytics-section {
-  overflow: visible;
-  max-width: 100%;
-}
 .platform-analytics-section .profile-section-title { margin-bottom: 0; font-size: 17px; }
 .platform-section-title-spaced { margin-bottom: 18px !important; }
 .platform-table-scroll {
@@ -6984,8 +6943,7 @@ button.filter-tab {
     max-height: 100dvh;
   }
 
-  /* Профиль + аналитика: горизонтальные отступы скролла */
-  .profile-scroll-inner,
+  /* Аналитика: горизонтальные отступы скролла */
   .analytics-scroll-inner {
     padding-left: max(18px, var(--content-card-shadow-gutter));
     padding-right: max(18px, var(--content-card-shadow-gutter));
@@ -6997,7 +6955,6 @@ button.filter-tab {
     padding-right: 18px;
   }
 
-  .profile-scroll-inner,
   .analytics-scroll-inner,
   .chats-scroll-inner,
   .notes-grid-page {
@@ -7119,25 +7076,7 @@ button.filter-tab {
     box-sizing: border-box;
   }
 
-  #screen-profile .platform-analytics-section .model-trend-plot:not(.trend-plot--no-y-labels) {
-    --trend-y-label-inset: 36px;
-    --trend-plot-left-gutter: 42px;
-    padding: 4px var(--trend-chart-inset-end, 12px) 0 var(--trend-plot-left-gutter);
-    margin-left: 0;
-    margin-right: 0;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-
-  #screen-profile .platform-analytics-section .trend-y-label {
-    left: calc(-1 * var(--trend-y-label-inset, 36px));
-    max-width: calc(var(--trend-y-label-inset, 36px) - 4px);
-    text-align: right;
-  }
-
-  #screen-analytics .analytics-chart-card .trend-labels,
-  #screen-profile .platform-analytics-section .trend-labels {
+  #screen-analytics .analytics-chart-card .trend-labels {
     margin-left: 0;
     margin-right: 0;
     width: 100%;
@@ -7328,25 +7267,12 @@ button.filter-tab {
 
 /* Desktop + шапка ≤1130: компактные карточки и график; канал ≤930 — 3×2; селекторы в строке */
 @media (min-width: 761px) {
-  html[data-page-header-le-1130] #screen-analytics .analytics-chart-card,
-  html[data-page-header-le-1130]
-    #screen-profile
-    .platform-analytics-section:has(.model-analytics-summary) {
+  html[data-page-header-le-1130] #screen-analytics .analytics-chart-card {
     --model-trend-chart-height: 360px;
   }
 
-  html[data-page-header-le-804] #screen-analytics .analytics-chart-card,
-  html[data-page-header-le-804]
-    #screen-profile
-    .platform-analytics-section:has(.model-analytics-summary) {
+  html[data-page-header-le-804] #screen-analytics .analytics-chart-card {
     --model-trend-chart-height: 300px;
-  }
-
-  html:not([data-page-header-le-1130])
-    #screen-profile
-    .platform-analytics-section
-    .model-analytics-summary {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   html[data-page-header-le-1130] #screen-analytics .analytics-chart-card .channel-analytics-summary {
@@ -7359,24 +7285,10 @@ button.filter-tab {
   }
 
   html[data-page-header-le-1130]
-    #screen-profile
-    .platform-analytics-section
-    .model-analytics-summary {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-
-  html[data-page-header-le-1130]
     #screen-analytics
     .analytics-chart-card
     .channel-analytics-summary
-    .channel-mini-metric,
-  html[data-page-header-le-1130]
-    #screen-profile
-    .platform-analytics-section
-    .model-analytics-summary
-    .mini-metric {
+    .channel-mini-metric {
     min-height: 0;
     padding: 10px 8px 10px 10px;
     border-radius: calc(var(--block-r) - 4px);
@@ -7387,11 +7299,6 @@ button.filter-tab {
     .analytics-chart-card
     .channel-analytics-summary
     .channel-mini-metric
-    .mini-metric-value,
-  html[data-page-header-le-1130]
-    #screen-profile
-    .platform-analytics-section
-    .model-analytics-summary
     .mini-metric-value {
     font-size: 16px;
     font-weight: 400;
@@ -7403,11 +7310,6 @@ button.filter-tab {
     .analytics-chart-card
     .channel-analytics-summary
     .channel-mini-metric
-    .mini-metric-label,
-  html[data-page-header-le-1130]
-    #screen-profile
-    .platform-analytics-section
-    .model-analytics-summary
     .mini-metric-label {
     font-size: 12px;
     line-height: 1.2;
@@ -7415,9 +7317,7 @@ button.filter-tab {
   }
 
   html[data-page-header-le-1130] #screen-analytics .analytics-chart-card .analytics-card-head,
-  html[data-page-header-le-930] #screen-analytics .analytics-chart-card .analytics-card-head,
-  html[data-page-header-le-1130] #screen-profile .platform-analytics-section .analytics-card-head,
-  html[data-page-header-le-930] #screen-profile .platform-analytics-section .analytics-card-head {
+  html[data-page-header-le-930] #screen-analytics .analytics-chart-card .analytics-card-head {
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
@@ -7483,85 +7383,6 @@ button.filter-tab {
     .analytics-chart-card
     .analytics-card-head
     .analytics-period-picker
-    .model-picker-btn {
-    width: max-content;
-    max-width: 100%;
-  }
-
-  html[data-page-header-le-1130]
-    #screen-profile
-    .platform-analytics-section
-    .analytics-card-head
-    > div:first-child {
-    flex: 1 1 auto;
-    min-width: 0;
-    width: auto;
-  }
-
-  html[data-page-header-le-1130]
-    #screen-profile
-    .platform-analytics-section
-    .analytics-card-head
-    .profile-section-title {
-    margin-bottom: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  html[data-page-header-le-1130]
-    #screen-profile
-    .platform-analytics-section
-    .model-filter-stack.model-filter-stack--with-series,
-  html[data-page-header-le-930]
-    #screen-profile
-    .platform-analytics-section
-    .model-filter-stack.model-filter-stack--with-series {
-    display: flex;
-    flex: 0 0 auto;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    width: auto;
-    max-width: none;
-    margin-left: auto;
-  }
-
-  html[data-page-header-le-1130]
-    #screen-profile
-    .platform-analytics-section
-    .model-filter-stack--with-series
-    .profile-model-picker,
-  html[data-page-header-le-1130]
-    #screen-profile
-    .platform-analytics-section
-    .model-filter-stack--with-series
-    .chart-series-selector--profile,
-  html[data-page-header-le-930]
-    #screen-profile
-    .platform-analytics-section
-    .model-filter-stack--with-series
-    .profile-model-picker,
-  html[data-page-header-le-930]
-    #screen-profile
-    .platform-analytics-section
-    .model-filter-stack--with-series
-    .chart-series-selector--profile {
-    width: auto;
-    max-width: 280px;
-    flex: 0 0 auto;
-  }
-
-  html[data-page-header-le-1130]
-    #screen-profile
-    .platform-analytics-section
-    .model-filter-stack--with-series
-    .model-picker-btn,
-  html[data-page-header-le-930]
-    #screen-profile
-    .platform-analytics-section
-    .model-filter-stack--with-series
     .model-picker-btn {
     width: max-content;
     max-width: 100%;
@@ -8257,8 +8078,7 @@ button.filter-tab {
     display: none !important;
   }
 
-  #screen-analytics .page-header-center,
-  #screen-profile .page-header-center {
+  #screen-analytics .page-header-center {
     display: none;
   }
 
@@ -8637,8 +8457,7 @@ button.filter-tab {
     min-height: 240px;
   }
 
-  .analytics-scroll-inner,
-  .profile-scroll-inner {
+  .analytics-scroll-inner {
     padding: 14px 12px 18px;
   }
 
@@ -8752,45 +8571,6 @@ button.filter-tab {
     grid-column: 2;
   }
 
-  /* Прирост по метрикам / типы моделей: точка вместо цветной полосы */
-  #screen-profile .platform-analytics-section .model-usage-head .model-usage-head-bar,
-  #screen-profile .bar-row.model-usage-bar > .bar-track {
-    display: none;
-  }
-
-  #screen-profile .platform-analytics-section .model-usage-grid {
-    grid-template-columns: minmax(0, 1fr) max-content max-content max-content;
-    column-gap: 8px;
-  }
-
-  #screen-profile .platform-analytics-section .model-usage-head > span:nth-child(3) {
-    grid-column: 2;
-  }
-
-  #screen-profile .platform-analytics-section .model-usage-head > span:nth-child(4) {
-    grid-column: 3;
-  }
-
-  #screen-profile .platform-analytics-section .model-usage-head > span:nth-child(5) {
-    grid-column: 4;
-  }
-
-  #screen-profile .bar-row.model-usage-bar > .bar-label {
-    grid-column: 1;
-  }
-
-  #screen-profile .bar-row.model-usage-bar > .model-row-metric--calls {
-    grid-column: 2;
-  }
-
-  #screen-profile .bar-row.model-usage-bar > .model-row-metric--tokens {
-    grid-column: 3;
-  }
-
-  #screen-profile .bar-row.model-usage-bar > .model-row-metric--cost {
-    grid-column: 4;
-  }
-
   #screen-analytics .channel-metric-row:focus-visible {
     outline: none;
   }
@@ -8800,26 +8580,11 @@ button.filter-tab {
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
   }
 
-  #screen-analytics .analytics-page,
-  #screen-profile .profile-page {
+  #screen-analytics .analytics-page {
     scrollbar-gutter: stable;
   }
 
-  #screen-profile .bar-row.model-usage-bar:focus-visible {
-    outline: none;
-  }
-
-  #screen-profile .bar-row.model-usage-bar:focus-visible .bar-label-text-clip {
-    border-radius: 4px;
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
-  }
-
-  #screen-profile .bar-row.model-usage-bar > .model-row-metric {
-    min-width: max-content;
-  }
-
-  #screen-analytics .analytics-scroll-inner,
-  #screen-profile .profile-scroll-inner {
+  #screen-analytics .analytics-scroll-inner {
     padding-left: max(12px, var(--content-card-shadow-gutter));
     padding-right: max(12px, var(--content-card-shadow-gutter));
   }
@@ -8837,29 +8602,24 @@ button.filter-tab {
     overflow: visible;
   }
 
-  #screen-analytics .channel-metrics-table,
-  #screen-profile .platform-analytics-section .model-usage-grid {
+  #screen-analytics .channel-metrics-table {
     overflow: visible;
   }
 
-  #screen-analytics .channel-metric-row,
-  #screen-profile .bar-row.model-usage-bar {
+  #screen-analytics .channel-metric-row {
     position: relative;
   }
 
-  #screen-analytics .channel-metric-row.channel-metric-row--tooltip-open,
-  #screen-profile .bar-row.model-usage-bar.bar-row--tooltip-open {
+  #screen-analytics .channel-metric-row.channel-metric-row--tooltip-open {
     z-index: 2;
   }
 
-  #screen-analytics .channel-metric-row .bar-label,
-  #screen-profile .bar-row.model-usage-bar > .bar-label {
+  #screen-analytics .channel-metric-row .bar-label {
     position: relative;
     overflow: visible;
   }
 
-  #screen-analytics .channel-metric-row .bar-label-text-clip,
-  #screen-profile .bar-row.model-usage-bar > .bar-label > .bar-label-text-clip {
+  #screen-analytics .channel-metric-row .bar-label-text-clip {
     display: inline-block;
     max-width: 100%;
     min-width: 0;
@@ -8948,9 +8708,7 @@ button.filter-tab {
   }
 
   #screen-analytics .analytics-chart-card .model-trend-plot,
-  #screen-analytics .analytics-chart-card .trend-chart-wrap,
-  #screen-profile .platform-analytics-section .model-trend-plot,
-  #screen-profile .platform-analytics-section .trend-chart-wrap {
+  #screen-analytics .analytics-chart-card .trend-chart-wrap {
     overflow: visible;
     max-width: 100%;
   }
@@ -8970,34 +8728,7 @@ button.filter-tab {
     max-width: 100%;
   }
 
-  /* Профиль: колонка под подписи Y + боковой inset под крайние точки */
-  #screen-profile .platform-analytics-section .model-trend-plot:not(.trend-plot--no-y-labels) {
-    --trend-y-label-inset: 36px;
-    --trend-plot-left-gutter: 36px;
-    padding: 4px var(--mobile-trend-chart-inset-x, 14px) 0 36px;
-    margin-left: 0;
-    margin-right: 0;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  #screen-profile .platform-analytics-section .trend-plot.model-trend-plot:not(.trend-plot--no-y-labels) {
-    padding-top: 4px;
-  }
-
-  #screen-profile .platform-analytics-section .trend-y-label {
-    left: calc(-1 * var(--trend-y-label-inset, 36px));
-    transform: translateY(-50%);
-    transform-origin: right center;
-    text-align: right;
-    font-size: 9px;
-    max-width: calc(var(--trend-y-label-inset, 36px) - 4px);
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  #screen-analytics .analytics-chart-card .trend-labels,
-  #screen-profile .platform-analytics-section .trend-labels {
+  #screen-analytics .analytics-chart-card .trend-labels {
     margin-left: 0;
     margin-right: 0;
     width: 100%;
@@ -9107,55 +8838,13 @@ button.filter-tab {
     text-align: left;
   }
 
-  /* Профиль: три селектора в ряд между заголовком и карточками (как ширина карточек) */
-  #screen-profile .platform-analytics-section .analytics-card-head {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-
-  #screen-profile .platform-analytics-section .analytics-card-head > div:first-child {
-    width: 100%;
-  }
-
-  #screen-profile .platform-analytics-section .model-filter-stack.model-filter-stack--with-series {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6px;
-    width: 100%;
-    align-items: stretch;
-  }
-
-  #screen-profile .platform-analytics-section .model-filter-stack--with-series .profile-model-picker,
-  #screen-profile .platform-analytics-section .model-filter-stack--with-series .chart-series-selector--profile {
-    width: 100%;
-    max-width: none;
-    min-width: 0;
-  }
-
-  #screen-profile .platform-analytics-section .model-filter-stack--with-series .model-picker-btn {
-    width: 100%;
-    font-size: 11px;
-    height: 32px;
-    padding: 0 6px;
-  }
-
-  #screen-profile .platform-analytics-section .model-filter-stack--with-series .model-picker-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  #screen-analytics .analytics-chart-card .channel-analytics-summary,
-  #screen-profile .platform-analytics-section .model-analytics-summary {
+  #screen-analytics .analytics-chart-card .channel-analytics-summary {
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     gap: 6px;
     margin-bottom: 10px;
   }
 
-  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric,
-  #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric {
+  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -9165,15 +8854,13 @@ button.filter-tab {
     border-radius: calc(var(--block-r) - 4px);
   }
 
-  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-value,
-  #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric-value {
+  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-value {
     font-size: 14px;
     font-weight: 400;
     line-height: 1.15;
   }
 
-  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-label,
-  #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric-label {
+  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-label {
     white-space: normal;
     font-size: 11px;
     line-height: 1.2;
@@ -9219,7 +8906,6 @@ button.filter-tab {
     font-size: 16px;
   }
 
-  .profile-page .model-picker,
   .analytics-chart-card .model-picker {
     flex-basis: 100%;
   }
@@ -9264,13 +8950,11 @@ button.filter-tab {
     grid-template-columns: 1fr;
   }
 
-  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric,
-  #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric {
+  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric {
     padding: 7px 5px 7px 9px;
   }
 
-  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-value,
-  #screen-profile .platform-analytics-section .model-analytics-summary .mini-metric-value {
+  #screen-analytics .analytics-chart-card .channel-analytics-summary .channel-mini-metric .mini-metric-value {
     font-size: 13px;
   }
 
