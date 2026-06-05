@@ -6,6 +6,7 @@ import "./post.css";
 import "./notes.css";
 import "./feed.css";
 import "./chats.css";
+import "./gchat.css";
 
 export const metadata: Metadata = {
   title: "TG Platform — Demo",
