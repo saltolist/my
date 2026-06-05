@@ -10,6 +10,7 @@ const compat = new FlatCompat({
 });
 
 const fsdLayers = ["app", "screens", "widgets", "features", "entities", "shared"];
+const fsdSliceTypes = ["screens", "widgets", "features", "entities"];
 
 /** @type {import("eslint").Linter.Config[]} */
 const config = [
@@ -61,6 +62,15 @@ const config = [
             { from: { type: "features" }, allow: { to: { type: "features" } } },
             { from: { type: "entities" }, allow: { to: { type: "entities" } } },
             { allow: { dependency: { relationship: { to: "internal" } } } },
+            {
+              from: { captured: { slice: "{{to.captured.slice}}" } },
+              allow: { to: { type: fsdSliceTypes } },
+            },
+            {
+              to: { type: fsdSliceTypes, internalPath: "!index.ts" },
+              disallow: { from: { type: "*" } },
+              message: "Import {{to.type}}/{{to.captured.slice}} via public API (index.ts)",
+            },
           ],
         },
       ],
