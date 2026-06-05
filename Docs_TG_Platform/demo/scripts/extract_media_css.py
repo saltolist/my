@@ -4,8 +4,8 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-GLOBALS = ROOT / "app" / "globals.css"
-MEDIA = ROOT / "app" / "media.css"
+GLOBALS = ROOT / "src" / "app" / "styles" / "globals.css"
+MEDIA = ROOT / "src" / "app" / "styles" / "media.css"
 
 # 1-based inclusive line range (TG-style media block)
 CUT_RANGES = [

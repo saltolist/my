@@ -5,8 +5,8 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-GLOBALS = ROOT / "app" / "globals.css"
-POST = ROOT / "app" / "post.css"
+GLOBALS = ROOT / "src" / "app" / "styles" / "globals.css"
+POST = ROOT / "src" / "app" / "styles" / "post.css"
 
 CUT_RANGES = [(3732, 4302), (4386, 4575)]
 

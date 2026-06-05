@@ -5,8 +5,8 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-GLOBALS = ROOT / "app" / "globals.css"
-FEED = ROOT / "app" / "feed.css"
+GLOBALS = ROOT / "src" / "app" / "styles" / "globals.css"
+FEED = ROOT / "src" / "app" / "styles" / "feed.css"
 
 # 1-based inclusive line ranges
 CUT_RANGES = [

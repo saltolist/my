@@ -5,8 +5,8 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-GLOBALS = ROOT / "app" / "globals.css"
-NOTES = ROOT / "app" / "notes.css"
+GLOBALS = ROOT / "src" / "app" / "styles" / "globals.css"
+NOTES = ROOT / "src" / "app" / "styles" / "notes.css"
 
 # NOTE PAGE + NOTES LIST main blocks (1-based line numbers, inclusive)
 CUT_RANGES = [(3793, 4312), (4517, 4789)]
