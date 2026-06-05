@@ -3,6 +3,7 @@ import "./globals.css";
 import "./profile.css";
 import "./analytics.css";
 import "./post.css";
+import "./notes.css";
 
 export const metadata: Metadata = {
   title: "TG Platform — Demo",
