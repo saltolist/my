@@ -13,7 +13,7 @@ import { usePostHeaderCompact1200 } from "@/lib/hooks/usePostHeaderCompact1200";
 import { useCompactHeader1000 } from "@/lib/hooks/useCompactHeader1000";
 import { routes } from "@/lib/routes";
 import type { PageHeaderOverflowItem } from "@/components/PageHeaderOverflow";
-import type { LocalChat, Post, PostMedia, PostMode, NoteListFilter } from "@/lib/types";
+import type { LocalChat, LocalNote, Post, PostMedia, PostMode, NoteListFilter } from "@/lib/types";
 
 export function usePostWorkspace() {
   const {
@@ -130,6 +130,22 @@ export function usePostWorkspace() {
   const openComments = useCallback(
     () => applyPostView("comments", null),
     [applyPostView],
+  );
+
+  const openNote = useCallback(
+    (note: LocalNote) => {
+      if (!post) return;
+      goToHref(routes.notePost(post.id, note.id));
+    },
+    [goToHref, post],
+  );
+
+  const toggleNoteAi = useCallback(
+    (noteId: number) => {
+      if (!post) return;
+      dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: post.id, noteId });
+    },
+    [dispatch, post],
   );
 
   useEffect(() => {
@@ -350,6 +366,8 @@ export function usePostWorkspace() {
     cancelEdit,
     savePost,
     openComments,
+    openNote,
+    toggleNoteAi,
     sendPost,
   };
 }

@@ -4,7 +4,7 @@ import { MenuIconPlus } from "@/components/HeaderMenuIcons";
 import PostSubpageToolbar from "@/components/post/PostSubpageToolbar";
 import PostNotesList from "@/components/screens/post/PostNotesList";
 import type { PostWorkspace } from "@/lib/hooks/usePostWorkspace";
-import type { LocalNote, Post } from "@/lib/types";
+import type { Post } from "@/lib/types";
 
 type Props = Pick<
   PostWorkspace,
@@ -12,10 +12,10 @@ type Props = Pick<
   | "listContextFilter"
   | "setListContextFilter"
   | "startNewNote"
+  | "openNote"
+  | "toggleNoteAi"
 > & {
   post: Post;
-  onOpenNote: (note: LocalNote) => void;
-  onToggleNoteAi: (noteId: number) => void;
 };
 
 export default function PostNotesView({
@@ -24,8 +24,8 @@ export default function PostNotesView({
   listContextFilter,
   setListContextFilter,
   startNewNote,
-  onOpenNote,
-  onToggleNoteAi,
+  openNote,
+  toggleNoteAi,
 }: Props) {
   return (
     <div className="post-subpage-scroll">
@@ -49,8 +49,8 @@ export default function PostNotesView({
         post={post}
         search={listSearch}
         contextFilter={listContextFilter}
-        onOpenNote={onOpenNote}
-        onToggleNoteAi={onToggleNoteAi}
+        onOpenNote={openNote}
+        onToggleNoteAi={toggleNoteAi}
       />
     </div>
   );

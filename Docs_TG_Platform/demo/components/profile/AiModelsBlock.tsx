@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useApp } from "@/state/AppContext";
+import { useUi } from "@/state/ui-store";
 import { LLM_PROVIDER_MODELS, WEB_SEARCH_PROVIDER_MODELS } from "@/lib/composer-config";
 import type { AiProfileConfig, LlmModel } from "@/lib/types";
 import ModelPicker, { BrainIcon, SearchIcon } from "@/components/composer/ModelPicker";
@@ -10,7 +11,8 @@ import ProfileCheckbox from "@/components/profile/ProfileCheckbox";
 import { restoreAiConfigFromSnapshot } from "@/lib/profileDiscard";
 
 export default function AiModelsBlock() {
-  const { state, dispatch, multiResponsePairs, setDirty } = useApp();
+  const { state, dispatch, multiResponsePairs } = useApp();
+  const { setDirty } = useUi();
   const cfg = state.aiProfileConfig;
 
   const update = (next: AiProfileConfig) => dispatch({ type: "UPDATE_AI_CONFIG", config: next });

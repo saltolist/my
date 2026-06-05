@@ -1,10 +1,10 @@
 "use client";
 
-import { useApp } from "@/state/AppContext";
+import { useUi } from "@/state/ui-store";
 
 /** Кнопка выдвижения сайдбара в шапке экрана (видна только в адаптиве). */
 export default function PageHeaderMenuButton() {
-  const { setMobileSidebarOpen } = useApp();
+  const { setMobileSidebarOpen } = useUi();
   return (
     <button
       type="button"

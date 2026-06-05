@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { useApp } from "@/state/AppContext";
+import { useUi } from "@/state/ui-store";
 import ContentAdaptSync from "./ContentAdaptSync";
 import Sidebar from "./sidebar/Sidebar";
 import RouteSync from "./RouteSync";
@@ -17,7 +17,7 @@ function RouteSyncGate() {
 }
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const { mobileSidebarOpen, setMobileSidebarOpen } = useApp();
+  const { mobileSidebarOpen, setMobileSidebarOpen } = useUi();
   const pathname = usePathname();
 
   useEffect(() => {

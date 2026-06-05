@@ -6,13 +6,12 @@ import {
   feedPostWidthPhoneFormat,
   type FeedPostWidth,
 } from "@/lib/feedPostWidth";
+import { useUi } from "@/state/ui-store";
 import { useMobile760 } from "@/lib/hooks/useMobile760";
-import { useApp } from "@/state/AppContext";
 
 export function useFeedPostLayout() {
-  const { state } = useApp();
+  const { feedPostWidth } = useUi();
   const isMobile = useMobile760();
-  const feedPostWidth = state.feedPostWidth;
   const effectiveWidth = effectiveFeedPostWidth(feedPostWidth, isMobile);
   const phoneFormat = feedPostWidthPhoneFormat(feedPostWidth, isMobile);
 

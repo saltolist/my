@@ -7,10 +7,12 @@ import ProfileSyncRow from "@/components/profile/ProfileSyncRow";
 import { useProfileTextareaAutoResize } from "@/lib/use-profile-textarea-auto-resize";
 import { useFitTitleSize } from "@/lib/use-fit-title";
 import { useApp } from "@/state/AppContext";
+import { useUi } from "@/state/ui-store";
 import type { ChannelProfileConfig, ChannelProfileRubric } from "@/lib/types";
 
 export default function ChannelTab({ active }: { active: boolean }) {
-  const { state, dispatch, setDirty } = useApp();
+  const { state, dispatch } = useApp();
+  const { setDirty } = useUi();
   const cfg = state.channelProfileConfig;
   const savedCfg = useMemo(
     () => JSON.parse(state.channelProfileSavedSnapshot) as ChannelProfileConfig,

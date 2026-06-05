@@ -1,6 +1,6 @@
 "use client";
 
-import { useApp } from "@/state/AppContext";
+import { useUi } from "@/state/ui-store";
 import type { ThemeMode } from "@/lib/types";
 
 const OPTIONS: { id: ThemeMode; label: string; icon: string; hint: string }[] = [
@@ -10,14 +10,14 @@ const OPTIONS: { id: ThemeMode; label: string; icon: string; hint: string }[] = 
 ];
 
 export default function ThemeBlock() {
-  const { state, dispatch } = useApp();
+  const { theme, setTheme } = useUi();
 
   return (
     <div className="profile-section">
       <div className="profile-section-title">Тема</div>
       <div className="theme-switch" role="radiogroup" aria-label="Выбор темы">
         {OPTIONS.map((opt) => {
-          const active = state.theme === opt.id;
+          const active = theme === opt.id;
           return (
             <button
               key={opt.id}
@@ -26,7 +26,7 @@ export default function ThemeBlock() {
               aria-checked={active}
               title={opt.hint}
               className={`theme-switch-btn${active ? " active" : ""}`}
-              onClick={() => dispatch({ type: "SET_STATE", patch: { theme: opt.id } })}
+              onClick={() => setTheme(opt.id)}
             >
               <span className="theme-switch-icon">{opt.icon}</span>
               <span>{opt.label}</span>

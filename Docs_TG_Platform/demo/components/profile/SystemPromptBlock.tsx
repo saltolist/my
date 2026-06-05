@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { useProfileTextareaAutoResize } from "@/lib/use-profile-textarea-auto-resize";
 import { useApp } from "@/state/AppContext";
+import { useUi } from "@/state/ui-store";
 
 export default function SystemPromptBlock({ active = true }: { active?: boolean }) {
-  const { state, dispatch, setDirty } = useApp();
+  const { state, dispatch } = useApp();
+  const { setDirty } = useUi();
   const [draft, setDraft] = useState(state.aiProfileConfig.systemPrompt);
   const dirty = draft !== state.systemPromptSavedSnapshot;
   const { ref: textareaRef, resize } = useProfileTextareaAutoResize(draft, active);

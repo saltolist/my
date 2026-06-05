@@ -3,12 +3,14 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { formatTelegramPhoneInput, TELEGRAM_PHONE_FORMATTED_MAX_LENGTH } from "@/lib/format-telegram-phone";
 import { useApp } from "@/state/AppContext";
+import { useUi } from "@/state/ui-store";
 import type { TelegramProfileConfig } from "@/lib/types";
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
 export default function TelegramBlock() {
-  const { state, dispatch, setDirty } = useApp();
+  const { state, dispatch } = useApp();
+  const { setDirty } = useUi();
   const cfg = state.telegramProfileConfig;
   const [code, setCode] = useState("");
   const [syncing, setSyncing] = useState(false);
