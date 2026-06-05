@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./media.css";
 import "./profile.css";
 import "./analytics.css";
 import "./post.css";
