@@ -679,13 +679,6 @@
     flex: 0 0 auto;
     pointer-events: auto;
   }
-.page-header-search-tools-row,
-  .page-header-feed-search-row {
-    width: 100%;
-    max-width: 100%;
-    flex-wrap: nowrap;
-    gap: 8px;
-  }
 .feed-screen-wrap .input-wrap {
     --input-wrap-pad-top: 12px;
     --input-wrap-pad-bottom: 12px;

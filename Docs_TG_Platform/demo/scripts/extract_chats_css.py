@@ -118,7 +118,7 @@ SCROLLBAR_GROUPS = (
 )
 
 SCROLLBAR_BLOCK_START = "/* ── Custom thin scrollbar for main scroll containers (WebKit) ── */"
-IOS_SCROLL_BLOCK_START = "/* iOS / iPad: инерционный скролл во внутренних контейнерах */"
+LAYOUT_BLOCK_START = "/* ── Layout ── */"
 
 
 def in_cut(line_no: int) -> bool:
@@ -245,15 +245,10 @@ def replace_scroll_blocks(text: str) -> str:
     start = text.find(SCROLLBAR_BLOCK_START)
     if start < 0:
         return text
-    ios_start = text.find(IOS_SCROLL_BLOCK_START, start)
-    if ios_start < 0:
+    layout_start = text.find(LAYOUT_BLOCK_START, start)
+    if layout_start < 0:
         return text
-    ios_end = text.find("\n\n", ios_start + 1)
-    if ios_end < 0:
-        ios_end = len(text)
-    else:
-        ios_end += 2
-    return text[:start] + SCROLLBAR_GROUPS[0] + "\n" + SCROLLBAR_GROUPS[1] + text[ios_end:]
+    return text[:start] + SCROLLBAR_GROUPS[0] + "\n" + SCROLLBAR_GROUPS[1] + text[layout_start:]
 
 
 def main() -> None:

@@ -506,6 +506,18 @@ html, body {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
 }
+
+/* ── Layout ── */
+#app {
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+}
+.mobile-sidebar-backdrop {
+  display: none;
+}
+
 /* ════════════════════════════════
    SIDEBAR
 ════════════════════════════════ */
@@ -3211,40 +3223,40 @@ button.nav-item {
 ════════════════════════════════ */
 /* Планшет и узкое окно (iPad 13″ landscape ~1376px, portrait ~1032px) */
 @media (max-width: 1200px) {
-:root {
+  :root {
     /* composer в две строки — больше отступ снизу у скролла */
     --composer-overlay-h: 220px;
   }
-#app,
+  #app,
   .screen {
     min-width: 0;
   }
-#main {
+  #main {
     min-height: 0;
     max-height: 100dvh;
   }
-.chats-scroll,
+  .chats-scroll,
   .note-page {
     padding-left: 18px;
     padding-right: 18px;
   }
-.page-header {
+  .page-header {
     padding-left: 18px;
     padding-right: 18px;
     column-gap: 10px;
   }
-.input-wrap {
+  .input-wrap {
     padding-left: 18px;
     padding-right: 18px;
   }
-.post-body .composer-scroll-body,
+  .post-body .composer-scroll-body,
   .feed-scroll .composer-scroll-body,
   .gchat-messages .composer-scroll-body {
     --scroll-pad-inline: 18px;
     padding-left: var(--scroll-pad-inline);
     padding-right: var(--scroll-pad-inline);
   }
-@media (hover: hover) and (pointer: fine) {
+  @media (hover: hover) and (pointer: fine) {
     .post-hdr .post-header-search-toggle:hover {
       color: var(--text);
     }
@@ -3263,20 +3275,20 @@ button.nav-item {
 
 
 @media (max-width: 920px) {
-:root {
+  :root {
     --content-w: calc(100vw - var(--nav-w) - 32px);
     --composer-w: calc(100vw - var(--nav-w) - 32px);
   }
-.page-header {
+  .page-header {
     padding-left: 16px;
     padding-right: 16px;
     column-gap: 10px;
   }
-.input-wrap {
+  .input-wrap {
     padding-left: 16px;
     padding-right: 16px;
   }
-.post-body .composer-scroll-body,
+  .post-body .composer-scroll-body,
   .feed-scroll .composer-scroll-body,
   .gchat-messages .composer-scroll-body {
     --scroll-pad-inline: 16px;
@@ -3292,8 +3304,8 @@ button.nav-item {
 
 /* iOS/Android: при font-size < 16px браузер увеличивает страницу при фокусе в поле */
 @media (hover: none) and (pointer: coarse) {
-/* Плейсхолдер не в потоке — не раздувает высоту; 14px не триггерит zoom (фокус в editor 16px) */
-.composer-editor.is-empty::before {
+  /* Плейсхолдер не в потоке — не раздувает высоту; 14px не триггерит zoom (фокус в editor 16px) */
+  .composer-editor.is-empty::before {
     font-size: 14px;
   }
 }
@@ -3304,16 +3316,16 @@ button.nav-item {
 
 
 @media (max-width: 760px) {
-/* Селектор в шапке = активная вкладка desktop (period-tab / chats-tab) */
-.page-header-select,
+  /* Селектор в шапке = активная вкладка desktop (period-tab / chats-tab) */
+  .page-header-select,
   .page-header-select-ctx .page-header-select {
     padding: 0;
     background: var(--page-header-control-bg);
     border-color: var(--control-border-active);
     color: var(--text);
   }
-/* Меню селекторов в шапке и меню "•••" в шапках — без эффекта стекла на mobile */
-.ctx-dropdown.ctx-dropdown-portal.ctx-dropdown--page-header-control,
+  /* Меню селекторов в шапке и меню "•••" в шапках — без эффекта стекла на mobile */
+  .ctx-dropdown.ctx-dropdown-portal.ctx-dropdown--page-header-control,
   .ctx-dropdown.ctx-dropdown--page-header-control {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
@@ -3321,14 +3333,14 @@ button.nav-item {
     border-color: var(--ctx-dropdown-header-border) !important;
     box-shadow: none !important;
   }
-/* «•••» в шапке: на телефоне без разрежения и крупнее (как на десктопе визуально) */
-.page-header-overflow .ctx-btn {
+  /* «•••» в шапке: на телефоне без разрежения и крупнее (как на десктопе визуально) */
+  .page-header-overflow .ctx-btn {
     font-size: 18px;
     letter-spacing: 0;
     line-height: 1;
     padding: 4px 6px;
   }
-:root {
+  :root {
     --nav-w: 0px;
     --content-w: 100%;
     --composer-w: 100%;
@@ -3336,31 +3348,31 @@ button.nav-item {
     --hdr: 52px;
     --model-trend-chart-height: 246px;
   }
-html,
+  html,
   body {
     overflow: hidden;
   }
-#app {
+  #app {
     display: block;
     height: 100dvh;
   }
-.page-header-menu-btn {
+  .page-header-menu-btn {
     display: inline-flex;
     min-width: 44px;
     min-height: 44px;
     margin: 0 -6px;
     padding: 12px;
   }
-.page-header-menu-btn:hover {
+  .page-header-menu-btn:hover {
     color: var(--text);
   }
-#screen-home > .page-header {
+  #screen-home > .page-header {
     display: grid;
   }
-.page-header-home-brand {
+  .page-header-home-brand {
     display: inline-flex;
   }
-.mobile-sidebar-backdrop {
+  .mobile-sidebar-backdrop {
     position: fixed;
     inset: 0;
     z-index: 590;
@@ -3370,11 +3382,11 @@ html,
     pointer-events: none;
     transition: opacity .18s;
   }
-body.mobile-sidebar-open .mobile-sidebar-backdrop {
+  body.mobile-sidebar-open .mobile-sidebar-backdrop {
     opacity: 1;
     pointer-events: auto;
   }
-#sidebar {
+  #sidebar {
     position: fixed;
     top: 0;
     left: 0;
@@ -3399,15 +3411,15 @@ body.mobile-sidebar-open .mobile-sidebar-backdrop {
     transition: transform 0.2s ease;
     box-shadow: none;
   }
-body.mobile-sidebar-open #sidebar {
+  body.mobile-sidebar-open #sidebar {
     transform: translateX(0);
     box-shadow: none;
   }
-#sidebar::before {
+  #sidebar::before {
     display: none;
     content: none;
   }
-.sidebar-header {
+  .sidebar-header {
     display: flex;
     align-items: center;
     flex-direction: row;
@@ -3417,7 +3429,7 @@ body.mobile-sidebar-open #sidebar {
     padding: 0 12px 0 14px;
     margin-bottom: calc((var(--hdr) - var(--sidebar-brand-mark-size)) / 2);
   }
-.nav-items {
+  .nav-items {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -3426,14 +3438,14 @@ body.mobile-sidebar-open #sidebar {
     padding: 0;
     width: 100%;
   }
-.sidebar-bottom {
+  .sidebar-bottom {
     flex-shrink: 0;
     width: 100%;
     padding: 9px 0 9px;
     border-top: 1px solid var(--sidebar-glass-border);
     box-sizing: border-box;
   }
-.nav-item {
+  .nav-item {
     min-width: 0;
     flex-direction: row;
     justify-content: flex-start;
@@ -3442,108 +3454,108 @@ body.mobile-sidebar-open #sidebar {
     font-size: 14px;
     text-align: left;
   }
-/* Не наследовать padding .nav-item — иначе двойной отступ с .nav-item-chats-main */
-.nav-item.nav-item--chats-row {
+  /* Не наследовать padding .nav-item — иначе двойной отступ с .nav-item-chats-main */
+  .nav-item.nav-item--chats-row {
     padding: 0;
     gap: 0;
   }
-.nav-item-chats-main {
+  .nav-item-chats-main {
     padding: 12px 0 12px var(--nav-pad-left);
   }
-.nav-chats-chevron {
+  .nav-chats-chevron {
     padding: 12px 12px 12px 2px;
   }
-.nav-recent-chats-section-label {
+  .nav-recent-chats-section-label {
     margin: 0 var(--nav-pill-gutter);
     padding: 8px 4px 4px var(--nav-recent-pad-left);
   }
-.nav-recent-chat-row {
+  .nav-recent-chat-row {
     margin: 1.5px var(--nav-pill-gutter);
     padding: 0 4px 0 0;
     border-radius: var(--nav-pill-radius);
     width: auto;
     align-self: stretch;
   }
-.nav-recent-chat {
+  .nav-recent-chat {
     padding: 8px 4px 8px var(--nav-recent-pad-left);
   }
-#main {
+  #main {
     height: 100dvh;
     min-height: 0;
     padding-top: 0;
   }
-#screen-home > .page-header .page-header-center,
+  #screen-home > .page-header .page-header-center,
   #screen-home > .page-header .page-header-right {
     display: none;
   }
-:root {
+  :root {
     --page-header-mobile-search-shrink: 50px;
   }
-/* Flex: селектор и overflow у правого края, даже если центр скрыт (grid без центра съезжал в col 2) */
-.page-header {
+  /* Flex: селектор и overflow у правого края, даже если центр скрыт (grid без центра съезжал в col 2) */
+  .page-header {
     display: flex;
     align-items: center;
     gap: 10px;
   }
-.page-header-left {
+  .page-header-left {
     flex: 0 1 auto;
     min-width: 0;
     gap: 8px;
   }
-.page-header.page-header--search-open .page-header-left {
+  .page-header.page-header--search-open .page-header-left {
     flex: 0 0 auto;
     gap: 0;
   }
-.page-header.page-header--search-open .page-header-menu-btn {
+  .page-header.page-header--search-open .page-header-menu-btn {
     margin: 0 -6px;
     min-width: 0;
     width: auto;
     min-height: 44px;
     padding: 12px 0 12px 12px;
   }
-.page-header-center {
+  .page-header-center {
     flex: 1 1 auto;
     min-width: 0;
     justify-self: auto;
     max-width: none;
   }
-.page-header-center > .page-header-toolbar-slot.page-header-toolbar--mobile {
+  .page-header-center > .page-header-toolbar-slot.page-header-toolbar--mobile {
     flex: 0 1 auto;
     max-width: 100%;
     margin-left: auto;
   }
-.page-header-right {
+  .page-header-right {
     flex: 0 0 auto;
     margin-left: auto;
   }
-.page-header-toolbar-slot.page-header-toolbar--mobile {
+  .page-header-toolbar-slot.page-header-toolbar--mobile {
     flex: 0 0 auto;
     max-width: 100%;
   }
-.page-header-right--mobile .page-header-overflow .ctx-btn {
+  .page-header-right--mobile .page-header-overflow .ctx-btn {
     padding-left: 0;
     padding-right: 6px;
   }
-@media (hover: hover) and (pointer: fine) {
+  @media (hover: hover) and (pointer: fine) {
     .post-header-search-toggle:hover,
     .page-header-search-toggle:hover {
       color: var(--text);
     }
   }
-.page-header-search-spacer {
+  .page-header-search-spacer {
     flex: 1 1 auto;
     min-width: 0;
   }
-/* Чаты, заметки и др.: поле по центру между меню и селектором, на 50px уже пролёта */
-.page-header.page-header--search-open.page-header--has-mobile-select {
+  /* Чаты, заметки и др.: поле по центру между меню и селектором, на 50px уже пролёта */
+  .page-header.page-header--search-open.page-header--has-mobile-select {
     position: relative;
   }
-.page-header.page-header--search-open.page-header--has-mobile-select .page-header-left,
+  .page-header.page-header--search-open.page-header--has-mobile-select .page-header-left,
   .page-header.page-header--search-open.page-header--has-mobile-select .page-header-right {
     position: relative;
     z-index: 1;
   }
-.page-header.page-header--search-open.page-header--has-mobile-select .page-header-search-expand {
+  .page-header.page-header--search-open.page-header--has-mobile-select .page-header-search-expand {
     position: absolute;
     top: 0;
     bottom: 0;
@@ -3559,53 +3571,53 @@ body.mobile-sidebar-open #sidebar {
     pointer-events: none;
     z-index: 0;
   }
-.page-header.page-header--search-open.page-header--has-mobile-select .page-header-search-field {
+  .page-header.page-header--search-open.page-header--has-mobile-select .page-header-search-field {
     width: calc(100% - var(--page-header-mobile-search-shrink));
     max-width: none;
     flex: 0 0 auto;
     pointer-events: auto;
   }
-.page-header.page-header--search-open .page-header-right {
+  .page-header.page-header--search-open .page-header-right {
     flex: 0 0 auto;
     margin-left: auto;
   }
-.page-header-left h2 {
+  .page-header-left h2 {
     flex: 1 1 auto;
     min-width: 0;
   }
-.page-header-right {
+  .page-header-right {
     flex-shrink: 0;
     margin-left: auto;
   }
-.page-header-right--mobile {
+  .page-header-right--mobile {
     gap: 10px;
   }
-/* Селектор у правого края — зеркально меню слева (10px − 6px + 12px = 16px) */
-.page-header-right--mobile .page-header-toolbar-slot {
+  /* Селектор у правого края — зеркально меню слева (10px − 6px + 12px = 16px) */
+  .page-header-right--mobile .page-header-toolbar-slot {
     margin-right: 6px;
   }
-/* На тач-устройствах убираем “анимацию нажатия” у кнопок поиска */
-@media (hover: none) and (pointer: coarse) {
+  /* На тач-устройствах убираем “анимацию нажатия” у кнопок поиска */
+  @media (hover: none) and (pointer: coarse) {
     .post-header-search-toggle,
     .page-header-search-toggle {
       transition: none;
     }
   }
-.page-header-toolbar--desktop {
+  .page-header-toolbar--desktop {
     display: none !important;
   }
-.page-header-toolbar--mobile {
+  .page-header-toolbar--mobile {
     display: flex;
   }
-.page-header-actions--desktop {
+  .page-header-actions--desktop {
     display: none;
   }
-.page-header-actions--mobile {
+  .page-header-actions--mobile {
     display: flex;
     align-items: center;
     flex-shrink: 0;
   }
-@media (hover: none) {
+  @media (hover: none) {
     .post-subpage-toolbar .filter-tab--action:hover {
       background: var(--bg4);
       border-color: var(--border2);
@@ -3618,50 +3630,50 @@ body.mobile-sidebar-open #sidebar {
       color: var(--text);
     }
   }
-.page-header-search-field {
+  .page-header-search-field {
     flex: 1 1 auto;
     width: auto;
     min-width: 0;
     max-width: none;
   }
-.page-header h2 {
+  .page-header h2 {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-.breadcrumb {
+  .breadcrumb {
     min-width: 0;
     flex: 1;
     flex-wrap: nowrap;
     overflow: hidden;
   }
-.breadcrumb .bc-link.bc-post-title,
+  .breadcrumb .bc-link.bc-post-title,
   .breadcrumb .crumb-current.bc-post-title {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-.breadcrumb .crumb-current:not(.bc-post-title),
+  .breadcrumb .crumb-current:not(.bc-post-title),
   .breadcrumb > .bc-link:first-child {
     flex-shrink: 0;
     overflow: visible;
     text-overflow: clip;
   }
-.btn {
+  .btn {
     padding-left: 10px;
     padding-right: 10px;
   }
-.post-body .composer-scroll-body,
+  .post-body .composer-scroll-body,
   .feed-scroll .composer-scroll-body,
   .gchat-messages .composer-scroll-body {
     --scroll-pad-inline: 12px;
     padding-left: var(--scroll-pad-inline);
     padding-right: var(--scroll-pad-inline);
   }
-/* Главная и чаты: та же карточка composer, что на полноэкранной версии */
-#screen-home .input-wrap {
+  /* Главная и чаты: та же карточка composer, что на полноэкранной версии */
+  #screen-home .input-wrap {
     padding: 14px var(--composer-mobile-gutter) 18px;
     display: flex;
     justify-content: center;
@@ -3669,11 +3681,11 @@ body.mobile-sidebar-open #sidebar {
     max-width: none;
     box-sizing: border-box;
   }
-#screen-home .input-wrap {
+  #screen-home .input-wrap {
     position: static;
     background: transparent;
   }
-#screen-home .input-box {
+  #screen-home .input-box {
     width: 100%;
     max-width: 100%;
     min-height: 95px;
@@ -3682,59 +3694,59 @@ body.mobile-sidebar-open #sidebar {
     background: var(--bg2);
     box-shadow: var(--inset-edge), var(--shadow-strong);
   }
-.home-layout {
+  .home-layout {
     padding: 24px var(--composer-mobile-gutter) 20px;
     align-items: stretch;
   }
-#screen-home .input-wrap {
+  #screen-home .input-wrap {
     align-self: stretch;
   }
-.home-logo {
+  .home-logo {
     width: 48px;
     height: 48px;
     border-radius: 12px;
     font-size: 24px;
   }
-.home-intro h3 {
+  .home-intro h3 {
     font-size: 18px;
     text-align: center;
   }
-:root {
+  :root {
     --composer-overlay-h: 118px;
   }
-.msg-row {
+  .msg-row {
     padding-left: 12px;
     padding-right: 12px;
   }
-.msg-body,
+  .msg-body,
   .msg-row.user .msg-body {
     max-width: 100%;
     flex-basis: auto;
   }
-.notes-filter-row,
+  .notes-filter-row,
   .chats-filter-row {
     overflow-x: auto;
     scrollbar-width: none;
   }
-.notes-filter-row::-webkit-scrollbar,
+  .notes-filter-row::-webkit-scrollbar,
   .chats-filter-row::-webkit-scrollbar {
     display: none;
   }
-.filter-tab {
+  .filter-tab {
     white-space: nowrap;
   }
-.bar-label {
+  .bar-label {
     width: auto;
   }
-.bar-track {
+  .bar-track {
     grid-column: 1 / -1;
     order: 3;
   }
-.bar-meta {
+  .bar-meta {
     grid-column: 2;
   }
-/* На телефоне — меньший inset (см. --mobile-trend-chart-inset-x) */
-:root {
+  /* На телефоне — меньший inset (см. --mobile-trend-chart-inset-x) */
+  :root {
     --mobile-trend-chart-inset-x: 14px;
   }
 }
@@ -3745,13 +3757,13 @@ body.mobile-sidebar-open #sidebar {
 
 
 @media (max-width: 430px) {
-.nav-item {
+  .nav-item {
     min-width: 0;
   }
-.nav-icon {
+  .nav-icon {
     font-size: 16px;
   }
-:root {
+  :root {
     --composer-overlay-h: 150px;
   }
 }
