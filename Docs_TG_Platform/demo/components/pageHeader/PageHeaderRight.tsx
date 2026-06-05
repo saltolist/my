@@ -39,7 +39,7 @@ export default function PageHeaderRight({
   overflowItems,
   hasTrailingToolbar,
 }: Props) {
-  if (!isMobile && !showMobileRight) return null;
+  if (isMobile && !showMobileRight) return null;
 
   return (
     <div
