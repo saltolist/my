@@ -69,9 +69,9 @@ TG Platform
 - `concept/07-notes.md` - модель заметок
 - `concept/08-roadmap.md` - фазы разработки (MVP и далее)
 - `concept/09-user-scenario.md` - сквозной пользовательский сценарий
-- `concept/10-pages.md` - структура страниц **текущего демо** (источник правды для UX-витрины)
+- `concept/10-pages.md` - структура страниц **web-клиента** (источник правды для UX)
 - `concept/11-reusable-modules-integration.md` - как TG Platform собирается на базе reusable-modules
-- `concept/12-demo.md` - демо-версия на GitHub Pages: назначение, сценарии, ограничения
+- `concept/12-web-client.md` - web-клиент: назначение, local-first фаза, ограничения, деплой
 - `concept/13-chat-context-summaries.md` - механика сводок канала, summary диалога и лог-чата
 
 ### Wireframes
@@ -88,18 +88,22 @@ TG Platform
 
 ### Прочее
 
-- `demo/` - публичная статическая демо-версия для GitHub Pages (концепт в `concept/12-demo.md`, экраны — в `concept/10-pages.md`)
+- `web/` — production web-клиент (Next.js, static export). Исходники и сборка: [`web/README.md`](./web/README.md), архитектура — [`web/ARCHITECTURE.md`](./web/ARCHITECTURE.md)
 
 ## Статус проекта
 
-Сейчас это **продуктовая документация и UX-проектирование**: концепт, сценарии, структура страниц и wireframes.
+**Web-клиент в разработке** — production frontend в [`web/`](./web/): все основные экраны, FSD-архитектура, полное UI-поведение. Сейчас local-first (in-memory + seed-данные, без backend).
 
-Кодовая реализация платформы находится в следующем этапе, приоритетно по roadmap:
+**Документация и UX** — концепт, wireframes, [10-pages.md](./concept/10-pages.md), [12-web-client.md](./concept/12-web-client.md).
 
-1. Основа платформы (лента + интеграция Telegram)
-2. Пространство поста и локальный ИИ
-3. Профиль и контекст
-4. Глобальный ИИ и полный цикл публикации
+**Следующий этап** — backend и интеграции по [roadmap](./concept/08-roadmap.md):
+
+1. API, persistence, Telegram MTProto
+2. Реальные LLM-провайдеры
+3. Публикация постов в канал
+4. Синхронизация и multi-user (self-hosted)
+
+UI опережает backend: лента, пространство поста, профиль, глобальный и локальный ИИ уже реализованы на фронте.
 
 ## Кому подойдет
 
