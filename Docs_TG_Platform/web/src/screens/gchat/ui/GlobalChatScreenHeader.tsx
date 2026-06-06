@@ -2,6 +2,7 @@
 
 import { ContextMenu } from "@/shared/ui/context-menu";
 import { Breadcrumb } from "@/shared/ui/breadcrumb";
+import { buildGChatBreadcrumbTrail } from "@/shared/lib/nav/breadcrumbTrails";
 import {
   MenuIconTrash,
   PageHeader,
@@ -31,10 +32,10 @@ export default function GlobalChatScreenHeader({ data, actions }: Props) {
         <>
           <PageHeaderMenuButton />
           <Breadcrumb
-            items={[
-              { label: "Чаты", onClick: navigateBackToChats },
-              { label: chat?.title || "—", current: true },
-            ]}
+            items={buildGChatBreadcrumbTrail({
+              chatTitle: chat?.title ?? "",
+              onNavigateBackToChats: navigateBackToChats,
+            })}
           />
         </>
       }

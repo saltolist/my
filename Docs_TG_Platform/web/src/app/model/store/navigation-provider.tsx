@@ -5,13 +5,18 @@ import { usePathname } from "next/navigation";
 import { useComposer } from "@/app/model/store/composer-store";
 import { useDomainActions, useDomainSelector } from "@/app/model/store/domain-store";
 import {
-  initialNavigationState,
   navigationReducer,
 } from "@/app/model/store/navigation/reducer";
 import { NavigationContext, type NavigationContextValue } from "@/app/model/store/navigation-store";
 import { useNavDirtyGuards } from "@/app/model/store/navigation/useNavDirtyGuards";
 import { useNavRoutingActions } from "@/app/model/store/navigation/useNavRoutingActions";
 import { useUi } from "@/app/model/store/ui-store";
+import { initialNavFromPathname } from "@/app/model/store/navigation/initialNavFromPath";
+
+function readLocationSearch(): string {
+  if (typeof window === "undefined") return "";
+  return window.location.search;
+}
 
 export function NavigationProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname() ?? "/";
@@ -25,7 +30,11 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   const domainState = useDomainSelector((s) => s);
   const { applyPatchWithTelegram, registerNavBridge } = useDomainActions();
   const composer = useComposer();
-  const [navState, navDispatch] = useReducer(navigationReducer, initialNavigationState);
+  const [navState, navDispatch] = useReducer(
+    navigationReducer,
+    pathname,
+    (path) => initialNavFromPathname(path, readLocationSearch()),
+  );
 
   const domainRef = useRef(domainState);
   const navRef = useRef(navState);

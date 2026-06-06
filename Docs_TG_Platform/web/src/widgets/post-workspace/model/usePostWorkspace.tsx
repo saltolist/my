@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { domainActions, postById, useDomainDispatch, useDomainSelector } from "@/app/model/store";
 import { useComposer } from "@/app/model/store";
 import { useNavigation } from "@/app/model/store";
 import type { NavigationPatch } from "@/app/model/store/navigation/types";
 import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/shared/lib/chatPaths";
+import { resolveRoutePostId } from "@/shared/lib/nav/routePostId";
 import { usePostCtxMenuItems } from "@/features/post-context-menu";
 import { useFeedPostLayout } from "@/widgets/feed";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
@@ -37,7 +39,9 @@ export function usePostWorkspace() {
     [navDispatch],
   );
 
-  const post = useDomainSelector((s) => postById(s, currentPostId));
+  const pathname = usePathname() ?? "/";
+  const effectivePostId = resolveRoutePostId(pathname, currentPostId);
+  const post = useDomainSelector((s) => postById(s, effectivePostId));
   const isMobile = useMobile760();
   const postHeaderCompact = usePostHeaderCompact1200();
   const postHeaderCompact1000 = useCompactHeader1000();

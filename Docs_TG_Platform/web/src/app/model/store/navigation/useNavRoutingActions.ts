@@ -166,9 +166,19 @@ export function useNavRoutingActions({
   const openPost = useCallback(
     (id: number | "new") => {
       const href = id === "new" ? routes.post(POST_NEW_SLUG) : routes.post(id);
+      if (id !== "new") {
+        commitNavigationPatch({
+          screen: "post",
+          currentPostId: id,
+          currentPostChatId: null,
+          postMode: "chat",
+          postViewStack: [],
+          isEditing: false,
+        });
+      }
       goToHref(href);
     },
-    [goToHref],
+    [commitNavigationPatch, goToHref],
   );
 
   const setPostView = useCallback(

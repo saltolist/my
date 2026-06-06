@@ -26,6 +26,7 @@ export default function PostScreen() {
             </button>
           </div>
         </div>
+        <p className="post-not-found-msg">Пост не найден</p>
       </div>
     );
   }
