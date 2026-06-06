@@ -12,6 +12,8 @@ import {
   type ReactNode,
 } from "react";
 import { domainReducer, initialDomainState } from "@/app/model/store/domain/reducer";
+import { emptyEntityDomainState } from "@/app/model/store/domain/initialState";
+import { useDomainBootstrap } from "@/app/model/store/domain/useDomainBootstrap";
 import type { DomainAction, DomainDispatchAction } from "@/app/model/store/domain/actions";
 import { withTelegramDomainSync } from "@/app/model/store/domain/helpers";
 import type { DomainState } from "@/app/model/store/domain/types";
@@ -19,6 +21,11 @@ import { telegramConfigNavPatch } from "@/app/model/store/navigation/buildPatch"
 import { getDomainActionNavPatch } from "@/app/model/store/navigation/domainNavSideEffects";
 import { initialNavigationState } from "@/app/model/store/navigation/types";
 import type { NavigationPatch, NavigationState } from "@/app/model/store/navigation/types";
+import { API_SYNC_ENABLED } from "@/shared/config/dataSource";
+import { getRepositories } from "@/shared/api/createRepositories";
+import { syncDomainAction } from "@/app/model/store/domain/domainSync";
+
+const bootstrapInitialState = API_SYNC_ENABLED ? emptyEntityDomainState : initialDomainState;
 
 export type { DomainDispatchAction } from "@/app/model/store/domain/actions";
 
@@ -46,11 +53,12 @@ type DomainContextValue = DomainActions & {
 const DomainContext = createContext<DomainContextValue | null>(null);
 
 export function DomainProvider({ children }: { children: ReactNode }) {
-  const [state, dispatchBase] = useReducer(domainReducer, initialDomainState);
+  const [state, dispatchBase] = useReducer(domainReducer, bootstrapInitialState);
   const stateRef = useRef(state);
   stateRef.current = state;
   const navBridgeRef = useRef<DomainNavBridge | null>(null);
   const listenersRef = useRef(new Set<() => void>());
+  const reposRef = useRef(getRepositories());
 
   useEffect(() => {
     listenersRef.current.forEach((listener) => listener());
@@ -86,6 +94,8 @@ export function DomainProvider({ children }: { children: ReactNode }) {
     dispatchBase({ type: "SET_DOMAIN", patch });
   }, []);
 
+  useDomainBootstrap({ applyPatch });
+
   const applyPatchWithTelegram = useCallback(
     (patch: Partial<DomainState>) => {
       if (!Object.keys(patch).length) return;
@@ -111,6 +121,11 @@ export function DomainProvider({ children }: { children: ReactNode }) {
       dispatchBase(action);
       const navPatch = getDomainActionNavPatch(action, prevNav, prevDomain, nextDomain);
       if (navPatch) emitNavPatch(navPatch);
+      if (API_SYNC_ENABLED) {
+        void syncDomainAction(action, prevDomain, nextDomain, reposRef.current).catch((err) => {
+          console.error("[domain sync]", err);
+        });
+      }
     },
     [emitNavPatch, getNavState],
   );

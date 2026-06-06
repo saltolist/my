@@ -81,3 +81,11 @@ export const initialDomainState: DomainState = {
   telegramSettingsSavedSnapshot: buildInitialTelegramSnapshot(),
   channelProfileSavedSnapshot: JSON.stringify(initialChannelProfileConfig),
 };
+
+/** Empty entity lists until API bootstrap completes (API mode only). */
+export const emptyEntityDomainState: DomainState = {
+  ...initialDomainState,
+  posts: [],
+  globalChats: [],
+  globalNotes: [],
+};

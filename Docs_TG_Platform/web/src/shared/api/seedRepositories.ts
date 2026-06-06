@@ -13,11 +13,22 @@ export function createSeedRepositories(): RepositoryBundle {
       async list() {
         return posts;
       },
+      async create(post) {
+        posts = [post, ...posts.filter((p) => p.id !== post.id)];
+        return post;
+      },
       async update(id, patch) {
         const idx = posts.findIndex((p) => p.id === id);
         if (idx < 0) throw new Error(`Post ${id} not found`);
         posts[idx] = { ...posts[idx], ...patch };
         return posts[idx];
+      },
+      async reorder(nextPosts) {
+        posts = [...nextPosts];
+        return posts;
+      },
+      async remove(id) {
+        posts = posts.filter((p) => p.id !== id);
       },
     },
     chats: {
@@ -35,6 +46,16 @@ export function createSeedRepositories(): RepositoryBundle {
         };
         globalChats = globalChats.map((c) => (c.id === chatId ? updated : c));
         return updated;
+      },
+      async rename(chatId, title) {
+        const chat = globalChats.find((c) => c.id === chatId);
+        if (!chat) throw new Error(`Chat ${chatId} not found`);
+        const updated = { ...chat, title };
+        globalChats = globalChats.map((c) => (c.id === chatId ? updated : c));
+        return updated;
+      },
+      async remove(chatId) {
+        globalChats = globalChats.filter((c) => c.id !== chatId);
       },
     },
     notes: {
