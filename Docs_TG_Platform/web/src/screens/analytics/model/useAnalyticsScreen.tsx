@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type CSSProperties } from "react";
-import { useNavigation } from "@/app/model/store/navigation-store";
+import { useNavigation } from "@/app/model/store";
 import { ANALYTICS_TOP_POSTS_SEED } from "@/shared/lib/analyticsSeedData";
 import { getChannelTopPostsTableMetrics } from "@/shared/lib/channelAnalyticsTrend";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";

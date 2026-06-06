@@ -7,24 +7,33 @@ import {
   updateExclusiveModel,
 } from "@/shared/lib/profile/aiModelsSnapshot";
 import { restoreAiConfigFromSnapshot } from "@/shared/lib/profileDiscard";
-import { useComposer } from "@/app/model/store/composer-store";
-import { useDomain } from "@/app/model/store/domain-store";
-import { useUi } from "@/app/model/store/ui-store";
+import {
+  domainActions,
+  selectAiProfileConfig,
+  selectModelSettingsSavedSnapshot,
+  useComposer,
+  useDomainActions,
+  useDomainDispatch,
+  useDomainSelector,
+  useUi,
+} from "@/app/model/store";
 import type { AiProfileConfig, LlmModel } from "@/shared/types";
 
 export function useAiModelsBlock() {
-  const { state, dispatch, applyPatch } = useDomain();
+  const cfg = useDomainSelector(selectAiProfileConfig);
+  const modelSettingsSavedSnapshot = useDomainSelector(selectModelSettingsSavedSnapshot);
+  const dispatch = useDomainDispatch();
+  const { applyPatch } = useDomainActions();
   const { multiResponsePairs } = useComposer();
   const { setDirty } = useUi();
-  const cfg = state.aiProfileConfig;
 
-  const update = (next: AiProfileConfig) => dispatch({ type: "UPDATE_AI_CONFIG", config: next });
+  const update = (next: AiProfileConfig) => dispatch(domainActions.updateAiConfig(next));
 
   const pairCount = multiResponsePairs().length;
   const multiEligible = pairCount >= 2;
 
   const currentSnapshot = snapshotAiConfig(cfg);
-  const dirty = currentSnapshot !== state.modelSettingsSavedSnapshot;
+  const dirty = currentSnapshot !== modelSettingsSavedSnapshot;
 
   useEffect(() => {
     setDirty("profile-ai", dirty);
@@ -41,7 +50,7 @@ export function useAiModelsBlock() {
 
   const cancel = () => {
     if (!dirty) return;
-    update(restoreAiConfigFromSnapshot(cfg, state.modelSettingsSavedSnapshot));
+    update(restoreAiConfigFromSnapshot(cfg, modelSettingsSavedSnapshot));
   };
 
   const setLlms = (llmModels: LlmModel[]) => update({ ...cfg, llmModels });

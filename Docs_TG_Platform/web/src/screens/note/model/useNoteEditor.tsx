@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDomain } from "@/app/model/store/domain-store";
-import { useNavigation } from "@/app/model/store/navigation-store";
-import { useUi } from "@/app/model/store/ui-store";
+import { useDomainDispatch } from "@/app/model/store";
+import { useNavigation } from "@/app/model/store";
+import { useUi } from "@/app/model/store";
 import { normalizeNoteBody } from "@/shared/lib/noteEmbeds";
 import {
   buildNoteSnapshot,
@@ -18,7 +18,7 @@ import type { NavigationPatch } from "@/app/model/store/navigation/types";
 import type { ActiveNote, NoteFile } from "@/shared/types";
 
 export function useNoteEditor(note: ActiveNote) {
-  const { dispatch } = useDomain();
+  const dispatch = useDomainDispatch();
   const { noteMode, navDispatch, registerNotePersist } = useNavigation();
   const { setDirty } = useUi();
   const isMobile = useMobile760();

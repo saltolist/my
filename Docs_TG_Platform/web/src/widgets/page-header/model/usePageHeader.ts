@@ -17,7 +17,7 @@ import {
   PROFILE_HEADER_TOP_POSTS_COMPACT_MAX,
   syncProfileHeaderTrashCompactToDocument,
 } from "@/shared/lib/profileBreakpoints";
-import { useNavigation } from "@/app/model/store/navigation-store";
+import { useNavigation } from "@/app/model/store";
 import type { ScreenId } from "@/shared/types";
 
 export type PageHeaderProps = {

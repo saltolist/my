@@ -20,7 +20,7 @@ import {
   getPeriodChartLabels,
   resolveTrendChartMaxPoints,
 } from "@/shared/lib/trendChart/periodLabels";
-import { useDomain } from "@/app/model/store/domain-store";
+import { useDomainSelector, selectAiProfileConfig } from "@/app/model/store";
 
 type Args = {
   period: number;
@@ -33,7 +33,7 @@ export function usePlatformAnalyticsBlock({
   onPeriodChange,
   periodInHeader = false,
 }: Args) {
-  const { state } = useDomain();
+  const aiProfileConfig = useDomainSelector(selectAiProfileConfig);
   const isMobile = useMobile760();
   const isHeaderLe1080 = usePageHeaderLe1080();
   const isHeaderLe640 = usePageHeaderLe640();
@@ -53,11 +53,11 @@ export function usePlatformAnalyticsBlock({
   const modelUsage = useMemo(
     () =>
       buildModelUsage(
-        state.aiProfileConfig,
+        aiProfileConfig,
         PLATFORM_ANALYTICS_PERIODS[period].multiplier,
         chartLabels.length,
       ),
-    [state.aiProfileConfig, period, chartLabels.length],
+    [aiProfileConfig, period, chartLabels.length],
   );
 
   const selectedTypeMeta =

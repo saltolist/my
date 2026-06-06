@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RefObject } from "react";
-import { postById, useDomain } from "@/app/model/store/domain-store";
-import { useComposer } from "@/app/model/store/composer-store";
-import { useNavigation } from "@/app/model/store/navigation-store";
+import { domainActions, postById, useDomainDispatch, useDomainSelector } from "@/app/model/store";
+import { useComposer } from "@/app/model/store";
+import { useNavigation } from "@/app/model/store";
 import type { NavigationPatch } from "@/app/model/store/navigation/types";
 import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/shared/lib/chatPaths";
 import { usePostCtxMenuItems } from "@/features/post-context-menu";
@@ -17,7 +17,7 @@ import { routes } from "@/shared/lib/routes";
 import type { LocalChat, LocalNote, Post, PostMedia, PostMode, NoteListFilter } from "@/shared/types";
 
 export function usePostWorkspace() {
-  const { state: domain, dispatch } = useDomain();
+  const dispatch = useDomainDispatch();
   const {
     currentPostId,
     currentPostChatId,
@@ -38,7 +38,7 @@ export function usePostWorkspace() {
     [navDispatch],
   );
 
-  const post = postById(domain, currentPostId);
+  const post = useDomainSelector((s) => postById(s, currentPostId));
   const isMobile = useMobile760();
   const postHeaderCompact = usePostHeaderCompact1200();
   const postHeaderCompact1000 = useCompactHeader1000();
@@ -157,7 +157,7 @@ export function usePostWorkspace() {
   const toggleNoteAi = useCallback(
     (noteId: number) => {
       if (!post) return;
-      dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: post.id, noteId });
+      dispatch(domainActions.togglePostNoteAi(post.id, noteId));
     },
     [dispatch, post],
   );

@@ -6,7 +6,7 @@ import {
   feedPostWidthPhoneFormat,
   type FeedPostWidth,
 } from "@/shared/lib/feedPostWidth";
-import { useUi } from "@/app/model/store/ui-store";
+import { useUi } from "@/app/model/store";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 
 export function useFeedPostLayout() {

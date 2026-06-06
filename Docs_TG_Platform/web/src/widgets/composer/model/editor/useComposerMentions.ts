@@ -8,7 +8,7 @@ import { MAX_MENTION_RESULTS } from "@/widgets/composer/model/editor/constants";
 import type { ComposerEditorRefs, MentionState } from "@/widgets/composer/model/editor/types";
 import { attachmentPostTitle, postFreshness, postTitle } from "@/shared/lib/helpers";
 import { useFloatingPanelScrollListeners } from "@/shared/lib/hooks/useFloatingPanelScrollListeners";
-import { useNavigation } from "@/app/model/store/navigation-store";
+import { useNavigation } from "@/app/model/store";
 import type { ComposerScope, Post } from "@/shared/types";
 
 type Params = Pick<ComposerEditorRefs, "editorRef" | "inputBoxRef" | "mentionRef"> & {

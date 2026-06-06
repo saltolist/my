@@ -5,12 +5,10 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/shared/lib/chatPaths";
 import { isOmnichannelChat, isOmnichannelChatId } from "@/shared/lib/omnichannel";
 import { parseAppPath, parseGChatSearchParam, routes } from "@/shared/lib/routes";
-import { globalChatById, useDomain } from "@/app/model/store/domain-store";
-import { useComposer } from "@/app/model/store/composer-store";
-import { useNavigation } from "@/app/model/store/navigation-store";
+import { globalChatById, domainActions, useDomainDispatch, useDomainSelector, useComposer, useNavigation } from "@/app/model/store";
 
 export function useGlobalChatScreen() {
-  const { state: domain, dispatch } = useDomain();
+  const dispatch = useDomainDispatch();
   const { currentGChatId, navigateBack, goToHref } = useNavigation();
   const { sendGChat } = useComposer();
   const pathname = usePathname() ?? "/";
@@ -21,7 +19,7 @@ export function useGlobalChatScreen() {
     parseGChatSearchParam(searchParams.get("id")) ??
     currentGChatId;
 
-  const chat = globalChatById(domain, chatId);
+  const chat = useDomainSelector((s) => globalChatById(s, chatId));
   const omnichannel = chat ? isOmnichannelChat(chat) : isOmnichannelChatId(chatId);
   const messagesRef = useRef<HTMLDivElement>(null);
   const chatHistory = chat?.history;
@@ -48,7 +46,7 @@ export function useGlobalChatScreen() {
   const deleteChat = useCallback(() => {
     if (!chat) return;
     if (!confirm(`Удалить чат «${chat.title}»?`)) return;
-    dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: chat.id });
+    dispatch(domainActions.deleteGlobalChat(chat.id));
     goToHref(routes.chats(), { replace: true });
   }, [chat, dispatch, goToHref]);
 

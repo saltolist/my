@@ -7,16 +7,25 @@ import {
   parseTelegramSnapshot,
   telegramConfigSnapshot,
 } from "@/shared/lib/profile/telegramSnapshot";
-import { useDomain } from "@/app/model/store/domain-store";
-import { useUi } from "@/app/model/store/ui-store";
+import {
+  domainActions,
+  selectTelegramProfileConfig,
+  selectTelegramSettingsSavedSnapshot,
+  useDomainActions,
+  useDomainDispatch,
+  useDomainSelector,
+  useUi,
+} from "@/app/model/store";
 import type { TelegramProfileConfig } from "@/shared/types";
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
 export function useTelegramBlock() {
-  const { state, dispatch, applyPatch } = useDomain();
+  const cfg = useDomainSelector(selectTelegramProfileConfig);
+  const telegramSettingsSavedSnapshot = useDomainSelector(selectTelegramSettingsSavedSnapshot);
+  const dispatch = useDomainDispatch();
+  const { applyPatch } = useDomainActions();
   const { setDirty } = useUi();
-  const cfg = state.telegramProfileConfig;
   const [code, setCode] = useState("");
   const [syncing, setSyncing] = useState(false);
   const [apiHashVisible, setApiHashVisible] = useState(false);
@@ -27,10 +36,10 @@ export function useTelegramBlock() {
   const authBeforeCodeSentRef = useRef<Partial<TelegramProfileConfig> | null>(null);
 
   const update = (patch: Partial<TelegramProfileConfig>) =>
-    dispatch({ type: "UPDATE_TELEGRAM_CONFIG", config: { ...cfg, ...patch } });
+    dispatch(domainActions.updateTelegramConfig({ ...cfg, ...patch }));
 
   const currentSnap = telegramConfigSnapshot(cfg);
-  const dirty = currentSnap !== state.telegramSettingsSavedSnapshot;
+  const dirty = currentSnap !== telegramSettingsSavedSnapshot;
 
   useEffect(() => {
     setDirty("profile-telegram", dirty);
@@ -82,7 +91,7 @@ export function useTelegramBlock() {
   const isConnected = cfg.authStatus === "connected" && cfg.channelStatus === "connected";
   const isAuthorized = cfg.authStatus === "authorized" || cfg.authStatus === "connected";
   const codeHidden = cfg.authStatus !== "code-sent";
-  const savedSnapshot = parseTelegramSnapshot(state.telegramSettingsSavedSnapshot);
+  const savedSnapshot = parseTelegramSnapshot(telegramSettingsSavedSnapshot);
   const apiIdChangedFromSaved = normalizeTelegramValue(cfg.apiId) !== normalizeTelegramValue(savedSnapshot.apiId);
   const apiHashChangedFromSaved = normalizeTelegramValue(cfg.apiHash) !== normalizeTelegramValue(savedSnapshot.apiHash);
   const apiChangedFromSaved = apiIdChangedFromSaved || apiHashChangedFromSaved;

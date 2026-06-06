@@ -1,8 +1,14 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { useDomain } from "@/app/model/store/domain-store";
-import { useNavigation } from "@/app/model/store/navigation-store";
+import {
+  domainActions,
+  selectGlobalNotes,
+  selectPosts,
+  useDomainDispatch,
+  useDomainSelector,
+  useNavigation,
+} from "@/app/model/store";
 import { postTitle } from "@/shared/lib/helpers";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import { routes } from "@/shared/lib/routes";
@@ -13,7 +19,9 @@ export type AnyNote =
   | (LocalNote & { isGlobal: false; postId: number; postTitle: string });
 
 export function useNotesScreen() {
-  const { state: domain, dispatch } = useDomain();
+  const globalNotes = useDomainSelector(selectGlobalNotes);
+  const posts = useDomainSelector(selectPosts);
+  const dispatch = useDomainDispatch();
   const { noteScope: scope, noteFilter: filter, goToHref, navDispatch } = useNavigation();
   const isMobile = useMobile760();
   const [search, setSearch] = useState("");
@@ -29,8 +37,8 @@ export function useNotesScreen() {
   );
 
   const items = useMemo(() => {
-    const globalItems: AnyNote[] = domain.globalNotes.map((n) => ({ ...n, isGlobal: true }));
-    const localItems: AnyNote[] = domain.posts.flatMap((p) =>
+    const globalItems: AnyNote[] = globalNotes.map((n) => ({ ...n, isGlobal: true }));
+    const localItems: AnyNote[] = posts.flatMap((p) =>
       p.notes.map((n) => ({
         ...n,
         isGlobal: false as const,
@@ -41,7 +49,7 @@ export function useNotesScreen() {
     if (scope === "global") return globalItems;
     if (scope === "local") return localItems;
     return [...globalItems, ...localItems];
-  }, [scope, domain.globalNotes, domain.posts]);
+  }, [scope, globalNotes, posts]);
 
   const q = search.trim().toLowerCase();
   const filtered = useMemo(
@@ -69,9 +77,9 @@ export function useNotesScreen() {
   const toggleAi = useCallback(
     (n: AnyNote) => {
       if (n.isGlobal) {
-        dispatch({ type: "UPSERT_GLOBAL_NOTE", note: { ...n, ai: !n.ai } });
+        dispatch(domainActions.upsertGlobalNote({ ...n, ai: !n.ai }));
       } else {
-        dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: n.postId, noteId: n.id });
+        dispatch(domainActions.togglePostNoteAi(n.postId, n.id));
       }
     },
     [dispatch],

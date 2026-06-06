@@ -14,8 +14,8 @@ import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import { clampActiveBranchIndex, displayUserText } from "@/shared/lib/chatPaths";
 import { isOmnichannelChatId } from "@/shared/lib/omnichannel";
 import type { ChatMessage as ChatMessageType } from "@/shared/types";
-import { useDomain } from "@/app/model/store/domain-store";
-import { useNavigation } from "@/app/model/store/navigation-store";
+import { useDomainDispatch } from "@/app/model/store";
+import { useNavigation } from "@/app/model/store";
 
 type Props = {
   message: ChatMessageType;
@@ -23,7 +23,7 @@ type Props = {
 };
 
 export function useChatMessage({ message, ctx }: Props) {
-  const { dispatch } = useDomain();
+  const dispatch = useDomainDispatch();
   const {
     registerUserMessageEdit,
     unregisterUserMessageEdit,

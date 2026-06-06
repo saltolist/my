@@ -6,12 +6,28 @@ import { usePostCtxMenuItems } from "@/features/post-context-menu";
 import { buildRecentChatsModel, buildRecentNotesModel } from "@/widgets/sidebar/lib/buildRecentModels";
 import { RAIL_MQ, SIDEBAR_COLLAPSED_KEY } from "@/widgets/sidebar/model/types";
 import { parseAppPath, routes, screenFromPath } from "@/shared/lib/routes";
-import { useDomain } from "@/app/model/store/domain-store";
-import { useNavigation } from "@/app/model/store/navigation-store";
+import {
+  domainActions,
+  selectGlobalNotes,
+  selectPosts,
+  selectSidebarDomain,
+  useDomainDispatch,
+  useDomainSelector,
+  useNavigation,
+} from "@/app/model/store";
+import type { DomainState } from "@/app/model/store/domain/types";
 import type { RecentNoteRow, RecentRow } from "@/widgets/sidebar/model/types";
 
+const sidebarDomainEqual = (
+  a: ReturnType<typeof selectSidebarDomain>,
+  b: ReturnType<typeof selectSidebarDomain>,
+) => a.posts === b.posts && a.globalChats === b.globalChats && a.globalNotes === b.globalNotes;
+
 export function useSidebar() {
-  const { state: domain, dispatch } = useDomain();
+  const sidebarDomain = useDomainSelector(selectSidebarDomain, sidebarDomainEqual);
+  const posts = useDomainSelector(selectPosts);
+  const globalNotes = useDomainSelector(selectGlobalNotes);
+  const dispatch = useDomainDispatch();
   const {
     navigate,
     goHome,
@@ -86,19 +102,19 @@ export function useSidebar() {
   }, [screen, route.postId, currentNote]);
 
   const recentChatsModel = useMemo(
-    () => buildRecentChatsModel(domain, sidebarPostId),
-    [domain, sidebarPostId],
+    () => buildRecentChatsModel(sidebarDomain as DomainState, sidebarPostId),
+    [sidebarDomain, sidebarPostId],
   );
 
   const recentNotesModel = useMemo(
-    () => buildRecentNotesModel(domain, sidebarPostId),
-    [domain, sidebarPostId],
+    () => buildRecentNotesModel(sidebarDomain as DomainState, sidebarPostId),
+    [sidebarDomain, sidebarPostId],
   );
 
   const currentPostSidebar = useMemo(() => {
     if (sidebarPostId == null) return null;
-    return domain.posts.find((p) => p.id === sidebarPostId) ?? null;
-  }, [sidebarPostId, domain.posts]);
+    return posts.find((p) => p.id === sidebarPostId) ?? null;
+  }, [sidebarPostId, posts]);
 
   const showFeedPostRow =
     sidebarPostId != null &&
@@ -160,17 +176,17 @@ export function useSidebar() {
   const openNoteFromRow = useCallback(
     (row: RecentNoteRow) => {
       if (row.kind === "global") {
-        const n = domain.globalNotes.find((x) => x.id === row.id);
+        const n = globalNotes.find((x) => x.id === row.id);
         if (!n) return;
         goToHref(routes.noteGlobal(row.id));
       } else {
-        const post = domain.posts.find((p) => p.id === row.postId);
+        const post = posts.find((p) => p.id === row.postId);
         const n = post?.notes.find((x) => x.id === row.noteId);
         if (!n || !post) return;
         goToHref(routes.notePost(row.postId, row.noteId));
       }
     },
-    [domain.globalNotes, domain.posts, goToHref],
+    [globalNotes, posts, goToHref],
   );
 
   const isRecentNoteActive = useCallback(
@@ -191,14 +207,9 @@ export function useSidebar() {
   const renameRecentChat = useCallback(
     (row: RecentRow, title: string) => {
       if (row.kind === "global") {
-        dispatch({ type: "RENAME_GLOBAL_CHAT", chatId: row.id, title });
+        dispatch(domainActions.renameGlobalChat(row.id, title));
       } else {
-        dispatch({
-          type: "RENAME_LOCAL_CHAT",
-          postId: row.postId,
-          chatId: row.chatId,
-          title,
-        });
+        dispatch(domainActions.renameLocalChat(row.postId, row.chatId, title));
       }
     },
     [dispatch],
@@ -207,16 +218,12 @@ export function useSidebar() {
   const deleteRecentChat = useCallback(
     (row: RecentRow) => {
       if (row.kind === "global") {
-        dispatch({ type: "DELETE_GLOBAL_CHAT", chatId: row.id });
+        dispatch(domainActions.deleteGlobalChat(row.id));
         if (screen === "gchat" && currentGChatId === row.id) {
           goToHref(routes.chats(), { replace: true });
         }
       } else {
-        dispatch({
-          type: "DELETE_LOCAL_CHAT",
-          postId: row.postId,
-          chatId: row.chatId,
-        });
+        dispatch(domainActions.deleteLocalChat(row.postId, row.chatId));
       }
     },
     [dispatch, screen, currentGChatId, goToHref],
@@ -225,31 +232,26 @@ export function useSidebar() {
   const renameRecentNote = useCallback(
     (row: RecentNoteRow, title: string) => {
       if (row.kind === "global") {
-        const n = domain.globalNotes.find((x) => x.id === row.id);
+        const n = globalNotes.find((x) => x.id === row.id);
         if (!n) return;
-        dispatch({ type: "UPSERT_GLOBAL_NOTE", note: { ...n, title } });
+        dispatch(domainActions.upsertGlobalNote({ ...n, title }));
       } else {
-        dispatch({
-          type: "UPDATE_POST_NOTE",
-          postId: row.postId,
-          noteId: row.noteId,
-          patch: { title },
-        });
+        dispatch(domainActions.updatePostNote(row.postId, row.noteId, { title }));
       }
     },
-    [dispatch, domain.globalNotes],
+    [dispatch, globalNotes],
   );
 
   const deleteRecentNote = useCallback(
     (row: RecentNoteRow) => {
       if (row.kind === "global") {
-        dispatch({ type: "DELETE_GLOBAL_NOTE", noteId: row.id });
+        dispatch(domainActions.deleteGlobalNote(row.id));
         const cur = currentNote;
         if (screen === "note" && cur?.isGlobal === true && cur.id === row.id) {
           goToHref(routes.notes(), { replace: true });
         }
       } else {
-        dispatch({ type: "DELETE_POST_NOTE", postId: row.postId, noteId: row.noteId });
+        dispatch(domainActions.deletePostNote(row.postId, row.noteId));
         const cur = currentNote;
         if (
           screen === "note" &&
@@ -268,8 +270,6 @@ export function useSidebar() {
   return {
     screen,
     route,
-    domain,
-    dispatch,
     goHome,
     navigate,
     openPost,

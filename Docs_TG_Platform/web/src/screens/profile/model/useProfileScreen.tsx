@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { useNavigation } from "@/app/model/store/navigation-store";
-import { useUi } from "@/app/model/store/ui-store";
+import { useNavigation } from "@/app/model/store";
+import { useUi } from "@/app/model/store";
 import { useCompactHeader1000 } from "@/shared/lib/hooks/useCompactHeader1000";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import { usePageHeaderLe650 } from "@/widgets/page-header";

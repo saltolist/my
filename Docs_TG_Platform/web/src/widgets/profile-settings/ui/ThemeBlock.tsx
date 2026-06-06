@@ -1,6 +1,6 @@
 "use client";
 
-import { useUi } from "@/app/model/store/ui-store";
+import { useUi } from "@/app/model/store";
 import type { ThemeMode } from "@/shared/types";
 
 const OPTIONS: { id: ThemeMode; label: string; icon: string; hint: string }[] = [

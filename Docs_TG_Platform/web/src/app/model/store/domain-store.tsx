@@ -4,12 +4,15 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useReducer,
   useRef,
+  useState,
   type ReactNode,
 } from "react";
-import { domainReducer, initialDomainState, type DomainAction } from "@/app/model/store/domain/reducer";
+import { domainReducer, initialDomainState } from "@/app/model/store/domain/reducer";
+import type { DomainAction, DomainDispatchAction } from "@/app/model/store/domain/actions";
 import { withTelegramDomainSync } from "@/app/model/store/domain/helpers";
 import type { DomainState } from "@/app/model/store/domain/types";
 import { telegramConfigNavPatch } from "@/app/model/store/navigation/buildPatch";
@@ -17,19 +20,27 @@ import { getDomainActionNavPatch } from "@/app/model/store/navigation/domainNavS
 import { initialNavigationState } from "@/app/model/store/navigation/types";
 import type { NavigationPatch, NavigationState } from "@/app/model/store/navigation/types";
 
-export type DomainDispatchAction = Exclude<DomainAction, { type: "SET_DOMAIN" }>;
+export type { DomainDispatchAction } from "@/app/model/store/domain/actions";
 
 export type DomainNavBridge = {
   emitNavPatch: (patch: NavigationPatch) => void;
   getNavState: () => NavigationState;
 };
 
-type DomainContextValue = {
-  state: DomainState;
+export type DomainActions = {
   dispatch: (action: DomainDispatchAction) => void;
   applyPatch: (patch: Partial<DomainState>) => void;
   applyPatchWithTelegram: (patch: Partial<DomainState>) => void;
   registerNavBridge: (bridge: DomainNavBridge) => () => void;
+};
+
+type DomainStoreApi = {
+  getState: () => DomainState;
+  subscribe: (listener: () => void) => () => void;
+};
+
+type DomainContextValue = DomainActions & {
+  store: DomainStoreApi;
 };
 
 const DomainContext = createContext<DomainContextValue | null>(null);
@@ -39,6 +50,20 @@ export function DomainProvider({ children }: { children: ReactNode }) {
   const stateRef = useRef(state);
   stateRef.current = state;
   const navBridgeRef = useRef<DomainNavBridge | null>(null);
+  const listenersRef = useRef(new Set<() => void>());
+
+  useEffect(() => {
+    listenersRef.current.forEach((listener) => listener());
+  }, [state]);
+
+  const subscribe = useCallback((listener: () => void) => {
+    listenersRef.current.add(listener);
+    return () => {
+      listenersRef.current.delete(listener);
+    };
+  }, []);
+
+  const getState = useCallback(() => stateRef.current, []);
 
   const getNavState = useCallback(
     (): NavigationState => navBridgeRef.current?.getNavState() ?? initialNavigationState,
@@ -92,22 +117,70 @@ export function DomainProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<DomainContextValue>(
     () => ({
-      state,
+      store: { getState, subscribe },
       dispatch,
       applyPatch,
       applyPatchWithTelegram,
       registerNavBridge,
     }),
-    [state, dispatch, applyPatch, applyPatchWithTelegram, registerNavBridge],
+    [applyPatch, applyPatchWithTelegram, dispatch, getState, registerNavBridge, subscribe],
   );
 
   return <DomainContext.Provider value={value}>{children}</DomainContext.Provider>;
 }
 
-export function useDomain(): DomainContextValue {
+function useDomainContext(): DomainContextValue {
   const ctx = useContext(DomainContext);
   if (!ctx) throw new Error("useDomain must be used inside <DomainProvider>");
   return ctx;
+}
+
+export function useDomainSelector<T>(
+  selector: (state: DomainState) => T,
+  equalityFn: (a: T, b: T) => boolean = Object.is,
+): T {
+  const { store } = useDomainContext();
+  const selectorRef = useRef(selector);
+  selectorRef.current = selector;
+  const equalityRef = useRef(equalityFn);
+  equalityRef.current = equalityFn;
+
+  const [selected, setSelected] = useState<T>(() => selectorRef.current(store.getState()));
+  const selectedRef = useRef(selected);
+  selectedRef.current = selected;
+
+  useEffect(() => {
+    const sync = () => {
+      const next = selectorRef.current(store.getState());
+      if (!equalityRef.current(selectedRef.current, next)) {
+        selectedRef.current = next;
+        setSelected(next);
+      }
+    };
+    sync();
+    return store.subscribe(sync);
+  }, [store]);
+
+  return selected;
+}
+
+export function useDomainActions(): DomainActions {
+  const { dispatch, applyPatch, applyPatchWithTelegram, registerNavBridge } = useDomainContext();
+  return useMemo(
+    () => ({ dispatch, applyPatch, applyPatchWithTelegram, registerNavBridge }),
+    [applyPatch, applyPatchWithTelegram, dispatch, registerNavBridge],
+  );
+}
+
+export function useDomainDispatch(): DomainActions["dispatch"] {
+  return useDomainContext().dispatch;
+}
+
+/** @deprecated Prefer useDomainSelector + useDomainActions for granular subscriptions. */
+export function useDomain(): DomainActions & { state: DomainState } {
+  const actions = useDomainActions();
+  const state = useDomainSelector((s) => s);
+  return useMemo(() => ({ state, ...actions }), [actions, state]);
 }
 
 export { postById, globalChatById } from "@/app/model/store/domain/selectors";

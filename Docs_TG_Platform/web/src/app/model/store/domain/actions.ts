@@ -46,4 +46,6 @@ export type DomainAction =
   | { type: "UPDATE_AI_CONFIG"; config: AiProfileConfig }
   | { type: "UPDATE_TELEGRAM_CONFIG"; config: TelegramProfileConfig };
 
+export type DomainDispatchAction = Exclude<DomainAction, { type: "SET_DOMAIN" }>;
+
 export type ComposerTargets = Record<ComposerScope, ComposerTarget>;

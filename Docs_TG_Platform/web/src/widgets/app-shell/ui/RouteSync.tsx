@@ -2,8 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useDomain } from "@/app/model/store/domain-store";
-import { useNavigation } from "@/app/model/store/navigation-store";
+import { useDomainActions, useDomainSelector, useNavigation } from "@/app/model/store";
 import { processCombinedPatch } from "@/app/model/store/navigation/buildPatch";
 import {
   POST_NEW_SLUG,
@@ -31,7 +30,8 @@ function ensureNewPost(posts: Post[]): { posts: Post[]; postId: number } {
 }
 
 export default function RouteSync() {
-  const { state: domain, applyPatchWithTelegram } = useDomain();
+  const domain = useDomainSelector((s) => s);
+  const { applyPatchWithTelegram } = useDomainActions();
   const { navDispatch, ...navState } = useNavigation();
   const router = useRouter();
   const pathname = usePathname();

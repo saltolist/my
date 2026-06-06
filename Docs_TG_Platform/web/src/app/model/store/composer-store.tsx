@@ -11,7 +11,8 @@ import {
 import { getGlobalReply, getPostReply } from "@/shared/lib/replies";
 import { routes } from "@/shared/lib/routes";
 import { truncate } from "@/shared/lib/helpers";
-import { useDomain } from "@/app/model/store/domain-store";
+import { domainActions } from "@/app/model/store/domain/actionCreators";
+import { useDomainActions, useDomainSelector } from "@/app/model/store/domain-store";
 import { useUi } from "@/app/model/store/ui-store";
 import {
   buildAiReplyMessage,
@@ -50,7 +51,8 @@ export type ComposerContextValue = {
 const ComposerContext = createContext<ComposerContextValue | null>(null);
 
 export function ComposerProvider({ children }: { children: ReactNode }) {
-  const { state: domain, dispatch, applyPatch } = useDomain();
+  const domain = useDomainSelector((s) => s);
+  const { dispatch, applyPatch } = useDomainActions();
   const { setMobileSidebarOpen } = useUi();
   const domainRef = useRef(domain);
   domainRef.current = domain;
@@ -111,11 +113,11 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
         date: "сейчас",
         history: [{ role: "user", text }],
       };
-      dispatch({ type: "ADD_GLOBAL_CHAT", chat: newChat });
+      dispatch(domainActions.addGlobalChat(newChat));
       bridge.goToHref(routes.gchat(id));
       setTimeout(() => {
         const reply = buildAiReplyMessage(domainRef.current, getGlobalReply(text), "home");
-        dispatch({ type: "PUSH_GLOBAL_CHAT", chatId: id, message: reply });
+        dispatch(domainActions.pushGlobalChat(id, reply));
       }, 900);
       return true;
     },
@@ -128,10 +130,10 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
       const chatId = bridge?.getCurrentGChatId();
       if (!text.trim() || !chatId) return false;
       if (!assertLlm("gchat")) return false;
-      dispatch({ type: "PUSH_GLOBAL_CHAT", chatId, message: { role: "user", text } });
+      dispatch(domainActions.pushGlobalChat(chatId, { role: "user", text }));
       setTimeout(() => {
         const reply = buildAiReplyMessage(domainRef.current, getGlobalReply(text), "gchat");
-        dispatch({ type: "PUSH_GLOBAL_CHAT", chatId, message: reply });
+        dispatch(domainActions.pushGlobalChat(chatId, reply));
       }, 900);
       return true;
     },
@@ -156,25 +158,15 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
           ai: true,
           history: [{ role: "user", text }],
         };
-        dispatch({ type: "ADD_LOCAL_CHAT", postId, chat: newChat });
+        dispatch(domainActions.addLocalChat(postId, newChat));
         bridge.applyNavPatch({ currentPostChatId: chatId });
       } else {
-        dispatch({
-          type: "PUSH_LOCAL_CHAT_MSG",
-          postId,
-          chatId,
-          message: { role: "user", text },
-        });
+        dispatch(domainActions.pushLocalChatMsg(postId, chatId, { role: "user", text }));
       }
       const replyChatId = chatId;
       setTimeout(() => {
         const reply = buildAiReplyMessage(domainRef.current, getPostReply(text), "post");
-        dispatch({
-          type: "PUSH_LOCAL_CHAT_MSG",
-          postId,
-          chatId: replyChatId,
-          message: reply,
-        });
+        dispatch(domainActions.pushLocalChatMsg(postId, replyChatId, reply));
       }, 800);
       return true;
     },

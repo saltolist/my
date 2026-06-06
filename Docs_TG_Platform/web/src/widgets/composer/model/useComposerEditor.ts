@@ -7,11 +7,11 @@ import { useComposerMentions } from "@/widgets/composer/model/editor/useComposer
 import { useComposerModelTarget } from "@/widgets/composer/model/editor/useComposerModelTarget";
 import { useComposerLayout } from "@/widgets/composer/model/editor/useComposerPlaceholder";
 import type { UseComposerEditorProps } from "@/widgets/composer/model/editor/types";
-import { useDomain } from "@/app/model/store/domain-store";
+import { selectPosts, useDomainSelector } from "@/app/model/store";
 import { useComposerSubmit } from "@/widgets/composer/model/useComposerSubmit";
 
 export function useComposerEditor({ scope, placeholder, onSubmit }: UseComposerEditorProps) {
-  const { state } = useDomain();
+  const posts = useDomainSelector(selectPosts);
   const modelTarget = useComposerModelTarget(scope);
   const { narrowComposer, effectivePlaceholder } = useComposerLayout(placeholder);
 
@@ -46,7 +46,7 @@ export function useComposerEditor({ scope, placeholder, onSubmit }: UseComposerE
     inputBoxRef,
     mentionRef,
     scope,
-    posts: state.posts,
+    posts,
     attachedPostIds,
     removeChipById,
     refreshIsEmpty,

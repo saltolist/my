@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useDomain } from "@/app/model/store/domain-store";
+import { domainActions, useDomainDispatch } from "@/app/model/store";
 import type { Post, PostComment, PostMedia, PostMetrics } from "@/shared/types";
 import { PostMediaBlock } from "@/entities/post";
 import { PostReactionPills, PostViewsReposts } from "@/widgets/feed";
@@ -27,7 +27,7 @@ export default function PostCommentsPanel({
   media,
   phoneFormat = false,
 }: Props) {
-  const { dispatch } = useDomain();
+  const dispatch = useDomainDispatch();
   const [replyTo, setReplyTo] = useState<PostComment | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const comments = post.comments ?? [];
@@ -41,7 +41,7 @@ export default function PostCommentsPanel({
       ...(media.length > 0 ? { media: [...media] } : {}),
       ...(replyTo ? { replyToId: replyTo.id } : {}),
     };
-    dispatch({ type: "ADD_POST_COMMENT", postId: post.id, comment });
+    dispatch(domainActions.addPostComment(post.id, comment));
     setReplyTo(null);
     requestAnimationFrame(() => {
       if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;

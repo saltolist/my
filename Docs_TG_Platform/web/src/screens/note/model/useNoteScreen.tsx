@@ -1,9 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { postById, useDomain } from "@/app/model/store/domain-store";
-import { useNavigation } from "@/app/model/store/navigation-store";
-import { useUi } from "@/app/model/store/ui-store";
+import { postById, domainActions, useDomainDispatch, useDomainSelector, useNavigation, useUi } from "@/app/model/store";
 import {
   MenuIconBrain,
   MenuIconBrainOff,
@@ -16,7 +14,7 @@ import type { NavigationPatch } from "@/app/model/store/navigation/types";
 import type { ScreenId } from "@/shared/types";
 
 export function useNoteScreen() {
-  const { state: domain, dispatch } = useDomain();
+  const dispatch = useDomainDispatch();
   const {
     currentNote: note,
     noteFrom,
@@ -28,7 +26,9 @@ export function useNoteScreen() {
   } = useNavigation();
   const { setDirty } = useUi();
   const backFallback: ScreenId = noteFrom === "post" ? "post" : "notes";
-  const parentPost = note && !note.isGlobal ? postById(domain, note.postId) : null;
+  const parentPost = useDomainSelector((s) =>
+    note && !note.isGlobal ? postById(s, note.postId) : null,
+  );
 
   const patchNote = useCallback(
     (patch: NavigationPatch) => {
@@ -55,11 +55,11 @@ export function useNoteScreen() {
         return;
       }
       if (note.isGlobal) {
-        dispatch({ type: "UPSERT_GLOBAL_NOTE", note: { ...note, ai } });
+        dispatch(domainActions.upsertGlobalNote({ ...note, ai }));
         patchNote({ currentNote: { ...note, ai } });
       } else {
         if (note.ai !== ai) {
-          dispatch({ type: "TOGGLE_POST_NOTE_AI", postId: note.postId, noteId: note.id });
+          dispatch(domainActions.togglePostNoteAi(note.postId, note.id));
         }
         patchNote({ currentNote: { ...note, ai } });
       }
@@ -71,10 +71,10 @@ export function useNoteScreen() {
     if (!note || note.isNew) return;
     if (!confirm(`Удалить заметку «${note.title}»?`)) return;
     if (note.isGlobal) {
-      dispatch({ type: "DELETE_GLOBAL_NOTE", noteId: note.id });
+      dispatch(domainActions.deleteGlobalNote(note.id));
       goToHref(routes.notes(), { replace: true });
     } else {
-      dispatch({ type: "DELETE_POST_NOTE", postId: note.postId, noteId: note.id });
+      dispatch(domainActions.deletePostNote(note.postId, note.id));
       goToHref(routes.post(note.postId), { replace: true });
     }
   }, [dispatch, goToHref, note]);

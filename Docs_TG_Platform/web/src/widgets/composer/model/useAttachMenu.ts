@@ -9,8 +9,7 @@ import {
 import { useFloatingPanelScrollListeners } from "@/shared/lib/hooks/useFloatingPanelScrollListeners";
 import { useOverlayDismissOnPointer } from "@/shared/lib/hooks/useOverlayDismissOnPointer";
 import { getPostMediaItems, postTitle } from "@/shared/lib/helpers";
-import { useDomain, postById } from "@/app/model/store/domain-store";
-import { useNavigation } from "@/app/model/store/navigation-store";
+import { postById, selectPosts, useDomainSelector, useNavigation } from "@/app/model/store";
 import type { ComposerAttachment } from "@/shared/types";
 
 export type AttachScope = "home" | "gchat" | "post" | "feed";
@@ -32,7 +31,7 @@ export function useAttachMenu({
   attachments = [],
   onAttach,
 }: Props) {
-  const { state } = useDomain();
+  const posts = useDomainSelector(selectPosts);
   const { currentPostId } = useNavigation();
   const [open, setOpen] = useState(false);
   const [submenu, setSubmenu] = useState<AttachSubmenuKey>(null);
@@ -106,12 +105,14 @@ export function useAttachMenu({
     [consumeSuppressTriggerClick, pickFile, scope],
   );
 
-  const currentPost = scope === "post" ? postById(state, currentPostId) : null;
+  const currentPost = useDomainSelector((s) =>
+    scope === "post" ? postById(s, currentPostId) : null,
+  );
   const postMedia = currentPost ? getPostMediaItems(currentPost) : [];
   const attachedPostIds = attachments
     .filter((a): a is Extract<ComposerAttachment, { kind: "post" }> => a.kind === "post")
     .map((a) => a.postId);
-  const attachedPostsMedia = collectAttachedMedia(state.posts, attachedPostIds);
+  const attachedPostsMedia = collectAttachedMedia(posts, attachedPostIds);
 
   const attachMediaFromPost = useCallback(
     (mediaName: string) => {

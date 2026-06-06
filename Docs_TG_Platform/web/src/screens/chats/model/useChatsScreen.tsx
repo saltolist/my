@@ -1,17 +1,22 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { useDomain } from "@/app/model/store/domain-store";
-import { useNavigation } from "@/app/model/store/navigation-store";
+import {
+  selectGlobalChats,
+  selectPosts,
+  useDomainSelector,
+  useNavigation,
+} from "@/app/model/store";
 import { postTitle, chatListUserLine, chatListAssistantLine } from "@/shared/lib/helpers";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
-import type { ChatMessage, ChatsTab } from "@/shared/types";
+import type { ChatsTab } from "@/shared/types";
 import type { LocalChatRow } from "@/entities/chat";
 
 export type { LocalChatRow };
 
 export function useChatsScreen() {
-  const { state: domain } = useDomain();
+  const globalChatsSource = useDomainSelector(selectGlobalChats);
+  const posts = useDomainSelector(selectPosts);
   const { chatsTab: tab, openGChat, goToHref, navDispatch } = useNavigation();
   const isMobile = useMobile760();
   const [search, setSearch] = useState("");
@@ -25,18 +30,18 @@ export function useChatsScreen() {
 
   const globalChats = useMemo(
     () =>
-      domain.globalChats.filter((c) => {
+      globalChatsSource.filter((c) => {
         if (!q) return true;
         const u = chatListUserLine(c.history, c.title);
         const a = chatListAssistantLine(c.history, c.preview);
         return `${u} ${a}`.toLowerCase().includes(q);
       }),
-    [domain.globalChats, q],
+    [globalChatsSource, q],
   );
 
   const localChats = useMemo(
     () =>
-      domain.posts
+      posts
         .flatMap((p) =>
           p.chats.map<LocalChatRow>((c) => ({
             postId: p.id,
@@ -54,7 +59,7 @@ export function useChatsScreen() {
           const a = chatListAssistantLine(row.history, row.preview);
           return `${u} ${a} ${row.postTitle}`.toLowerCase().includes(q);
         }),
-    [domain.posts, q],
+    [posts, q],
   );
 
   const chatsScopeSelectProps = useMemo(

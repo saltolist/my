@@ -9,12 +9,12 @@ import {
   stabilizeSlot,
   yToRawSlot,
 } from "@/shared/lib/drafts/draftDnDUtils";
-import { useDomain } from "@/app/model/store/domain-store";
-import { useNavigation } from "@/app/model/store/navigation-store";
+import { domainActions, selectPosts, useDomainDispatch, useDomainSelector, useNavigation } from "@/app/model/store";
 import type { Post } from "@/shared/types";
 
 export function useDraftsSection(drafts: Post[]) {
-  const { state, dispatch } = useDomain();
+  const posts = useDomainSelector(selectPosts);
+  const dispatch = useDomainDispatch();
   const { openPost } = useNavigation();
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -64,25 +64,25 @@ export function useDraftsSection(drafts: Post[]) {
   const reorder = useCallback(
     (sourceId: number, beforeId: number | null) => {
       if (sourceId === beforeId) return;
-      const posts = [...state.posts];
-      const srcIdx = posts.findIndex((p) => p.id === sourceId);
+      const nextPosts = [...posts];
+      const srcIdx = nextPosts.findIndex((p) => p.id === sourceId);
       if (srcIdx === -1) return;
-      const [item] = posts.splice(srcIdx, 1);
+      const [item] = nextPosts.splice(srcIdx, 1);
       let insertAt: number;
       if (beforeId == null) {
         let lastDraftIdx = -1;
-        posts.forEach((p, i) => {
+        nextPosts.forEach((p, i) => {
           if (p.status === "draft") lastDraftIdx = i;
         });
         insertAt = lastDraftIdx + 1;
       } else {
-        insertAt = posts.findIndex((p) => p.id === beforeId);
-        if (insertAt < 0) insertAt = posts.length;
+        insertAt = nextPosts.findIndex((p) => p.id === beforeId);
+        if (insertAt < 0) insertAt = nextPosts.length;
       }
-      posts.splice(insertAt, 0, item);
-      dispatch({ type: "REORDER_POSTS", posts });
+      nextPosts.splice(insertAt, 0, item);
+      dispatch(domainActions.reorderPosts(nextPosts));
     },
-    [state.posts, dispatch],
+    [posts, dispatch],
   );
 
   const updateDropTarget = useCallback(

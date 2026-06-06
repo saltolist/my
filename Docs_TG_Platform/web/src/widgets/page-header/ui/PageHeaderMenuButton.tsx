@@ -1,6 +1,6 @@
 "use client";
 
-import { useUi } from "@/app/model/store/ui-store";
+import { useUi } from "@/app/model/store";
 
 /** Кнопка выдвижения сайдбара в шапке экрана (видна только в адаптиве). */
 export default function PageHeaderMenuButton() {

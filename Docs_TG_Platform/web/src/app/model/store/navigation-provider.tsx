@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useReducer, useRef, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useComposer } from "@/app/model/store/composer-store";
-import { useDomain } from "@/app/model/store/domain-store";
+import { useDomainActions, useDomainSelector } from "@/app/model/store/domain-store";
 import {
   initialNavigationState,
   navigationReducer,
@@ -22,7 +22,8 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     clearProfileDirtyFlags,
     clearNoteDirty,
   } = useUi();
-  const { state: domainState, applyPatchWithTelegram, registerNavBridge } = useDomain();
+  const domainState = useDomainSelector((s) => s);
+  const { applyPatchWithTelegram, registerNavBridge } = useDomainActions();
   const composer = useComposer();
   const [navState, navDispatch] = useReducer(navigationReducer, initialNavigationState);
 

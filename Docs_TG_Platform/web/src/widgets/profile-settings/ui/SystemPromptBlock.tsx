@@ -2,14 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { useProfileTextareaAutoResize } from "@/shared/lib/use-profile-textarea-auto-resize";
-import { useDomain } from "@/app/model/store/domain-store";
-import { useUi } from "@/app/model/store/ui-store";
+import {
+  domainActions,
+  selectAiProfileConfig,
+  selectSystemPromptSavedSnapshot,
+  useDomainActions,
+  useDomainDispatch,
+  useDomainSelector,
+  useUi,
+} from "@/app/model/store";
 
 export default function SystemPromptBlock({ active = true }: { active?: boolean }) {
-  const { state, dispatch, applyPatch } = useDomain();
+  const aiProfileConfig = useDomainSelector(selectAiProfileConfig);
+  const systemPromptSavedSnapshot = useDomainSelector(selectSystemPromptSavedSnapshot);
+  const dispatch = useDomainDispatch();
+  const { applyPatch } = useDomainActions();
   const { setDirty } = useUi();
-  const [draft, setDraft] = useState(state.aiProfileConfig.systemPrompt);
-  const dirty = draft !== state.systemPromptSavedSnapshot;
+  const [draft, setDraft] = useState(aiProfileConfig.systemPrompt);
+  const dirty = draft !== systemPromptSavedSnapshot;
   const { ref: textareaRef, resize } = useProfileTextareaAutoResize(draft, active);
 
   useEffect(() => {
@@ -21,21 +31,18 @@ export default function SystemPromptBlock({ active = true }: { active?: boolean 
   }, [setDirty]);
 
   useEffect(() => {
-    setDraft(state.aiProfileConfig.systemPrompt);
-  }, [state.aiProfileConfig.systemPrompt, state.systemPromptSavedSnapshot]);
+    setDraft(aiProfileConfig.systemPrompt);
+  }, [aiProfileConfig.systemPrompt, systemPromptSavedSnapshot]);
 
   const save = () => {
     if (!dirty) return;
-    dispatch({
-      type: "UPDATE_AI_CONFIG",
-      config: { ...state.aiProfileConfig, systemPrompt: draft },
-    });
+    dispatch(domainActions.updateAiConfig({ ...aiProfileConfig, systemPrompt: draft }));
     applyPatch({ systemPromptSavedSnapshot: draft });
   };
 
   const cancel = () => {
     if (!dirty) return;
-    setDraft(state.systemPromptSavedSnapshot);
+    setDraft(systemPromptSavedSnapshot);
   };
 
   return (

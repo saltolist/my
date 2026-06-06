@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { useDomain } from "@/app/model/store/domain-store";
-import { useNavigation } from "@/app/model/store/navigation-store";
-import { useUi } from "@/app/model/store/ui-store";
+import { domainActions, selectPosts, useDomainDispatch, useDomainSelector } from "@/app/model/store";
+import { useNavigation, useUi } from "@/app/model/store";
 import {
   FEED_POST_WIDTH_SELECT_OPTIONS,
   isFeedPostWidth,
@@ -20,7 +19,8 @@ let feedScrollTopMemory = 0;
 let feedSessionDidInitialScroll = false;
 
 export function useFeedScreen() {
-  const { state: domain, dispatch } = useDomain();
+  const posts = useDomainSelector(selectPosts);
+  const dispatch = useDomainDispatch();
   const { openPost, openPostComments } = useNavigation();
   const { setFeedPostWidth } = useUi();
   const pathname = usePathname() ?? "/";
@@ -50,8 +50,8 @@ export function useFeedScreen() {
   );
 
   const published = useMemo(
-    () => domain.posts.filter((p) => p.status === "published" && matchPost(p)),
-    [domain.posts, matchPost],
+    () => posts.filter((p) => p.status === "published" && matchPost(p)),
+    [posts, matchPost],
   );
   const publishedDayGroups = useMemo(
     () => buildPublishedFeedDayGroups(published),
@@ -60,14 +60,14 @@ export function useFeedScreen() {
   const scheduled = useMemo(
     () =>
       sortPostsByPublicationTime(
-        domain.posts.filter((p) => p.status === "scheduled" && matchPost(p)),
+        posts.filter((p) => p.status === "scheduled" && matchPost(p)),
         "asc",
       ),
-    [domain.posts, matchPost],
+    [posts, matchPost],
   );
   const drafts = useMemo(
-    () => domain.posts.filter((p) => p.status === "draft" && matchPost(p)),
-    [domain.posts, matchPost],
+    () => posts.filter((p) => p.status === "draft" && matchPost(p)),
+    [posts, matchPost],
   );
 
   useEffect(() => {
@@ -146,10 +146,10 @@ export function useFeedScreen() {
       chats: [],
       ...(pendingMedia.length > 0 ? { media: [...pendingMedia] } : {}),
     };
-    dispatch({ type: "UPDATE_POSTS", posts: [...domain.posts, newPost] });
+    dispatch(domainActions.updatePosts([...posts, newPost]));
     setDraft("");
     setPendingMedia([]);
-  }, [draft, dispatch, pendingMedia, domain.posts]);
+  }, [draft, dispatch, pendingMedia, posts]);
 
   const removePendingMedia = useCallback((index: number) => {
     setPendingMedia((arr) => arr.filter((_, i) => i !== index));

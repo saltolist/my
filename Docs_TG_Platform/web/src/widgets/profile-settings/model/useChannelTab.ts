@@ -1,17 +1,26 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { useDomain } from "@/app/model/store/domain-store";
-import { useUi } from "@/app/model/store/ui-store";
+import {
+  domainActions,
+  selectChannelProfileConfig,
+  selectChannelProfileSavedSnapshot,
+  useDomainActions,
+  useDomainDispatch,
+  useDomainSelector,
+  useUi,
+} from "@/app/model/store";
 import type { ChannelProfileConfig, ChannelProfileRubric } from "@/shared/types";
 
 export function useChannelTab() {
-  const { state, dispatch, applyPatch } = useDomain();
+  const cfg = useDomainSelector(selectChannelProfileConfig);
+  const channelProfileSavedSnapshot = useDomainSelector(selectChannelProfileSavedSnapshot);
+  const dispatch = useDomainDispatch();
+  const { applyPatch } = useDomainActions();
   const { setDirty } = useUi();
-  const cfg = state.channelProfileConfig;
   const savedCfg = useMemo(
-    () => JSON.parse(state.channelProfileSavedSnapshot) as ChannelProfileConfig,
-    [state.channelProfileSavedSnapshot],
+    () => JSON.parse(channelProfileSavedSnapshot) as ChannelProfileConfig,
+    [channelProfileSavedSnapshot],
   );
   const channelProfileSnapshot = useMemo(
     () => JSON.stringify({ core: cfg.core, voice: cfg.voice, rules: cfg.rules }),
@@ -35,8 +44,7 @@ export function useChannelTab() {
     return () => setDirty("profile-channel", false);
   }, [setDirty]);
 
-  const update = (next: ChannelProfileConfig) =>
-    dispatch({ type: "UPDATE_CHANNEL_PROFILE", config: next });
+  const update = (next: ChannelProfileConfig) => dispatch(domainActions.updateChannelProfile(next));
 
   const saveChannelProfile = () => {
     if (!channelProfileDirty) return;

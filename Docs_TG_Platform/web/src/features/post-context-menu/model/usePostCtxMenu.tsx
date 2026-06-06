@@ -11,8 +11,8 @@ import { SchedulePickerModal } from "@/features/schedule-post";
 import { formatPostDateTime, parsePostDateTime, postTitle } from "@/shared/lib/helpers";
 import { routes } from "@/shared/lib/routes";
 import type { Post, PostMode } from "@/shared/types";
-import { useDomain } from "@/app/model/store/domain-store";
-import { useNavigation } from "@/app/model/store/navigation-store";
+import { useDomainDispatch } from "@/app/model/store";
+import { useNavigation } from "@/app/model/store";
 
 export type PostCtxMenuResult = {
   items: CtxMenuItem[];
@@ -21,7 +21,7 @@ export type PostCtxMenuResult = {
 
 /** Пункты меню ••• поста (шапка поста и строка поста в сайдбаре). */
 export function usePostCtxMenuItems(post: Post | null | undefined): PostCtxMenuResult {
-  const { dispatch } = useDomain();
+  const dispatch = useDomainDispatch();
   const {
     goToHref,
     setPostView,

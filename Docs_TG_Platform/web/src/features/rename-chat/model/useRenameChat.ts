@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback } from "react";
-import { useDomain } from "@/app/model/store/domain-store";
+import { domainActions, useDomainDispatch } from "@/app/model/store";
 
 type GlobalTarget = { scope: "global"; chatId: string };
 type LocalTarget = { scope: "local"; postId: number; chatId: number };
 
 export function useRenameChat() {
-  const { dispatch } = useDomain();
+  const dispatch = useDomainDispatch();
 
   return useCallback(
     (target: GlobalTarget | LocalTarget, title: string) => {
@@ -16,14 +16,9 @@ export function useRenameChat() {
       const t = next.trim();
       if (!t) return;
       if (target.scope === "global") {
-        dispatch({ type: "RENAME_GLOBAL_CHAT", chatId: target.chatId, title: t });
+        dispatch(domainActions.renameGlobalChat(target.chatId, t));
       } else {
-        dispatch({
-          type: "RENAME_LOCAL_CHAT",
-          postId: target.postId,
-          chatId: target.chatId,
-          title: t,
-        });
+        dispatch(domainActions.renameLocalChat(target.postId, target.chatId, t));
       }
     },
     [dispatch],

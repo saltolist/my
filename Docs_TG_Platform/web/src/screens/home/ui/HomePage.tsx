@@ -1,7 +1,7 @@
 "use client";
 
-import { useComposer } from "@/app/model/store/composer-store";
-import { useNavigation } from "@/app/model/store/navigation-store";
+import { useComposer } from "@/app/model/store";
+import { useNavigation } from "@/app/model/store";
 import { Composer } from "@/widgets/composer";
 import { PageHeader } from "@/widgets/page-header";
 
