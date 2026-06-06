@@ -1,6 +1,6 @@
 "use client";
 
-import { MenuIconPlus } from "@/widgets/page-header";
+import { FilterToolbar, FilterToolbarAction } from "@/widgets/filter-toolbar";
 import { GlobalChatCardView, LocalChatCardView } from "@/screens/chats/ui/ChatListCards";
 import { routes } from "@/shared/lib/routes";
 import type { ChatsScreenState } from "@/screens/chats/model/useChatsScreen";
@@ -21,18 +21,18 @@ export default function ChatsList({ data, ui, actions }: Props) {
   return (
     <div className="chats-page">
       {tab === "global" || tab === "all" ? (
-        <div className="chats-filter-row">
-          <button
-            type="button"
-            className={`filter-tab active chats-new-chat-btn${isMobile ? " filter-tab--dropdown" : ""}`}
-            onClick={() => goToHref(routes.home())}
-          >
-            <span className="chats-new-chat-btn-icon" aria-hidden>
-              <MenuIconPlus size={12} strokeWidth={2} />
-            </span>
-            <span>Новый чат</span>
-          </button>
-        </div>
+        <FilterToolbar
+          className="chats-filter-row"
+          width="content"
+          action={
+            <FilterToolbarAction
+              label="Новый чат"
+              onClick={() => goToHref(routes.home())}
+              className={`filter-tab active chats-new-chat-btn${isMobile ? " filter-tab--dropdown" : ""}`}
+              iconClassName="chats-new-chat-btn-icon"
+            />
+          }
+        />
       ) : null}
       <div className="chats-scroll">
         <div className="chats-scroll-inner">

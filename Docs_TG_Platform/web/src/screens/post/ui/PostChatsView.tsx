@@ -1,7 +1,8 @@
 "use client";
 
-import { MenuIconPlus } from "@/widgets/page-header";
-import { PostSubpageToolbar, type PostWorkspace } from "@/widgets/post-workspace";
+import { FilterToolbar, FilterToolbarAction } from "@/widgets/filter-toolbar";
+import { buildListContextFilterTabs } from "@/shared/lib/listContextFilter";
+import { type PostWorkspace } from "@/widgets/post-workspace";
 import PostChatsList from "@/screens/post/ui/PostChatsList";
 import type { Post } from "@/shared/types";
 
@@ -17,20 +18,22 @@ export default function PostChatsView({ post, ui, actions }: Props) {
 
   return (
     <div className="post-subpage-scroll">
-      <PostSubpageToolbar
-        filter={listContextFilter}
-        onFilterChange={setListContextFilter}
+      <FilterToolbar
+        className="post-subpage-toolbar"
+        width="composer"
+        tabs={buildListContextFilterTabs(true)}
+        mobileTabs={buildListContextFilterTabs(false)}
+        value={listContextFilter}
+        onChange={setListContextFilter}
+        selectClassName="post-list-context-filter-select"
+        tabAriaLabel="Фильтр по контексту"
         action={
-          <button
-            type="button"
-            className="filter-tab filter-tab--action chats-new-chat-btn filter-tab--dropdown"
+          <FilterToolbarAction
+            label="Новый чат"
             onClick={startNewChat}
-          >
-            <span className="chats-new-chat-btn-icon" aria-hidden>
-              <MenuIconPlus size={12} strokeWidth={2} />
-            </span>
-            <span>Новый чат</span>
-          </button>
+            className="filter-tab filter-tab--action chats-new-chat-btn filter-tab--dropdown"
+            iconClassName="chats-new-chat-btn-icon"
+          />
         }
       />
       <PostChatsList

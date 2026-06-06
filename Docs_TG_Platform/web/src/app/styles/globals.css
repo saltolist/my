@@ -3447,12 +3447,14 @@ body.mobile-sidebar-open #sidebar {
     max-width: 100%;
     flex-basis: auto;
   }
-.notes-filter-row,
+.filter-toolbar--content,
+  .notes-filter-row,
   .chats-filter-row {
     overflow-x: auto;
     scrollbar-width: none;
   }
-.notes-filter-row::-webkit-scrollbar,
+.filter-toolbar--content::-webkit-scrollbar,
+  .notes-filter-row::-webkit-scrollbar,
   .chats-filter-row::-webkit-scrollbar {
     display: none;
   }

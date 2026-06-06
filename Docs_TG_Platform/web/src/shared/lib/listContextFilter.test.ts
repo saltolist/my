@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   LIST_CONTEXT_FILTER_OPTIONS,
+  buildListContextFilterTabs,
   listContextFilterLabel,
   matchesListContextFilter,
 } from "./listContextFilter";
@@ -20,5 +21,13 @@ describe("listContextFilter", () => {
     expect(matchesListContextFilter(true, "ai")).toBe(true);
     expect(matchesListContextFilter(true, "noai")).toBe(false);
     expect(matchesListContextFilter(false, "noai")).toBe(true);
+  });
+
+  it("buildListContextFilterTabs", () => {
+    const desktop = buildListContextFilterTabs(true);
+    expect(desktop).toHaveLength(3);
+    expect(desktop[1]?.label).toContain("ИИ");
+    const mobile = buildListContextFilterTabs(false);
+    expect(mobile[1]?.label).toBe("В контексте");
   });
 });

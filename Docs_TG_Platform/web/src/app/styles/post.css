@@ -681,28 +681,9 @@
   padding: 0;
 }
 .post-metric-comments:hover { color: var(--accent); }
-.post-subpage-toolbar {
-  display: flex;
-  flex-shrink: 0;
-  align-self: center;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  width: min(var(--composer-w), 100%);
-  box-sizing: border-box;
-  padding: 14px 12px 0;
-}
-.post-subpage-toolbar-filters {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
+.post-subpage-toolbar .filter-toolbar__filters {
+  flex: 1 1 auto;
   min-width: 0;
-}
-.post-subpage-toolbar .chats-new-chat-btn,
-.post-subpage-toolbar .notes-new-note-btn {
-  flex-shrink: 0;
-  margin-left: auto;
 }
 
 /* Действие «Новый чат» / «Новая заметка» — заливка и текст как у .filter-tab.active, обводка — обычная */
@@ -1190,15 +1171,10 @@ textarea,
     margin-right: auto;
     box-sizing: border-box;
   }
-.post-subpage-toolbar-filters {
+.post-subpage-toolbar .filter-toolbar__filters {
     flex: 1 1 auto;
     min-width: 0;
   }
-.post-subpage-toolbar .chats-new-chat-btn,
-  .post-subpage-toolbar .notes-new-note-btn {
-    margin-left: auto;
-  }
-/* Не залипает обводка/hover после тапа по меню; заливка и текст — как у выбранного фильтра */
 .post-subpage-toolbar .filter-tab--action:focus:not(:focus-visible) {
     background: var(--bg4);
     border-color: var(--border2);

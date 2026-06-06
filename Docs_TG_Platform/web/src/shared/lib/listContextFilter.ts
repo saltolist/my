@@ -8,6 +8,13 @@ export function listContextFilterLabel(value: NoteListFilter, desktop: boolean):
   return desktop ? "Не в контексте ИИ" : "Не в контексте";
 }
 
+export function buildListContextFilterTabs(desktop: boolean): { value: NoteListFilter; label: string }[] {
+  return LIST_CONTEXT_FILTER_OPTIONS.map((key) => ({
+    value: key,
+    label: listContextFilterLabel(key, desktop),
+  }));
+}
+
 export function matchesListContextFilter(ai: boolean, filter: NoteListFilter): boolean {
   if (filter === "ai") return ai;
   if (filter === "noai") return !ai;

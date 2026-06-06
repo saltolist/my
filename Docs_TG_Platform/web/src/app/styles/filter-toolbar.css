@@ -1,0 +1,45 @@
+/* Shared filter toolbar (notes, chats, post subpages) */
+
+.filter-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.filter-toolbar--content {
+  width: min(var(--content-w), 100%);
+  padding: 14px 0 0;
+}
+
+.filter-toolbar--composer {
+  align-self: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: min(var(--composer-w), 100%);
+  padding: 14px 12px 0;
+}
+
+.filter-toolbar__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.filter-toolbar__action {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.filter-toolbar-action-icon,
+.notes-new-note-btn-icon,
+.chats-new-chat-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+}

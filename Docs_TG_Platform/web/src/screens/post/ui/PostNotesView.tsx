@@ -1,7 +1,8 @@
 "use client";
 
-import { MenuIconPlus } from "@/widgets/page-header";
-import { PostSubpageToolbar, type PostWorkspace } from "@/widgets/post-workspace";
+import { FilterToolbar, FilterToolbarAction } from "@/widgets/filter-toolbar";
+import { buildListContextFilterTabs } from "@/shared/lib/listContextFilter";
+import { type PostWorkspace } from "@/widgets/post-workspace";
 import PostNotesList from "@/screens/post/ui/PostNotesList";
 import type { Post } from "@/shared/types";
 
@@ -17,20 +18,22 @@ export default function PostNotesView({ post, ui, actions }: Props) {
 
   return (
     <div className="post-subpage-scroll">
-      <PostSubpageToolbar
-        filter={listContextFilter}
-        onFilterChange={setListContextFilter}
+      <FilterToolbar
+        className="post-subpage-toolbar"
+        width="composer"
+        tabs={buildListContextFilterTabs(true)}
+        mobileTabs={buildListContextFilterTabs(false)}
+        value={listContextFilter}
+        onChange={setListContextFilter}
+        selectClassName="post-list-context-filter-select"
+        tabAriaLabel="Фильтр по контексту"
         action={
-          <button
-            type="button"
-            className="filter-tab filter-tab--action notes-new-note-btn filter-tab--dropdown"
+          <FilterToolbarAction
+            label="Новая заметка"
             onClick={startNewNote}
-          >
-            <span className="notes-new-note-btn-icon" aria-hidden>
-              <MenuIconPlus size={12} strokeWidth={2} />
-            </span>
-            <span>Новая заметка</span>
-          </button>
+            className="filter-tab filter-tab--action notes-new-note-btn filter-tab--dropdown"
+            iconClassName="notes-new-note-btn-icon"
+          />
         }
       />
       <PostNotesList
