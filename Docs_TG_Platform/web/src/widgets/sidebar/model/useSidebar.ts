@@ -87,12 +87,12 @@ export function useSidebar() {
 
   const recentChatsModel = useMemo(
     () => buildRecentChatsModel(domain, sidebarPostId),
-    [domain.globalChats, domain.posts, sidebarPostId],
+    [domain, sidebarPostId],
   );
 
   const recentNotesModel = useMemo(
     () => buildRecentNotesModel(domain, sidebarPostId),
-    [domain.globalNotes, domain.posts, sidebarPostId],
+    [domain, sidebarPostId],
   );
 
   const currentPostSidebar = useMemo(() => {

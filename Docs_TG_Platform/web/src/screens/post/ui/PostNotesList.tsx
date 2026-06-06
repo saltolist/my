@@ -1,6 +1,7 @@
 "use client";
 
 import { NoteListCard, NoteListCardMenu } from "@/widgets/note-editor";
+import { EmptyState } from "@/shared/ui/empty-state";
 import { matchesListContextFilter } from "@/shared/lib/listContextFilter";
 import type { LocalNote, NoteListFilter, Post } from "@/shared/types";
 
@@ -30,15 +31,12 @@ export default function PostNotesList({
     <div id="post-notes" className="notes-grid visible">
       <div className="notes-grid-inner">
         {post.notes.length === 0 ? (
-          <div className="empty">
-            <div className="eico">📝</div>
-            <p>Нет заметок для этого поста</p>
-          </div>
+          <EmptyState icon="📝" message="Нет заметок для этого поста" />
         ) : notes.length === 0 ? (
-          <div className="empty">
-            <div className="eico">📝</div>
-            <p>{contextFilter === "all" ? "Ничего не найдено" : "Нет заметок по фильтру"}</p>
-          </div>
+          <EmptyState
+            icon="📝"
+            message={contextFilter === "all" ? "Ничего не найдено" : "Нет заметок по фильтру"}
+          />
         ) : null}
         {notes.map((n) => (
           <NoteListCard

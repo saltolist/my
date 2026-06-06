@@ -27,6 +27,7 @@ import {
   isWebSearchVisibleForLlm,
 } from "@/shared/config/composer";
 import type { ComposerAttachment, ComposerScope, Post } from "@/shared/types";
+import { useComposerSubmit } from "@/widgets/composer/model/useComposerSubmit";
 
 const MAX_MENTION_RESULTS = 8;
 const DEFAULT_PLACEHOLDER = "Сообщение... введите @ чтобы прикрепить пост";
@@ -406,12 +407,7 @@ export function useComposerEditor({ scope, placeholder, onSubmit }: Props) {
     refreshMention();
   }, [collectAttachmentsFromDom, refreshIsEmpty, refreshMention]);
 
-  const submit = useCallback(() => {
-    const text = serializeEditor();
-    if (!text) return;
-    const ok = onSubmit(text);
-    if (ok) clearEditor();
-  }, [clearEditor, onSubmit, serializeEditor]);
+  const submit = useComposerSubmit(serializeEditor, clearEditor, onSubmit);
 
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {

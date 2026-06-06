@@ -1,6 +1,7 @@
 "use client";
 
 import { NoteListCard, NoteListCardMenu } from "@/widgets/note-editor";
+import { EmptyState } from "@/shared/ui/empty-state";
 import type { AnyNote } from "@/screens/notes/model/useNotesScreen";
 
 type Props = {
@@ -15,10 +16,7 @@ export default function NotesMobileGrid({ notes, emptyLabel, onOpen, onToggleAi 
     <div className="notes-grid notes-grid--screen visible">
       <div className="notes-grid-inner">
         {notes.length === 0 ? (
-          <div className="empty">
-            <div className="eico">📝</div>
-            <p>{emptyLabel}</p>
-          </div>
+          <EmptyState icon="📝" message={emptyLabel} />
         ) : (
           notes.map((n) => (
             <NoteListCard

@@ -3,7 +3,7 @@
 import UserEmailCodeStep from "@/widgets/profile-settings/ui/user/UserEmailCodeStep";
 import UserPasswordStep from "@/widgets/profile-settings/ui/user/UserPasswordStep";
 import UserSendCodePrompt from "@/widgets/profile-settings/ui/user/UserSendCodePrompt";
-import UserSummary from "@/widgets/profile-settings/ui/user/UserSummary";
+import { UserSummary } from "@/entities/user";
 import { useUserBlock } from "@/widgets/profile-settings/model/useUserBlock";
 
 export default function UserBlock() {

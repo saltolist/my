@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import ModelPicker from "@/shared/ui/model-picker/ui/ModelPicker";
+import ModelPicker from "@/shared/ui/model-picker";
 import { MessageTrashIcon } from "@/entities/message";
 import ProfileCheckbox from "@/widgets/profile-settings/ui/ProfileCheckbox";
 import ProfileEyeIcon from "@/widgets/profile-settings/ui/ProfileEyeIcon";

@@ -1,6 +1,7 @@
 "use client";
 
 import { ChatListCardMenu } from "@/widgets/chat-thread";
+import { EmptyState } from "@/shared/ui/empty-state";
 import { chatListAssistantLine, chatListUserLine } from "@/shared/lib/helpers";
 import { matchesListContextFilter } from "@/shared/lib/listContextFilter";
 import type { NoteListFilter, Post } from "@/shared/types";
@@ -26,15 +27,12 @@ export default function PostChatsList({ post, search, contextFilter, onOpenChat 
     <div id="post-chats" className="post-chats visible">
       <div className="post-chats-inner">
         {post.chats.length === 0 ? (
-          <div className="empty">
-            <div className="eico">💬</div>
-            <p>Пока нет локальных чатов</p>
-          </div>
+          <EmptyState icon="💬" message="Пока нет локальных чатов" />
         ) : chats.length === 0 ? (
-          <div className="empty">
-            <div className="eico">💬</div>
-            <p>{contextFilter === "all" ? "Ничего не найдено" : "Нет чатов по фильтру"}</p>
-          </div>
+          <EmptyState
+            icon="💬"
+            message={contextFilter === "all" ? "Ничего не найдено" : "Нет чатов по фильтру"}
+          />
         ) : (
           chats.map((c) => {
             const userLine = chatListUserLine(c.history, c.title || "Без названия");

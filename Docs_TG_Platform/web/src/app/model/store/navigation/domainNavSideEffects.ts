@@ -1,5 +1,5 @@
 import type { NavigationPatch, NavigationState } from "@/app/model/store/navigation/types";
-import type { DomainAction } from "@/app/model/store/domain/reducer";
+import type { DomainAction } from "@/app/model/store/domain/actions";
 import type { DomainState } from "@/app/model/store/domain/types";
 import { telegramConfigNavPatch } from "@/app/model/store/navigation/buildPatch";
 

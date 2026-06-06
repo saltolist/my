@@ -1,9 +1,11 @@
 "use client";
 
-import { NavigationProvider } from "@/app/model/store/navigation-provider";
-import { ComposerProvider } from "@/app/model/store/composer-store";
-import { DomainProvider } from "@/app/model/store/domain-store";
-import { UiProvider } from "@/app/model/store/ui-store";
+import {
+  ComposerProvider,
+  DomainProvider,
+  ShellNavigationProvider,
+  UiProvider,
+} from "@/app/model/store";
 import { AppShell } from "@/widgets/app-shell";
 
 export default function ShellLayout({ children }: { children: React.ReactNode }) {
@@ -11,9 +13,9 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
     <UiProvider>
       <DomainProvider>
         <ComposerProvider>
-          <NavigationProvider>
+          <ShellNavigationProvider>
             <AppShell>{children}</AppShell>
-          </NavigationProvider>
+          </ShellNavigationProvider>
         </ComposerProvider>
       </DomainProvider>
     </UiProvider>

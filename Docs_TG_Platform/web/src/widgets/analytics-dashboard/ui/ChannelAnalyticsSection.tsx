@@ -4,7 +4,7 @@ import { useMemo, type CSSProperties } from "react";
 import { ChartSeriesSelector, MultiSeriesTrendChart } from "@/widgets/charts";
 import ChannelMetricBars from "@/widgets/analytics-dashboard/ui/ChannelMetricBars";
 import ChannelReactionsPanel from "@/widgets/analytics-dashboard/ui/ChannelReactionsPanel";
-import ModelPicker from "@/shared/ui/model-picker/ui/ModelPicker";
+import ModelPicker from "@/shared/ui/model-picker";
 import {
   ANALYTICS_SCREEN_PERIOD_TO_CHART,
   buildChannelSummaryCards,

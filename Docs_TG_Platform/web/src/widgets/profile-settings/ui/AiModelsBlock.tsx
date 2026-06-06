@@ -2,7 +2,7 @@
 
 import AiModelListSection from "@/widgets/profile-settings/ui/ai/AiModelListSection";
 import ProfileCheckbox from "@/widgets/profile-settings/ui/ProfileCheckbox";
-import { BrainIcon, SearchIcon } from "@/shared/ui/model-picker/ui/ModelPicker";
+import { BrainIcon, SearchIcon } from "@/shared/ui/model-picker";
 import { LLM_PROVIDER_MODELS, WEB_SEARCH_PROVIDER_MODELS } from "@/shared/config/composer";
 import { useAiModelsBlock } from "@/widgets/profile-settings/model/useAiModelsBlock";
 

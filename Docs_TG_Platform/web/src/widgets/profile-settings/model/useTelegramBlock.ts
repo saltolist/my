@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   getTelegramStatusLabel,
   normalizeTelegramValue,
@@ -36,16 +36,19 @@ export function useTelegramBlock() {
     setDirty("profile-telegram", dirty);
   }, [dirty, setDirty]);
 
-  const clearResendCooldown = () => {
+  const clearResendCooldown = useCallback(() => {
     if (resendIntervalRef.current !== null) {
       window.clearInterval(resendIntervalRef.current);
       resendIntervalRef.current = null;
     }
     setResendCooldownSec(0);
-  };
+  }, []);
 
-  const beginResendCooldown = () => {
-    clearResendCooldown();
+  const beginResendCooldown = useCallback(() => {
+    if (resendIntervalRef.current !== null) {
+      window.clearInterval(resendIntervalRef.current);
+      resendIntervalRef.current = null;
+    }
     setResendCooldownSec(RESEND_COOLDOWN_SECONDS);
     resendIntervalRef.current = window.setInterval(() => {
       setResendCooldownSec((prev) => {
@@ -59,13 +62,13 @@ export function useTelegramBlock() {
         return prev - 1;
       });
     }, 1000);
-  };
+  }, []);
 
   useEffect(() => {
     if (cfg.authStatus === "code-sent") beginResendCooldown();
     else clearResendCooldown();
     return () => clearResendCooldown();
-  }, [cfg.authStatus]);
+  }, [cfg.authStatus, beginResendCooldown, clearResendCooldown]);
 
   useEffect(() => {
     return () => {
@@ -73,7 +76,7 @@ export function useTelegramBlock() {
       if (syncTimerRef.current !== null) window.clearTimeout(syncTimerRef.current);
       clearResendCooldown();
     };
-  }, [setDirty]);
+  }, [setDirty, clearResendCooldown]);
 
   const status = getTelegramStatusLabel(cfg, syncing);
   const isConnected = cfg.authStatus === "connected" && cfg.channelStatus === "connected";

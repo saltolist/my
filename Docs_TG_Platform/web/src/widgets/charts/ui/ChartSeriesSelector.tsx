@@ -2,7 +2,7 @@
 
 import { useCallback, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { ProfileCheckbox } from "@/widgets/profile-settings";
+import { Checkbox } from "@/shared/ui/checkbox";
 import { clampFloatingPanelLeft } from "@/shared/lib/floatingPanel";
 import { useFloatingPanelScrollListeners } from "@/shared/lib/hooks/useFloatingPanelScrollListeners";
 import { useOverlayDismissOnPointer } from "@/shared/lib/hooks/useOverlayDismissOnPointer";
@@ -153,7 +153,7 @@ export default function ChartSeriesSelector({
                       ?.classList.remove("profile-checkbox--suppress-hover");
                   }}
                 >
-                  <ProfileCheckbox
+                  <Checkbox
                     className="chart-series-selector-checkbox"
                     checked={isVisible(item.id)}
                     onChange={(event) => onVisibleChange(item.id, event.target.checked)}

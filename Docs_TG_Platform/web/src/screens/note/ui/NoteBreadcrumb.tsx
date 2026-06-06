@@ -1,6 +1,7 @@
 "use client";
 
 import { postTitle } from "@/shared/lib/helpers";
+import { Breadcrumb, type BreadcrumbItem } from "@/shared/ui/breadcrumb";
 import type { ActiveNote, Post } from "@/shared/types";
 
 type Props = {
@@ -24,31 +25,24 @@ export default function NoteBreadcrumb({
 
   if (note.isGlobal) {
     return (
-      <div className="breadcrumb">
-        <span className="bc-link" onClick={onNavigateNotes}>
-          Заметки
-        </span>
-        <span className="bc-sep">/</span>
-        <span className="crumb-current">{title}</span>
-      </div>
+      <Breadcrumb
+        items={[
+          { label: "Заметки", onClick: onNavigateNotes },
+          { label: title, current: true },
+        ]}
+      />
     );
   }
 
-  return (
-    <div className="breadcrumb">
-      <span className="bc-link" onClick={onNavigateFeed}>
-        Лента
-      </span>
-      <span className="bc-sep">/</span>
-      {parentPost ? (
-        <>
-          <span className="bc-link bc-post-title" onClick={() => onOpenPost(note.postId)}>
-            {postTitle(parentPost)}
-          </span>
-          <span className="bc-sep">/</span>
-        </>
-      ) : null}
-      <span className="crumb-current">{title}</span>
-    </div>
-  );
+  const items: BreadcrumbItem[] = [{ label: "Лента", onClick: onNavigateFeed }];
+  if (parentPost) {
+    items.push({
+      label: postTitle(parentPost),
+      onClick: () => onOpenPost(note.postId),
+      variant: "title",
+    });
+  }
+  items.push({ label: title, current: true });
+
+  return <Breadcrumb items={items} />;
 }

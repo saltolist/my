@@ -6,16 +6,9 @@ import { useNavigation } from "@/app/model/store/navigation-store";
 import { postTitle, chatListUserLine, chatListAssistantLine } from "@/shared/lib/helpers";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import type { ChatMessage, ChatsTab } from "@/shared/types";
+import type { LocalChatRow } from "@/entities/chat";
 
-export type LocalChatRow = {
-  postId: number;
-  postTitle: string;
-  chatId: number;
-  title: string;
-  preview: string;
-  date: string;
-  history: ChatMessage[];
-};
+export type { LocalChatRow };
 
 export function useChatsScreen() {
   const { state: domain } = useDomain();

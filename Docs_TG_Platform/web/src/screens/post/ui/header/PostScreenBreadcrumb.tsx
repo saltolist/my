@@ -1,6 +1,7 @@
 "use client";
 
 import { postTitle } from "@/shared/lib/helpers";
+import { Breadcrumb } from "@/shared/ui/breadcrumb";
 import type { LocalChat, Post, PostMode } from "@/shared/types";
 
 type Props = {
@@ -26,31 +27,33 @@ export default function PostScreenBreadcrumb({
   onOpenPostView,
   onResetToPostChatRoot,
 }: Props) {
+  if (postSubPage) {
+    return (
+      <Breadcrumb
+        items={[
+          { label: "Лента", onClick: onNavigateFeed },
+          { label: postIntermediateCrumb, onClick: onOpenPostView, variant: "title" },
+          { label: postSubPage, current: true },
+        ]}
+      />
+    );
+  }
+
+  if (postMode === "chat" && currentPostChatId != null && activeChat) {
+    return (
+      <Breadcrumb
+        items={[
+          { label: "Лента", onClick: onNavigateFeed },
+          { label: postIntermediateCrumb, onClick: onResetToPostChatRoot, variant: "title" },
+          { label: activeChat.title, current: true },
+        ]}
+      />
+    );
+  }
+
   return (
-    <div className="breadcrumb">
-      <span className="bc-link" onClick={onNavigateFeed}>
-        Лента
-      </span>
-      <span className="bc-sep">/</span>
-      {postSubPage ? (
-        <>
-          <span className="bc-link bc-post-title" onClick={onOpenPostView}>
-            {postIntermediateCrumb}
-          </span>
-          <span className="bc-sep">/</span>
-          <span className="crumb-current">{postSubPage}</span>
-        </>
-      ) : postMode === "chat" && currentPostChatId != null && activeChat ? (
-        <>
-          <span className="bc-link bc-post-title" onClick={onResetToPostChatRoot}>
-            {postIntermediateCrumb}
-          </span>
-          <span className="bc-sep">/</span>
-          <span className="crumb-current">{activeChat.title}</span>
-        </>
-      ) : (
-        <span className="crumb-current bc-post-title">{postTitle(post)}</span>
-      )}
-    </div>
+    <Breadcrumb
+      items={[{ label: "Лента", onClick: onNavigateFeed }, { label: postTitle(post), current: true, variant: "title" }]}
+    />
   );
 }

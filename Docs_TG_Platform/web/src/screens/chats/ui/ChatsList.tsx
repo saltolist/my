@@ -1,7 +1,7 @@
 "use client";
 
 import { MenuIconPlus } from "@/widgets/page-header";
-import { GlobalChatCard, LocalChatCard } from "@/screens/chats/ui/ChatListCards";
+import { GlobalChatCardView, LocalChatCardView } from "@/screens/chats/ui/ChatListCards";
 import { routes } from "@/shared/lib/routes";
 import type { ChatsScreenState } from "@/screens/chats/model/useChatsScreen";
 
@@ -10,15 +10,7 @@ type Props = Pick<
   "tab" | "isMobile" | "globalChats" | "localChats" | "openGChat" | "goToHref"
 >;
 
-function ChatsEmpty({ icon, message }: { icon: string; message: string }) {
-  return (
-    <div className="empty">
-      <div className="eico">{icon}</div>
-      <p>{message}</p>
-    </div>
-  );
-}
-
+import { EmptyState } from "@/shared/ui/empty-state";
 export default function ChatsList({
   tab,
   isMobile,
@@ -47,14 +39,14 @@ export default function ChatsList({
         <div className="chats-scroll-inner">
           {tab === "all" ? (
             globalChats.length === 0 && localChats.length === 0 ? (
-              <ChatsEmpty icon="💬" message="Нет чатов" />
+              <EmptyState icon="💬" message="Нет чатов" />
             ) : (
               <>
                 {globalChats.map((c) => (
-                  <GlobalChatCard key={c.id} chat={c} onOpen={openGChat} />
+                  <GlobalChatCardView key={c.id} chat={c} onOpen={openGChat} />
                 ))}
                 {localChats.map((row) => (
-                  <LocalChatCard
+                  <LocalChatCardView
                     key={`${row.postId}-${row.chatId}`}
                     row={row}
                     onNavigate={goToHref}
@@ -66,19 +58,19 @@ export default function ChatsList({
             <>
               <div style={{ display: tab === "global" ? "" : "none" }}>
                 {globalChats.length === 0 ? (
-                  <ChatsEmpty icon="💬" message="Нет глобальных чатов" />
+                  <EmptyState icon="💬" message="Нет глобальных чатов" />
                 ) : (
                   globalChats.map((c) => (
-                    <GlobalChatCard key={c.id} chat={c} onOpen={openGChat} />
+                    <GlobalChatCardView key={c.id} chat={c} onOpen={openGChat} />
                   ))
                 )}
               </div>
               <div style={{ display: tab === "local" ? "" : "none" }}>
                 {localChats.length === 0 ? (
-                  <ChatsEmpty icon="📄" message="Нет локальных чатов" />
+                  <EmptyState icon="📄" message="Нет локальных чатов" />
                 ) : (
                   localChats.map((row) => (
-                    <LocalChatCard
+                    <LocalChatCardView
                       key={`${row.postId}-${row.chatId}`}
                       row={row}
                       onNavigate={goToHref}

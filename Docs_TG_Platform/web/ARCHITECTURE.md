@@ -52,20 +52,54 @@ app → screens → widgets → features → entities → shared
 `app-shell`, `sidebar`, `page-header`, `composer`, `feed`, `post-workspace`, `chat-thread`, `charts`, `note-editor`, `profile-settings`, `analytics-dashboard`
 
 ### entities
-`post`, `message` (+ `chat`, `note`, `user`, `channel` — по мере выделения)
+`post`, `message`, `note`, `chat`, `user`, `channel`
 
 ### features
-`post-context-menu`, `schedule-post`, `manage-drafts`, …
+`post-context-menu`, `schedule-post`, `manage-drafts`, `rename-chat`, `delete-chat`, `rename-note`, `delete-note`, `toggle-note-ai`, `send-message`
 
 ### shared/ui
-`context-menu`, `model-picker`
+`context-menu`, `model-picker`, `breadcrumb`, `filter-tab-select`, `empty-state`, `checkbox`, `password-toggle`, `card-menu`, `error-fallback` — barrel: `@/shared/ui`
 
 ## Next.js
 
 - Маршруты: `src/app/(shell)/*/page.tsx` — thin wrapper, импорт из `@/screens/*`
 - Providers: `src/app/(shell)/layout.tsx`
-- Store: `src/app/model/store/`
+- Store: `src/app/model/store/` — public API: `@/app/model/store`
 - CSS: `src/app/styles/` (globals + screen styles)
+
+## Store
+
+- `@/app/model/store` — `DomainProvider`, `useDomain`, `useNavigation`, selectors
+- Domain reducer split: `domain/reducers/{posts,chats,notes,profile}.ts`
+- Actions: `domain/actions.ts`, initial state: `domain/initialState.ts`
+- Repository interfaces: `shared/api/repositories.ts`, seed impl: `shared/api/seedRepositories.ts`
+
+## Testing & CI
+
+```bash
+npm run typecheck   # tsc --noEmit
+npm run test        # vitest (shared/lib, store, schemas)
+npm run lint        # ESLint + FSD boundaries
+npm run check       # typecheck + lint + test + build
+```
+
+GitHub Actions: `.github/workflows/web-ci.yml` (on changes in `Docs_TG_Platform/web/`).
+
+## Design tokens
+
+CSS variables in `globals.css` `:root`:
+
+- Spacing: `--ui-space-1` … `--ui-space-6`
+- Radii: `--ui-radius-sm|md|lg`
+- Z-index: `--ui-z-dropdown|modal|tooltip`
+- Typography: `--ui-font-sm|md|lg`
+
+Legacy semantic colors: `--bg`, `--text`, `--accent`, …
+
+## Data source
+
+- Development: in-memory store + `shared/data/seed-data.ts` (`USE_SEED_DATA` in `shared/config/dataSource.ts`)
+- Production API: Zod schemas in `shared/api/schemas/`, repository implementations (planned)
 
 ## Правила
 

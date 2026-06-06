@@ -37,6 +37,10 @@ export default function RouteSync() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const syncKeyRef = useRef("");
+  const navStateRef = useRef(navState);
+  const domainRef = useRef(domain);
+  navStateRef.current = navState;
+  domainRef.current = domain;
 
   useEffect(() => {
     const path = pathname ?? "/";
@@ -79,7 +83,8 @@ export default function RouteSync() {
           : parsed.notePostId,
     };
 
-    let posts = domain.posts;
+    const currentDomain = domainRef.current;
+    let posts = currentDomain.posts;
     let postId = parsed.postId;
 
     if (parsed.screen === "post" && pathForParse.includes(`/post/${POST_NEW_SLUG}/`)) {
@@ -90,34 +95,33 @@ export default function RouteSync() {
 
     const routePatch = buildRoutePatch(
       { ...parsedNote, postId },
-      { posts, globalChats: domain.globalChats, globalNotes: domain.globalNotes },
+      {
+        posts,
+        globalChats: currentDomain.globalChats,
+        globalNotes: currentDomain.globalNotes,
+      },
       chatId,
       noteFrom,
     );
 
     const patch: Record<string, unknown> = { ...routePatch };
-    if (posts !== domain.posts) patch.posts = posts;
+    if (posts !== currentDomain.posts) patch.posts = posts;
     if (postId != null && parsed.screen === "post") patch.currentPostId = postId;
     if (postModeOverride) {
       patch.postMode = postModeOverride;
       patch.postViewStack = [];
     }
 
-    const { domainPatch, navPatch } = processCombinedPatch(navState, domain, patch);
+    const { domainPatch, navPatch } = processCombinedPatch(
+      navStateRef.current,
+      currentDomain,
+      patch,
+    );
     applyPatchWithTelegram(domainPatch);
     if (Object.keys(navPatch).length) {
       navDispatch({ type: "SET_NAV", patch: navPatch });
     }
-  }, [
-    pathname,
-    searchParams,
-    navDispatch,
-    applyPatchWithTelegram,
-    router,
-    domain.posts,
-    domain.globalChats,
-    domain.globalNotes,
-  ]);
+  }, [pathname, searchParams, navDispatch, applyPatchWithTelegram, router]);
 
   return null;
 }

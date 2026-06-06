@@ -11,11 +11,14 @@ npm run dev
 # http://localhost:3000
 ```
 
-## Сборка
+## Сборка и качество
 
 ```bash
-npm run build
-# out/
+npm run typecheck   # TypeScript
+npm run test        # Vitest (24 tests)
+npm run lint        # ESLint + FSD boundaries
+npm run check       # всё выше + production build
+npm run build       # out/
 ```
 
 Деплой в подкаталог GitHub Pages:

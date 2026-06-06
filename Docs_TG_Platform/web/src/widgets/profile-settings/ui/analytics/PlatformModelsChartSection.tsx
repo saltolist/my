@@ -1,7 +1,7 @@
 "use client";
 
 import { ChartSeriesSelector, MultiSeriesTrendChart, type TrendSeriesRow } from "@/widgets/charts";
-import ModelPicker from "@/shared/ui/model-picker/ui/ModelPicker";
+import ModelPicker from "@/shared/ui/model-picker";
 import PlatformMiniMetric from "@/widgets/profile-settings/ui/analytics/PlatformMiniMetric";
 import { PLATFORM_ANALYTICS_PERIODS } from "@/shared/lib/platformAnalyticsPeriods";
 import { PLATFORM_MODEL_FILTERS, type ModelFilterId } from "@/shared/lib/platformModelFilters";

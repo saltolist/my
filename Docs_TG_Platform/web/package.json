@@ -7,23 +7,30 @@
     "build": "next build && node scripts/copy-404.mjs",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run build",
     "lint:fsd-public-api:summary": "eslint \"src/**/*.{ts,tsx}\" --config eslint.config.mjs --format json | node scripts/fsd-public-api-report.mjs",
     "generate:channel-metrics": "node scripts/generate-channel-metrics-110d.mjs"
   },
   "dependencies": {
     "next": "^15.0.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@vitest/coverage-v8": "^4.1.8",
     "eslint": "^9.0.0",
     "eslint-config-next": "^15.0.0",
     "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-boundaries": "^6.0.2",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "vitest": "^4.1.8"
   }
 }

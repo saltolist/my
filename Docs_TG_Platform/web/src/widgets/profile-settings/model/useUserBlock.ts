@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { checkPasswordStrength } from "@/shared/lib/check-password-strength";
 import { DEFAULT_USER, type UserPasswordFlow } from "@/shared/lib/profile/defaultUser";
 
@@ -16,16 +16,19 @@ export function useUserBlock() {
   const [resendCooldownSec, setResendCooldownSec] = useState(0);
   const resendIntervalRef = useRef<number | null>(null);
 
-  const clearResendCooldown = () => {
+  const clearResendCooldown = useCallback(() => {
     if (resendIntervalRef.current !== null) {
       window.clearInterval(resendIntervalRef.current);
       resendIntervalRef.current = null;
     }
     setResendCooldownSec(0);
-  };
+  }, []);
 
-  const beginResendCooldown = () => {
-    clearResendCooldown();
+  const beginResendCooldown = useCallback(() => {
+    if (resendIntervalRef.current !== null) {
+      window.clearInterval(resendIntervalRef.current);
+      resendIntervalRef.current = null;
+    }
     setResendCooldownSec(RESEND_COOLDOWN_SECONDS);
     resendIntervalRef.current = window.setInterval(() => {
       setResendCooldownSec((prev) => {
@@ -39,17 +42,17 @@ export function useUserBlock() {
         return prev - 1;
       });
     }, 1000);
-  };
+  }, []);
 
   useEffect(() => {
     if (flow === "code") beginResendCooldown();
     else clearResendCooldown();
     return () => clearResendCooldown();
-  }, [flow]);
+  }, [flow, beginResendCooldown, clearResendCooldown]);
 
   useEffect(() => {
     return () => clearResendCooldown();
-  }, []);
+  }, [clearResendCooldown]);
 
   const resetFlow = () => {
     setFlow("idle");

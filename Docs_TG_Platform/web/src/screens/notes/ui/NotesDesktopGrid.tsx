@@ -1,6 +1,7 @@
 "use client";
 
 import { NoteCardAiToggle, NoteListCardMenu } from "@/widgets/note-editor";
+import { EmptyState } from "@/shared/ui/empty-state";
 import type { AnyNote } from "@/screens/notes/model/useNotesScreen";
 
 type Props = {
@@ -14,10 +15,7 @@ export default function NotesDesktopGrid({ notes, emptyLabel, onOpen, onToggleAi
   return (
     <div className="notes-grid-layout">
       {notes.length === 0 ? (
-        <div className="empty" style={{ gridColumn: "1/-1" }}>
-          <div className="eico">📝</div>
-          <p>{emptyLabel}</p>
-        </div>
+        <EmptyState icon="📝" message={emptyLabel} style={{ gridColumn: "1/-1" }} />
       ) : (
         notes.map((n) => (
           <div
