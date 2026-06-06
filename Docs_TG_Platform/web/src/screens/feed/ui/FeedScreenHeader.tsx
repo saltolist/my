@@ -4,18 +4,18 @@ import { PageHeader, PageHeaderSearchInput, PageHeaderSelect } from "@/widgets/p
 import { FEED_POST_WIDTHS, feedPostWidthLabel } from "@/shared/lib/feedPostWidth";
 import type { FeedScreenState } from "@/screens/feed/model/useFeedScreen";
 
-type Props = Pick<
-  FeedScreenState,
-  "search" | "setSearch" | "feedPostWidth" | "setFeedPostWidth" | "feedPostWidthSelectProps"
->;
+type Props = {
+  ui: Pick<
+    FeedScreenState["ui"],
+    "search" | "setSearch" | "feedPostWidth" | "feedPostWidthSelectProps"
+  >;
+  actions: Pick<FeedScreenState["actions"], "setFeedPostWidth">;
+};
 
-export default function FeedScreenHeader({
-  search,
-  setSearch,
-  feedPostWidth,
-  setFeedPostWidth,
-  feedPostWidthSelectProps,
-}: Props) {
+export default function FeedScreenHeader({ ui, actions }: Props) {
+  const { search, setSearch, feedPostWidth, feedPostWidthSelectProps } = ui;
+  const { setFeedPostWidth } = actions;
+
   return (
     <PageHeader
       title="Лента"

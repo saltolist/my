@@ -53,16 +53,22 @@ export function useAnalyticsScreen() {
   );
 
   return {
-    period,
-    setPeriod,
-    periods: PERIOD_LABELS,
-    isMobile,
-    topPostsTableMetrics,
-    rankedTopPosts,
-    topPostsDesktopGridStyle,
-    topPostsTableWrapStyle,
-    periodSelectProps,
-    openPost,
+    data: {
+      period,
+      periods: PERIOD_LABELS,
+      topPostsTableMetrics,
+      rankedTopPosts,
+      topPostsDesktopGridStyle,
+      topPostsTableWrapStyle,
+    },
+    ui: {
+      isMobile,
+      periodSelectProps,
+    },
+    actions: {
+      setPeriod,
+      openPost,
+    },
   };
 }
 

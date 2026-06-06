@@ -9,9 +9,9 @@ import PostChatsView from "@/screens/post/ui/PostChatsView";
 import PostNotesView from "@/screens/post/ui/PostNotesView";
 
 export default function PostScreen() {
-  const ws = usePostWorkspace();
+  const { data, ui, actions } = usePostWorkspace();
 
-  if (!ws.post) {
+  if (!data.post) {
     return (
       <div className="post-hdr">
         <div className="post-hdr-top">
@@ -19,7 +19,7 @@ export default function PostScreen() {
             <PageHeaderMenuButton />
             <button
               className="btn btn-ghost btn-sm page-header-back-btn"
-              onClick={() => ws.navigateBack("feed")}
+              onClick={() => actions.navigateBack("feed")}
               type="button"
             >
               ← Назад
@@ -30,40 +30,40 @@ export default function PostScreen() {
     );
   }
 
-  const post = ws.post;
+  const post = data.post;
 
   return (
-    <div className={`post-screen-wrap${ws.layoutClassName}`} style={ws.layoutStyle}>
+    <div className={`post-screen-wrap${ui.layoutClassName}`} style={ui.layoutStyle}>
       <PostScreenHeader
-        {...ws.postHeader}
+        {...ui.postHeader}
         post={post}
-        activeChat={ws.activeChat}
-        ctxItems={ws.ctxItems}
-        ctxModal={ws.ctxModal}
-        isMobile={ws.isMobile}
-        onNavigateFeed={() => ws.navigate("feed")}
-        onOpenPostView={ws.openPostView}
-        onResetToPostChatRoot={ws.resetToPostChatRoot}
-        onGoToPostNotes={ws.goToPostNotes}
-        onGoToPostChats={ws.goToPostChats}
-        onBack={ws.handleBack}
+        activeChat={data.activeChat}
+        ctxItems={ui.ctxItems}
+        ctxModal={ui.ctxModal}
+        isMobile={ui.isMobile}
+        onNavigateFeed={() => actions.navigate("feed")}
+        onOpenPostView={actions.openPostView}
+        onResetToPostChatRoot={actions.resetToPostChatRoot}
+        onGoToPostNotes={actions.goToPostNotes}
+        onGoToPostChats={actions.goToPostChats}
+        onBack={actions.handleBack}
       />
-      {ws.postMode === "chat" ? (
-        <PostChatView {...ws} post={post} />
-      ) : ws.postMode === "chats" ? (
-        <PostChatsView {...ws} post={post} />
-      ) : ws.postMode === "comments" ? (
+      {data.postMode === "chat" ? (
+        <PostChatView post={post} data={data} ui={ui} actions={actions} />
+      ) : data.postMode === "chats" ? (
+        <PostChatsView post={post} ui={ui} actions={actions} />
+      ) : data.postMode === "comments" ? (
         <PostCommentsPanel
           post={post}
-          search={ws.listSearch}
-          postCardRef={ws.postCardRef}
+          search={ui.listSearch}
+          postCardRef={ui.postCardRef}
           badge={<PostStatusBadge post={post} />}
           metrics={post.status === "published" && post.metrics ? post.metrics : null}
-          media={ws.mediaItems}
-          phoneFormat={ws.phoneFormat}
+          media={data.mediaItems}
+          phoneFormat={ui.phoneFormat}
         />
       ) : (
-        <PostNotesView {...ws} post={post} />
+        <PostNotesView post={post} ui={ui} actions={actions} />
       )}
     </div>
   );

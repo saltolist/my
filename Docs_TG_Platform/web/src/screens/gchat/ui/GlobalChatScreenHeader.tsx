@@ -9,17 +9,15 @@ import {
 } from "@/widgets/page-header";
 import type { GlobalChatScreenState } from "@/screens/gchat/model/useGlobalChatScreen";
 
-type Props = Pick<
-  GlobalChatScreenState,
-  "chat" | "omnichannel" | "navigateBackToChats" | "deleteChat"
->;
+type Props = {
+  data: Pick<GlobalChatScreenState["data"], "chat" | "omnichannel">;
+  actions: Pick<GlobalChatScreenState["actions"], "navigateBackToChats" | "deleteChat">;
+};
 
-export default function GlobalChatScreenHeader({
-  chat,
-  omnichannel,
-  navigateBackToChats,
-  deleteChat,
-}: Props) {
+export default function GlobalChatScreenHeader({ data, actions }: Props) {
+  const { chat, omnichannel } = data;
+  const { navigateBackToChats, deleteChat } = actions;
+
   const deleteItem = {
     label: "Удалить чат",
     icon: <MenuIconTrash />,

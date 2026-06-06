@@ -8,28 +8,28 @@ import FeedScreenHeader from "@/screens/feed/ui/FeedScreenHeader";
 import { useFeedScreen } from "@/screens/feed/model/useFeedScreen";
 
 export default function FeedScreen() {
-  const feed = useFeedScreen();
+  const { data, ui, actions } = useFeedScreen();
 
   return (
-    <div className={`feed-screen-wrap${feed.layoutClassName}`} style={feed.layoutStyle}>
-      <FeedScreenHeader {...feed} />
+    <div className={`feed-screen-wrap${ui.layoutClassName}`} style={ui.layoutStyle}>
+      <FeedScreenHeader ui={ui} actions={actions} />
       <div className="feed-layout">
         <div className="composer-scroll-wrap">
-          <div className="feed-scroll" id="feed-scroll" ref={feed.feedScrollRef}>
+          <div className="feed-scroll" id="feed-scroll" ref={ui.feedScrollRef}>
             <div className="composer-scroll-body">
               <div className="feed-inner">
                 <FeedPublishedSection
-                  groups={feed.publishedDayGroups}
-                  onOpen={feed.openPost}
-                  onOpenComments={feed.openPostComments}
+                  groups={data.publishedDayGroups}
+                  onOpen={actions.openPost}
+                  onOpenComments={actions.openPostComments}
                 />
-                <FeedScheduledSection posts={feed.scheduled} onOpen={feed.openPost} />
-                <DraftsSection drafts={feed.drafts} />
+                <FeedScheduledSection posts={data.scheduled} onOpen={actions.openPost} />
+                <DraftsSection drafts={data.drafts} />
               </div>
             </div>
           </div>
         </div>
-        <FeedComposer {...feed} />
+        <FeedComposer ui={ui} actions={actions} />
       </div>
     </div>
   );

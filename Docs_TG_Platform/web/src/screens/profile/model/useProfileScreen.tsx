@@ -53,16 +53,22 @@ export function useProfileScreen() {
   );
 
   return {
-    tab,
-    platformPeriod,
-    setPlatformPeriod,
-    switchTab,
-    profileTabSelectProps,
-    isMobile,
-    isCompactHeader,
-    platformPeriodInHeader,
-    settingsTabActive,
-    channelTabActive,
+    data: {
+      tab,
+      platformPeriod,
+      settingsTabActive,
+      channelTabActive,
+    },
+    ui: {
+      isMobile,
+      isCompactHeader,
+      platformPeriodInHeader,
+      profileTabSelectProps,
+    },
+    actions: {
+      setPlatformPeriod,
+      switchTab,
+    },
   };
 }
 

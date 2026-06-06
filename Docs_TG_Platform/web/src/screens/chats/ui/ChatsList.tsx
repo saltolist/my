@@ -5,20 +5,19 @@ import { GlobalChatCardView, LocalChatCardView } from "@/screens/chats/ui/ChatLi
 import { routes } from "@/shared/lib/routes";
 import type { ChatsScreenState } from "@/screens/chats/model/useChatsScreen";
 
-type Props = Pick<
-  ChatsScreenState,
-  "tab" | "isMobile" | "globalChats" | "localChats" | "openGChat" | "goToHref"
->;
-
 import { EmptyState } from "@/shared/ui/empty-state";
-export default function ChatsList({
-  tab,
-  isMobile,
-  globalChats,
-  localChats,
-  openGChat,
-  goToHref,
-}: Props) {
+
+type Props = {
+  data: ChatsScreenState["data"];
+  ui: Pick<ChatsScreenState["ui"], "isMobile">;
+  actions: Pick<ChatsScreenState["actions"], "openGChat" | "goToHref">;
+};
+
+export default function ChatsList({ data, ui, actions }: Props) {
+  const { tab, globalChats, localChats } = data;
+  const { isMobile } = ui;
+  const { openGChat, goToHref } = actions;
+
   return (
     <div className="chats-page">
       {tab === "global" || tab === "all" ? (

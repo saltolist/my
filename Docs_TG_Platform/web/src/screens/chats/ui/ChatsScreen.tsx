@@ -5,12 +5,12 @@ import ChatsScreenHeader from "@/screens/chats/ui/ChatsScreenHeader";
 import { useChatsScreen } from "@/screens/chats/model/useChatsScreen";
 
 export default function ChatsScreen() {
-  const chats = useChatsScreen();
+  const { data, ui, actions } = useChatsScreen();
 
   return (
     <>
-      <ChatsScreenHeader {...chats} />
-      <ChatsList {...chats} />
+      <ChatsScreenHeader ui={ui} />
+      <ChatsList data={data} ui={ui} actions={actions} />
     </>
   );
 }

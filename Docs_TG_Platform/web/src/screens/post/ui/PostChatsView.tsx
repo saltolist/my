@@ -5,25 +5,16 @@ import { PostSubpageToolbar, type PostWorkspace } from "@/widgets/post-workspace
 import PostChatsList from "@/screens/post/ui/PostChatsList";
 import type { Post } from "@/shared/types";
 
-type Props = Pick<
-  PostWorkspace,
-  | "listSearch"
-  | "listContextFilter"
-  | "setListContextFilter"
-  | "startNewChat"
-  | "openLocalChat"
-> & {
+type Props = {
   post: Post;
+  ui: Pick<PostWorkspace["ui"], "listSearch" | "listContextFilter" | "setListContextFilter">;
+  actions: Pick<PostWorkspace["actions"], "startNewChat" | "openLocalChat">;
 };
 
-export default function PostChatsView({
-  post,
-  listSearch,
-  listContextFilter,
-  setListContextFilter,
-  startNewChat,
-  openLocalChat,
-}: Props) {
+export default function PostChatsView({ post, ui, actions }: Props) {
+  const { listSearch, listContextFilter, setListContextFilter } = ui;
+  const { startNewChat, openLocalChat } = actions;
+
   return (
     <div className="post-subpage-scroll">
       <PostSubpageToolbar

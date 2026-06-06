@@ -103,13 +103,19 @@ export function useNoteScreen() {
   }, [deleteNote, discardNewNote, note, setNoteAi]);
 
   return {
-    note,
-    backFallback,
-    parentPost,
-    noteHeaderMenuItems,
-    navigate,
-    navigateBack,
-    openPost,
+    data: {
+      note,
+      backFallback,
+      parentPost,
+    },
+    ui: {
+      noteHeaderMenuItems,
+    },
+    actions: {
+      navigate,
+      navigateBack,
+      openPost,
+    },
   };
 }
 

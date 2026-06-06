@@ -51,14 +51,20 @@ export function useGlobalChatScreen() {
   }, [chat, dispatch, goToHref]);
 
   return {
-    chat,
-    omnichannel,
-    flatMessages,
-    lastAssistantFlat,
-    messagesRef,
-    navigateBackToChats,
-    deleteChat,
-    sendGChat,
+    data: {
+      chat,
+      omnichannel,
+      flatMessages,
+      lastAssistantFlat,
+    },
+    ui: {
+      messagesRef,
+    },
+    actions: {
+      navigateBackToChats,
+      deleteChat,
+      sendGChat,
+    },
   };
 }
 

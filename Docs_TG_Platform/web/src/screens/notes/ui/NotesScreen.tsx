@@ -7,21 +7,21 @@ import NotesScreenHeader from "@/screens/notes/ui/NotesScreenHeader";
 import { useNotesScreen } from "@/screens/notes/model/useNotesScreen";
 
 export default function NotesScreen() {
-  const notes = useNotesScreen();
+  const { data, ui, actions } = useNotesScreen();
   const gridProps = {
-    notes: notes.filtered,
-    emptyLabel: notes.emptyLabel,
-    onOpen: notes.openNote,
-    onToggleAi: notes.toggleAi,
+    notes: data.filtered,
+    emptyLabel: data.emptyLabel,
+    onOpen: actions.openNote,
+    onToggleAi: actions.toggleAi,
   };
 
   return (
     <>
-      <NotesScreenHeader {...notes} />
+      <NotesScreenHeader ui={ui} />
       <div className="notes-page">
-        <NotesFilterRow {...notes} />
+        <NotesFilterRow data={data} ui={ui} actions={actions} />
         <div className="notes-grid-page">
-          {notes.isMobile ? (
+          {ui.isMobile ? (
             <NotesMobileGrid {...gridProps} />
           ) : (
             <NotesDesktopGrid {...gridProps} />

@@ -5,10 +5,11 @@ import { NotesScopeFilterSelect } from "@/widgets/note-editor";
 import type { NotesScreenState } from "@/screens/notes/model/useNotesScreen";
 import type { NoteListFilter } from "@/shared/types";
 
-type Props = Pick<
-  NotesScreenState,
-  "isMobile" | "scope" | "filter" | "setScope" | "setFilter" | "newGlobal"
->;
+type Props = {
+  data: Pick<NotesScreenState["data"], "scope" | "filter">;
+  ui: Pick<NotesScreenState["ui"], "isMobile">;
+  actions: Pick<NotesScreenState["actions"], "setScope" | "setFilter" | "newGlobal">;
+};
 
 const FILTER_TABS: { key: NoteListFilter; label: string }[] = [
   { key: "all", label: "Все" },
@@ -16,14 +17,11 @@ const FILTER_TABS: { key: NoteListFilter; label: string }[] = [
   { key: "noai", label: "Не в контексте ИИ" },
 ];
 
-export default function NotesFilterRow({
-  isMobile,
-  scope,
-  filter,
-  setScope,
-  setFilter,
-  newGlobal,
-}: Props) {
+export default function NotesFilterRow({ data, ui, actions }: Props) {
+  const { scope, filter } = data;
+  const { isMobile } = ui;
+  const { setScope, setFilter, newGlobal } = actions;
+
   return (
     <div className="notes-filter-row">
       {isMobile ? (

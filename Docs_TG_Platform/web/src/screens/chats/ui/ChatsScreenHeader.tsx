@@ -3,17 +3,13 @@
 import { PageHeader, PageHeaderSearchInput, PageHeaderSelect } from "@/widgets/page-header";
 import type { ChatsScreenState } from "@/screens/chats/model/useChatsScreen";
 
-type Props = Pick<
-  ChatsScreenState,
-  "isMobile" | "search" | "setSearch" | "chatsScopeSelectProps"
->;
+type Props = {
+  ui: Pick<ChatsScreenState["ui"], "isMobile" | "search" | "setSearch" | "chatsScopeSelectProps">;
+};
 
-export default function ChatsScreenHeader({
-  isMobile,
-  search,
-  setSearch,
-  chatsScopeSelectProps,
-}: Props) {
+export default function ChatsScreenHeader({ ui }: Props) {
+  const { isMobile, search, setSearch, chatsScopeSelectProps } = ui;
+
   return (
     <PageHeader
       title="Чаты"

@@ -7,20 +7,20 @@ import ProfileSettingsPanel from "@/screens/profile/ui/ProfileSettingsPanel";
 import { useProfileScreen } from "@/screens/profile/model/useProfileScreen";
 
 export default function ProfileScreen() {
-  const ps = useProfileScreen();
+  const { data, ui, actions } = useProfileScreen();
 
   return (
     <>
-      <ProfileScreenHeader {...ps} />
+      <ProfileScreenHeader data={data} ui={ui} actions={actions} />
       <div className="profile-page" id="screen-profile">
         <div className="profile-scroll-inner">
-          <ChannelTab active={ps.channelTabActive} />
-          <ProfileSettingsPanel active={ps.tab === 0} settingsTabActive={ps.settingsTabActive} />
+          <ChannelTab active={data.channelTabActive} />
+          <ProfileSettingsPanel active={data.tab === 0} settingsTabActive={data.settingsTabActive} />
           <ProfileAnalyticsPanel
-            active={ps.tab === 2}
-            period={ps.platformPeriod}
-            onPeriodChange={ps.setPlatformPeriod}
-            periodInHeader={ps.platformPeriodInHeader}
+            active={data.tab === 2}
+            period={data.platformPeriod}
+            onPeriodChange={actions.setPlatformPeriod}
+            periodInHeader={ui.platformPeriodInHeader}
           />
         </div>
       </div>

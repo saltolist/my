@@ -125,20 +125,26 @@ export function useNotesScreen() {
         : "Нет заметок";
 
   return {
-    isMobile,
-    search,
-    setSearch,
-    scope,
-    filter,
-    setScope,
-    setFilter,
-    filtered,
-    openNote,
-    toggleAi,
-    newGlobal,
-    notesScopeSelectProps,
-    notesContextFilterSelectProps,
-    emptyLabel,
+    data: {
+      scope,
+      filter,
+      filtered,
+      emptyLabel,
+    },
+    ui: {
+      isMobile,
+      search,
+      setSearch,
+      notesScopeSelectProps,
+      notesContextFilterSelectProps,
+    },
+    actions: {
+      setScope,
+      setFilter,
+      openNote,
+      toggleAi,
+      newGlobal,
+    },
   };
 }
 

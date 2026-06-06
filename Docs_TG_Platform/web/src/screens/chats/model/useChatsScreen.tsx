@@ -77,15 +77,21 @@ export function useChatsScreen() {
   );
 
   return {
-    tab,
-    isMobile,
-    search,
-    setSearch,
-    globalChats,
-    localChats,
-    openGChat,
-    goToHref,
-    chatsScopeSelectProps,
+    data: {
+      tab,
+      globalChats,
+      localChats,
+    },
+    ui: {
+      isMobile,
+      search,
+      setSearch,
+      chatsScopeSelectProps,
+    },
+    actions: {
+      openGChat,
+      goToHref,
+    },
   };
 }
 

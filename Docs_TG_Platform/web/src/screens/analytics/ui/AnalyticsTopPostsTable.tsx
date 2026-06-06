@@ -8,7 +8,7 @@ import type { AnalyticsScreenState } from "@/screens/analytics/model/useAnalytic
 type Props = {
   isMobile: boolean;
   posts: AnalyticsTopPostRow[];
-  metrics: AnalyticsScreenState["topPostsTableMetrics"];
+  metrics: AnalyticsScreenState["data"]["topPostsTableMetrics"];
   wrapStyle: CSSProperties;
   gridStyle: CSSProperties;
   onOpenPost: (id: number) => void;

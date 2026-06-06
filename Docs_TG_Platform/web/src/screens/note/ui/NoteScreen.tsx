@@ -6,29 +6,29 @@ import NoteEditor from "@/screens/note/ui/NoteEditor";
 import { useNoteScreen } from "@/screens/note/model/useNoteScreen";
 
 export default function NoteScreen() {
-  const ns = useNoteScreen();
+  const { data, ui, actions } = useNoteScreen();
 
-  if (!ns.note) {
+  if (!data.note) {
     return <PageHeader title="Заметка" backTo="notes" />;
   }
 
   return (
     <>
       <PageHeader
-        backTo={ns.backFallback}
-        overflowItems={ns.noteHeaderMenuItems}
+        backTo={data.backFallback}
+        overflowItems={ui.noteHeaderMenuItems}
         left={
           <NoteBreadcrumb
-            note={ns.note}
-            parentPost={ns.parentPost}
-            onNavigateNotes={() => ns.navigateBack("notes")}
-            onNavigateFeed={() => ns.navigate("feed")}
-            onOpenPost={(id) => ns.openPost(id)}
+            note={data.note}
+            parentPost={data.parentPost}
+            onNavigateNotes={() => actions.navigateBack("notes")}
+            onNavigateFeed={() => actions.navigate("feed")}
+            onOpenPost={(id) => actions.openPost(id)}
           />
         }
       />
       <div className="note-page" id="note-page-body">
-        <NoteEditor note={ns.note} />
+        <NoteEditor note={data.note} />
       </div>
     </>
   );

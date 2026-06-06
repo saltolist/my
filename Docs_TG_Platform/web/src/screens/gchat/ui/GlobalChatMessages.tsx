@@ -3,17 +3,18 @@
 import { ChatMessage } from "@/widgets/chat-thread";
 import type { GlobalChatScreenState } from "@/screens/gchat/model/useGlobalChatScreen";
 
-type Props = Pick<
-  GlobalChatScreenState,
-  "chat" | "flatMessages" | "lastAssistantFlat" | "messagesRef"
->;
+type Props = {
+  data: Pick<
+    GlobalChatScreenState["data"],
+    "chat" | "flatMessages" | "lastAssistantFlat"
+  >;
+  ui: Pick<GlobalChatScreenState["ui"], "messagesRef">;
+};
 
-export default function GlobalChatMessages({
-  chat,
-  flatMessages,
-  lastAssistantFlat,
-  messagesRef,
-}: Props) {
+export default function GlobalChatMessages({ data, ui }: Props) {
+  const { chat, flatMessages, lastAssistantFlat } = data;
+  const { messagesRef } = ui;
+
   return (
     <div className="composer-scroll-wrap">
       <div className="gchat-messages" ref={messagesRef}>

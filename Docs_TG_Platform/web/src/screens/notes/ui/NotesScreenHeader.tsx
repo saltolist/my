@@ -3,18 +3,16 @@
 import { PageHeader, PageHeaderSearchInput, PageHeaderSelect } from "@/widgets/page-header";
 import type { NotesScreenState } from "@/screens/notes/model/useNotesScreen";
 
-type Props = Pick<
-  NotesScreenState,
-  "isMobile" | "search" | "setSearch" | "notesScopeSelectProps" | "notesContextFilterSelectProps"
->;
+type Props = {
+  ui: Pick<
+    NotesScreenState["ui"],
+    "isMobile" | "search" | "setSearch" | "notesScopeSelectProps" | "notesContextFilterSelectProps"
+  >;
+};
 
-export default function NotesScreenHeader({
-  isMobile,
-  search,
-  setSearch,
-  notesScopeSelectProps,
-  notesContextFilterSelectProps,
-}: Props) {
+export default function NotesScreenHeader({ ui }: Props) {
+  const { isMobile, search, setSearch, notesScopeSelectProps, notesContextFilterSelectProps } = ui;
+
   return (
     <PageHeader
       title="Заметки"

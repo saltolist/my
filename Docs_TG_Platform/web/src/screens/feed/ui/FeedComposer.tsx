@@ -5,30 +5,21 @@ import { PostMediaBlock } from "@/entities/post";
 import { onComposerShellMouseDown } from "@/shared/lib/composerPointerDown";
 import type { FeedScreenState } from "@/screens/feed/model/useFeedScreen";
 
-type Props = Pick<
-  FeedScreenState,
-  | "composerReady"
-  | "taRef"
-  | "draft"
-  | "setDraft"
-  | "pendingMedia"
-  | "submitDraft"
-  | "removePendingMedia"
-  | "handleDraftKeyDown"
-  | "handleAttach"
->;
+type Props = {
+  ui: Pick<
+    FeedScreenState["ui"],
+    "composerReady" | "taRef" | "draft" | "setDraft" | "pendingMedia"
+  >;
+  actions: Pick<
+    FeedScreenState["actions"],
+    "submitDraft" | "removePendingMedia" | "handleDraftKeyDown" | "handleAttach"
+  >;
+};
 
-export default function FeedComposer({
-  composerReady,
-  taRef,
-  draft,
-  setDraft,
-  pendingMedia,
-  submitDraft,
-  removePendingMedia,
-  handleDraftKeyDown,
-  handleAttach,
-}: Props) {
+export default function FeedComposer({ ui, actions }: Props) {
+  const { composerReady, taRef, draft, setDraft, pendingMedia } = ui;
+  const { submitDraft, removePendingMedia, handleDraftKeyDown, handleAttach } = actions;
+
   return (
     <div
       className={`input-wrap${composerReady ? " is-composer-ready" : ""}`}

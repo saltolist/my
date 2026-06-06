@@ -6,41 +6,24 @@ import { PostMessageCard, type PostWorkspace } from "@/widgets/post-workspace";
 import { PostStatusBadge } from "@/entities/post";
 import type { Post } from "@/shared/types";
 
-type Props = Pick<
-  PostWorkspace,
-  | "isEditing"
-  | "mediaItems"
-  | "phoneFormat"
-  | "flatMessages"
-  | "lastAssistantFlat"
-  | "activeChat"
-  | "chatScrollRef"
-  | "postCardRef"
-  | "startEdit"
-  | "cancelEdit"
-  | "savePost"
-  | "openComments"
-  | "sendPost"
-> & {
+type Props = {
   post: Post;
+  data: Pick<
+    PostWorkspace["data"],
+    "isEditing" | "mediaItems" | "flatMessages" | "lastAssistantFlat" | "activeChat"
+  >;
+  ui: Pick<PostWorkspace["ui"], "phoneFormat" | "chatScrollRef" | "postCardRef">;
+  actions: Pick<
+    PostWorkspace["actions"],
+    "startEdit" | "cancelEdit" | "savePost" | "openComments" | "sendPost"
+  >;
 };
 
-export default function PostChatView({
-  post,
-  isEditing,
-  mediaItems,
-  phoneFormat,
-  flatMessages,
-  lastAssistantFlat,
-  activeChat,
-  chatScrollRef,
-  postCardRef,
-  startEdit,
-  cancelEdit,
-  savePost,
-  openComments,
-  sendPost,
-}: Props) {
+export default function PostChatView({ post, data, ui, actions }: Props) {
+  const { isEditing, mediaItems, flatMessages, lastAssistantFlat, activeChat } = data;
+  const { phoneFormat, chatScrollRef, postCardRef } = ui;
+  const { startEdit, cancelEdit, savePost, openComments, sendPost } = actions;
+
   return (
     <>
       <div className="composer-scroll-wrap">

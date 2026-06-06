@@ -6,14 +6,14 @@ import GlobalChatScreenHeader from "@/screens/gchat/ui/GlobalChatScreenHeader";
 import { useGlobalChatScreen } from "@/screens/gchat/model/useGlobalChatScreen";
 
 export default function GlobalChatScreen() {
-  const gchat = useGlobalChatScreen();
+  const { data, ui, actions } = useGlobalChatScreen();
 
   return (
     <>
-      <GlobalChatScreenHeader {...gchat} />
+      <GlobalChatScreenHeader data={data} actions={actions} />
       <div className="gchat-layout">
-        <GlobalChatMessages {...gchat} />
-        <Composer scope="gchat" onSubmit={gchat.sendGChat} />
+        <GlobalChatMessages data={data} ui={ui} />
+        <Composer scope="gchat" onSubmit={actions.sendGChat} />
       </div>
     </>
   );

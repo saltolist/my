@@ -7,26 +7,26 @@ import AnalyticsTopPostsTable from "@/screens/analytics/ui/AnalyticsTopPostsTabl
 import { useAnalyticsScreen } from "@/screens/analytics/model/useAnalyticsScreen";
 
 export default function AnalyticsScreen() {
-  const analytics = useAnalyticsScreen();
+  const { data, ui, actions } = useAnalyticsScreen();
 
   return (
     <>
-      <AnalyticsScreenHeader {...analytics} />
+      <AnalyticsScreenHeader ui={ui} />
       <div className="analytics-page" id="screen-analytics">
         <div className="analytics-scroll-inner">
           <ChannelAnalyticsSection
-            periodIndex={analytics.period}
-            periods={analytics.periods}
-            onPeriodChange={analytics.setPeriod}
+            periodIndex={data.period}
+            periods={data.periods}
+            onPeriodChange={actions.setPeriod}
           />
           <AnalyticsHeatmap />
           <AnalyticsTopPostsTable
-            isMobile={analytics.isMobile}
-            posts={analytics.rankedTopPosts}
-            metrics={analytics.topPostsTableMetrics}
-            wrapStyle={analytics.topPostsTableWrapStyle}
-            gridStyle={analytics.topPostsDesktopGridStyle}
-            onOpenPost={analytics.openPost}
+            isMobile={ui.isMobile}
+            posts={data.rankedTopPosts}
+            metrics={data.topPostsTableMetrics}
+            wrapStyle={data.topPostsTableWrapStyle}
+            gridStyle={data.topPostsDesktopGridStyle}
+            onOpenPost={actions.openPost}
           />
         </div>
       </div>

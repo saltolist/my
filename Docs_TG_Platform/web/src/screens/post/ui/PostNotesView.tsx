@@ -5,27 +5,16 @@ import { PostSubpageToolbar, type PostWorkspace } from "@/widgets/post-workspace
 import PostNotesList from "@/screens/post/ui/PostNotesList";
 import type { Post } from "@/shared/types";
 
-type Props = Pick<
-  PostWorkspace,
-  | "listSearch"
-  | "listContextFilter"
-  | "setListContextFilter"
-  | "startNewNote"
-  | "openNote"
-  | "toggleNoteAi"
-> & {
+type Props = {
   post: Post;
+  ui: Pick<PostWorkspace["ui"], "listSearch" | "listContextFilter" | "setListContextFilter">;
+  actions: Pick<PostWorkspace["actions"], "startNewNote" | "openNote" | "toggleNoteAi">;
 };
 
-export default function PostNotesView({
-  post,
-  listSearch,
-  listContextFilter,
-  setListContextFilter,
-  startNewNote,
-  openNote,
-  toggleNoteAi,
-}: Props) {
+export default function PostNotesView({ post, ui, actions }: Props) {
+  const { listSearch, listContextFilter, setListContextFilter } = ui;
+  const { startNewNote, openNote, toggleNoteAi } = actions;
+
   return (
     <div className="post-subpage-scroll">
       <PostSubpageToolbar

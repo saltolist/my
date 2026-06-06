@@ -5,7 +5,14 @@ import { PLATFORM_ANALYTICS_PERIODS } from "@/shared/lib/platformAnalyticsPeriod
 import { PROFILE_TABS } from "@/shared/lib/profileTabs";
 import type { ProfileScreenState } from "@/screens/profile/model/useProfileScreen";
 
-type Props = ProfileScreenState;
+type Props = {
+  data: Pick<ProfileScreenState["data"], "tab" | "platformPeriod">;
+  ui: Pick<
+    ProfileScreenState["ui"],
+    "isMobile" | "isCompactHeader" | "platformPeriodInHeader" | "profileTabSelectProps"
+  >;
+  actions: Pick<ProfileScreenState["actions"], "setPlatformPeriod" | "switchTab">;
+};
 
 function ProfileTabToolbar({
   tab,
@@ -32,16 +39,11 @@ function ProfileTabToolbar({
   );
 }
 
-export default function ProfileScreenHeader({
-  tab,
-  platformPeriod,
-  setPlatformPeriod,
-  switchTab,
-  profileTabSelectProps,
-  isMobile,
-  isCompactHeader,
-  platformPeriodInHeader,
-}: Props) {
+export default function ProfileScreenHeader({ data, ui, actions }: Props) {
+  const { tab, platformPeriod } = data;
+  const { isCompactHeader, platformPeriodInHeader, profileTabSelectProps } = ui;
+  const { setPlatformPeriod, switchTab } = actions;
+
   const platformPeriodHeaderPicker = platformPeriodInHeader ? (
     <PageHeaderSelect
       ariaLabel="Период"

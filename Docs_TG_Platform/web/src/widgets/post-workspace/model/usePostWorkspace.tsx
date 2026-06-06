@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { RefObject } from "react";
 import { domainActions, postById, useDomainDispatch, useDomainSelector } from "@/app/model/store";
 import { useComposer } from "@/app/model/store";
 import { useNavigation } from "@/app/model/store";
@@ -131,11 +130,12 @@ export function usePostWorkspace() {
   const savePost = useCallback(
     (text: string, media: PostMedia[]) => {
       if (!post) return;
-      dispatch({
-        type: "UPDATE_POST",
-        postId: post.id,
-        patch: { text, media: media.length > 0 ? [...media] : undefined },
-      });
+      dispatch(
+        domainActions.updatePost(post.id, {
+          text,
+          media: media.length > 0 ? [...media] : undefined,
+        }),
+      );
       patchNav({ isEditing: false });
     },
     [dispatch, patchNav, post],
@@ -173,53 +173,56 @@ export function usePostWorkspace() {
   }, [post?.id]);
 
   return {
-    post,
-    postMode,
-    isEditing,
-    currentPostChatId,
-    activeChat,
-    flatMessages,
-    lastAssistantFlat,
-    mediaItems,
-    phoneFormat,
-    layoutClassName,
-    layoutStyle,
-    listSearch,
-    setListSearch,
-    listContextFilter,
-    setListContextFilter,
-    ctxItems,
-    ctxModal,
-    isMobile,
-    postHeaderCompact,
-    postHeaderCompact1000,
-    postHeader,
-    chatScrollRef,
-    postCardRef,
-    navigate,
-    navigateBack,
-    goToPostNotes,
-    goToPostChats,
-    openPostView,
-    openLocalChat,
-    startNewChat,
-    startNewNote,
-    handleBack,
-    scrollToPost: postHeader.scrollToPost,
-    resetToPostChatRoot,
-    startEdit,
-    cancelEdit,
-    savePost,
-    openComments,
-    openNote,
-    toggleNoteAi,
-    sendPost,
+    data: {
+      post,
+      postMode,
+      isEditing,
+      currentPostChatId,
+      activeChat,
+      flatMessages,
+      lastAssistantFlat,
+      mediaItems,
+    },
+    ui: {
+      phoneFormat,
+      layoutClassName,
+      layoutStyle,
+      listSearch,
+      setListSearch,
+      listContextFilter,
+      setListContextFilter,
+      ctxItems,
+      ctxModal,
+      isMobile,
+      postHeaderCompact,
+      postHeaderCompact1000,
+      postHeader,
+      chatScrollRef,
+      postCardRef,
+    },
+    actions: {
+      navigate,
+      navigateBack,
+      goToPostNotes,
+      goToPostChats,
+      openPostView,
+      openLocalChat,
+      startNewChat,
+      startNewNote,
+      handleBack,
+      scrollToPost: postHeader.scrollToPost,
+      resetToPostChatRoot,
+      startEdit,
+      cancelEdit,
+      savePost,
+      openComments,
+      openNote,
+      toggleNoteAi,
+      sendPost,
+    },
   };
 }
 
 export type PostWorkspace = ReturnType<typeof usePostWorkspace>;
 
-export type PostWorkspaceRefs = {
-  chatScrollRef: RefObject<HTMLDivElement | null>;
-  postCardRef: RefObject<HTMLDivElement | null>;
-};
+export type PostWorkspaceRefs = Pick<PostWorkspace["ui"], "chatScrollRef" | "postCardRef">;
