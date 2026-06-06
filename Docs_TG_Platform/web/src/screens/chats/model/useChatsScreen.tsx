@@ -7,10 +7,14 @@ import {
   useDomainSelector,
   useNavigation,
 } from "@/app/model/store";
-import { postTitle, chatListUserLine, chatListAssistantLine } from "@/shared/lib/helpers";
+import {
+  buildLocalChatRows,
+  filterGlobalChats,
+  filterLocalChatRows,
+  type LocalChatRow,
+} from "@/entities/chat";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import type { ChatsTab } from "@/shared/types";
-import type { LocalChatRow } from "@/entities/chat";
 
 export type { LocalChatRow };
 
@@ -26,40 +30,14 @@ export function useChatsScreen() {
     [navDispatch],
   );
 
-  const q = search.trim().toLowerCase();
-
   const globalChats = useMemo(
-    () =>
-      globalChatsSource.filter((c) => {
-        if (!q) return true;
-        const u = chatListUserLine(c.history, c.title);
-        const a = chatListAssistantLine(c.history, c.preview);
-        return `${u} ${a}`.toLowerCase().includes(q);
-      }),
-    [globalChatsSource, q],
+    () => filterGlobalChats(globalChatsSource, search),
+    [globalChatsSource, search],
   );
 
   const localChats = useMemo(
-    () =>
-      posts
-        .flatMap((p) =>
-          p.chats.map<LocalChatRow>((c) => ({
-            postId: p.id,
-            postTitle: postTitle(p),
-            chatId: c.id,
-            title: c.title || "Без названия",
-            preview: c.preview || "",
-            date: c.date || "",
-            history: c.history,
-          })),
-        )
-        .filter((row) => {
-          if (!q) return true;
-          const u = chatListUserLine(row.history, row.title);
-          const a = chatListAssistantLine(row.history, row.preview);
-          return `${u} ${a} ${row.postTitle}`.toLowerCase().includes(q);
-        }),
-    [posts, q],
+    () => filterLocalChatRows(buildLocalChatRows(posts), search),
+    [posts, search],
   );
 
   const chatsScopeSelectProps = useMemo(

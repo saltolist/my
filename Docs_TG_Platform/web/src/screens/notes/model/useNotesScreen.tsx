@@ -9,14 +9,18 @@ import {
   useDomainSelector,
   useNavigation,
 } from "@/app/model/store";
-import { postTitle } from "@/shared/lib/helpers";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
+import {
+  buildAnyNoteItems,
+  filterAnyNotes,
+  filterNotesByScope,
+  notesEmptyLabel,
+  type AnyNote,
+} from "@/shared/lib/notes/noteList";
 import { routes } from "@/shared/lib/routes";
-import type { GlobalNote, LocalNote, NoteListFilter, NoteScope } from "@/shared/types";
+import type { NoteListFilter, NoteScope } from "@/shared/types";
 
-export type AnyNote =
-  | (GlobalNote & { isGlobal: true })
-  | (LocalNote & { isGlobal: false; postId: number; postTitle: string });
+export type { AnyNote };
 
 export function useNotesScreen() {
   const globalNotes = useDomainSelector(selectGlobalNotes);
@@ -36,31 +40,14 @@ export function useNotesScreen() {
     [navDispatch],
   );
 
-  const items = useMemo(() => {
-    const globalItems: AnyNote[] = globalNotes.map((n) => ({ ...n, isGlobal: true }));
-    const localItems: AnyNote[] = posts.flatMap((p) =>
-      p.notes.map((n) => ({
-        ...n,
-        isGlobal: false as const,
-        postId: p.id,
-        postTitle: postTitle(p),
-      })),
-    );
-    if (scope === "global") return globalItems;
-    if (scope === "local") return localItems;
-    return [...globalItems, ...localItems];
-  }, [scope, globalNotes, posts]);
+  const items = useMemo(
+    () => filterNotesByScope(buildAnyNoteItems(globalNotes, posts), scope),
+    [scope, globalNotes, posts],
+  );
 
-  const q = search.trim().toLowerCase();
   const filtered = useMemo(
-    () =>
-      items.filter((n) => {
-        if (filter === "ai" && !n.ai) return false;
-        if (filter === "noai" && n.ai) return false;
-        if (q && !n.title.toLowerCase().includes(q) && !n.body.toLowerCase().includes(q)) return false;
-        return true;
-      }),
-    [filter, items, q],
+    () => filterAnyNotes(items, { filter, searchQuery: search }),
+    [filter, items, search],
   );
 
   const openNote = useCallback(
@@ -117,12 +104,7 @@ export function useNotesScreen() {
     [filter, setFilter],
   );
 
-  const emptyLabel =
-    scope === "global"
-      ? "Нет глобальных заметок"
-      : scope === "local"
-        ? "Нет локальных заметок"
-        : "Нет заметок";
+  const emptyLabel = notesEmptyLabel(scope);
 
   return {
     data: {

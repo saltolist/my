@@ -9,14 +9,22 @@ import {
   isFeedPostWidth,
 } from "@/shared/lib/feedPostWidth";
 import { useFeedPostLayout } from "@/widgets/feed";
-import { buildPublishedFeedDayGroups, sortPostsByPublicationTime } from "@/shared/lib/feedTimeline";
-import { autoResize, postTitle, readFileAsMedia } from "@/shared/lib/helpers";
-import type { Post, PostMedia } from "@/shared/types";
-
-/** Позиция скролла ленты между визитами в SPA (без полной перезагрузки). */
-let feedScrollTopMemory = 0;
-/** Первый визит на ленту в сессии: после гидрации статики — докрутить вниз, когда известна высота. */
-let feedSessionDidInitialScroll = false;
+import { buildPublishedFeedDayGroups } from "@/shared/lib/feedTimeline";
+import {
+  buildFeedPostSections,
+  canSubmitFeedDraft,
+  createDraftPost,
+} from "@/shared/lib/feed/filterPosts";
+import {
+  clampScrollTop,
+  getFeedScrollTop,
+  getFeedSessionDidInitialScroll,
+  markFeedSessionInitialScrollDone,
+  setFeedScrollTop,
+} from "@/shared/lib/feed/feedScrollSession";
+import { isFeedPath } from "@/shared/lib/feed/isFeedPath";
+import { autoResize, readFileAsMedia } from "@/shared/lib/helpers";
+import type { PostMedia } from "@/shared/types";
 
 export function useFeedScreen() {
   const posts = useDomainSelector(selectPosts);
@@ -24,13 +32,12 @@ export function useFeedScreen() {
   const { openPost, openPostComments } = useNavigation();
   const { setFeedPostWidth } = useUi();
   const pathname = usePathname() ?? "/";
-  const onFeed = pathname === "/feed/" || pathname === "/feed";
+  const onFeed = isFeedPath(pathname);
   const { feedPostWidth, layoutClassName, layoutStyle } = useFeedPostLayout();
 
   const [draft, setDraft] = useState("");
   const [pendingMedia, setPendingMedia] = useState<PostMedia[]>([]);
   const [search, setSearch] = useState("");
-  /** Маска composer показывается только после layout — иначе при гидрации /feed виден «лишний» прямоугольник. */
   const [composerReady, setComposerReady] = useState(false);
 
   const taRef = useRef<HTMLTextAreaElement>(null);
@@ -40,42 +47,19 @@ export function useFeedScreen() {
     if (taRef.current) autoResize(taRef.current, 16);
   }, [draft]);
 
-  const q = search.trim().toLowerCase();
-  const matchPost = useCallback(
-    (p: Post) =>
-      !q ||
-      postTitle(p).toLowerCase().includes(q) ||
-      (p.text || "").toLowerCase().includes(q),
-    [q],
-  );
-
-  const published = useMemo(
-    () => posts.filter((p) => p.status === "published" && matchPost(p)),
-    [posts, matchPost],
+  const { published, scheduled, drafts } = useMemo(
+    () => buildFeedPostSections(posts, search),
+    [posts, search],
   );
   const publishedDayGroups = useMemo(
     () => buildPublishedFeedDayGroups(published),
     [published],
   );
-  const scheduled = useMemo(
-    () =>
-      sortPostsByPublicationTime(
-        posts.filter((p) => p.status === "scheduled" && matchPost(p)),
-        "asc",
-      ),
-    [posts, matchPost],
-  );
-  const drafts = useMemo(
-    () => posts.filter((p) => p.status === "draft" && matchPost(p)),
-    [posts, matchPost],
-  );
 
   useEffect(() => {
     const el = feedScrollRef.current;
     if (!el || !onFeed) return;
-    const onScroll = () => {
-      feedScrollTopMemory = el.scrollTop;
-    };
+    const onScroll = () => setFeedScrollTop(el.scrollTop);
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
   }, [onFeed]);
@@ -88,16 +72,15 @@ export function useFeedScreen() {
 
     const pinToBottom = () => {
       el.scrollTop = el.scrollHeight;
-      feedScrollTopMemory = el.scrollTop;
+      setFeedScrollTop(el.scrollTop);
     };
 
     const restoreScroll = () => {
-      const max = Math.max(0, el.scrollHeight - el.clientHeight);
-      el.scrollTop = Math.min(feedScrollTopMemory, max);
+      el.scrollTop = clampScrollTop(getFeedScrollTop(), el.scrollHeight, el.clientHeight);
     };
 
     const syncScroll = () => {
-      if (!feedSessionDidInitialScroll) pinToBottom();
+      if (!getFeedSessionDidInitialScroll()) pinToBottom();
       else restoreScroll();
     };
 
@@ -106,9 +89,7 @@ export function useFeedScreen() {
     const scrollBody = el.querySelector<HTMLElement>(".composer-scroll-body");
     let ro: ResizeObserver | null = null;
     if (scrollBody) {
-      ro = new ResizeObserver(() => {
-        syncScroll();
-      });
+      ro = new ResizeObserver(() => syncScroll());
       ro.observe(scrollBody);
     }
 
@@ -118,9 +99,9 @@ export function useFeedScreen() {
       syncScroll();
       raf2 = requestAnimationFrame(() => {
         syncScroll();
-        if (!feedSessionDidInitialScroll) {
+        if (!getFeedSessionDidInitialScroll()) {
           pinToBottom();
-          feedSessionDidInitialScroll = true;
+          markFeedSessionInitialScrollDone();
         }
         setComposerReady(true);
       });
@@ -134,18 +115,8 @@ export function useFeedScreen() {
   }, [onFeed]);
 
   const submitDraft = useCallback(() => {
-    const text = draft.trim();
-    if (!text && pendingMedia.length === 0) return;
-    const newPost: Post = {
-      id: Date.now(),
-      status: "draft",
-      created: "только что",
-      rubric: null,
-      text,
-      notes: [],
-      chats: [],
-      ...(pendingMedia.length > 0 ? { media: [...pendingMedia] } : {}),
-    };
+    if (!canSubmitFeedDraft(draft, pendingMedia.length)) return;
+    const newPost = createDraftPost({ text: draft, pendingMedia });
     dispatch(domainActions.updatePosts([...posts, newPost]));
     setDraft("");
     setPendingMedia([]);

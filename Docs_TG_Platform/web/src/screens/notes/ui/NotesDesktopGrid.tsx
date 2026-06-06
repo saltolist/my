@@ -2,7 +2,7 @@
 
 import { NoteCardAiToggle, NoteListCardMenu } from "@/widgets/note-editor";
 import { EmptyState } from "@/shared/ui/empty-state";
-import type { AnyNote } from "@/screens/notes/model/useNotesScreen";
+import type { AnyNote } from "@/shared/lib/notes/noteList";
 
 type Props = {
   notes: AnyNote[];
