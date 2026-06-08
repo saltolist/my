@@ -2,7 +2,7 @@
 
 import PageHeaderOverflow, { type PageHeaderOverflowItem } from "@/widgets/page-header/ui/PageHeaderOverflow";
 import { PageHeaderSearchMagnifier } from "@/widgets/page-header/ui/PageHeaderSearchInput";
-import type { ReactNode, RefObject } from "react";
+import type { ReactNode, Ref, RefObject } from "react";
 
 type Props = {
   isMobile: boolean;
@@ -19,6 +19,9 @@ type Props = {
   backLabel: string;
   actions?: ReactNode;
   overflowItems?: PageHeaderOverflowItem[];
+  overflowWrapRef?: Ref<HTMLDivElement>;
+  headerRightRef?: Ref<HTMLDivElement>;
+  searchToggleAnchorRef?: Ref<HTMLElement>;
   hasTrailingToolbar: boolean;
 };
 
@@ -37,26 +40,39 @@ export default function PageHeaderRight({
   backLabel,
   actions,
   overflowItems,
+  overflowWrapRef,
+  headerRightRef,
+  searchToggleAnchorRef,
   hasTrailingToolbar,
 }: Props) {
   if (isMobile && !showMobileRight) return null;
 
   return (
     <div
+      ref={headerRightRef}
       className={`page-header-right${showMobileRight || compactSearch ? " page-header-right--mobile" : ""}`}
     >
       {!isMobile ? (
         <div className="page-header-actions--desktop">
-          {compactSearch && showSearchToggle && !mobileSearchOpen ? (
-            <button
-              type="button"
-              className="page-header-search-toggle"
-              aria-label="Поиск"
-              aria-expanded={mobileSearchOpen}
-              onClick={() => setMobileSearchOpen(true)}
-            >
-              <PageHeaderSearchMagnifier size={20} />
-            </button>
+          {compactSearch && showSearchToggle ? (
+            mobileSearchOpen ? (
+              <span
+                ref={searchToggleAnchorRef}
+                className="page-header-search-toggle-slot"
+                aria-hidden
+              />
+            ) : (
+              <button
+                ref={searchToggleAnchorRef as Ref<HTMLButtonElement>}
+                type="button"
+                className="page-header-search-toggle"
+                aria-label="Поиск"
+                aria-expanded={mobileSearchOpen}
+                onClick={() => setMobileSearchOpen(true)}
+              >
+                <PageHeaderSearchMagnifier size={20} />
+              </button>
+            )
           ) : null}
           {showCompactToolbarSelect ? (
             <div
@@ -82,7 +98,9 @@ export default function PageHeaderRight({
           ) : null}
           {actions}
           {overflowItems && overflowItems.length > 0 ? (
-            <PageHeaderOverflow items={overflowItems} />
+            <div ref={overflowWrapRef}>
+              <PageHeaderOverflow items={overflowItems} />
+            </div>
           ) : null}
         </div>
       ) : null}
@@ -114,7 +132,9 @@ export default function PageHeaderRight({
             </div>
           ) : null}
           {overflowItems && overflowItems.length > 0 ? (
-            <PageHeaderOverflow className="page-header-actions--mobile" items={overflowItems} />
+            <div ref={overflowWrapRef}>
+              <PageHeaderOverflow className="page-header-actions--mobile" items={overflowItems} />
+            </div>
           ) : null}
         </>
       ) : null}

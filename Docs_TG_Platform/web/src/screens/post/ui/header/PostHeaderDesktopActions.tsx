@@ -1,11 +1,5 @@
 "use client";
 
-import type { RefObject } from "react";
-import {
-  PageHeaderOverflow,
-  PageHeaderSearchMagnifier,
-  type PageHeaderOverflowItem,
-} from "@/widgets/page-header";
 import { ContextMenu, type CtxMenuItem } from "@/shared/ui/context-menu";
 import type { PostMode } from "@/shared/types";
 
@@ -13,54 +7,25 @@ type Props = {
   postMode: PostMode;
   showJump: boolean;
   showPostModeButtons: boolean;
-  showPostTabletSearchToggle: boolean;
-  showPostTabletCompactRight: boolean;
-  showPostTabletOverflow: boolean;
-  mobileSearchOpen: boolean;
-  listSearchPlaceholder: string;
-  postHeaderOverflowItems: PageHeaderOverflowItem[];
   ctxItems: CtxMenuItem[];
-  postOverflowWrapRef: RefObject<HTMLDivElement | null>;
   onScrollToPost: () => void;
   onGoToPostNotes: () => void;
   onGoToPostChats: () => void;
   onBack: () => void;
-  onOpenMobileSearch: () => void;
 };
 
-export default function PostScreenHeaderDesktopActions({
+export default function PostHeaderDesktopActions({
   postMode,
   showJump,
   showPostModeButtons,
-  showPostTabletSearchToggle,
-  showPostTabletCompactRight,
-  showPostTabletOverflow,
-  mobileSearchOpen,
-  listSearchPlaceholder,
-  postHeaderOverflowItems,
   ctxItems,
-  postOverflowWrapRef,
   onScrollToPost,
   onGoToPostNotes,
   onGoToPostChats,
   onBack,
-  onOpenMobileSearch,
 }: Props) {
   return (
-    <div className="page-header-actions--desktop">
-      {showPostTabletSearchToggle ? (
-        <button
-          type="button"
-          className="post-header-search-toggle"
-          aria-label={listSearchPlaceholder}
-          aria-expanded={false}
-          onClick={onOpenMobileSearch}
-        >
-          <PageHeaderSearchMagnifier size={20} />
-        </button>
-      ) : showPostTabletCompactRight && mobileSearchOpen ? (
-        <span className="page-header-search-toggle-slot" aria-hidden />
-      ) : null}
+    <>
       <button
         className={`jump-post-btn${showJump ? " visible" : ""}`}
         onClick={onScrollToPost}
@@ -95,20 +60,12 @@ export default function PostScreenHeaderDesktopActions({
       </button>
       {showPostModeButtons ? (
         <ContextMenu
-          items={ctxItems as CtxMenuItem[]}
+          items={ctxItems}
           portal
           align="right"
           dropdownClassName="ctx-dropdown--page-header-control"
         />
       ) : null}
-      {showPostTabletOverflow ? (
-        <div ref={postOverflowWrapRef}>
-          <PageHeaderOverflow
-            className="page-header-actions--mobile"
-            items={postHeaderOverflowItems}
-          />
-        </div>
-      ) : null}
-    </div>
+    </>
   );
 }

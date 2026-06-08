@@ -16,11 +16,23 @@ type Props = {
   className?: string;
 };
 
-function itemClassName(item: BreadcrumbItem): string {
-  if (item.current) {
-    return item.variant === "title" ? "crumb-current bc-post-title" : "crumb-current";
+function itemClassName(item: BreadcrumbItem, isLast: boolean): string {
+  const current = item.current ?? isLast;
+  const parts: string[] = [];
+
+  if (current) {
+    parts.push("crumb-current");
+  } else {
+    parts.push("bc-link");
   }
-  return item.variant === "title" ? "bc-link bc-post-title" : "bc-link";
+
+  if (item.variant === "title") {
+    parts.push("bc-post-title");
+  } else {
+    parts.push("bc-crumb-fixed");
+  }
+
+  return parts.join(" ");
 }
 
 export default function Breadcrumb({ items, className }: Props) {
@@ -28,7 +40,7 @@ export default function Breadcrumb({ items, className }: Props) {
     <nav className={className ? `breadcrumb ${className}` : "breadcrumb"} aria-label="Хлебные крошки">
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
-        const cls = itemClassName({ ...item, current: item.current ?? isLast });
+        const cls = itemClassName(item, isLast);
         const key = `${index}-${typeof item.label === "string" ? item.label : "node"}`;
 
         return (

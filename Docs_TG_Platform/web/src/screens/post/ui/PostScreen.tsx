@@ -1,7 +1,7 @@
 "use client";
 
 import { PostCommentsPanel, usePostWorkspace } from "@/widgets/post-workspace";
-import { PageHeaderMenuButton } from "@/widgets/page-header";
+import { PageHeader } from "@/widgets/page-header";
 import { PostStatusBadge } from "@/entities/post";
 import PostScreenHeader from "@/screens/post/ui/PostScreenHeader";
 import PostChatView from "@/screens/post/ui/PostChatView";
@@ -13,21 +13,10 @@ export default function PostScreen() {
 
   if (!data.post) {
     return (
-      <div className="post-hdr">
-        <div className="post-hdr-top">
-          <div className="page-header-left">
-            <PageHeaderMenuButton />
-            <button
-              className="btn btn-ghost btn-sm page-header-back-btn"
-              onClick={() => actions.navigateBack("feed")}
-              type="button"
-            >
-              ← Назад
-            </button>
-          </div>
-        </div>
+      <>
+        <PageHeader className="page-header--post" onBack={() => actions.navigateBack("feed")} />
         <p className="post-not-found-msg">Пост не найден</p>
-      </div>
+      </>
     );
   }
 

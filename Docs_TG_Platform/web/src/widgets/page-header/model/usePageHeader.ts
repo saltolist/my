@@ -5,6 +5,9 @@ import type { PageHeaderOverflowItem } from "@/widgets/page-header/ui/PageHeader
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import {
   findPageHeaderSearchInput,
+  measureSearchSpanPx,
+  resolveDesktopSearchToggleAnchor,
+  resolveSearchSpanRightAnchor,
   withMobileSearchClose,
 } from "@/widgets/page-header/lib/pageHeaderSearchUtils";
 import {
@@ -32,6 +35,9 @@ export type PageHeaderProps = {
   actions?: ReactNode;
   overflowItems?: PageHeaderOverflowItem[];
   compactSearchAtWidth?: number;
+  /** Пост: overlay-поиск при compact-search, не поле в центре */
+  compactSearchOverlay?: boolean;
+  className?: string;
 };
 
 export function usePageHeader({
@@ -46,6 +52,8 @@ export function usePageHeader({
   actions,
   overflowItems,
   compactSearchAtWidth,
+  compactSearchOverlay = false,
+  className,
 }: PageHeaderProps) {
   const { navigateBack } = useNavigation();
   const handleBack = onBack ?? (backTo ? () => navigateBack(backTo) : undefined);
@@ -54,8 +62,12 @@ export function usePageHeader({
   const [headerWidth, setHeaderWidth] = useState(0);
   const headerRef = useRef<HTMLDivElement>(null);
   const mobileSearchLeftRef = useRef<HTMLDivElement>(null);
+  const menuBtnRef = useRef<HTMLButtonElement>(null);
   const mobileSelectWrapRef = useRef<HTMLDivElement>(null);
   const mobileSearchWrapRef = useRef<HTMLDivElement>(null);
+  const overflowWrapRef = useRef<HTMLDivElement>(null);
+  const headerRightRef = useRef<HTMLDivElement>(null);
+  const searchToggleAnchorRef = useRef<HTMLElement>(null);
   const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
 
   const compactSearch =
@@ -64,6 +76,9 @@ export function usePageHeader({
     headerWidth > 0 &&
     headerWidth <= compactSearchAtWidth;
   const mobileOverlaySearch = isMobile;
+  /** Пост: лупа + overlay-поиск (мобилка или узкий desktop), не grid с полем по центру */
+  const searchOverlayMode =
+    compactSearchOverlay && (isMobile || compactSearch);
 
   useLayoutEffect(() => {
     const el = headerRef.current;
@@ -151,38 +166,66 @@ export function usePageHeader({
     }
   }, [mobileSearchOpen, mobileOverlaySearch, compactSearch]);
 
+  const hasTrailingOverflow = overflowItems != null && overflowItems.length > 0;
+  const hasMobileSearchTrailing = !!mobileSelect || hasTrailingOverflow;
+
+  const needsSearchSpan =
+    mobileSearchOpen &&
+    (searchOverlayMode || (mobileOverlaySearch && hasMobileSearchTrailing));
+
   useLayoutEffect(() => {
-    if (!mobileSearchOpen || !mobileOverlaySearch || !mobileSelect) return;
+    if (!needsSearchSpan) return;
     const header = headerRef.current;
     const left = mobileSearchLeftRef.current;
-    const selectWrap = mobileSelectWrapRef.current;
-    if (!header || !left || !selectWrap) return;
+    const rightColumn = headerRightRef.current;
+    if (!header || !left || !rightColumn) return;
 
     const updateSearchSpan = () => {
-      const headerRect = header.getBoundingClientRect();
-      const leftRect = left.getBoundingClientRect();
-      const selectRect = selectWrap.getBoundingClientRect();
-      header.style.setProperty(
-        "--page-header-search-span-left",
-        `${leftRect.right - headerRect.left}px`,
+      const headerStyle = getComputedStyle(header);
+      const padL = parseFloat(headerStyle.paddingLeft) || 0;
+      const padR = parseFloat(headerStyle.paddingRight) || 0;
+      const desktopPostOverlay = searchOverlayMode && !mobileOverlaySearch;
+      const overflowWrap = overflowWrapRef.current;
+      const searchToggleAnchor = desktopPostOverlay
+        ? resolveDesktopSearchToggleAnchor(rightColumn, searchToggleAnchorRef.current)
+        : null;
+      const rightAnchor = resolveSearchSpanRightAnchor(
+        rightColumn,
+        overflowWrap,
+        desktopPostOverlay,
       );
-      header.style.setProperty(
-        "--page-header-search-span-right",
-        `${headerRect.right - selectRect.left}px`,
-      );
+      const span = measureSearchSpanPx({
+        header,
+        left,
+        rightColumn,
+        rightAnchor,
+        padL,
+        padR,
+        desktopPostOverlay,
+        searchToggleAnchor,
+      });
+      header.style.setProperty("--page-header-search-span-left", `${span.left}px`);
+      header.style.setProperty("--page-header-search-span-right", `${span.right}px`);
+      header.style.removeProperty("--page-header-search-field-right-offset");
     };
 
     updateSearchSpan();
     const observer = new ResizeObserver(updateSearchSpan);
     observer.observe(header);
     observer.observe(left);
-    observer.observe(selectWrap);
+    observer.observe(rightColumn);
+    const overflowWrap = overflowWrapRef.current;
+    if (overflowWrap) observer.observe(overflowWrap);
+    const searchToggleAnchor = searchToggleAnchorRef.current;
+    if (searchToggleAnchor) observer.observe(searchToggleAnchor);
+    const actionsDesktop = rightColumn.querySelector(".page-header-actions--desktop");
+    if (actionsDesktop) observer.observe(actionsDesktop);
     window.addEventListener("resize", updateSearchSpan);
     return () => {
       observer.disconnect();
       window.removeEventListener("resize", updateSearchSpan);
     };
-  }, [mobileSearchOpen, mobileOverlaySearch, mobileSelect]);
+  }, [needsSearchSpan, mobileSearchOpen, searchOverlayMode, mobileOverlaySearch, hasMobileSearchTrailing]);
 
   const showSearchToggle = (mobileOverlaySearch || compactSearch) && !!search;
   const mobileSearchInput = search ? findPageHeaderSearchInput(search) : null;
@@ -205,10 +248,14 @@ export function usePageHeader({
 
   const headerClassName = [
     "page-header",
+    className,
     mobileSearchOpen ? "page-header--search-open" : "",
-    mobileSearchOpen && mobileSelect && mobileOverlaySearch ? "page-header--has-mobile-select" : "",
+    mobileSearchOpen && mobileOverlaySearch && hasMobileSearchTrailing
+      ? "page-header--has-mobile-select"
+      : "",
     trailingDesktopSelect ? "page-header--trailing-select" : "",
     compactSearch ? "page-header--compact-search" : "",
+    searchOverlayMode ? "page-header--post-search-overlay" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -224,8 +271,14 @@ export function usePageHeader({
     overflowItems,
     headerRef,
     mobileSearchLeftRef,
+    menuBtnRef,
     mobileSelectWrapRef,
     mobileSearchWrapRef,
+    overflowWrapRef,
+    headerRightRef,
+    searchToggleAnchorRef,
+    compactSearchOverlay,
+    searchOverlayMode,
     headerClassName,
     isMobile,
     mobileSearchOpen,

@@ -112,61 +112,26 @@
 /* ════════════════════════════════
    SCREEN: POST SPACE
 ════════════════════════════════ */
-.post-hdr {
-  height: var(--hdr); min-height: var(--hdr);
-  border-bottom: 1px solid var(--glass-border);
-  border-radius: 0;
-  box-shadow:
-    inset 0 1px 0 var(--glass-shine),
-    var(--glass-shadow);
-  padding: 0 20px;
+/* Post page header — extends shared .page-header */
+.page-header--post {
   flex-shrink: 0;
-  z-index: 5;
 }
-.post-hdr-top { display: flex; align-items: center; gap: 8px; height: 100%; }
-.post-hdr--with-search .post-hdr-top {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  column-gap: 18px;
-  width: 100%;
-  --post-bc-title-max-w: 11rem;
-}
-.post-hdr--with-search .page-header-left {
-  justify-self: start;
-  min-width: 0;
-  width: 100%;
-  max-width: 100%;
-  overflow: hidden;
-}
-.post-hdr--with-search .page-header-center {
-  justify-self: center;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  width: fit-content;
-  max-width: min(calc(var(--page-header-search-w) + 10px + 14rem), calc(100vw - var(--nav-w) - 280px));
-}
-.post-hdr--with-search .page-header-right {
-  justify-self: end;
-  margin-left: 0;
-}
-.post-hdr-top .page-header-left {
-  flex: 1;
+
+.page-header--post .page-header-left {
   min-width: 0;
 }
-.post-hdr-top .page-header-right {
+.page-header--post .page-header-right {
   margin-left: auto;
   flex-shrink: 0;
 }
-.post-hdr-top .breadcrumb { flex: 1; min-width: 0; }
+.page-header--post .breadcrumb { flex: 1; min-width: 0; }
 
-.post-hdr .breadcrumb .crumb-current:not(.bc-post-title),
-.post-hdr .breadcrumb > .bc-link:first-child,
-.post-hdr .breadcrumb .bc-sep {
+.page-header--post .breadcrumb .bc-crumb-fixed,
+.page-header--post .breadcrumb .bc-sep {
   flex-shrink: 0;
 }
 
-.post-hdr .breadcrumb .bc-post-title {
+.page-header--post .breadcrumb .bc-post-title {
   flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -174,7 +139,38 @@
   white-space: nowrap;
 }
 
-.post-hdr--with-search .page-header-left .breadcrumb {
+/* Широкий desktop: поле поиска в центре (grid), усечение названия по --post-bc-title-max-w */
+.page-header--post-with-search:not(.page-header--post-search-overlay) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  column-gap: 18px;
+  width: 100%;
+  --post-bc-title-max-w: 11rem;
+}
+
+.page-header--post-with-search:not(.page-header--post-search-overlay) .page-header-left {
+  justify-self: start;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.page-header--post-with-search:not(.page-header--post-search-overlay) .page-header-center {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  width: fit-content;
+  max-width: min(calc(var(--page-header-search-w) + 10px + 14rem), calc(100vw - var(--nav-w) - 280px));
+}
+
+.page-header--post-with-search:not(.page-header--post-search-overlay) .page-header-right {
+  justify-self: end;
+  margin-left: 0;
+}
+
+.page-header--post-with-search:not(.page-header--post-search-overlay) .page-header-left .breadcrumb {
   flex: 1 1 0;
   width: 0;
   min-width: 0;
@@ -182,13 +178,12 @@
   overflow: hidden;
 }
 
-.post-hdr--with-search .breadcrumb > .bc-link:first-child,
-.post-hdr--with-search .breadcrumb .bc-sep,
-.post-hdr--with-search .breadcrumb .crumb-current:not(.bc-post-title) {
+.page-header--post-with-search:not(.page-header--post-search-overlay) .breadcrumb .bc-crumb-fixed,
+.page-header--post-with-search:not(.page-header--post-search-overlay) .breadcrumb .bc-sep {
   flex-shrink: 0;
 }
 
-.post-hdr--with-search .breadcrumb .bc-post-title {
+.page-header--post-with-search:not(.page-header--post-search-overlay) .breadcrumb .bc-post-title {
   flex: 0 1 auto;
   min-width: 0;
   max-width: min(100%, var(--post-bc-title-max-w, 11rem));
@@ -198,49 +193,252 @@
 }
 
 @media (max-width: 1300px) {
-  .post-hdr--with-search .post-hdr-top {
+  .page-header--post-with-search:not(.page-header--post-search-overlay) {
     --post-bc-title-max-w: 6.5rem;
   }
 }
 
 @media (min-width: 1301px) {
-  .post-hdr--with-search .post-hdr-top {
+  .page-header--post-with-search:not(.page-header--post-search-overlay) {
     --post-bc-title-max-w: 14rem;
   }
 }
 
-@media (min-width: 1201px) {
-  .post-hdr-top .page-header-left {
+/* Лупа + overlay: мобилка и узкий desktop (бывш. post-hdr--with-search-mobile) */
+.page-header--post-search-overlay {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.page-header--post-search-overlay .page-header-left {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.page-header--post-search-overlay .page-header-left .breadcrumb {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}
+
+.page-header--post-search-overlay .breadcrumb .bc-post-title {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.page-header--post-search-overlay .page-header-right {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.page-header--post-search-overlay.page-header--search-open .page-header-menu-btn {
+  margin: 0 -6px;
+  min-width: 0;
+  width: auto;
+  min-height: 44px;
+  padding: 12px 0 12px 12px;
+}
+
+.page-header--post-search-overlay.page-header--search-open .page-header-left {
+  flex: 0 0 auto;
+  gap: 0;
+}
+
+.page-header--post-search-overlay.page-header--search-open {
+  position: relative;
+  gap: 10px;
+}
+
+.page-header--post-search-overlay.page-header--search-open .page-header-left,
+.page-header--post-search-overlay.page-header--search-open .page-header-right {
+  position: relative;
+  z-index: 1;
+}
+
+.page-header--post-search-overlay.page-header--search-open .page-header-right {
+  margin-left: auto;
+}
+
+.page-header--post-search-overlay.page-header--search-open .page-header-search-expand {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--page-header-search-span-left, 0);
+  right: var(--page-header-search-span-right, 0);
+  flex: none;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.page-header--post-search-overlay.page-header--search-open
+  .page-header-search-expand
+  .post-header-search-row {
+  display: contents;
+}
+
+.page-header--post-search-overlay.page-header--search-open
+  .page-header-search-expand
+  .page-header-search-field {
+  width: calc(100% - var(--page-header-mobile-search-shrink, 50px));
+  max-width: none;
+  flex: 0 0 auto;
+  pointer-events: auto;
+}
+
+.page-header--post-search-overlay .page-header-search-spacer {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Desktop: flex вместо grid — крошки не раздуваются на всю колонку 1fr */
+@media (min-width: 761px) {
+  .page-header--post:not(.page-header--post-with-search):not(.page-header--post-search-overlay) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .page-header--post:not(.page-header--post-with-search) .page-header-center {
+    display: none;
+  }
+
+  .page-header--post:not(.page-header--post-with-search) .page-header-right {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  .page-header--post:not(.page-header--post-with-search) .page-header-left {
     flex: 1 1 0;
     min-width: 0;
     overflow: hidden;
   }
 
-  .post-hdr:not(.post-hdr--with-search) .post-hdr-top .breadcrumb {
+  .page-header--post:not(.page-header--post-with-search) .page-header-left .breadcrumb {
     flex: 1 1 0;
+    width: 0;
     min-width: 0;
     max-width: 100%;
     overflow: hidden;
   }
 
-  .post-hdr:not(.post-hdr--with-search) .post-hdr-top .breadcrumb .bc-post-title {
+  .page-header--post:not(.page-header--post-with-search) .breadcrumb .bc-post-title {
     flex: 0 1 auto;
     min-width: 0;
     max-width: 100%;
   }
 
-  .post-hdr:not(.post-hdr--with-search) .post-hdr-top .breadcrumb .crumb-current:not(.bc-post-title) {
+  /* Лупа на desktop: крошки сжимаются до кнопок справа, не на всю ширину */
+  .page-header--post-search-overlay .page-header-left {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .page-header--post-search-overlay .page-header-left .breadcrumb {
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .page-header--post-search-overlay .breadcrumb .bc-post-title {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .page-header--post .page-header-search-toggle,
+  .page-header--post-search-overlay .page-header-actions--desktop .page-header-search-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
+    width: 40px;
+    min-width: 40px;
+    height: auto;
+    min-height: 44px;
+    margin: 0;
+    padding: 4px 2px 4px 0;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text3);
+    cursor: pointer;
+    transition: color 0.12s;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    box-shadow: none;
+    justify-content: flex-end;
+    appearance: none;
+  }
+
+  .page-header--post-search-overlay .page-header-actions--desktop {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .page-header--post-search-overlay .page-header-actions--desktop .page-header-search-toggle-slot {
+    flex-shrink: 0;
+  }
+
+  /* Desktop overlay: expand до правого края лупы, поле внутри — max 350px, прижато вправо */
+  .page-header--post-search-overlay.page-header--search-open .page-header-search-expand {
+    left: var(--page-header-search-span-left, 0);
+    right: var(--page-header-search-span-right, 0);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .page-header--post-search-overlay.page-header--search-open
+    .page-header-search-expand
+    .page-header-search-field {
+    position: static;
+    transform: none;
+    width: min(var(--page-header-search-w), 100%);
+    max-width: 100%;
+    flex: 0 0 auto;
+    pointer-events: auto;
+  }
+
+  .page-header--post-search-overlay .page-header-actions--desktop .jump-post-btn:not(.visible) {
+    display: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .page-header--post .page-header-search-toggle:hover {
+      color: var(--text);
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
   }
 }
 
-.post-hdr-actions {
+.page-header--post-actions {
   display: flex; align-items: center; justify-content: flex-end; gap: 8px;
 }
 .post-back-btn {
   transition: transform .2s;
 }
-.post-hdr-actions.has-jump .post-back-btn { transform: translateX(-6px); }
+.page-header--post-has-jump .page-header-right .post-back-btn { transform: translateX(-6px); }
 .jump-post-btn {
   display: inline-flex;
   align-items: center;
@@ -292,8 +490,8 @@
   min-width: 0;
 }
 @media (min-width: 761px) {
-  .post-hdr .btn.btn-ghost.btn-sm.post-mode-btn.active,
-  .post-hdr .btn.btn-ghost.btn-sm.post-mode-btn.active:hover {
+  .page-header--post .btn.btn-ghost.btn-sm.post-mode-btn.active,
+  .page-header--post .btn.btn-ghost.btn-sm.post-mode-btn.active:hover {
     border-color: color-mix(in srgb, var(--control-border-active) 58%, var(--text) 24%);
   }
 }
@@ -343,7 +541,7 @@
   font-size: 14px;
 }
 
-.post-screen-wrap > .post-hdr {
+.post-screen-wrap > .page-header {
   flex-shrink: 0;
 }
 .post-screen-wrap > :is(.composer-scroll-wrap, .post-subpage-scroll) {
@@ -862,148 +1060,14 @@
 .notes-grid-inner .note-card {
     width: calc((100% - 12px) / 2);
   }
-/* Пост <1200: лупа вместо постоянного поля поиска (как на мобильной) */
-.post-hdr--with-search-mobile .post-hdr-top {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-  }
-.post-hdr--with-search-mobile .page-header-left {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-.post-hdr--with-search-mobile .page-header-right {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-left: auto;
-  }
-.post-hdr--with-search-mobile.post-hdr--search-open .page-header-menu-btn {
-    margin: 0 -6px;
-    min-width: 0;
-    width: auto;
-    min-height: 44px;
-    padding: 12px 0 12px 12px;
-  }
-.post-hdr .post-header-search-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 55px;
-    height: 55px;
-    margin: 0;
-    padding: 0;
-    border: none;
-    border-radius: 999px;
-    background: transparent;
-    color: var(--text3);
-    cursor: pointer;
-    transition: color 0.12s;
-    -webkit-tap-highlight-color: transparent;
-    box-sizing: border-box;
-  }
-.post-hdr .page-header-right--mobile .post-header-search-toggle:not(:only-child) {
-    width: 40px;
-    min-width: 40px;
-    height: auto;
-    min-height: 44px;
-    padding: 4px 2px 4px 0;
-    justify-content: flex-end;
-  }
-.post-hdr .page-header-right--mobile .post-header-search-toggle:not(:only-child) + .page-header-actions--mobile,
-  .post-hdr .page-header-right--mobile .post-header-search-toggle:not(:only-child) + .page-header-actions--desktop {
-    margin-left: -2px;
-  }
-.post-hdr--with-search-mobile .page-header-actions--desktop .post-header-search-toggle {
-    width: 40px;
-    min-width: 40px;
-    height: auto;
-    min-height: 44px;
-    padding: 4px 2px 4px 0;
-    justify-content: flex-end;
-  }
-.post-hdr--with-search-mobile .page-header-actions--desktop .page-header-search-toggle-slot {
-    flex-shrink: 0;
-  }
-.post-hdr--with-search-mobile .page-header-actions--desktop .jump-post-btn:not(.visible) {
-    display: none;
-  }
-.post-hdr .page-header-right--mobile .post-header-search-toggle:only-child {
-    width: auto;
-    min-width: 44px;
-    padding: 4px 6px 4px 0;
-    justify-content: flex-end;
-  }
-.post-hdr .post-header-search-toggle.is-active {
-    color: var(--text);
-  }
-.post-hdr--with-search-mobile.post-hdr--search-open .page-header-left {
-    flex: 0 0 auto;
-    gap: 0;
-  }
-.post-hdr--with-search-mobile.post-hdr--search-open .post-hdr-top {
-    position: relative;
-    gap: 10px;
-  }
-.post-hdr--with-search-mobile.post-hdr--search-open .page-header-left,
-  .post-hdr--with-search-mobile.post-hdr--search-open .page-header-right {
-    position: relative;
-    z-index: 1;
-  }
-.post-hdr--with-search-mobile.post-hdr--search-open .page-header-right {
-    margin-left: auto;
-  }
-.post-hdr--with-search-mobile.post-hdr--search-open .post-header-search-expand {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: var(--page-header-search-span-left, 0);
-    right: var(--page-header-search-span-right, 0);
-    flex: none;
-    width: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 0;
-    padding: 0;
-    pointer-events: none;
-    z-index: 2;
-  }
-.post-hdr--with-search-mobile.post-hdr--search-open
-    .post-header-search-expand
-    .page-header-search-field {
-    width: calc(100% - var(--page-header-mobile-search-shrink, 50px));
-    max-width: none;
-    flex: 0 0 auto;
-    pointer-events: auto;
-  }
-.post-hdr .post-header-search-expand {
-    flex: 1 1 auto;
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    padding: 0;
-  }
-.post-hdr .post-header-search-expand .page-header-search-field {
-    width: 100%;
-    max-width: none;
-    flex: 1 1 auto;
-  }
-.post-hdr .page-header-search-spacer {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
 }
 @media (max-width: 1000px) {
-.post-hdr .page-header-actions--mobile {
+.page-header--post .page-header-actions--mobile {
     display: flex;
     align-items: center;
     flex-shrink: 0;
   }
-.post-hdr--with-search-mobile .page-header-actions--desktop .page-header-actions--mobile {
+.page-header--post-with-search.page-header--compact-search .page-header-actions--desktop .page-header-actions--mobile {
     margin-left: -2px;
   }
 }
@@ -1025,39 +1089,21 @@ textarea,
 }
 @media (max-width: 760px) {
 .page-header,
-  .post-hdr {
+  .page-header--post {
     padding: 0 10px;
     column-gap: 8px;
     height: var(--hdr);
     min-height: var(--hdr);
   }
-/* Пост: поиск справа, слева от «•••»; в крошках — укороченное название поста */
-.post-hdr--with-search-mobile .post-hdr-top {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-  }
-.post-hdr--with-search-mobile .page-header-left {
+.page-header--post:not(.page-header--post-with-search) .page-header-left {
     flex: 1 1 auto;
     min-width: 0;
   }
-.post-hdr--with-search-mobile .page-header-right {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-left: auto;
+.page-header--post:not(.page-header--post-with-search) .breadcrumb .bc-post-title {
+    flex: 0 1 auto;
+    max-width: 100%;
   }
-.post-hdr--with-search-mobile.post-hdr--search-open .page-header-menu-btn {
-    margin: 0 -6px;
-    min-width: 0;
-    width: auto;
-    min-height: 44px;
-    padding: 12px 0 12px 12px;
-  }
-.post-header-search-toggle,
-  .page-header-search-toggle {
+.page-header--post .page-header-search-toggle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1074,9 +1120,12 @@ textarea,
     transition: color 0.12s;
     -webkit-tap-highlight-color: transparent;
     box-sizing: border-box;
+    box-shadow: none;
+    appearance: none;
+    -webkit-appearance: none;
   }
 /* Лупа в кластере (селектор / «•••» справа) */
-.page-header-right--mobile .post-header-search-toggle:not(:only-child),
+.page-header-right--mobile .page-header-search-toggle:not(:only-child),
   .page-header-right--mobile .page-header-search-toggle:not(:only-child) {
     width: 40px;
     min-width: 40px;
@@ -1084,80 +1133,34 @@ textarea,
     min-height: 44px;
     padding: 4px 2px 4px 0;
     justify-content: flex-end;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+.page-header--post-search-overlay.page-header--search-open {
+    --page-header-mobile-search-shrink: 122px;
   }
 .page-header-right--mobile .page-header-search-toggle + .page-header-toolbar-slot,
   .page-header-right--mobile .page-header-search-toggle-slot + .page-header-toolbar-slot,
   .page-header-right--mobile .page-header-search-toggle + .page-header-actions--mobile,
   .page-header-right--mobile .page-header-search-toggle-slot + .page-header-actions--mobile,
-  .page-header-right--mobile .post-header-search-toggle:not(:only-child) + .page-header-actions--mobile {
+  .page-header-right--mobile .page-header-search-toggle:not(:only-child) + .page-header-actions--mobile {
     margin-left: -2px;
   }
 /* Лента и др.: лупа одна у правого края — как «•••» */
-.page-header-right--mobile .post-header-search-toggle:only-child,
+.page-header-right--mobile .page-header-search-toggle:only-child,
   .page-header-right--mobile .page-header-search-toggle:only-child {
     width: auto;
     min-width: 44px;
     padding: 4px 6px 4px 0;
     justify-content: flex-end;
   }
-.post-header-search-toggle.is-active {
+.page-header-search-toggle.is-active {
     color: var(--text);
   }
-.post-hdr--with-search-mobile.post-hdr--search-open .page-header-left {
-    flex: 0 0 auto;
-    gap: 0;
-  }
-.post-hdr--with-search-mobile.post-hdr--search-open .post-hdr-top {
-    position: relative;
-    gap: 10px;
-  }
-.post-hdr--with-search-mobile.post-hdr--search-open .page-header-left,
-  .post-hdr--with-search-mobile.post-hdr--search-open .page-header-right {
-    position: relative;
-    z-index: 1;
-  }
-.post-hdr--with-search-mobile.post-hdr--search-open .page-header-right {
-    margin-left: auto;
-  }
-.post-hdr--with-search-mobile.post-hdr--search-open .post-header-search-expand {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: var(--page-header-search-span-left, 0);
-    right: var(--page-header-search-span-right, 0);
-    flex: none;
-    width: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 0;
-    padding: 0;
-    pointer-events: none;
-    z-index: 2;
-  }
-.post-hdr--with-search-mobile.post-hdr--search-open
-    .post-header-search-expand
-    .page-header-search-field {
-    width: calc(100% - var(--page-header-mobile-search-shrink, 50px));
-    max-width: none;
-    flex: 0 0 auto;
-    pointer-events: auto;
-  }
-.post-header-search-expand,
-  .page-header-search-expand {
-    flex: 1 1 auto;
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    padding: 0;
-  }
-.post-header-search-expand .page-header-search-field,
-  .page-header-search-expand .page-header-search-field {
-    width: 100%;
-    max-width: none;
-    flex: 1 1 auto;
-  }
-.post-hdr .page-header-actions--desktop {
+.page-header--post .page-header-actions--desktop {
     display: none !important;
   }
 .post-subpage-toolbar {
@@ -1209,8 +1212,8 @@ textarea,
     margin-left: 0;
     margin-right: 0;
   }
-.page-header-back-btn,
-  .post-hdr-top > .page-header-left > .btn.btn-ghost.btn-sm {
+.page-header--post > .page-header-left > .btn.btn-ghost.btn-sm,
+  .page-header-back-btn {
     display: none !important;
   }
 .post-comments-body .composer-scroll-body {
@@ -1310,12 +1313,7 @@ textarea,
 .post-comments-row {
     --post-comments-inset-x: 12px;
   }
-.post-hdr-top {
-    flex-wrap: nowrap;
-    height: 100%;
-    gap: 8px;
-  }
-.post-hdr-actions.has-jump .post-back-btn {
+.page-header--post-has-jump .page-header-right .post-back-btn {
     transform: none;
   }
 .post-body-inner {

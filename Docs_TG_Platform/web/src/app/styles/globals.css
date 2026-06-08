@@ -1031,7 +1031,7 @@ button.nav-item {
 .analytics-card,
 .mini-metric,
 .page-header,
-.post-hdr {
+.page-header--post {
   position: relative;
   isolation: isolate;
   background: transparent;
@@ -1071,7 +1071,7 @@ button.nav-item {
 
 /* Шапки — полупрозрачное стекло как у тултипов/кластеров графика (не сплошная белая заливка карточек) */
 .page-header::before,
-.post-hdr::before {
+.page-header--post::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -1084,7 +1084,7 @@ button.nav-item {
 }
 
 .page-header > *,
-.post-hdr > * {
+.page-header--post > * {
   position: relative;
   z-index: 1;
 }
@@ -1120,7 +1120,7 @@ button.nav-item {
 }
 /* Скролл только под шапкой: экран — колонка, шапка в потоке, тело flex:1 */
 .screen > .page-header,
-.screen > .post-hdr {
+.screen > .page-header--post {
   flex-shrink: 0;
 }
 .screen > :is(
@@ -1284,7 +1284,7 @@ button.nav-item {
 .page-header .btn.btn-ghost.btn-sm,
 .page-header .page-header-select,
 .page-header .page-header-select-ctx .page-header-select,
-.post-hdr .btn.btn-ghost.btn-sm,
+.page-header--post .btn.btn-ghost.btn-sm,
 .note-shell-header .btn.btn-ghost.btn-sm {
   height: 32px;
   min-width: 40px;
@@ -1304,7 +1304,7 @@ button.nav-item {
   padding: 0;
 }
 .page-header .btn.btn-ghost.btn-sm:hover,
-.post-hdr .btn.btn-ghost.btn-sm:hover,
+.page-header--post .btn.btn-ghost.btn-sm:hover,
 .note-shell-header .btn.btn-ghost.btn-sm:hover:not(:disabled) {
   opacity: 1;
   background: var(--page-header-control-bg-hover);
@@ -1315,7 +1315,7 @@ button.nav-item {
   border-color: var(--control-border-active);
 }
 .page-header .btn.btn-ghost.btn-sm.active,
-.post-hdr .btn.btn-ghost.btn-sm.active,
+.page-header--post .btn.btn-ghost.btn-sm.active,
 .note-shell-header .btn.btn-ghost.btn-sm.active,
 .note-shell-header .btn.note-ai-toggle.on {
   background: var(--page-header-control-bg);
@@ -1323,7 +1323,7 @@ button.nav-item {
   border-color: var(--control-border-active);
 }
 .page-header .btn.btn-ghost.btn-sm.active:hover,
-.post-hdr .btn.btn-ghost.btn-sm.active:hover,
+.page-header--post .btn.btn-ghost.btn-sm.active:hover,
 .note-shell-header .btn.btn-ghost.btn-sm.active:hover,
 .note-shell-header .btn.note-ai-toggle.on:hover {
   background: var(--page-header-control-bg);
@@ -1569,27 +1569,30 @@ button.nav-item {
   font-weight: 400;
   color: var(--accent);
   cursor: pointer;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 0 1 auto;
   background: none;
   border: none;
   padding: 0;
   font: inherit;
   text-align: left;
 }
-.breadcrumb > .bc-link:first-child {
-  font-weight: 600;
+.breadcrumb .bc-crumb-fixed {
+  flex: 0 0 auto;
   flex-shrink: 0;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+.breadcrumb > .bc-link:first-child,
+.breadcrumb > .bc-crumb-fixed:first-child {
+  font-weight: 600;
 }
 .breadcrumb .bc-sep {
   font-weight: 400;
   color: var(--text2);
   flex-shrink: 0;
 }
-.breadcrumb > .bc-link:first-child + .bc-sep {
+.breadcrumb > .bc-link:first-child + .bc-sep,
+.breadcrumb > .bc-crumb-fixed:first-child + .bc-sep {
   font-weight: 600;
 }
 .breadcrumb .crumb-current {
@@ -1597,13 +1600,12 @@ button.nav-item {
   color: var(--text);
   white-space: nowrap;
 }
-.breadcrumb .crumb-current:not(.bc-post-title) {
+.breadcrumb .crumb-current.bc-crumb-fixed {
+  flex: 0 0 auto;
   flex-shrink: 0;
   overflow: visible;
   text-overflow: clip;
 }
-.breadcrumb .crumb-current.bc-post-title,
-.breadcrumb .bc-link.bc-post-title,
 .breadcrumb .bc-post-title {
   flex: 0 1 auto;
   min-width: 0;
@@ -1733,8 +1735,8 @@ button.nav-item {
 .ctx-btn:hover { background: var(--bg4); border-color: var(--border2); color: var(--text2); }
 .page-header .ctx-btn:hover,
 .page-header .ctx-btn:focus-visible,
-.post-hdr .ctx-btn:hover,
-.post-hdr .ctx-btn:focus-visible,
+.page-header--post .ctx-btn:hover,
+.page-header--post .ctx-btn:focus-visible,
 .note-shell-header .ctx-btn:hover,
 .note-shell-header .ctx-btn:focus-visible {
   background: transparent;
@@ -3024,7 +3026,7 @@ button.nav-item {
     padding-right: var(--scroll-pad-inline);
   }
 @media (hover: hover) and (pointer: fine) {
-    .post-hdr .post-header-search-toggle:hover {
+    .page-header--post .page-header-search-toggle:hover {
       color: var(--text);
     }
   }
@@ -3300,7 +3302,6 @@ body.mobile-sidebar-open #sidebar {
     padding-right: 6px;
   }
 @media (hover: hover) and (pointer: fine) {
-    .post-header-search-toggle:hover,
     .page-header-search-toggle:hover {
       color: var(--text);
     }
@@ -3361,7 +3362,6 @@ body.mobile-sidebar-open #sidebar {
   }
 /* На тач-устройствах убираем “анимацию нажатия” у кнопок поиска */
 @media (hover: none) and (pointer: coarse) {
-    .post-header-search-toggle,
     .page-header-search-toggle {
       transition: none;
     }
@@ -3411,15 +3411,13 @@ body.mobile-sidebar-open #sidebar {
     flex-wrap: nowrap;
     overflow: hidden;
   }
-.breadcrumb .bc-link.bc-post-title,
-  .breadcrumb .crumb-current.bc-post-title {
+.breadcrumb .bc-post-title {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-.breadcrumb .crumb-current:not(.bc-post-title),
-  .breadcrumb > .bc-link:first-child {
+.breadcrumb .bc-crumb-fixed {
     flex-shrink: 0;
     overflow: visible;
     text-overflow: clip;

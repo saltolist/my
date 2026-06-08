@@ -11,7 +11,6 @@ import { resolveRoutePostId } from "@/shared/lib/nav/routePostId";
 import { usePostCtxMenuItems } from "@/features/post-context-menu";
 import { useFeedPostLayout } from "@/widgets/feed";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
-import { usePostHeaderCompact1200 } from "@/widgets/post-workspace/model/usePostHeaderCompact1200";
 import { useCompactHeader1000 } from "@/shared/lib/hooks/useCompactHeader1000";
 import { usePostScreenHeader } from "@/widgets/post-workspace/model/usePostScreenHeader";
 import { routes } from "@/shared/lib/routes";
@@ -43,7 +42,6 @@ export function usePostWorkspace() {
   const effectivePostId = resolveRoutePostId(pathname, currentPostId);
   const post = useDomainSelector((s) => postById(s, effectivePostId));
   const isMobile = useMobile760();
-  const postHeaderCompact = usePostHeaderCompact1200();
   const postHeaderCompact1000 = useCompactHeader1000();
   const { phoneFormat, layoutClassName, layoutStyle } = useFeedPostLayout();
   const { items: ctxItems, modal: ctxModal } = usePostCtxMenuItems(post);
@@ -111,7 +109,6 @@ export function usePostWorkspace() {
     activeChat,
     isEditing,
     isMobile,
-    postHeaderCompact,
     postHeaderCompact1000,
     ctxItems,
     listSearch,
@@ -198,8 +195,6 @@ export function usePostWorkspace() {
       ctxItems,
       ctxModal,
       isMobile,
-      postHeaderCompact,
-      postHeaderCompact1000,
       postHeader,
       chatScrollRef,
       postCardRef,

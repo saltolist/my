@@ -1,12 +1,14 @@
 "use client";
 
 import { useUi } from "@/app/model/store";
+import { forwardRef } from "react";
 
 /** Кнопка выдвижения сайдбара в шапке экрана (видна только в адаптиве). */
-export default function PageHeaderMenuButton() {
+const PageHeaderMenuButton = forwardRef<HTMLButtonElement>(function PageHeaderMenuButton(_, ref) {
   const { setMobileSidebarOpen } = useUi();
   return (
     <button
+      ref={ref}
       type="button"
       className="page-header-menu-btn"
       onClick={() => setMobileSidebarOpen(true)}
@@ -23,4 +25,6 @@ export default function PageHeaderMenuButton() {
       </svg>
     </button>
   );
-}
+});
+
+export default PageHeaderMenuButton;

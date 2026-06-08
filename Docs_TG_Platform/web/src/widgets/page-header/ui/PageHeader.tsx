@@ -14,14 +14,16 @@ export default function PageHeader(props: PageHeaderProps) {
     <div ref={h.headerRef} className={h.headerClassName}>
       <PageHeaderLeft
         leftRef={h.mobileSearchLeftRef}
+        menuBtnRef={h.menuBtnRef}
         title={h.title}
         left={h.left}
-        showTitle={!h.mobileSearchOpen || h.compactSearch}
-        showLeft={!h.mobileSearchOpen}
+        showTitle={!h.mobileSearchOpen || !h.searchOverlayMode}
+        showLeft={!(h.mobileSearchOpen && h.searchOverlayMode)}
       />
       <PageHeaderCenter
         mobileOverlaySearch={h.mobileOverlaySearch}
         compactSearch={h.compactSearch}
+        compactSearchOverlay={h.compactSearchOverlay}
         mobileSearchOpen={h.mobileSearchOpen}
         expandableSearchContent={h.expandableSearchContent}
         mobileSearchWrapRef={h.mobileSearchWrapRef}
@@ -43,6 +45,9 @@ export default function PageHeader(props: PageHeaderProps) {
         backLabel={h.backLabel}
         actions={h.actions}
         overflowItems={h.overflowItems}
+        overflowWrapRef={h.overflowWrapRef}
+        headerRightRef={h.headerRightRef}
+        searchToggleAnchorRef={h.searchToggleAnchorRef}
         hasTrailingToolbar={h.hasTrailingToolbar}
       />
     </div>

@@ -1,17 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { RefObject } from "react";
 import { postTitle } from "@/shared/lib/helpers";
 import { NavIconChats, NavIconFeed, NavIconNotes } from "@/widgets/sidebar";
 import type { PageHeaderOverflowItem } from "@/widgets/page-header";
 import type { CtxMenuItem } from "@/shared/ui/context-menu";
-import {
-  buildPostHeaderRightClassName,
-  buildPostHeaderRootClassName,
-  getPostListSearchPlaceholder,
-  getPostSubPageLabel,
-} from "@/shared/lib/post/postHeader";
+import { getPostListSearchPlaceholder, getPostSubPageLabel } from "@/shared/lib/post/postHeader";
 import type { LocalChat, Post, PostMode } from "@/shared/types";
 
 type Args = {
@@ -21,7 +16,6 @@ type Args = {
   activeChat: LocalChat | null;
   isEditing: boolean;
   isMobile: boolean;
-  postHeaderCompact: boolean;
   postHeaderCompact1000: boolean;
   ctxItems: CtxMenuItem[];
   listSearch: string;
@@ -40,7 +34,6 @@ export function usePostScreenHeader({
   activeChat,
   isEditing,
   isMobile,
-  postHeaderCompact,
   postHeaderCompact1000,
   ctxItems,
   listSearch,
@@ -51,15 +44,7 @@ export function usePostScreenHeader({
   goToPostNotes,
   goToPostChats,
 }: Args) {
-  const postHdrTopRef = useRef<HTMLDivElement>(null);
-  const mobileSearchLeftRef = useRef<HTMLDivElement>(null);
-  const postOverflowWrapRef = useRef<HTMLDivElement>(null);
-  const postHeaderRightRef = useRef<HTMLDivElement>(null);
-  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
-  const mobileSearchWrapRef = useRef<HTMLDivElement>(null);
-
   const [showJump, setShowJump] = useState(false);
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const scrollToPost = useCallback(() => {
     chatScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
@@ -71,10 +56,6 @@ export function usePostScreenHeader({
   const postIntermediateCrumb = post ? postTitle(post) : "";
 
   useEffect(() => {
-    setMobileSearchOpen(false);
-  }, [postMode, showListHeaderSearch]);
-
-  useEffect(() => {
     if (postMode !== "chat") {
       setShowJump(false);
       return;
@@ -83,7 +64,7 @@ export function usePostScreenHeader({
       if (!chatScrollRef.current || !postCardRef.current) return;
       const hdr = chatScrollRef.current
         .closest(".screen")
-        ?.querySelector<HTMLElement>(".post-hdr");
+        ?.querySelector<HTMLElement>(".page-header--post");
       const revealLine =
         hdr?.getBoundingClientRect().bottom ??
         chatScrollRef.current.getBoundingClientRect().top;
@@ -154,69 +135,9 @@ export function usePostScreenHeader({
     postMode,
   ]);
 
-  const hasPostMobileTrailing = postHeaderOverflowItems.length > 0;
-
-  useLayoutEffect(() => {
-    if (!post || !mobileSearchOpen || !postHeaderCompact || !showListHeaderSearch) return;
-    const header = postHdrTopRef.current;
-    const left = mobileSearchLeftRef.current;
-    const rightColumn = postHeaderRightRef.current;
-    if (!header || !left || !rightColumn) return;
-
-    const updateSearchSpan = () => {
-      const headerRect = header.getBoundingClientRect();
-      const leftRect = left.getBoundingClientRect();
-      // Якорь справа — «•••», не начало колонки (там spacer под лупу).
-      const rightAnchor = postOverflowWrapRef.current ?? rightColumn;
-      const rightRect = rightAnchor.getBoundingClientRect();
-      header.style.setProperty(
-        "--page-header-search-span-left",
-        `${leftRect.right - headerRect.left}px`,
-      );
-      header.style.setProperty(
-        "--page-header-search-span-right",
-        `${headerRect.right - rightRect.left}px`,
-      );
-    };
-
-    updateSearchSpan();
-    const observer = new ResizeObserver(updateSearchSpan);
-    observer.observe(header);
-    observer.observe(left);
-    observer.observe(rightColumn);
-    const overflowWrap = postOverflowWrapRef.current;
-    if (overflowWrap) observer.observe(overflowWrap);
-    window.addEventListener("resize", updateSearchSpan);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", updateSearchSpan);
-    };
-  }, [post, mobileSearchOpen, postHeaderCompact, showListHeaderSearch, hasPostMobileTrailing]);
-
   const showPostModeButtons = !postHeaderCompact1000;
-  const showPostMobileRight =
-    isMobile &&
-    ((showListHeaderSearch && !mobileSearchOpen) ||
-      hasPostMobileTrailing ||
-      (mobileSearchOpen && hasPostMobileTrailing));
   const showPostTabletOverflow =
-    postHeaderCompact1000 && !isMobile && hasPostMobileTrailing;
-  const showPostTabletSearchToggle =
-    postHeaderCompact && !isMobile && showListHeaderSearch && !mobileSearchOpen;
-  const showPostTabletCompactRight =
-    postHeaderCompact && !isMobile && showListHeaderSearch;
-
-  const rootClassName = buildPostHeaderRootClassName({
-    showListHeaderSearch,
-    postHeaderCompact,
-    mobileSearchOpen,
-  });
-  const rightClassName = buildPostHeaderRightClassName({
-    showPostMobileRight,
-    showPostTabletCompactRight,
-    showPostTabletOverflow,
-    showJump,
-  });
+    postHeaderCompact1000 && !isMobile && postHeaderOverflowItems.length > 0;
 
   return {
     postSubPage,
@@ -225,29 +146,14 @@ export function usePostScreenHeader({
     postIntermediateCrumb,
     showJump,
     postHeaderOverflowItems,
-    mobileSearchOpen,
-    setMobileSearchOpen,
     showPostModeButtons,
-    showPostMobileRight,
     showPostTabletOverflow,
-    showPostTabletSearchToggle,
-    showPostTabletCompactRight,
-    hasPostMobileTrailing,
-    postHdrTopRef,
-    mobileSearchLeftRef,
-    postOverflowWrapRef,
-    postHeaderRightRef,
-    mobileSearchInputRef,
-    mobileSearchWrapRef,
     scrollToPost,
-    rootClassName,
-    rightClassName,
     listSearch,
     setListSearch,
     postMode,
     currentPostChatId,
     activeChat,
-    postHeaderCompact,
   };
 }
 

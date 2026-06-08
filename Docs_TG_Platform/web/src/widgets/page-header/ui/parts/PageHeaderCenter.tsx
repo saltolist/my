@@ -5,6 +5,7 @@ import type { ReactNode, RefObject } from "react";
 type Props = {
   mobileOverlaySearch: boolean;
   compactSearch: boolean;
+  compactSearchOverlay: boolean;
   mobileSearchOpen: boolean;
   expandableSearchContent: ReactNode | null;
   mobileSearchWrapRef: RefObject<HTMLDivElement | null>;
@@ -15,13 +16,18 @@ type Props = {
 export default function PageHeaderCenter({
   mobileOverlaySearch,
   compactSearch,
+  compactSearchOverlay,
   mobileSearchOpen,
   expandableSearchContent,
   mobileSearchWrapRef,
   center,
   search,
 }: Props) {
-  if (mobileOverlaySearch && mobileSearchOpen && expandableSearchContent) {
+  if (
+    mobileSearchOpen &&
+    expandableSearchContent &&
+    (mobileOverlaySearch || (compactSearch && compactSearchOverlay))
+  ) {
     return (
       <>
         <div className="page-header-search-expand" ref={mobileSearchWrapRef}>
