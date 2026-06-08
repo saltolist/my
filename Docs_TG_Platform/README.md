@@ -88,11 +88,12 @@ TG Platform
 
 ### Прочее
 
-- `web/` — production web-клиент (Next.js, static export). Исходники и сборка: [`web/README.md`](./web/README.md), архитектура — [`web/ARCHITECTURE.md`](./web/ARCHITECTURE.md)
+- `frontend/` — production web-клиент (Next.js 16, Tailwind, shadcn/ui, static export). Документация: [`frontend/README.md`](./frontend/README.md), архитектура — [`frontend/ARCHITECTURE.md`](./frontend/ARCHITECTURE.md)
+- `web-legacy/` — архив предыдущего клиента (reference only)
 
 ## Статус проекта
 
-**Web-клиент в разработке** — production frontend в [`web/`](./web/): все основные экраны, FSD-архитектура, полное UI-поведение. Сейчас local-first (in-memory + seed-данные, без backend).
+**Web-клиент** — production frontend в [`frontend/`](./frontend/): все основные экраны, FSD-архитектура, TanStack Query + MSW. Сейчас local-first (MSW + seed-данные, без backend).
 
 **Документация и UX** — концепт, wireframes, [10-pages.md](./concept/10-pages.md), [12-web-client.md](./concept/12-web-client.md).
 

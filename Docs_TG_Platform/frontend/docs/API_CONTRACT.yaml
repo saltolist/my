@@ -1,0 +1,104 @@
+openapi: 3.1.0
+info:
+  title: TG Platform API
+  version: 0.1.0
+  description: REST contract for TG Platform frontend ↔ backend
+
+servers:
+  - url: /api/v1
+
+paths:
+  /posts:
+    get:
+      summary: List all posts
+      responses:
+        "200":
+          description: Post list
+    post:
+      summary: Create post
+      responses:
+        "201":
+          description: Created post
+
+  /posts/reorder:
+    put:
+      summary: Reorder posts
+      responses:
+        "200":
+          description: Updated list
+
+  /posts/{id}:
+    patch:
+      summary: Update post
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+    delete:
+      summary: Delete post
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+
+  /global-chats:
+    get:
+      summary: List global chats
+      responses:
+        "200":
+          description: Chat list
+
+  /global-chats/{id}:
+    patch:
+      summary: Rename chat
+    delete:
+      summary: Delete chat
+
+  /global-chats/{id}/messages:
+    post:
+      summary: Append message to chat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+
+  /global-notes:
+    get:
+      summary: List global notes
+
+  /global-notes/{id}:
+    put:
+      summary: Upsert global note
+    delete:
+      summary: Delete global note
+
+  /profile/channel:
+    get:
+      summary: Get channel profile
+    put:
+      summary: Update channel profile
+
+  /profile/ai:
+    get:
+      summary: Get AI profile settings
+    put:
+      summary: Update AI profile settings
+
+  /profile/telegram:
+    get:
+      summary: Get Telegram integration settings
+    put:
+      summary: Update Telegram settings
+
+  /ai/chat:
+    post:
+      summary: Send AI message (SSE stream — future)
+      description: Stub in frontend; backend implements streaming response
