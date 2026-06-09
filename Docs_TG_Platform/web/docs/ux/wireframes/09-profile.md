@@ -30,7 +30,7 @@
 - Бренд-бук;
 - Конкуренты и референсы.
 
-Полная модель — в [`../concept/05-channel-profile.md`](../concept/05-channel-profile.md).
+Полная модель — в [`05-channel-profile.md`](../../product/05-channel-profile.md).
 
 ## Вкладка `Настройки`
 

@@ -55,56 +55,40 @@ TG Platform
     └── Аналитика платформы
 ```
 
-## Карта документации
+## Документация
 
-### Concept
+**Активная разработка** — в [`web/`](./web/):
 
-- `concept/01-essence.md` - проблема, решение, принципы, позиционирование
-- `concept/02-modules.md` - модули платформы и навигация
-- `concept/03-spaces.md` - пространственная модель (`global` + локальные)
-- `concept/04-ai-system.md` - двухуровневая ИИ-система
-- `concept/04b-ai-system-mempalace.md` - расширение ИИ-архитектуры
-- `concept/05-channel-profile.md` - структура профиля канала
-- `concept/06-analytics.md` - аналитика канала и ИИ
-- `concept/07-notes.md` - модель заметок
-- `concept/08-roadmap.md` - фазы разработки (MVP и далее)
-- `concept/09-user-scenario.md` - сквозной пользовательский сценарий
-- `concept/10-pages.md` - структура страниц **web-клиента** (источник правды для UX)
-- `concept/11-reusable-modules-integration.md` - как TG Platform собирается на базе reusable-modules
-- `concept/12-web-client.md` - web-клиент: назначение, local-first фаза, ограничения, деплой
-- `concept/13-chat-context-summaries.md` - механика сводок канала, summary диалога и лог-чата
+| Раздел | Путь |
+|--------|------|
+| Обзор web-проекта | [`web/README.md`](./web/README.md) |
+| Карта документации | [`web/docs/README.md`](./web/docs/README.md) |
+| Продукт | [`web/docs/product/`](./web/docs/product/) |
+| UX (экраны, wireframes) | [`web/docs/ux/`](./web/docs/ux/) |
+| Engineering | [`web/docs/engineering/`](./web/docs/engineering/) |
 
-### Wireframes
+**Источник правды для экранов:** [`web/docs/ux/pages.md`](./web/docs/ux/pages.md)
 
-- `wireframes/01-home.md` - стартовый экран / глобальный чат
-- `wireframes/02-feed.md` - лента постов
-- `wireframes/03-post.md` - пространство поста
-- `wireframes/04-note.md` - страница заметки
-- `wireframes/05-global-chat.md` - состояние глобального чата
-- `wireframes/06-chats.md` - экран чатов
-- `wireframes/07-notes.md` - каталог заметок
-- `wireframes/08-analytics.md` - аналитика канала
-- `wireframes/09-profile.md` - профиль (канал/настройки/аналитика платформы)
+## Legacy-клиенты
 
-### Прочее
+| Путь | Роль |
+|------|------|
+| [`web-legacy/`](./web-legacy/) | первый прототип, reference only |
+| [`frontend/`](./frontend/) | клиент v1 |
+| [`frontend-v2/`](./frontend-v2/) | зачаток v2 |
 
-- `frontend/` — production web-клиент (Next.js 16, Tailwind, shadcn/ui, static export). Документация: [`frontend/README.md`](./frontend/README.md), архитектура — [`frontend/ARCHITECTURE.md`](./frontend/ARCHITECTURE.md)
-- `web-legacy/` — архив предыдущего клиента (reference only)
+Код клиентов остаётся на месте до миграции в `web/src/`.
 
 ## Статус проекта
 
-**Web-клиент** — production frontend в [`frontend/`](./frontend/): все основные экраны, FSD-архитектура, TanStack Query + MSW. Сейчас local-first (MSW + seed-данные, без backend).
+**Сейчас:** документация и проектирование новой web-версии в [`web/docs/`](./web/docs/).
 
-**Документация и UX** — концепт, wireframes, [10-pages.md](./concept/10-pages.md), [12-web-client.md](./concept/12-web-client.md).
+**Следующий этап** — реализация UI в `web/` по [roadmap](./web/docs/product/08-roadmap.md):
 
-**Следующий этап** — backend и интеграции по [roadmap](./concept/08-roadmap.md):
-
-1. API, persistence, Telegram MTProto
-2. Реальные LLM-провайдеры
-3. Публикация постов в канал
-4. Синхронизация и multi-user (self-hosted)
-
-UI опережает backend: лента, пространство поста, профиль, глобальный и локальный ИИ уже реализованы на фронте.
+1. Local-first клиент (MSW + seed)
+2. API, persistence, Telegram MTProto
+3. Реальные LLM-провайдеры
+4. Публикация постов, синхронизация, multi-user
 
 ## Кому подойдет
 

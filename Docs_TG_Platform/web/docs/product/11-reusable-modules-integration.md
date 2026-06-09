@@ -145,10 +145,10 @@
 
 ## Как это влияет на текущую документацию TG Platform
 
-- `concept/02-modules.md` описывает продуктовые модули интерфейса.
+- `web/docs/product/02-modules.md` описывает продуктовые модули интерфейса.
 - Этот документ (`11-reusable-modules-integration.md`) описывает системный слой реализации.
-- `concept/04-ai-system.md` и `concept/04b-ai-system-mempalace.md` становятся прикладной проекцией `Memory & Context Engine`.
-- `concept/06-analytics.md` и `wireframes/08-analytics.md` должны опираться на `TG Feed Sync & Analytics Layer`.
+- `web/docs/product/04-ai-system.md` и `web/docs/product/04b-ai-system-mempalace.md` становятся прикладной проекцией `Memory & Context Engine`.
+- `web/docs/product/06-analytics.md` и `web/docs/ux/wireframes/08-analytics.md` должны опираться на `TG Feed Sync & Analytics Layer`.
 
 ---
 

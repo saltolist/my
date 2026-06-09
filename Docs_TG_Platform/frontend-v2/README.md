@@ -58,7 +58,7 @@ UI v2 (своя реализация):
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — FSD, data flow
 - [docs/BACKEND_READINESS.md](./docs/BACKEND_READINESS.md)
 - [docs/API_CONTRACT.yaml](./docs/API_CONTRACT.yaml)
-- Product spec: [`../concept/10-pages.md`](../concept/10-pages.md)
+- Product spec: [`../web/docs/ux/pages.md`](../web/docs/ux/pages.md)
 
 ## Связь с другими клиентами
 

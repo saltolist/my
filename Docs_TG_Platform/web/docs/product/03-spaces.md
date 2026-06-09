@@ -104,5 +104,5 @@
 - [02-modules.md](./02-modules.md) — обзор модулей и навигации в web-клиенте
 - [04-ai-system.md](./04-ai-system.md) — двухуровневая ИИ-система
 - [05-channel-profile.md](./05-channel-profile.md) — структура «знаний» глобального пространства
-- [10-pages.md](./10-pages.md) — детальное описание экранов
+- [pages.md](../ux/pages.md) — детальное описание экранов
 - [07-notes.md](./07-notes.md) — модель заметок
