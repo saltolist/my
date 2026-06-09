@@ -1,8 +1,16 @@
+"use client";
+
+import { PlaceholderScreen } from "@/screens/_ui/placeholder-screen";
+
 export function HomeScreen() {
   return (
-    <main className="flex min-h-full flex-1 flex-col items-center justify-center p-8">
-      <h1 className="text-2xl font-semibold tracking-tight">TG Platform</h1>
-      <p className="mt-2 text-muted-foreground">Foundation scaffold — M1</p>
-    </main>
+    <PlaceholderScreen
+      title="Чем помочь сегодня?"
+      subtitle="Composer и глобальный ИИ-чат — следующий шаг (M2+)."
+    >
+      <div className="rounded-2xl border border-dashed border-border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
+        Поле ввода (Composer) появится здесь
+      </div>
+    </PlaceholderScreen>
   );
 }
