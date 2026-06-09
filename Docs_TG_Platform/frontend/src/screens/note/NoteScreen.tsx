@@ -156,6 +156,14 @@ export function NoteScreen() {
     }
   }, [ai, body, files, posts, router, sourceNote, title, updatePost, upsertGlobal]);
 
+  const handleCancel = useCallback(() => {
+    if (!sourceNote) return;
+    setTitle(sourceNote.title);
+    setBody(sourceNote.body);
+    setAi(sourceNote.ai);
+    setFiles(sourceNote.files ?? []);
+  }, [sourceNote]);
+
   const handleDelete = useCallback(async () => {
     if (!sourceNote || sourceNote.isNew) return;
     if (!confirm("Удалить заметку?")) return;
@@ -191,12 +199,14 @@ export function NoteScreen() {
         body={body}
         ai={ai}
         files={files}
+        isNew={sourceNote.isNew}
         date={sourceNote.date}
         onTitleChange={setTitle}
         onBodyChange={setBody}
         onAiChange={setAi}
         onFilesChange={setFiles}
         onSave={() => void handleSave()}
+        onCancel={handleCancel}
         onDelete={sourceNote.isNew ? undefined : () => void handleDelete()}
         baselineSnapshot={baseline}
       />

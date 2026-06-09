@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { SmartphoneIcon } from "lucide-react";
 
 import { useTelegramProfile } from "@/entities/channel/model/useProfile";
@@ -8,6 +9,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { Input } from "@/shared/ui/input";
 import { PasswordToggle } from "@/shared/ui/password-toggle";
 import { Label } from "@/shared/ui/label";
+import { TelegramCodeInput } from "@/widgets/profile-settings/ui/telegram-code-input";
+import { TelegramPhoneInput } from "@/widgets/profile-settings/ui/telegram-phone-input";
+import { TelegramResendCode } from "@/widgets/profile-settings/ui/telegram-resend-code";
 
 const authStatusLabel: Record<TelegramAuthStatus, string> = {
   idle: "Не подключено",
@@ -18,6 +22,9 @@ const authStatusLabel: Record<TelegramAuthStatus, string> = {
 
 export function TelegramAuthSection() {
   const { data: telegramProfile } = useTelegramProfile();
+  const phone = telegramProfile?.phone ?? "";
+  const authStatus = telegramProfile?.authStatus ?? "idle";
+  const [code, setCode] = useState("");
 
   return (
     <Card>
@@ -39,8 +46,19 @@ export function TelegramAuthSection() {
           </div>
           <div className="grid gap-1.5">
             <Label>Телефон</Label>
-            <Input readOnly value={telegramProfile?.phone ?? "—"} />
+            {phone ? (
+              <TelegramPhoneInput readOnly value={phone} onChange={() => undefined} />
+            ) : (
+              <Input readOnly value="—" />
+            )}
           </div>
+          {authStatus === "code-sent" ? (
+            <div className="grid gap-1.5 sm:col-span-2">
+              <Label>Код подтверждения</Label>
+              <TelegramCodeInput value={code} onChange={setCode} onDismiss={() => setCode("")} />
+              <TelegramResendCode secondsLeft={42} onResend={() => undefined} />
+            </div>
+          ) : null}
           <div className="grid gap-1.5">
             <Label>API ID</Label>
             <Input readOnly value={telegramProfile?.apiId ?? "—"} />

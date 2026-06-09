@@ -27,7 +27,7 @@ Parity tracker vs [10-pages.md](../concept/10-pages.md).
 | `FeedCardWidthToggle` | closed | `shared/ui/feed-card-width-toggle` → `widgets/feed/ui/feed-search-bar` |
 | `MultiReplyToggle` | closed | `shared/ui/multi-reply-toggle` → `widgets/composer/ui/composer-controls` |
 | PageHeader center search | closed | `PageHeader.center` + `FeedSearchBar` in `screens/feed` |
-| Component extraction | closed | Primitives in `shared/ui`, entities/widgets split per FSD; see `docs/COMPONENT_MAP.md` |
+| Component extraction | closed | Full parity: note embeds DnD, error boundaries, telegram inputs, inline helpers extracted; see `docs/COMPONENT_MAP.md` |
 
 ## Known limits (local-first)
 

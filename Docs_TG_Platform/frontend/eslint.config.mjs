@@ -66,6 +66,13 @@ const config = [
       "react-hooks/set-state-in-effect": "off",
     },
   },
+  {
+    files: ["src/widgets/note-editor/**/*.{ts,tsx}"],
+    rules: {
+      // Ported embed DnD hooks intentionally sync refs for pointer/drag sessions
+      "react-hooks/refs": "off",
+    },
+  },
 ];
 
 export default config;

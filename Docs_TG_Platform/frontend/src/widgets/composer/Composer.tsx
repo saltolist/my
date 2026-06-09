@@ -2,19 +2,24 @@
 
 import { useUiStore } from "@/app/model/store/ui-store";
 import { useAttachFile, useAttachMedia, useAttachPost } from "@/features/attach-to-message";
-import type { ComposerScope } from "@/shared/types";
 
+import {
+  COMPOSER_DEFAULT_PLACEHOLDER,
+  composerMaxRows,
+  composerMenuSide,
+  composerStoreScope,
+  type ComposerAttachScope,
+} from "./model/composer-constants";
 import { useComposerInput } from "./model/useComposerInput";
 import { useComposerModels } from "./model/useComposerModels";
-import { AttachmentChips } from "./ui/attachment-chips";
 import { ComposerControls } from "./ui/composer-controls";
-import { ComposerMentionDropdown } from "./ui/composer-mention-dropdown";
+import { ComposerHiddenFileInput } from "./ui/composer-hidden-file-input";
+import { ComposerInputArea } from "./ui/composer-input-area";
 import { ComposerShell } from "./ui/composer-shell";
-import { ComposerTextarea } from "./ui/composer-textarea";
 import { ComposerToolbar } from "./ui/composer-toolbar";
 import { SendButton } from "./ui/send-button";
 
-export type ComposerAttachScope = ComposerScope | "feed";
+export type { ComposerAttachScope };
 
 type ComposerProps = {
   scope: ComposerAttachScope;
@@ -25,17 +30,15 @@ type ComposerProps = {
   postId?: number;
 };
 
-const DEFAULT_PLACEHOLDER = "Сообщение... введите @ чтобы прикрепить пост";
-
 export function Composer({
   scope,
   onSubmit,
-  placeholder = DEFAULT_PLACEHOLDER,
+  placeholder = COMPOSER_DEFAULT_PLACEHOLDER,
   className,
   disabled = false,
   postId,
 }: ComposerProps) {
-  const storeScope: ComposerScope = scope === "feed" ? "home" : scope;
+  const storeScope = composerStoreScope(scope);
   const removeAttachment = useUiStore((s) => s.removeComposerAttachment);
   const clearAttachments = useUiStore((s) => s.clearComposerAttachments);
 
@@ -44,63 +47,40 @@ export function Composer({
   const { currentPostMedia, attachedPostMedia, attachMedia } = useAttachMedia(storeScope, postId);
 
   const models = useComposerModels();
-  const {
-    text,
-    mentionOpen,
-    textareaRef,
-    handleSubmit,
-    handleAttachPost,
-    handleTextChange,
-    handleKeyDown,
-  } = useComposerInput({
-    storeScope,
-    disabled,
-    onSubmit,
-    clearAttachments,
-    attachPost,
-  });
-
-  const maxRows = scope === "home" ? 10 : 16;
-  const menuSide = scope === "home" ? "bottom" : "top";
+  const input = useComposerInput({ storeScope, disabled, onSubmit, clearAttachments, attachPost });
 
   return (
     <ComposerShell className={className}>
-      <AttachmentChips
+      <ComposerInputArea
         attachments={attachments}
-        onRemove={(id) => removeAttachment(storeScope, id)}
+        onRemoveAttachment={(id) => removeAttachment(storeScope, id)}
+        textareaRef={input.textareaRef}
+        text={input.text}
+        onTextChange={input.handleTextChange}
+        onKeyDown={input.handleKeyDown}
+        placeholder={placeholder}
+        disabled={disabled}
+        maxRows={composerMaxRows(scope)}
+        mentionOpen={input.mentionOpen}
+        attachablePosts={attachablePosts}
+        onAttachPost={input.handleAttachPost}
       />
-
-      <div className="relative">
-        <ComposerTextarea
-          ref={textareaRef}
-          value={text}
-          onChange={handleTextChange}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          disabled={disabled}
-          maxRows={maxRows}
-        />
-        {mentionOpen ? (
-          <ComposerMentionDropdown posts={attachablePosts} onSelect={handleAttachPost} />
-        ) : null}
-      </div>
-
       <ComposerToolbar
         sendButton={
           <SendButton
-            onClick={() => void handleSubmit()}
-            disabled={disabled || !text.trim()}
+            onClick={() => void input.handleSubmit()}
+            disabled={disabled || !input.text.trim()}
           />
         }
       >
         <ComposerControls
           scope={scope}
-          menuSide={menuSide}
+          menuSide={composerMenuSide(scope)}
           attachablePosts={attachablePosts}
           currentPostMedia={currentPostMedia}
           attachedPostMedia={attachedPostMedia}
           onAttachFile={triggerFilePicker}
-          onAttachPost={handleAttachPost}
+          onAttachPost={input.handleAttachPost}
           onAttachMedia={attachMedia}
           llmOptions={models.llmOptions}
           llmId={models.llmId}
@@ -113,14 +93,7 @@ export function Composer({
           onMultiReplyChange={models.setMultiReply}
         />
       </ComposerToolbar>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        className="hidden"
-        accept="image/*,video/*,.pdf,.doc,.docx"
-        onChange={handleFileInputChange}
-      />
+      <ComposerHiddenFileInput inputRef={fileInputRef} onChange={handleFileInputChange} />
     </ComposerShell>
   );
 }

@@ -21,7 +21,7 @@ Where each UI slice and feature hook is consumed. Paths relative to `src/`.
 | `shared/ui/dropdown-menu` | `DropdownMenu`, … | `shared/ui/context-menu-button`, `shared/ui/filter-tabs`, `shared/ui/model-picker`, `widgets/composer` |
 | `shared/ui/empty-section` | `EmptySection` | `widgets/feed/ui/feed-section` (internal) |
 | `shared/ui/empty-state` | `EmptyState` | `screens/chats`, `screens/notes` |
-| `shared/ui/error-fallback` | `ErrorFallback` | — (gallery) |
+| `shared/ui/error-fallback` | `ErrorFallback` | `app/error`, `app/(shell)/error` |
 | `shared/ui/feed-card-width-toggle` | `FeedCardWidthToggle` | `widgets/feed/ui/feed-search-bar` |
 | `shared/ui/filter-tabs` | `FilterTabs` | `screens/chats`, `screens/notes`, `widgets/analytics-dashboard` |
 | `shared/ui/icon-button` | `IconButton` | `widgets/composer`, `widgets/page-header` |
@@ -83,7 +83,21 @@ Where each UI slice and feature hook is consumed. Paths relative to `src/`.
 | `widgets/feed/ui/feed-search-bar` | `FeedSearchBar` | `screens/feed` |
 | `widgets/feed/ui/feed-section` | `FeedSection` | `widgets/feed` (internal) |
 | `widgets/note-editor` | `NoteEditor` | `screens/note` |
-| `widgets/note-editor/ui/*` | body editor, toolbar, files | `widgets/note-editor` (internal) |
+| `widgets/note-editor/ui/note-body-editor` | `NoteBodyEditor` | `widgets/note-editor` (embed canvas + DnD) |
+| `widgets/note-editor/ui/note-ai-panel` | `NoteAiPanel` | `widgets/note-editor` |
+| `widgets/note-editor/ui/noteBodyEditor/*` | canvas, cells, drag preview | `note-body-editor` (internal) |
+| `widgets/note-editor/ui/*` | toolbar, files, hidden input | `widgets/note-editor` (internal) |
+| `widgets/page-header/ui/mode-cluster` | `ModeCluster` | `post-mode-switch` (internal) |
+| `widgets/sidebar/ui/sidebar-inner` | `SidebarInner` | `Sidebar` (internal) |
+| `widgets/sidebar/ui/sidebar-fallback` | `SidebarFallback` | `Sidebar` (internal) |
+| `widgets/sidebar/ui/sidebar-recent-section` | `SidebarRecentSection` | `SidebarRecentList` (internal) |
+| `widgets/profile-settings/ui/telegram-phone-input` | `TelegramPhoneInput` | `telegram-auth-section` |
+| `widgets/profile-settings/ui/telegram-code-input` | `TelegramCodeInput` | `telegram-auth-section` (code-sent) |
+| `widgets/profile-settings/ui/telegram-resend-code` | `TelegramResendCode` | `telegram-auth-section` (code-sent) |
+| `widgets/composer/ui/composer-input-area` | `ComposerInputArea` | `Composer` (internal) |
+| `widgets/composer/ui/composer-hidden-file-input` | `ComposerHiddenFileInput` | `Composer` (internal) |
+| `shared/lib/truncate` | `truncate` | `screens/home` |
+| `shared/lib/format-telegram-phone` | `formatTelegramPhoneInput` | `telegram-phone-input` |
 | `widgets/page-header/ui/PageHeader` | `PageHeader` | All `screens/*` |
 | `widgets/page-header/ui/page-header-center` | `PageHeaderCenter` | `widgets/page-header` (internal) |
 | `widgets/page-header/ui/page-header-menu-button` | `PageHeaderMenuButton` | `widgets/post-workspace` |

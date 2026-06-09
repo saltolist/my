@@ -1,0 +1,58 @@
+"use client";
+
+import { useNoteBodyEmbedDrag } from "@/widgets/note-editor/model/noteBodyEditor/useNoteBodyEmbedDrag";
+import { useNoteBodyLines } from "@/widgets/note-editor/model/noteBodyEditor/useNoteBodyLines";
+import { useNoteBodyViewMode } from "@/widgets/note-editor/model/noteBodyEditor/useNoteBodyViewMode";
+import type { NoteBodyEditorProps } from "@/widgets/note-editor/ui/noteBodyEditor/types";
+
+export function useNoteBodyEditor({
+  body,
+  files,
+  isView,
+  onBodyChange,
+  onAddFile,
+  onEditRequest,
+  focusRequest = 0,
+}: NoteBodyEditorProps) {
+  const lines = useNoteBodyLines({ body, files, isView, onBodyChange });
+
+  const drag = useNoteBodyEmbedDrag({
+    canvasRef: lines.canvasRef,
+    linesRef: lines.linesRef,
+    filesRef: lines.filesRef,
+    lines: lines.lines,
+    applyLines: lines.applyLines,
+    isView,
+    onAddFile,
+  });
+
+  const viewMode = useNoteBodyViewMode({
+    canvasRef: lines.canvasRef,
+    isView,
+    focusRequest,
+    onEditRequest,
+  });
+
+  return {
+    canvasRef: lines.canvasRef,
+    lines: lines.lines,
+    files: lines.files,
+    isView,
+    isDragging: drag.isDragging,
+    hasContent: lines.hasContent,
+    dragFrom: drag.dragFrom,
+    dropBefore: drag.dropBefore,
+    imageDropSlot: drag.imageDropSlot,
+    dropLineBefore: drag.dropLineBefore,
+    dropGapActive: drag.dropGapActive,
+    dropLineBeforeActive: drag.dropLineBeforeActive,
+    draggedEmbedCell: drag.draggedEmbedCell,
+    dragFloatMountRef: drag.dragFloatMountRef,
+    applyLines: lines.applyLines,
+    handleTextEnter: lines.handleTextEnter,
+    beginEmbedPointerDrag: drag.beginEmbedPointerDrag,
+    handleCanvasDragOver: drag.handleCanvasDragOver,
+    handleViewMouseDown: viewMode.handleViewMouseDown,
+    handleViewDoubleClick: viewMode.handleViewDoubleClick,
+  };
+}

@@ -1,11 +1,11 @@
 "use client";
 
-import { MessageSquare, NotebookPen, PlusIcon } from "lucide-react";
+import { MessageSquare, NotebookPen } from "lucide-react";
 
 import { cn } from "@/shared/lib/utils";
 import type { PostMode } from "@/shared/types";
 import { Button } from "@/shared/ui/button";
-import { IconButton } from "@/shared/ui/icon-button";
+import { ModeCluster } from "@/widgets/page-header/ui/mode-cluster";
 
 export type PostModeSwitchProps = {
   mode: PostMode;
@@ -15,37 +15,6 @@ export type PostModeSwitchProps = {
   onNewChat?: () => void;
   className?: string;
 };
-
-type ModeClusterProps = {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-  onAdd?: () => void;
-  addLabel?: string;
-  icon?: React.ReactNode;
-};
-
-function ModeCluster({ label, active, onClick, onAdd, addLabel, icon }: ModeClusterProps) {
-  return (
-    <div className="flex items-center gap-0.5">
-      <Button
-        type="button"
-        variant={active ? "secondary" : "ghost"}
-        size="sm"
-        onClick={onClick}
-        className="gap-1.5"
-      >
-        {icon}
-        {label}
-      </Button>
-      {active && onAdd ? (
-        <IconButton aria-label={addLabel ?? "Добавить"} onClick={onAdd}>
-          <PlusIcon className="size-3.5" />
-        </IconButton>
-      ) : null}
-    </div>
-  );
-}
 
 export function PostModeSwitch({
   mode,

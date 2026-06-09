@@ -1,22 +1,28 @@
-# widgets/note-editor
+# Note editor widget
 
-Full-page note editor for global and post-scoped notes.
+Rich note editor with inline embeds, image grids, and pointer/drag DnD.
 
 ## Structure
 
 ```
 note-editor/
-├── NoteEditor.tsx              # orchestrator: dirty state, file pick
-├── ui/
-│   ├── note-header-toolbar.tsx # title, attach, save, delete
-│   ├── note-body-editor.tsx    # AI toggle + textarea (embed UI later)
-│   ├── note-files-panel.tsx    # attachment list
-│   └── note-embed-drag-preview.tsx  # stub for inline embed DnD
-└── index.ts
+├── NoteEditor.tsx              # orchestrator (view/edit, AI panel, files)
+├── model/
+│   ├── useNoteEditorState.ts   # view/edit mode, file pick, cancel
+│   ├── useNoteBodyEditor.ts    # composes lines + drag + view mode hooks
+│   └── noteBodyEditor/         # embed DnD state machine (ported from legacy)
+└── ui/
+    ├── note-body-editor.tsx    # canvas + drag float portal
+    ├── note-ai-panel.tsx       # AI context toggle
+    ├── note-header-toolbar.tsx # title, save, view/edit, attach
+    ├── note-files-panel.tsx    # draggable file list → body embeds
+    ├── note-hidden-file-input.tsx
+    └── noteBodyEditor/         # NoteBodyCanvas, NoteBodyCell, ImageGridLine, …
 ```
 
-Body editing is a plain textarea for now; rich embed UI will land in a later phase.
+## Embed DnD
 
-## Props
-
-Controlled component: parent owns `title`, `body`, `ai`, `files` and save/delete handlers. `baselineSnapshot` enables save button gating via `buildNoteSnapshot`.
+- Drop files from `NoteFilesPanel` into body (`application/x-note-embed` MIME)
+- Reorder embeds via pointer drag (edit + view modes)
+- Image rows auto-layout in 3-column grid
+- Styles: `src/app/note-body.css`

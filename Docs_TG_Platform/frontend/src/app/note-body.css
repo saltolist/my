@@ -1,0 +1,299 @@
+/* Note body editor — inline embeds, image grids, drag-and-drop */
+
+:root {
+  --note-embed-image-max-w: 400px;
+  --note-embed-image-gap: 8px;
+  --note-text: var(--foreground);
+  --note-muted: var(--muted-foreground);
+  --note-accent: var(--primary);
+  --note-radius: var(--radius);
+}
+
+.note-body-view {
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--note-text);
+  white-space: pre-wrap;
+  min-height: 20rem;
+}
+.note-body-view--rich {
+  white-space: pre-wrap;
+}
+.note-body-canvas {
+  min-height: 20rem;
+}
+.note-body-edit-canvas {
+  min-height: 20rem;
+}
+.note-body-empty {
+  color: var(--note-muted);
+  font-size: 15px;
+}
+.note-body-line {
+  width: 100%;
+  line-height: 1.85;
+  min-height: 1.85em;
+}
+.note-body-line--text {
+  display: block;
+  position: relative;
+}
+.note-body-line--embed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  position: relative;
+}
+.note-embed-image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--note-embed-image-gap);
+  width: 100%;
+  max-width: calc(3 * var(--note-embed-image-max-w) + 2 * var(--note-embed-image-gap));
+  align-items: start;
+  position: relative;
+}
+.note-embed-drop-lead-abs,
+.note-embed-grid-drop-lead-abs {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.note-embed-drop-lead-abs .note-embed-drop-indicator--horizontal,
+.note-embed-grid-drop-lead-abs .note-embed-drop-indicator--horizontal {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100% !important;
+  flex: none !important;
+  height: 3px;
+  margin: 0 !important;
+  transform: translateY(-50%);
+}
+.note-body-canvas--dragging .note-embed-image-grid .note-body-cell--embed,
+.note-body-canvas--dragging .note-embed-image-grid .note-embed-image-slot {
+  transition: none;
+}
+.note-body-canvas--dragging {
+  user-select: none;
+}
+.note-embed-drop-indicator {
+  pointer-events: none;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  background: var(--note-accent);
+  border-radius: 2px;
+}
+.note-embed-drop-indicator--horizontal {
+  width: 100%;
+  flex: 0 0 auto;
+  height: 3px;
+  margin: 12px 0;
+}
+.note-embed-drop-indicator--vertical {
+  width: 3px;
+  min-height: 40px;
+  align-self: center;
+  margin: 0 8px;
+}
+.note-body-line--embed:not(.note-embed-image-grid) .note-embed-drop-indicator--vertical {
+  min-height: 56px;
+}
+.note-embed-drag-float {
+  position: fixed;
+  z-index: 10050;
+  pointer-events: none;
+  border-radius: var(--note-radius);
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16);
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.note-embed-drag-float-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 8px;
+}
+.note-embed-drag-float-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: calc(var(--note-radius) - 2px);
+}
+.note-embed-drag-float-code {
+  font-size: 14px;
+  color: var(--note-text);
+  word-break: break-all;
+  text-align: center;
+}
+.note-body-cell--drag-lifted {
+  opacity: 0 !important;
+}
+.note-body-cell--drop-placeholder {
+  visibility: hidden;
+  pointer-events: none;
+}
+.note-body-canvas--dragging .note-embed-image-grid .note-body-cell--drop-placeholder {
+  visibility: visible !important;
+  width: 4px !important;
+  min-width: 4px !important;
+  max-width: 4px !important;
+  height: auto !important;
+  align-self: stretch;
+  min-height: 48px;
+  padding: 0 !important;
+  margin: 0 8px !important;
+  overflow: hidden !important;
+  background: var(--note-accent) !important;
+  border-radius: 2px !important;
+}
+.note-body-canvas--dragging .note-embed-image-grid .note-body-cell--drop-placeholder .note-inline-image,
+.note-body-canvas--dragging .note-embed-image-grid .note-body-cell--drop-placeholder .note-embed-chip {
+  display: none !important;
+}
+.note-body-cell {
+  display: inline-flex;
+  align-items: baseline;
+  max-width: 100%;
+}
+.note-body-line--text .note-body-cell--text {
+  display: block;
+  width: 100%;
+}
+.note-body-line--text .note-body-text,
+.note-body-line--text .note-body-line-edit {
+  display: block;
+  width: 100%;
+}
+.note-body-cell--embed {
+  position: relative;
+  flex: 0 0 auto;
+}
+.note-body-cell--embed-draggable {
+  cursor: grab;
+}
+.note-body-cell--embed-draggable:active {
+  cursor: grabbing;
+}
+.note-body-cell--embed-draggable .note-inline-image,
+.note-body-cell--embed-draggable .note-embed-md {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.note-body-text {
+  white-space: pre-wrap;
+  display: block;
+}
+.note-body-line-edit {
+  display: block;
+  width: 100%;
+  min-width: 2ch;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  color: var(--note-text);
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.85;
+  padding: 0;
+  resize: none;
+  overflow: hidden;
+}
+.note-body-line-edit:focus {
+  outline: none;
+}
+.note-embed-image-grid .note-body-cell--embed {
+  display: block;
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.note-embed-image-grid .note-inline-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+  margin: 0;
+  border-radius: var(--note-radius);
+  border: 1px solid var(--border);
+}
+.note-embed-image-grid .note-embed-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  box-sizing: border-box;
+  padding: 8px;
+}
+.note-embed-image-grid .note-embed-image-slot--empty {
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 2 / 1;
+  height: auto;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+.note-body-line--embed:not(.note-embed-image-grid) .note-body-cell--embed:has(.note-inline-image) {
+  flex: 0 0 25%;
+  max-width: 25%;
+  box-sizing: border-box;
+}
+.note-body-line--embed:not(.note-embed-image-grid) .note-inline-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin: 2px 0;
+  border-radius: var(--note-radius);
+  border: 1px solid var(--border);
+  vertical-align: bottom;
+}
+.note-embed-chip {
+  display: inline-block;
+  color: var(--note-accent);
+  font-size: 14px;
+  line-height: 1.85;
+}
+.note-embed-chip a {
+  color: inherit;
+  text-decoration: none;
+}
+.note-embed-chip a:hover {
+  text-decoration: underline;
+}
+.note-embed-md {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 14px;
+  color: var(--note-accent);
+  background: color-mix(in oklch, var(--note-accent) 10%, transparent);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.note-files-hint {
+  margin: 0 0 8px;
+  font-size: 11px;
+  color: var(--note-muted);
+  line-height: 1.4;
+}
+.note-file-item--draggable {
+  cursor: grab;
+}
+.note-file-item--draggable:active {
+  cursor: grabbing;
+}

@@ -9,13 +9,8 @@ import {
 } from "@/entities/chat/model/useGlobalChats";
 import { getAiProvider } from "@/shared/lib/ai";
 import { routes } from "@/shared/lib/routes";
+import { truncate } from "@/shared/lib/truncate";
 import { Composer } from "@/widgets/composer";
-
-function truncate(text: string, max: number): string {
-  const t = text.trim();
-  if (t.length <= max) return t;
-  return `${t.slice(0, max - 1)}…`;
-}
 
 export function HomeScreen() {
   const router = useRouter();

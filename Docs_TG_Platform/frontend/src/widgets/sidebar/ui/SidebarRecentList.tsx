@@ -1,11 +1,10 @@
 "use client";
 
-import type { ReactNode } from "react";
-
 import {
   SidebarRecentRow,
   type SidebarRecentRowItem,
 } from "@/widgets/sidebar/ui/sidebar-recent-row";
+import { SidebarRecentSection } from "@/widgets/sidebar/ui/sidebar-recent-section";
 
 type SidebarRecentListProps = {
   items: SidebarRecentRowItem[];
@@ -16,25 +15,12 @@ type SidebarRecentListProps = {
   menuItems?: (item: SidebarRecentRowItem) => { label: string; onClick: () => void }[];
 };
 
-function Section({ title, children }: { title?: string; children: ReactNode }) {
-  return (
-    <div className="space-y-0.5">
-      {title ? (
-        <p className="px-2 py-1 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
-          {title}
-        </p>
-      ) : null}
-      {children}
-    </div>
-  );
-}
-
 export function SidebarRecentList({ items, grouped, menuItems }: SidebarRecentListProps) {
   if (grouped) {
     return (
       <div className="space-y-2 pl-7">
         {grouped.thisPost.length > 0 ? (
-          <Section title="Этот пост">
+          <SidebarRecentSection title="Этот пост">
             {grouped.thisPost.map((item) => (
               <SidebarRecentRow
                 key={item.key}
@@ -42,10 +28,10 @@ export function SidebarRecentList({ items, grouped, menuItems }: SidebarRecentLi
                 menuItems={menuItems?.(item)}
               />
             ))}
-          </Section>
+          </SidebarRecentSection>
         ) : null}
         {grouped.others.length > 0 ? (
-          <Section title="Остальные">
+          <SidebarRecentSection title="Остальные">
             {grouped.others.map((item) => (
               <SidebarRecentRow
                 key={item.key}
@@ -53,7 +39,7 @@ export function SidebarRecentList({ items, grouped, menuItems }: SidebarRecentLi
                 menuItems={menuItems?.(item)}
               />
             ))}
-          </Section>
+          </SidebarRecentSection>
         ) : null}
       </div>
     );
