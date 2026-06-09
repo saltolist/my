@@ -47,7 +47,7 @@
 
 | Документ | Содержание |
 |----------|------------|
-| [stack.md](./engineering/stack.md) | **Стек** — наследие `frontend-v2` |
+| [stack.md](./engineering/stack.md) | **Стек** — `web/src/`, стилевая стратегия (tokens + shell CSS) |
 | [architecture.md](./engineering/architecture.md) | FSD, data flow |
 | [data-model.md](./engineering/data-model.md) | Доменная модель |
 | [routing.md](./engineering/routing.md) | URL, query, navigation |

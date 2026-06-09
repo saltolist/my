@@ -14,7 +14,7 @@ type AppProvidersProps = {
 export function AppProviders({ children }: AppProvidersProps) {
   return (
     <MswProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <ThemeProvider>
         <QueryProvider>
           <RepositoryProvider>
             <TooltipProvider delay={0}>{children}</TooltipProvider>

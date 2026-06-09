@@ -1,15 +1,81 @@
 "use client";
 
-import { useGlobalNotes } from "@/entities/note";
-import { DataStatus } from "@/screens/_ui/data-status";
-import { PlaceholderScreen } from "@/screens/_ui/placeholder-screen";
+import { useMemo, useState } from "react";
+import { FileText } from "lucide-react";
+
+import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
+import type { NoteListFilter } from "@/shared/types";
+import { EmptyState } from "@/shared/ui/empty-state";
+import { ScreenShell } from "@/screens/_ui/screen-shell";
+import { PageHeader, PageHeaderSearchInput, PageHeaderSelect } from "@/widgets/page-header";
+
+const SCOPE_OPTIONS = [
+  { value: "all" as const, label: "Все" },
+  { value: "global" as const, label: "Глобальные" },
+  { value: "local" as const, label: "Локальные" },
+];
+
+const FILTER_OPTIONS = [
+  { value: "all" as const, label: "Все" },
+  { value: "ai" as const, label: "В контексте" },
+  { value: "noai" as const, label: "Не в контексте" },
+];
 
 export function NotesScreen() {
-  const { data, isLoading, error } = useGlobalNotes();
+  const isMobile = useMobile760();
+  const [scope, setScope] = useState<(typeof SCOPE_OPTIONS)[number]["value"]>("all");
+  const [filter, setFilter] = useState<NoteListFilter>("all");
+  const [search, setSearch] = useState("");
+
+  const notesScopeSelectProps = useMemo(
+    () => ({
+      ariaLabel: "Область заметок",
+      value: scope,
+      options: SCOPE_OPTIONS,
+      onChange: (v: string) => setScope(v as (typeof SCOPE_OPTIONS)[number]["value"]),
+    }),
+    [scope],
+  );
+
+  const notesContextFilterSelectProps = useMemo(
+    () => ({
+      ariaLabel: "Контекст заметок",
+      value: filter,
+      options: FILTER_OPTIONS,
+      onChange: (v: string) => setFilter(v as NoteListFilter),
+    }),
+    [filter],
+  );
 
   return (
-    <PlaceholderScreen title="Заметки" subtitle="Каталог глобальных и локальных заметок — M3+.">
-      <DataStatus loading={isLoading} error={error} count={data?.length} label="глобальных заметок" />
-    </PlaceholderScreen>
+    <ScreenShell
+      header={
+        <PageHeader
+          title="Заметки"
+          backTo="home"
+          mobileSelect={
+            isMobile ? <PageHeaderSelect {...notesContextFilterSelectProps} /> : undefined
+          }
+          search={
+            <div className="page-header-search-tools-row">
+              <PageHeaderSearchInput
+                placeholder="Поиск по заметкам..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onDismiss={() => setSearch("")}
+              />
+              <div className="page-header-scope-select page-header-toolbar--desktop">
+                <PageHeaderSelect {...notesScopeSelectProps} />
+              </div>
+            </div>
+          }
+        />
+      }
+    >
+      <EmptyState
+        icon={<FileText className="size-5" />}
+        message="Сетка заметок появится на следующем шаге."
+      />
+    </ScreenShell>
   );
 }

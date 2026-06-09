@@ -1,28 +1,36 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { MessageSquare } from "lucide-react";
+
+import { useNavigationStore } from "@/app/model/store";
 import { useGlobalChat } from "@/entities/chat";
-import { parseGChatSearchParam } from "@/shared/lib/routes";
-import { DataStatus } from "@/screens/_ui/data-status";
-import { PlaceholderScreen } from "@/screens/_ui/placeholder-screen";
+import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
+import { EmptyState } from "@/shared/ui/empty-state";
+import { ScreenShell } from "@/screens/_ui/screen-shell";
+import { PageHeader } from "@/widgets/page-header";
 
 export function GChatScreen() {
-  const searchParams = useSearchParams();
-  const gchatId = parseGChatSearchParam(searchParams.get("id"));
+  const onBack = useScreenBack();
+  const gchatId = useNavigationStore((s) => s.currentGChatId);
   const { data: chat, isLoading, error } = useGlobalChat(gchatId);
 
   return (
-    <PlaceholderScreen
-      title={chat?.title ?? "Глобальный чат"}
-      subtitle="Chat thread + composer — M3+."
+    <ScreenShell
+      header={<PageHeader title={chat?.title ?? "Глобальный чат"} onBack={onBack} />}
     >
-      {!gchatId ? (
-        <p className="rounded-lg border border-dashed border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
-          Укажите чат через query: /gchat/?id=gc1
-        </p>
-      ) : (
-        <DataStatus loading={isLoading} error={error} count={chat ? 1 : 0} label={`чата ${gchatId}`} />
-      )}
-    </PlaceholderScreen>
+      <EmptyState
+        icon={<MessageSquare className="size-5" />}
+        message={
+          !gchatId
+            ? "Укажите чат: /gchat/?id=gc1"
+            : isLoading
+              ? "Загрузка чата…"
+              : error
+                ? error.message
+                : "Chat thread + composer — M3+."
+        }
+        className="min-h-[50vh]"
+      />
+    </ScreenShell>
   );
 }

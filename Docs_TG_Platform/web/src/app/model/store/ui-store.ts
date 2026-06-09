@@ -1,10 +1,14 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type { ComposerAttachment, ComposerScope, FeedCardWidth, ThemeMode } from "@/shared/types";
 
-export type { FeedCardWidth };
+import {
+  FEED_POST_WIDTHS,
+  type FeedPostWidth,
+  isFeedPostWidth,
+} from "@/shared/lib/feedPostWidth";
+import type { ComposerAttachment, ComposerScope, ThemeMode } from "@/shared/types";
 
-const FEED_CARD_WIDTHS: FeedCardWidth[] = [500, 390, 270];
+export type { FeedPostWidth as FeedCardWidth };
 
 const SIDEBAR_COLLAPSED_STORAGE_KEY = "tg-platform-sidebar-collapsed";
 
@@ -22,8 +26,8 @@ export type UiState = {
   setMobileSidebarOpen: (open: boolean) => void;
   themePreference: ThemeMode;
   setThemePreference: (theme: ThemeMode) => void;
-  feedCardWidth: FeedCardWidth;
-  setFeedCardWidth: (width: FeedCardWidth) => void;
+  feedCardWidth: FeedPostWidth;
+  setFeedCardWidth: (width: FeedPostWidth) => void;
   composerAttachments: Record<ComposerScope, ComposerAttachment[]>;
   addComposerAttachment: (scope: ComposerScope, attachment: ComposerAttachment) => void;
   removeComposerAttachment: (scope: ComposerScope, attachmentId: string) => void;
@@ -32,17 +36,17 @@ export type UiState = {
 
 export const useUiStore = create<UiState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       sidebarCollapsed: false,
       setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
-      toggleSidebarCollapsed: () => set({ sidebarCollapsed: !get().sidebarCollapsed }),
+      toggleSidebarCollapsed: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
       mobileSidebarOpen: false,
       setMobileSidebarOpen: (open) => set({ mobileSidebarOpen: open }),
       themePreference: "system",
       setThemePreference: (theme) => set({ themePreference: theme }),
-      feedCardWidth: 500,
+      feedCardWidth: FEED_POST_WIDTHS[0],
       setFeedCardWidth: (width) => {
-        if (!FEED_CARD_WIDTHS.includes(width)) return;
+        if (!isFeedPostWidth(width)) return;
         set({ feedCardWidth: width });
       },
       composerAttachments: emptyComposerAttachments(),

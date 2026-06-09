@@ -2,14 +2,14 @@
 
 Reference UI = [`web-legacy`](../../../web-legacy/) — **полный эталон**. Spec = [pages.md](./pages.md).
 
-Новая версия — [`frontend-v2`](../../../frontend-v2/) — воспроизводит legacy 1:1 на v2-стеке. План фаз — [08-roadmap.md](../product/08-roadmap.md).
+Новая версия — [`web/src/`](../../src/) — воспроизводит legacy 1:1 на v2-стеке. План фаз — [08-roadmap.md](../product/08-roadmap.md).
 
 ## Implementation progress
 
 | Phase | Scope | Status |
 |-------|-------|--------|
-| M1 Foundation | data layer, CI, 6 top-level routes | 🟡 in progress |
-| M2 Shell | sidebar, PageHeader, RouteSync | 🔴 |
+| M1 Foundation | data layer, CI, all routes | 🟢 |
+| M2 Shell | sidebar, PageHeader, RouteSync, ContentAdaptSync | 🟢 |
 | M3 Widgets | composer, feed, post-workspace, … | 🔴 |
 | M5 Screens | 9 screens parity | 🔴 |
 | M6 GitHub Pages | deploy workflow | 🔴 |
@@ -20,13 +20,13 @@ Backend-only limits (stub AI, in-memory) — [local-first.md](../engineering/loc
 
 ## Screen parity
 
-| Screen | URL | Spec | Reference UI | frontend-v2 |
-|--------|-----|------|--------------|-------------|
+| Screen | URL | Spec | Reference UI | web |
+|--------|-----|------|--------------|-----|
 | Home | `/` | [pages.md §1](./pages.md#1-home) | done | 🟡 shell |
-| GChat | `/gchat/?id=` | [pages.md §2](./pages.md#2-gchat) | done | 🔴 no route |
+| GChat | `/gchat/?id=` | [pages.md §2](./pages.md#2-gchat) | done | 🟡 placeholder |
 | Feed | `/feed/` | [pages.md §3](./pages.md#3-feed) | done | 🟡 shell |
-| Post | `/post/{id}/` | [pages.md §4](./pages.md#4-post) | done | 🔴 no route |
-| Note | `/note/*` | [pages.md §5](./pages.md#5-note) | done | 🔴 no route |
+| Post | `/post/{id}/` | [pages.md §4](./pages.md#4-post) | done | 🟡 placeholder |
+| Note | `/note/*` | [pages.md §5](./pages.md#5-note) | done | 🟡 placeholder |
 | Chats | `/chats/` | [pages.md §6](./pages.md#6-chats) | done | 🟡 shell |
 | Notes | `/notes/` | [pages.md §7](./pages.md#7-notes) | done | 🟡 shell |
 | Analytics | `/analytics/` | [pages.md §8](./pages.md#8-analytics) | done | 🟡 shell |
@@ -40,7 +40,7 @@ Wireframes: [wireframes/](./wireframes/). Components: [components/](./components
 
 | Gap | Status | Notes |
 |-----|--------|-------|
-| FeedCardWidthToggle | closed | feed screen |
+| Feed post width controls | closed | feed-header-toolbar (legacy buttons + PageHeaderSelect) |
 | MultiReplyToggle | closed | composer |
 | PageHeader center search | closed | feed, chats, notes |
 | Post comments row on feed card | closed | PostCommentsRow |
@@ -67,7 +67,8 @@ Wireframes: [wireframes/](./wireframes/). Components: [components/](./components
 | Sidebar → feed | yes | |
 | Sidebar → notes | yes | |
 | Chats → back | yes | |
-| Post, note, analytics, profile | planned | |
+| GChat legacy redirect | yes | `/gchat/gc1/` → `?id=gc1` |
+| Post, note widgets | planned | M3 |
 
 ---
 

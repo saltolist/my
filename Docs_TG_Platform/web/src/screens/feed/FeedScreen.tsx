@@ -1,15 +1,35 @@
 "use client";
 
-import { usePosts } from "@/entities/post";
-import { DataStatus } from "@/screens/_ui/data-status";
-import { PlaceholderScreen } from "@/screens/_ui/placeholder-screen";
+import { useState } from "react";
+
+import { EmptyState } from "@/shared/ui/empty-state";
+import { ScreenShell } from "@/screens/_ui/screen-shell";
+import { FeedHeaderToolbar } from "@/widgets/feed/ui/feed-header-toolbar";
+import { PageHeader } from "@/widgets/page-header";
+import { NavIconFeed } from "@/widgets/sidebar";
 
 export function FeedScreen() {
-  const { data, isLoading, error } = usePosts();
+  const [search, setSearch] = useState("");
 
   return (
-    <PlaceholderScreen title="Лента" subtitle="Секции опубликованных, отложенных и черновиков — M3+.">
-      <DataStatus loading={isLoading} error={error} count={data?.length} label="постов" />
-    </PlaceholderScreen>
+    <ScreenShell
+      header={
+        <PageHeader
+          title="Лента"
+          backTo="home"
+          compactSearchAtWidth={804}
+          search={<FeedHeaderToolbar value={search} onChange={setSearch} />}
+        />
+      }
+    >
+      <EmptyState
+        icon={<NavIconFeed />}
+        message={
+          search.trim()
+            ? `Поиск «${search.trim()}» — контент ленты появится на следующем шаге.`
+            : "Секции «Опубликованные», «Отложенные» и «Черновики» появятся здесь."
+        }
+      />
+    </ScreenShell>
   );
 }

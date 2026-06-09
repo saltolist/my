@@ -1,21 +1,19 @@
 "use client";
 
-import { useChannelProfile } from "@/entities/channel";
-import { DataStatus } from "@/screens/_ui/data-status";
-import { PlaceholderScreen } from "@/screens/_ui/placeholder-screen";
+import { UserRound } from "lucide-react";
+
+import { EmptyState } from "@/shared/ui/empty-state";
+import { ScreenShell } from "@/screens/_ui/screen-shell";
+import { PageHeader } from "@/widgets/page-header";
 
 export function ProfileScreen() {
-  const { data, isLoading, error } = useChannelProfile();
-
   return (
-    <PlaceholderScreen title="Профиль" subtitle="Настройки канала, ИИ и Telegram — M3+.">
-      {isLoading || error ? (
-        <DataStatus loading={isLoading} error={error} label="профиля канала" />
-      ) : (
-        <p className="rounded-lg border border-border bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
-          Канал: {data?.core.topic ?? "—"}
-        </p>
-      )}
-    </PlaceholderScreen>
+    <ScreenShell header={<PageHeader title="Профиль" backTo="home" />}>
+      <EmptyState
+        icon={<UserRound className="size-5" />}
+        message="Вкладки «Канал» и «Настройки» появятся на следующем шаге."
+        className="min-h-[50vh]"
+      />
+    </ScreenShell>
   );
 }

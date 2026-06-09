@@ -1,0 +1,26 @@
+/* Profile: content-adapt rules (scaffold until profile widget M3+) */
+
+html[data-content-adapt-le-1000]:not([data-shell-overlay]) .telegram-channel-input {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  max-width: var(--telegram-auth-row-w, 100%);
+}
+
+@media (min-width: 761px) {
+  html[data-content-adapt-ge-761] .telegram-auth-desktop {
+    display: contents;
+  }
+
+  html[data-content-adapt-ge-761] .telegram-auth-mobile {
+    display: none;
+  }
+
+  html[data-content-adapt-ge-761] .telegram-channel-desktop {
+    display: block;
+  }
+
+  html[data-content-adapt-ge-761] .telegram-channel-mobile {
+    display: none;
+  }
+}

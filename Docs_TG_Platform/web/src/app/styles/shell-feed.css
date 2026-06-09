@@ -1,0 +1,197 @@
+.page-header-feed-width-select {
+  flex-shrink: 0;
+}
+
+#screen-feed {
+  --feed-header-width-tabs-w: 18rem;
+}
+
+#screen-feed .page-header-center {
+  width: fit-content;
+  max-width: min(
+    calc(var(--page-header-search-w) + 10px + var(--feed-header-width-tabs-w)),
+    calc(100vw - var(--nav-w) - 48px)
+  );
+}
+
+.feed-post-width-toggles {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.feed-post-width-select--compact {
+  display: none;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1150px) {
+  #screen-feed {
+    --feed-header-width-tabs-w: 9.5rem;
+  }
+
+  .feed-post-width-toggles--tabs {
+    display: none !important;
+  }
+
+  .feed-post-width-select--compact {
+    display: flex;
+  }
+}
+
+/* Лента, desktop 761+: при ширине шапки ≤804px — поиск по лупе */
+@media (min-width: 761px) {
+  #screen-feed .page-header.page-header--compact-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    column-gap: 10px;
+  }
+
+  #screen-feed .page-header.page-header--compact-search .page-header-left {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  #screen-feed .page-header.page-header--compact-search:not(.page-header--search-open) .page-header-center {
+    display: none;
+  }
+
+  #screen-feed .page-header.page-header--compact-search.page-header--search-open {
+    gap: 16px;
+    column-gap: 16px;
+  }
+
+  #screen-feed .page-header.page-header--compact-search.page-header--search-open .page-header-compact-search-field {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+  }
+
+  #screen-feed
+    .page-header.page-header--compact-search.page-header--search-open
+    .page-header-compact-search-field
+    .page-header-search-field {
+    width: 100%;
+    max-width: none;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  #screen-feed .page-header.page-header--compact-search .page-header-right {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  #screen-feed .page-header.page-header--compact-search.page-header--search-open .page-header-right {
+    margin-left: 0;
+  }
+
+  #screen-feed .page-header.page-header--compact-search .page-header-actions--desktop {
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+  }
+
+  #screen-feed .page-header.page-header--compact-search .page-header-search-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 40px;
+    min-width: 40px;
+    height: auto;
+    min-height: 44px;
+    margin: 0;
+    padding: 4px 2px 4px 0;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text3);
+    cursor: pointer;
+    transition: color 0.12s;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    justify-content: flex-end;
+  }
+
+  #screen-feed .page-header.page-header--compact-search .page-header-search-toggle:hover {
+    color: var(--text);
+  }
+
+  #screen-feed
+    .page-header.page-header--compact-search
+    .page-header-search-toggle
+    + .page-header-toolbar-slot {
+    margin-left: -2px;
+  }
+}
+
+.feed-post-width-btn {
+  height: 32px;
+  min-width: 40px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--page-header-control-border);
+  background: var(--page-header-control-bg);
+  color: var(--text2);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+}
+
+.feed-post-width-btn:hover {
+  background: var(--page-header-control-bg-hover);
+  color: var(--text);
+}
+
+.feed-post-width-btn.active {
+  background: var(--page-header-control-bg);
+  color: var(--text);
+  border-color: var(--control-border-active);
+}
+
+.feed-post-width-btn.active:hover {
+  background: var(--page-header-control-bg);
+  color: var(--text);
+}
+
+@media (max-width: 760px) {
+  #screen-feed .page-header.page-header--search-open {
+    position: relative;
+  }
+
+  #screen-feed .page-header.page-header--search-open .page-header-left {
+    position: relative;
+    z-index: 1;
+  }
+
+  #screen-feed .page-header.page-header--search-open .page-header-search-expand {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(calc(var(--feed-post-w, 270px) + 20px), calc(100vw - 24px));
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #screen-feed .page-header.page-header--search-open .page-header-search-field {
+    width: 100%;
+    max-width: none;
+    flex: 0 0 auto;
+    pointer-events: auto;
+  }
+}

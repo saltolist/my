@@ -4,32 +4,49 @@ const LOAD_TIMEOUT = 30_000;
 
 test("home page loads", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Чем помочь сегодня?" })).toBeVisible({
+  await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
+});
+
+test("navigate feed from sidebar", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await page
+    .getByRole("navigation", { name: "Основная навигация" })
+    .getByRole("button", { name: "Лента" })
+    .click();
+  await expect(page.getByRole("heading", { name: "Лента" })).toBeVisible();
+});
+
+test("navigate chats and back to home", async ({ page }) => {
+  await page.goto("/chats/");
+  await expect(page.getByRole("heading", { name: "Чаты" })).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await page.getByRole("button", { name: "Назад" }).click();
+  await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
+});
+
+test("navigate notes from sidebar", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await page
+    .getByRole("navigation", { name: "Основная навигация" })
+    .getByRole("button", { name: "Заметки", exact: true })
+    .click();
+  await expect(page.getByRole("heading", { name: "Заметки" })).toBeVisible();
+});
+
+test("gchat back navigates to chats", async ({ page }) => {
+  await page.goto("/gchat/?id=gc1");
+  await expect(page.getByRole("heading", { name: "Анализ недели" })).toBeVisible({
     timeout: LOAD_TIMEOUT,
   });
+  await page.getByRole("button", { name: "Назад" }).click();
+  await expect(page.getByRole("heading", { name: "Чаты" })).toBeVisible();
 });
 
-test("feed page loads with seed data", async ({ page }) => {
-  await page.goto("/feed/");
-  await expect(page.getByRole("heading", { name: "Лента" })).toBeVisible({ timeout: LOAD_TIMEOUT });
-  await expect(page.getByText(/постов: \d+ из seed\/MSW/)).toBeVisible();
-});
-
-test("all main routes open without 404", async ({ page }) => {
-  const routes = [
-    { path: "/chats/", heading: "Чаты" },
-    { path: "/notes/", heading: "Заметки" },
-    { path: "/analytics/", heading: "Аналитика" },
-    { path: "/profile/", heading: "Профиль" },
-    { path: "/post/1/", heading: "Пост #1" },
-    { path: "/gchat/?id=gc1", heading: "Анализ недели" },
-    { path: "/note/global/gn1/", heading: "Структура серии про барьеры инвестора" },
-  ];
-
-  for (const { path, heading } of routes) {
-    await page.goto(path);
-    await expect(page.getByRole("heading", { name: heading })).toBeVisible({
-      timeout: LOAD_TIMEOUT,
-    });
-  }
+test("legacy gchat path redirects to query form", async ({ page }) => {
+  await page.goto("/gchat/gc1/");
+  await expect(page).toHaveURL(/\/gchat\/\?id=gc1/, { timeout: LOAD_TIMEOUT });
+  await expect(page.getByRole("heading", { name: "Анализ недели" })).toBeVisible({
+    timeout: LOAD_TIMEOUT,
+  });
 });

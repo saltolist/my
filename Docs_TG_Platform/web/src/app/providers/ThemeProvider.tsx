@@ -16,7 +16,14 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
     typeof window === "undefined" ? undefined : ({ type: "application/json" } as const);
 
   return (
-    <NextThemesProvider scriptProps={scriptProps} {...props}>
+    <NextThemesProvider
+      attribute="data-theme"
+      defaultTheme="dark"
+      enableSystem
+      disableTransitionOnChange
+      scriptProps={scriptProps}
+      {...props}
+    >
       {children}
     </NextThemesProvider>
   );

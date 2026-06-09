@@ -2,7 +2,7 @@
 
 Web-клиент TG Platform — браузерный интерфейс для полного цикла работы с каналом: лента, пространство поста, чаты, заметки, аналитика, профиль.
 
-**Текущая фаза:** **M1 Foundation** — data layer готов, UI ~shell. Полный план — [08-roadmap.md](../product/08-roadmap.md), инженерная выжимка — [frontend-roadmap.md](./frontend-roadmap.md).
+**Текущая фаза:** **M2 Shell** complete — sidebar, PageHeader, RouteSync, ContentAdaptSync. Следующий шаг — **M3 Widgets**. План — [08-roadmap.md](../product/08-roadmap.md), выжимка — [frontend-roadmap.md](./frontend-roadmap.md).
 
 ---
 
@@ -37,11 +37,9 @@ Web-клиент TG Platform — браузерный интерфейс для 
 
 ```
 web/
-├── docs/           ← сейчас
-└── src/            ← будущий клиент (stack = stack.md)
+├── src/            ← active client (stack = stack.md)
+└── docs/
 ```
-
-Reference implementation до миграции: [`frontend-v2/`](../../../frontend-v2/).
 
 ---
 
@@ -52,8 +50,9 @@ Reference implementation до миграции: [`frontend-v2/`](../../../fronte
 | Milestone | Содержание |
 |-----------|------------|
 | **M0** Docs | ✅ complete |
-| **M1** Foundation | routes, CI, repositories, seed — **сейчас** |
-| **M2–M4** UI | shell → widgets → features → 9 screens |
+| **M1** Foundation | routes, CI, repositories, seed — ✅ |
+| **M2** Shell | sidebar, PageHeader, RouteSync — ✅ |
+| **M3–M4** UI | widgets → features → 9 screens — **сейчас** |
 | **M5** Local-first | MSW + stub AI + full CRUD demo |
 | **M6** GitHub Pages | static export + deploy workflow |
 | **M7** Backend-ready | `http` mode, [BACKEND_READINESS.md](./BACKEND_READINESS.md) |

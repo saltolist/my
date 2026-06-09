@@ -1,13 +1,15 @@
 import { Suspense } from "react";
-import { LegacyRouteRedirect } from "./LegacyRouteRedirect";
+
+import { AppShell, ContentAdaptSync, RouteSync } from "@/widgets/app-shell";
 
 export default function ShellLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-full flex-1 flex-col">
+    <AppShell>
+      <ContentAdaptSync />
       <Suspense fallback={null}>
-        <LegacyRouteRedirect />
+        <RouteSync />
       </Suspense>
       {children}
-    </div>
+    </AppShell>
   );
 }

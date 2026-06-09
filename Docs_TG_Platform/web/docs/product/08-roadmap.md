@@ -2,7 +2,7 @@
 
 План доводит web-клиент до состояния: **UX = `web-legacy` 1:1**, **стек = `frontend-v2`**, **local-first demo на GitHub Pages**, **подключение backend одной сменой env**.
 
-Код: [`frontend-v2/`](../../../frontend-v2/). Спека экранов: [pages.md](../ux/pages.md). Parity-трекер: [parity.md](../ux/parity.md).
+Код: [`web/src/`](../../src/). Спека экранов: [pages.md](../ux/pages.md). Parity-трекер: [parity.md](../ux/parity.md). Reference scaffold: [`frontend-v2/`](../../../frontend-v2/).
 
 ---
 
@@ -14,7 +14,7 @@
 | FSD без нарушений границ | `npm run lint` (eslint-plugin-boundaries) |
 | Local-first demo | MSW + seed, stub AI, полный CRUD в памяти |
 | Статический билд | `npm run build` → `out/` |
-| CI зелёный | `npm run check` в [frontend-v2-ci.yml](../../../../.github/workflows/frontend-v2-ci.yml) |
+| CI зелёный | `npm run check` в [web-ci.yml](../../../../.github/workflows/web-ci.yml) |
 | GitHub Pages | публичный URL, `NEXT_PUBLIC_BASE_PATH` корректен |
 | Backend-ready | `NEXT_PUBLIC_USE_MSW=0` + `NEXT_PUBLIC_API_BASE_URL` — те же экраны работают |
 | Контракт API | handlers MSW = [API_CONTRACT.yaml](../engineering/API_CONTRACT.yaml) |
@@ -30,11 +30,11 @@
 | Документация (`web/docs/`) | ✅ complete | product + ux + engineering |
 | Data layer (`shared/api`, MSW, seed) | ✅ ~90% | repositories, zod, handlers — доработка по мере экранов |
 | Entities (TanStack Query) | ✅ базово | post, chat, note, channel hooks |
-| App shell | 🟡 partial | Sidebar, PageHeader, AppShell — без полного RouteSync |
+| App shell | 🟢 M2 done | Sidebar, PageHeader, RouteSync, ContentAdaptSync, navigation-store |
 | Маршруты Next.js | 🟡 6/12 | есть home, feed, chats, notes, analytics, profile |
 | Widgets (composer, feed, post…) | 🔴 не начаты | только sidebar, page-header, analytics-period-filter |
 | Features | 🔴 пусто | `src/features/` — `.gitkeep` |
-| E2E | 🟡 shell only | 4 smoke-теста; post/note/profile — planned |
+| E2E | 🟡 shell only | 5 smoke-тестов (вкл. gchat legacy redirect); post/note widgets — M3 |
 | GitHub Pages deploy | 🔴 нет workflow | CI только check, без publish |
 
 ---
@@ -125,27 +125,28 @@ screens/             ← тонкая композиция widgets
 | Providers (MSW, theme, query, repo) | [architecture.md](../engineering/architecture.md) | ✅ |
 | CI: typecheck, lint, test, e2e, build | [testing.md](../engineering/testing.md) | ✅ |
 | **Маршруты Next.js для всех URL** | [routing.md](../engineering/routing.md) | 🔴 |
-| RouteSync + legacy redirects | [routing.md](../engineering/routing.md) | 🔴 |
+| RouteSync + legacy redirects | [routing.md](../engineering/routing.md) | 🟢 |
 | Screen placeholders (gchat, post, note) | [pages.md](../ux/pages.md) | 🔴 |
 
 **DoD фазы:** каждый URL из таблицы routing открывается без 404; `npm run check` green.
 
 ---
 
-### Фаза 2 — App shell & навигация
+### Фаза 2 — App shell & навигация ✅
 
 **Цель:** пользователь может ходить по всему приложению; sidebar и header как в legacy.
 
-| Задача | Spec |
-|---|---|
-| Sidebar: nav, recents (posts, notes, chats), collapse | [sidebar.md](../ux/components/widgets/sidebar.md) |
-| PageHeader: left / center / right slots, glass, menus | [page-header.md](../ux/components/widgets/page-header.md) |
-| MobileTopbar + overlay sidebar | [app-shell.md](../ux/components/widgets/app-shell.md) |
-| Breadcrumbs (`breadcrumbTrails.ts`) | [routing.md](../engineering/routing.md) |
-| `← Назад` через `getParentPath` / `router.back()` | [pages.md](../ux/pages.md) |
-| ScreenShell layout (nav + content) | [screens.md](../ux/components/screens.md) |
+| Задача | Spec | Статус |
+|---|---|---|
+| Sidebar: nav, recents (posts, notes, chats), collapse | [sidebar.md](../ux/components/widgets/sidebar.md) | ✅ |
+| PageHeader: left / center / right slots, glass, menus | [page-header.md](../ux/components/widgets/page-header.md) | ✅ |
+| PageHeaderMenuButton + overlay sidebar | [app-shell.md](../ux/components/widgets/app-shell.md) | ✅ |
+| RouteSync + ContentAdaptSync | [app-shell.md](../ux/components/widgets/app-shell.md) | ✅ |
+| Breadcrumbs (`breadcrumbTrails.ts`) | [routing.md](../engineering/routing.md) | M3 (post/note UI) |
+| `← Назад` через `getParentPath` / `router.back()` | [pages.md](../ux/pages.md) | ✅ |
+| ScreenShell layout (nav + content) | [screens.md](../ux/components/screens.md) | ✅ |
 
-**DoD:** [flows.md](../ux/flows.md) — все 12 navigation flows проходят вручную; E2E sidebar smoke расширен.
+**DoD:** [flows.md](../ux/flows.md) — navigation flows вручную; E2E shell smoke + gchat legacy redirect.
 
 ---
 

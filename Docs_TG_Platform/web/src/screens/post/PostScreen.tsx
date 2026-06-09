@@ -2,36 +2,35 @@
 
 import { useParams } from "next/navigation";
 import { usePost } from "@/entities/post";
+import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
 import { POST_NEW_SLUG } from "@/shared/lib/staticParams";
-import { DataStatus } from "@/screens/_ui/data-status";
-import { PlaceholderScreen } from "@/screens/_ui/placeholder-screen";
+import { EmptyState } from "@/shared/ui/empty-state";
+import { ScreenShell } from "@/screens/_ui/screen-shell";
+import { PageHeader } from "@/widgets/page-header";
+import { FileText } from "lucide-react";
 
 export function PostScreen() {
   const params = useParams<{ id: string }>();
+  const onBack = useScreenBack();
   const isNew = params.id === POST_NEW_SLUG;
   const postId = isNew ? 0 : Number(params.id);
   const { data, isLoading, error } = usePost(postId);
 
+  const title = isNew ? "Новый пост" : data?.text.slice(0, 48) || `Пост #${params.id}`;
+
   return (
-    <PlaceholderScreen
-      title={isNew ? "Новый пост" : `Пост #${params.id}`}
-      subtitle="Post workspace — M3+ (post-workspace widget)."
-    >
-      {isNew ? (
-        <p className="rounded-lg border border-dashed border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
-          Черновик создаётся при открытии — логика RouteSync в M2.
-        </p>
-      ) : (
-        <DataStatus
-          loading={isLoading}
-          error={error}
-          count={data ? 1 : 0}
-          label={`поста #${params.id}`}
-        />
-      )}
-      {data ? (
-        <p className="text-sm text-muted-foreground line-clamp-3">{data.text.slice(0, 120)}…</p>
-      ) : null}
-    </PlaceholderScreen>
+    <ScreenShell header={<PageHeader title={title} onBack={onBack} />}>
+      <EmptyState
+        icon={<FileText className="size-5" />}
+        message={
+          isLoading
+            ? "Загрузка поста…"
+            : error
+              ? error.message
+              : "Post workspace — M3+ (post-workspace widget)."
+        }
+        className="min-h-[50vh]"
+      />
+    </ScreenShell>
   );
 }

@@ -8,11 +8,9 @@
 
 | Path | Role |
 |------|------|
-| [`frontend-v2/`](../../../frontend-v2/) | **Active codebase** |
+| [`web/src/`](../../src/) | **Active codebase** |
 | [`web-legacy/`](../../../web-legacy/) | UX reference (read-only) |
 | [`web/docs/ux/pages.md`](../ux/pages.md) | Screen spec (source of truth) |
-
-`web/src/` — не используется; клиент живёт в `frontend-v2/` до отдельного решения о переносе.
 
 ---
 
@@ -20,9 +18,9 @@
 
 ```
 M0 Docs ✅
-M1 Foundation (routes, CI, data layer)     ← сейчас
-M2 Shell (sidebar, PageHeader, RouteSync)
-M3 Widgets layer (composer → profile-settings)
+M1 Foundation (routes, CI, data layer)     ✅
+M2 Shell (sidebar, PageHeader, RouteSync)   ✅
+M3 Widgets layer (composer → profile-settings)  ← сейчас
 M4 Features + 9 screens
 M5 Local-first demo complete
 M6 GitHub Pages live
@@ -51,8 +49,8 @@ Copy for each PR:
 Build:
 
 ```bash
-cd Docs_TG_Platform/frontend-v2
-NEXT_PUBLIC_BASE_PATH=/Repositories_Info/Docs_TG_Platform/frontend-v2 \
+cd Docs_TG_Platform/web
+NEXT_PUBLIC_BASE_PATH=/Repositories_Info/Docs_TG_Platform/web \
 NEXT_PUBLIC_USE_MSW=1 \
 npm run build
 ```
@@ -78,6 +76,3 @@ Same static bundle. Verify: [BACKEND_READINESS.md](./BACKEND_READINESS.md).
 |------|-------|--------|
 | check job | ✅ | ✅ |
 | pages deploy | ❌ | Phase 8 |
-| E2E all screens | 4 tests | Phase 5–6 |
-
-Workflow: [`.github/workflows/frontend-v2-ci.yml`](../../../../.github/workflows/frontend-v2-ci.yml)

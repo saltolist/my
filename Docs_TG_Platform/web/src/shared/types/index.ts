@@ -207,4 +207,4 @@ export type ComposerAttachment =
 
 export type ThemeMode = "light" | "system" | "dark";
 
-export type FeedCardWidth = 500 | 390 | 270;
+export type { FeedCardWidth, FeedPostWidth } from "@/shared/lib/feedPostWidth";

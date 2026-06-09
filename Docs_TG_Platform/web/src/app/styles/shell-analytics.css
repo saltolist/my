@@ -1,0 +1,38 @@
+#screen-analytics .page-header-center {
+  width: auto;
+  max-width: min(560px, calc(100vw - var(--nav-w) - 200px));
+}
+
+/* Планшет: шапка графика канала в колонку — порог по content-adapt-w */
+html[data-content-adapt-ge-761] #screen-analytics .analytics-chart-card .analytics-card-head {
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+html[data-content-adapt-ge-761]
+  #screen-analytics
+  .analytics-chart-card
+  .analytics-card-head
+  .analytics-channel-head-filters.model-filter-stack.model-filter-stack--with-series {
+  display: grid;
+  width: 100%;
+  margin-left: 0;
+}
+
+html[data-content-adapt-ge-761]
+  #screen-analytics
+  .analytics-chart-card
+  .analytics-card-head
+  .analytics-channel-head-filters
+  .profile-model-picker,
+html[data-content-adapt-ge-761]
+  #screen-analytics
+  .analytics-chart-card
+  .analytics-card-head
+  .analytics-channel-head-filters
+  .chart-series-selector--profile {
+  width: 100%;
+  max-width: none;
+}

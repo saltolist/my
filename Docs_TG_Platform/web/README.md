@@ -1,20 +1,31 @@
 # TG Platform — Web
 
-Единая точка входа для web-версии TG Platform: продуктовая документация, UX-спецификация и инженерные заметки.
+Единая точка входа для web-версии TG Platform: продуктовая документация, UX-спецификация и **Next.js клиент**.
 
-**Сейчас:** документация complete; код — [`frontend-v2/`](../frontend-v2/) на **M1 Foundation**. Roadmap — [docs/product/08-roadmap.md](./docs/product/08-roadmap.md).
+**Сейчас:** M2 Shell complete (sidebar, PageHeader, RouteSync, ContentAdaptSync). Roadmap — [docs/product/08-roadmap.md](./docs/product/08-roadmap.md).
 
 ## Структура
 
 ```
 web/
+├── src/                  ← Next.js app (active codebase)
 ├── docs/
 │   ├── product/          ← модель, roadmap
 │   ├── ux/               ← pages, flows, wireframes, components, design-tokens
 │   ├── engineering/      ← stack, data-model, API, testing, deploy
 │   ├── glossary.md
 │   └── doc-maintenance.md
+├── e2e/                  ← Playwright smoke tests
 └── README.md
+```
+
+## Быстрый старт
+
+```bash
+cd Docs_TG_Platform/web
+npm install
+npm run dev    # http://localhost:3020
+npm run check  # typecheck + lint + test + build
 ```
 
 ## Карта документации
@@ -27,26 +38,27 @@ web/
 |------|--------|
 | Продукт (`docs/product/`) | complete |
 | UX (`docs/ux/`) | complete — sync с `web-legacy` |
-| Engineering (`docs/engineering/`) | complete — stack v2 |
-| Код (`frontend-v2/`) | M1 Foundation — shell + data layer; см. [08-roadmap.md](./docs/product/08-roadmap.md) |
+| Engineering (`docs/engineering/`) | complete |
+| Код (`src/`) | M2 Shell ✅ — M3 widgets next |
 
 ## Legacy-клиенты (вне `web/`)
 
 | Путь | Роль |
 |------|------|
-| [`../web-legacy/`](../web-legacy/) | **reference UI** |
+| [`../web-legacy/`](../web-legacy/) | **reference UI** (read-only) |
+| [`../frontend-v2/`](../frontend-v2/) | earlier reference scaffold |
 | [`../frontend/`](../frontend/) | клиент v1 |
-| [`../frontend-v2/`](../frontend-v2/) | **reference implementation** |
 
 ## Принципы
 
 1. **UX из legacy** — [pages.md](./docs/ux/pages.md), wireframes
-2. **Стек из v2** — [stack.md](./docs/engineering/stack.md)
-3. **UI на Tailwind/shadcn** — [design-tokens.md](./docs/ux/design-tokens.md)
+2. **Стек** — Next.js 16, FSD, MSW, TanStack Query — [stack.md](./docs/engineering/stack.md)
+3. **Визуал** — legacy semantic CSS + `tokens.css`; Tailwind для layout
 4. **Local-first** — [local-first.md](./docs/engineering/local-first.md)
 
 ## Быстрые ссылки
 
 - [Glossary](./docs/glossary.md)
+- [Parity tracker](./docs/ux/parity.md)
 - [Navigation flows](./docs/ux/flows.md)
 - [Data model](./docs/engineering/data-model.md)

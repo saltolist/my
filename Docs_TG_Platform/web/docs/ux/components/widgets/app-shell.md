@@ -1,6 +1,6 @@
 # app-shell
 
-**Путь:** `web-legacy/src/widgets/app-shell/`
+**Путь:** `web/src/widgets/app-shell/`
 
 Корневой layout приложения.
 
@@ -9,14 +9,13 @@
 ## AppShell anatomy
 
 ```
-┌─────────────────────────────────────────┐
-│ MobileTopbar (mobile only)              │
-├──────────┬──────────────────────────────┤
+┌──────────┬──────────────────────────────┐
 │ Sidebar  │ main content area            │
+│          │  PageHeader (per screen)     │
 │          │  {children} = screen routes  │
-│          │                              │
 └──────────┴──────────────────────────────┘
-     ↳ sheet overlay when mobile sidebar open
+     ↳ overlay backdrop when mobile sidebar open
+     ↳ menu button in PageHeader (mobile), not separate topbar
 ```
 
 ---
@@ -26,31 +25,41 @@
 | Component | Role |
 |-----------|------|
 | **AppShell** | Layout shell, sidebar + content |
-| **RouteSync** | URL ↔ navigation store sync on route change |
-| **ContentAdaptSync** | CSS vars / classes for content width adaptation |
+| **RouteSync** | URL ↔ `navigation-store` + legacy redirects |
+| **ContentAdaptSync** | `--content-adapt-w`, `data-content-adapt-*`, profile AI tiers |
 
 ---
 
 ## Mobile behavior
 
-- Topbar with menu button → opens sidebar sheet
-- Sidebar slides over content
-- Click outside / navigate → closes sheet
-- `setMobileSidebarOpen` in navigation store
+- `PageHeaderMenuButton` in screen header → opens sidebar overlay
+- Sidebar slides over content (`#sidebar` fixed, `body.mobile-sidebar-open`)
+- Click backdrop / navigate / Escape → closes sheet
+- `setMobileSidebarOpen` in `ui-store`
 
 ---
 
 ## RouteSync
 
 - Parses pathname via `shared/lib/routes.ts`
-- Updates `screen`, post id, chat id, note ids in nav store
-- Handles static export path trailing slashes
+- Legacy redirects: `/gchat/{id}/` → `/gchat/?id=`, `/post/{id}/notes/` → post + `postMode`
+- `buildRoutePatch` with TanStack Query cache (posts, globalNotes, globalChats)
+- Updates `navigation-store` and `post-navigation-store`
+
+**Out of scope (M3+):** domain store, dirty guards, `processCombinedPatch`
+
+---
+
+## ContentAdaptSync
+
+- `syncContentAdaptWidthToDocument()` on resize and mobile breakpoint
+- Sets `data-shell-overlay`, `data-content-adapt-ge-761`, profile `data-profile-ai-*`
 
 ---
 
 ## Content area
 
-- Scroll containers live inside screens, not shell
+- Scroll containers live inside screens (`screen-body`), not shell
 - PageHeader fixed per screen
 - Shell provides min-height / flex layout
 
@@ -59,4 +68,5 @@
 ## Related
 
 - [sidebar](./sidebar.md)
+- [page-header](./page-header.md)
 - [screens.md](../screens.md)
