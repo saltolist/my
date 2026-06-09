@@ -1,5 +1,7 @@
 # TG Platform — Frontend 2.0
 
+Reference implementation web-клиента. Каноническая инженерная документация — [`../web/docs/engineering/stack.md`](../web/docs/engineering/stack.md).
+
 Новая версия web-клиента TG Platform. Пишется **с нуля** по UI, но **инфраструктурная основа совпадает с v1** ([`../frontend/`](../frontend/)). [`../web-legacy/`](../web-legacy/) — только референс по UX.
 
 ## Quick start

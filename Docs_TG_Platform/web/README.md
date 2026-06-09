@@ -9,10 +9,13 @@
 ```
 web/
 ├── docs/
-│   ├── product/        # что строим и зачем
-│   ├── ux/             # экраны, wireframes
-│   └── engineering/    # web-клиент, API, деплой
-└── README.md           # этот файл
+│   ├── product/
+│   ├── ux/
+│   │   ├── pages.md          ← экраны и маршруты
+│   │   ├── components/     ← каталог UI-элементов
+│   │   └── wireframes/       ← layout wireframes
+│   └── engineering/
+└── README.md
 ```
 
 ## Карта документации
@@ -25,8 +28,8 @@ web/
 |------|--------|
 | Продукт (`docs/product/`) | перенесено из `concept/` |
 | UX (`docs/ux/`) | wireframes синхронизированы с `web-legacy` |
-| Engineering (`docs/engineering/`) | в работе |
-| Код клиента (`src/`) | не начат |
+| Engineering (`docs/engineering/`) | стек зафиксирован — наследие `frontend-v2` |
+| Код (`src/`) | не начат — reference: `frontend-v2` (код), `web-legacy` (UX) |
 
 ## Legacy-клиенты (вне `web/`)
 
@@ -36,10 +39,11 @@ Reference UI для wireframes и будущей реализации:
 |------|------|
 | [`../web-legacy/`](../web-legacy/) | **reference UI** — wireframes описывают этот клиент |
 | [`../frontend/`](../frontend/) | клиент v1 |
-| [`../frontend-v2/`](../frontend-v2/) | зачаток v2 |
+| [`../frontend-v2/`](../frontend-v2/) | **reference implementation** — стек и архитектура для `web/` |
 
 ## Принципы новой версии
 
-1. **UI с нуля** — не копируем legacy, проектируем заново по UX-докам.
-2. **Документация первична** — `docs/ux/pages.md` — источник правды для экранов.
-3. **Local-first на старте** — MSW + seed-данные, backend по [roadmap](./docs/product/08-roadmap.md).
+1. **UX из legacy** — wireframes и `pages.md` описывают `web-legacy`.
+2. **Стек из v2** — Next.js 16, Tailwind, shadcn, FSD — см. [stack.md](./docs/engineering/stack.md).
+3. **UI с нуля** — не копируем legacy CSS, реализуем на Tailwind/shadcn.
+4. **Local-first на старте** — MSW + seed-данные, backend по [roadmap](./docs/product/08-roadmap.md).

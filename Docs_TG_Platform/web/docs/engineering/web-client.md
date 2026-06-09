@@ -2,37 +2,40 @@
 
 Web-клиент TG Platform — браузерный интерфейс для полного цикла работы с каналом: лента, пространство поста, чаты, заметки, аналитика, профиль.
 
-**Текущая фаза:** документация и проектирование. Код живёт в [`web/`](../..); исходники появятся в `web/src/` после завершения UX-спеки.
+**Текущая фаза:** документация и проектирование. Код появится в `web/src/`; reference implementation — [`frontend-v2`](../../../frontend-v2/).
 
 ---
 
 ## Зачем отдельный документ
 
 - Зафиксировать границу «работает в браузере» vs «требует сервер».
-- Описать целевой стек и архитектуру до начала разработки.
+- Описать фазы разработки и критерии готовности.
 - Связать продуктовую модель с инженерной реализацией.
 
 ---
 
-## Где живёт код (план)
+## Стек и архитектура
+
+| Документ | Содержание |
+|----------|------------|
+| [stack.md](./stack.md) | **Стек** — Next.js 16, React 19, Tailwind v4, shadcn, FSD, MSW, TanStack Query |
+| [architecture.md](./architecture.md) | FSD-слои, data flow, routing, testing |
+| [API_CONTRACT.yaml](./API_CONTRACT.yaml) | REST contract frontend ↔ backend |
+| [BACKEND_READINESS.md](./BACKEND_READINESS.md) | Checklist подключения backend |
+
+**Решение:** наследуем инженерный стек из `frontend-v2`. UX — из `web-legacy` (wireframes, pages.md), без копирования legacy CSS/кода.
+
+---
+
+## Где живёт код
 
 ```
 web/
 ├── docs/           ← сейчас
-└── src/            ← Next.js-клиент (будущее)
-    ├── app/
-    ├── screens/
-    ├── widgets/
-    ├── features/
-    ├── entities/
-    └── shared/
+└── src/            ← будущий клиент (stack = stack.md)
 ```
 
-**Стек (целевой):** Next.js (App Router) + React + TypeScript + Tailwind + shadcn/ui, Feature-Sliced Design.
-
-**Сборка:** static export → `out/` (без Node-сервера в prod).
-
-**Legacy reference:** [`../../web-legacy/`](../../web-legacy/) — только для UX-референса, не для копирования кода.
+Reference implementation до миграции: [`frontend-v2/`](../../../frontend-v2/).
 
 ---
 
@@ -41,8 +44,8 @@ web/
 ### Фаза 0 — Документация (сейчас)
 
 - Продуктовая модель в [`docs/product/`](../product/)
-- UX-спека в [`docs/ux/pages.md`](../ux/pages.md) и wireframes
-- API-контракт и backend-readiness — по мере готовности
+- UX-спека в [`docs/ux/pages.md`](../ux/pages.md), wireframes, [components/](../ux/components/)
+- Стек и архитектура в [`engineering/`](./)
 
 ### Фаза 1 — Local-first UI
 
@@ -58,27 +61,6 @@ web/
 - REST/WebSocket API, persistence
 - Telegram MTProto, реальные LLM
 - Публикация постов, синхронизация
-
----
-
-## Архитектура (целевая)
-
-```
-UI (screen / widget / feature)
-  → TanStack Query hook (entities/*/model)
-    → Repository interface (shared/api)
-      → MSW handlers (dev) | HTTP client (prod)
-        → Backend API
-```
-
-| Concern | Tool |
-|---------|------|
-| Server data | TanStack Query |
-| UI chrome | Zustand |
-| Theme | next-themes |
-| Routing | Next.js App Router |
-
-Подробнее появится в `web/ARCHITECTURE.md` при старте кода.
 
 ---
 

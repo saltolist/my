@@ -21,7 +21,8 @@
 
 | Документ | Содержание |
 |----------|------------|
-| [pages.md](./ux/pages.md) | **Источник правды** — структура всех экранов |
+| [pages.md](./ux/pages.md) | **Источник правды** — структура всех экранов (синхронизирован с `web-legacy`) |
+| [components/](./ux/components/) | Каталог UI — [детальная спека](./ux/components/README.md), [соглашения](./ux/components/conventions.md) |
 | [wireframes/](./ux/wireframes/) | Wireframes по экранам (**соответствуют `web-legacy`**) |
 
 ### Wireframes
@@ -40,7 +41,11 @@
 
 | Документ | Содержание |
 |----------|------------|
-| [web-client.md](./engineering/web-client.md) | Web-клиент: фаза, границы, стек |
+| [stack.md](./engineering/stack.md) | **Стек** — наследие `frontend-v2` |
+| [architecture.md](./engineering/architecture.md) | FSD, data flow, routing |
+| [web-client.md](./engineering/web-client.md) | Фазы клиента, границы, критерии готовности |
+| [API_CONTRACT.yaml](./engineering/API_CONTRACT.yaml) | REST contract |
+| [BACKEND_READINESS.md](./engineering/BACKEND_READINESS.md) | Подключение backend |
 | [web-client.legacy.md](./engineering/web-client.legacy.md) | Архив: описание v1-клиента |
 
 ## Порядок чтения
@@ -48,4 +53,4 @@
 1. [01-essence.md](./product/01-essence.md) — зачем платформа
 2. [03-spaces.md](./product/03-spaces.md) + [04-ai-system.md](./product/04-ai-system.md) — ключевая модель
 3. [pages.md](./ux/pages.md) — все экраны
-4. [web-client.md](./engineering/web-client.md) — текущая инженерная фаза
+4. [stack.md](./engineering/stack.md) + [web-client.md](./engineering/web-client.md) — стек и фазы
