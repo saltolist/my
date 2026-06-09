@@ -1,0 +1,50 @@
+name: Frontend v2 CI
+
+on:
+  push:
+    paths:
+      - "Docs_TG_Platform/frontend-v2/**"
+      - ".github/workflows/frontend-v2-ci.yml"
+  pull_request:
+    paths:
+      - "Docs_TG_Platform/frontend-v2/**"
+      - ".github/workflows/frontend-v2-ci.yml"
+
+defaults:
+  run:
+    working-directory: Docs_TG_Platform/frontend-v2
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: Docs_TG_Platform/frontend-v2/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Install Playwright browser
+        run: npx playwright install chromium --with-deps
+
+      - name: E2E tests
+        run: npm run test:e2e
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_BASE_PATH: /Repositories_Info/Docs_TG_Platform/frontend-v2

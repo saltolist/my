@@ -48,7 +48,7 @@ export function SidebarNav({ sb, showLabels }: SidebarNavProps) {
       <SidebarExpandableNav
         label="Заметки"
         icon={<NavIconNotes />}
-        active={sb.isScreenActive("notes")}
+        active={sb.isScreenActive("notes") || sb.isScreenActive("note")}
         expanded={sb.notesExpanded}
         showLabel={showLabels}
         expandLabel="Развернуть недавние заметки"
@@ -62,7 +62,7 @@ export function SidebarNav({ sb, showLabels }: SidebarNavProps) {
       <SidebarExpandableNav
         label="Чаты"
         icon={<NavIconChats />}
-        active={sb.isScreenActive("chats")}
+        active={sb.isScreenActive("chats") || sb.isScreenActive("gchat")}
         expanded={sb.chatsExpanded}
         showLabel={showLabels}
         expandLabel="Развернуть недавние чаты"

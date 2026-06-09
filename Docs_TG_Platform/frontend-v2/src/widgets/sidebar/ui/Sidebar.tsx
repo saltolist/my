@@ -1,5 +1,7 @@
 "use client";
 
+import { Suspense } from "react";
+
 import { SidebarFallback } from "@/widgets/sidebar/ui/sidebar-fallback";
 import { SidebarInner } from "@/widgets/sidebar/ui/sidebar-inner";
 
@@ -9,7 +11,11 @@ type SidebarProps = {
 };
 
 export function Sidebar(props: SidebarProps) {
-  return <SidebarInner {...props} />;
+  return (
+    <Suspense fallback={<SidebarFallback className={props.className} />}>
+      <SidebarInner {...props} />
+    </Suspense>
+  );
 }
 
 export { SidebarFallback };

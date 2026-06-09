@@ -1,58 +1,50 @@
-import type { RecentNoteRow, RecentRow } from "@/widgets/sidebar/model/types";
-import type { SidebarRecentRowItem } from "@/widgets/sidebar/ui/sidebar-recent-row";
 import type { useSidebar } from "@/widgets/sidebar/model/useSidebar";
+import { mapChatRows, mapNoteRows } from "@/widgets/sidebar/lib/mapRecentRows";
 
-function mapChatRow(row: RecentRow, sb: ReturnType<typeof useSidebar>): SidebarRecentRowItem {
-  return {
-    key: row.key,
-    title: row.title,
-    active: sb.isRecentChatActive(row),
-    onOpen: () => sb.openRecentChat(row),
-  };
-}
+type SidebarState = ReturnType<typeof useSidebar>;
 
-function mapNoteRow(row: RecentNoteRow, sb: ReturnType<typeof useSidebar>): SidebarRecentRowItem {
-  return {
-    key: row.key,
-    title: row.title,
-    active: sb.isRecentNoteActive(row),
-    onOpen: () => sb.openRecentNote(row),
-  };
-}
+export function buildSidebarRecentSections(sb: SidebarState) {
+  const chatItems =
+    sb.recentChatsModel.mode === "flat"
+      ? mapChatRows(sb.recentChatsModel.rows, sb.openChatRow, sb.isRecentChatActive)
+      : [];
 
-export function buildSidebarRecentSections(sb: ReturnType<typeof useSidebar>) {
-  const chats = sb.recentChatsModel;
-  const notes = sb.recentNotesModel;
+  const chatGrouped =
+    sb.recentChatsModel.mode === "grouped"
+      ? {
+          thisPost: mapChatRows(
+            sb.recentChatsModel.thisPost,
+            sb.openChatRow,
+            sb.isRecentChatActive,
+          ),
+          others: mapChatRows(
+            sb.recentChatsModel.others,
+            sb.openChatRow,
+            sb.isRecentChatActive,
+          ),
+        }
+      : undefined;
 
-  if (chats.mode === "grouped") {
-    return {
-      chatItems: [] as SidebarRecentRowItem[],
-      chatGrouped: {
-        thisPost: chats.thisPost.map((r) => mapChatRow(r, sb)),
-        others: chats.others.map((r) => mapChatRow(r, sb)),
-      },
-      noteItems: [] as SidebarRecentRowItem[],
-      noteGrouped:
-        notes.mode === "grouped"
-          ? {
-              thisPost: notes.thisPost.map((r) => mapNoteRow(r, sb)),
-              others: notes.others.map((r) => mapNoteRow(r, sb)),
-            }
-          : undefined,
-    };
-  }
+  const noteItems =
+    sb.recentNotesModel.mode === "flat"
+      ? mapNoteRows(sb.recentNotesModel.rows, sb.openNoteRow, sb.isRecentNoteActive)
+      : [];
 
-  return {
-    chatItems: chats.rows.map((r) => mapChatRow(r, sb)),
-    chatGrouped: undefined,
-    noteItems:
-      notes.mode === "flat" ? notes.rows.map((r) => mapNoteRow(r, sb)) : ([] as SidebarRecentRowItem[]),
-    noteGrouped:
-      notes.mode === "grouped"
-        ? {
-            thisPost: notes.thisPost.map((r) => mapNoteRow(r, sb)),
-            others: notes.others.map((r) => mapNoteRow(r, sb)),
-          }
-        : undefined,
-  };
+  const noteGrouped =
+    sb.recentNotesModel.mode === "grouped"
+      ? {
+          thisPost: mapNoteRows(
+            sb.recentNotesModel.thisPost,
+            sb.openNoteRow,
+            sb.isRecentNoteActive,
+          ),
+          others: mapNoteRows(
+            sb.recentNotesModel.others,
+            sb.openNoteRow,
+            sb.isRecentNoteActive,
+          ),
+        }
+      : undefined;
+
+  return { chatItems, chatGrouped, noteItems, noteGrouped };
 }

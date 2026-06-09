@@ -45,7 +45,7 @@ export function ChatsScreen() {
     >
       <EmptyState
         icon={<MessageSquare className="size-5" />}
-        message="Каталог чатов появится на следующем шаге. В сайдбаре уже доступны недавние (preview-данные)."
+        message="Каталог чатов появится на следующем шаге. В сайдбаре — недавние из seed-data через MSW."
         className="min-h-[50vh]"
       />
     </ScreenShell>

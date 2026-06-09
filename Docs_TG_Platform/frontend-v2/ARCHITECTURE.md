@@ -2,8 +2,8 @@
 
 ## Принципы
 
-1. **С нуля** — не переносим файлы из `frontend/` или `web-legacy/`; смотрим на референс и проектируем заново.
-2. **Тот же стек** — Next.js 16, React 19, TypeScript, Tailwind v4, shadcn/ui, TanStack Query, Zustand.
+1. **UI с нуля** — виджеты и экраны проектируем заново, не копируем из `frontend/` или `web-legacy/`.
+2. **Основа как v1** — data layer, types, stores, tooling совпадают с [`../frontend/`](../frontend/).
 3. **FSD** — Feature-Sliced Design, импорт только вниз по слоям.
 4. **Страница за страницей** — каждый экран доводим до готовности, прежде чем тащить следующий.
 
@@ -15,37 +15,56 @@ app → screens → widgets → features → entities → shared
 
 | Слой | Путь | Ответственность |
 |------|------|-----------------|
-| **app** | `src/app/` | Routing, providers, Zustand UI store |
+| **app** | `src/app/` | Routing, providers, Zustand stores |
 | **screens** | `src/screens/` | Композиция экрана (1 URL ≈ 1 slice) |
-| **widgets** | `src/widgets/` | Крупные блоки (shell, sidebar, feed, …) |
+| **widgets** | `src/widgets/` | Крупные UI-блоки (shell, sidebar, feed, …) |
 | **features** | `src/features/` | Пользовательские сценарии |
-| **entities** | `src/entities/` | Доменные сущности |
-| **shared** | `src/shared/` | UI-kit, lib, types, config |
+| **entities** | `src/entities/` | Доменные сущности + React Query hooks |
+| **shared** | `src/shared/` | UI-kit, lib, API, types, seed data |
 
-## Shell (текущая фаза)
+## Data flow
 
-Уже есть:
+```
+UI (screen/widget)
+  → TanStack Query hook (entities/*/model)
+    → Repository interface (shared/api/repositories.ts)
+      → MSW handlers (dev) | HTTP client (prod)
+        → In-memory seed store
+```
 
-- `AppProviders` — theme + React Query + TooltipProvider
-- `AppShell` — desktop sidebar + mobile drawer
-- `Sidebar` — rail collapse, nav по [10-pages.md](../concept/10-pages.md), недавние списки
-- `PageHeader` — glass header, left/center/right slots
-- Все top-level screens с шапками (тела — `EmptyState` заглушки)
-- `shared/data/preview-seed.ts` — mock для sidebar recents
-- `ui-store` — sidebar collapse, mobile drawer, feed card width, theme
+Переключение режима — через `shared/config/dataSource.ts` (см. [docs/BACKEND_READINESS.md](./docs/BACKEND_READINESS.md)).
 
-Пока **нет**: MSW, repositories, entities, Composer, контент экранов.
+## Providers (порядок как v1)
 
-## Дизайн v2 vs референс
+```
+MswProvider → ThemeProvider → QueryProvider → RepositoryProvider → TooltipProvider
+```
 
-Из `web-legacy` берём **идеи**, не CSS:
+## State
 
-- боковая навигация с недавними;
-- glass header;
-- ширины карточек ленты;
-- composer внизу / по центру на главной.
+| Concern | Tool | Location |
+|---------|------|----------|
+| Server data | TanStack Query | `entities/*/model/use*.ts` |
+| UI chrome | Zustand | `app/model/store/ui-store.ts` |
+| Post navigation stack | Zustand | `app/model/store/post-navigation-store.ts` |
+| Theme | next-themes | `AppProviders` |
 
-В v2 — свои токены в `globals.css` (oklch, `--shell-*`, `.glass-surface`), shadcn base-nova.
+## Что есть сейчас
+
+**Foundation (parity v1):**
+
+- `shared/api/` — repositories, MSW, zod schemas, http client
+- `shared/data/seed-data.ts` — полный seed домена
+- `entities/` — post, chat, note, channel hooks
+- `shared/lib/routes.ts` — полный парсинг URL
+- Playwright E2E + GitHub Actions CI
+
+**UI v2:**
+
+- `AppShell`, `Sidebar` (live recents из Repository), `PageHeader`
+- Top-level screens: home, feed, chats, notes, analytics, profile
+
+**Пока нет:** features, Composer, FeedWidget, PostWorkspace, NoteEditor, маршруты post/gchat/note.
 
 ## Path aliases
 
@@ -63,17 +82,14 @@ app → screens → widgets → features → entities → shared
 - Маршруты: `src/app/(shell)/*/page.tsx` → thin wrapper → `@/screens/*`
 - Static export в production (`next.config.ts`)
 - `trailingSlash: true`
+- Dev port: **3001** (v1 = 3000)
 
 ## Порядок разработки экранов
-
-Рекомендуемая очередь (см. [10-pages.md](../concept/10-pages.md)):
 
 1. Home + Composer
 2. Feed
 3. Post workspace
 4. Chats / GChat
 5. Notes
-6. Analytics
-7. Profile
-
-На каждом шаге: widget → screen → route → (позже) entity + feature + data.
+6. Analytics (dashboard)
+7. Profile (settings)

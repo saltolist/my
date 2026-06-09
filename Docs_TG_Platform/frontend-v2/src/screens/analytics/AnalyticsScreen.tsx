@@ -4,7 +4,7 @@ import { useState } from "react";
 import { BarChart3 } from "lucide-react";
 
 import { useTopLevelBack } from "@/shared/lib/hooks/useTopLevelBack";
-import type { AnalyticsPeriod } from "@/shared/types";
+import type { AnalyticsPeriod } from "@/shared/data/analytics-seed";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { ScreenShell } from "@/screens/_ui/screen-shell";
 import { AnalyticsPeriodFilter } from "@/widgets/analytics/ui/analytics-period-filter";

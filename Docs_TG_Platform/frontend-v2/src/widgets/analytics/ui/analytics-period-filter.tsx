@@ -1,15 +1,10 @@
 "use client";
 
-import type { AnalyticsPeriod } from "@/shared/types";
+import {
+  ANALYTICS_PERIOD_OPTIONS,
+  type AnalyticsPeriod,
+} from "@/shared/data/analytics-seed";
 import { FilterTabs } from "@/shared/ui/filter-tabs";
-
-const PERIOD_OPTIONS = [
-  { value: "24h" as const, label: "24 ч" },
-  { value: "7d" as const, label: "7 дн" },
-  { value: "30d" as const, label: "30 дн" },
-  { value: "90d" as const, label: "90 дн" },
-  { value: "all" as const, label: "Всё время" },
-];
 
 type AnalyticsPeriodFilterProps = {
   value: AnalyticsPeriod;
@@ -20,7 +15,7 @@ export function AnalyticsPeriodFilter({ value, onChange }: AnalyticsPeriodFilter
   return (
     <FilterTabs
       value={value}
-      options={PERIOD_OPTIONS}
+      options={ANALYTICS_PERIOD_OPTIONS}
       onChange={onChange}
       ariaLabel="Период аналитики"
     />

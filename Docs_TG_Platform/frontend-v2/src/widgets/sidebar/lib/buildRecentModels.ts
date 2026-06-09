@@ -1,4 +1,4 @@
-import type { PreviewDomain } from "@/shared/data/preview-seed";
+import type { GlobalChat, GlobalNote, Post } from "@/shared/types";
 import {
   RECENT_SIDEBAR_MAX,
   type RecentChatsModel,
@@ -7,24 +7,36 @@ import {
   type RecentRow,
 } from "@/widgets/sidebar/model/types";
 
+export type SidebarData = {
+  posts: Post[];
+  globalChats: GlobalChat[];
+  globalNotes: GlobalNote[];
+};
+
 const byChatActivity = (a: RecentRow, b: RecentRow) =>
   b.historyLen - a.historyLen || a.seq - b.seq;
+
+const noteWeight = (body: string) => body?.length ?? 0;
 
 const byNoteActivity = (a: RecentNoteRow, b: RecentNoteRow) =>
   b.weight - a.weight || a.seq - b.seq;
 
 export function buildRecentChatsModel(
-  data: PreviewDomain,
+  data: SidebarData,
   sidebarPostId: number | null,
 ): RecentChatsModel {
-  const globalRows: RecentRow[] = data.globalChats.map((c, seq) => ({
-    kind: "global",
-    key: `g:${c.id}`,
-    id: c.id,
-    title: c.title,
-    historyLen: c.historyLen,
-    seq,
-  }));
+  const globalRows: RecentRow[] = [];
+  let gSeq = 0;
+  for (const c of data.globalChats) {
+    globalRows.push({
+      kind: "global",
+      key: `g:${c.id}`,
+      id: c.id,
+      title: c.title || "Без названия",
+      historyLen: c.history.length,
+      seq: gSeq++,
+    });
+  }
   globalRows.sort(byChatActivity);
 
   const inPostSpace =
@@ -40,8 +52,8 @@ export function buildRecentChatsModel(
           key: `l:${p.id}-${c.id}`,
           postId: p.id,
           chatId: c.id,
-          title: c.title,
-          historyLen: c.historyLen,
+          title: c.title || "Без названия",
+          historyLen: c.history.length,
           seq: seq++,
         });
       }
@@ -52,15 +64,19 @@ export function buildRecentChatsModel(
   }
 
   const post = data.posts.find((p) => p.id === sidebarPostId)!;
-  const thisPostRows: RecentRow[] = post.chats.map((c, seq) => ({
-    kind: "local" as const,
-    key: `l:${post.id}-${c.id}`,
-    postId: post.id,
-    chatId: c.id,
-    title: c.title,
-    historyLen: c.historyLen,
-    seq,
-  }));
+  const thisPostRows: RecentRow[] = [];
+  let tpSeq = 0;
+  for (const c of post.chats) {
+    thisPostRows.push({
+      kind: "local",
+      key: `l:${post.id}-${c.id}`,
+      postId: post.id,
+      chatId: c.id,
+      title: c.title || "Без названия",
+      historyLen: c.history.length,
+      seq: tpSeq++,
+    });
+  }
   thisPostRows.sort(byChatActivity);
 
   const othersRows: RecentRow[] = [];
@@ -70,8 +86,8 @@ export function buildRecentChatsModel(
       kind: "global",
       key: `g:${c.id}`,
       id: c.id,
-      title: c.title,
-      historyLen: c.historyLen,
+      title: c.title || "Без названия",
+      historyLen: c.history.length,
       seq: oSeq++,
     });
   }
@@ -83,33 +99,36 @@ export function buildRecentChatsModel(
         key: `l:${p.id}-${c.id}`,
         postId: p.id,
         chatId: c.id,
-        title: c.title,
-        historyLen: c.historyLen,
+        title: c.title || "Без названия",
+        historyLen: c.history.length,
         seq: oSeq++,
       });
     }
   }
   othersRows.sort(byChatActivity);
 
-  return {
-    mode: "grouped",
-    thisPost: thisPostRows.slice(0, RECENT_SIDEBAR_MAX),
-    others: othersRows.slice(0, RECENT_SIDEBAR_MAX),
-  };
+  const thisPost = thisPostRows.slice(0, RECENT_SIDEBAR_MAX);
+  const others = othersRows.slice(0, Math.max(0, RECENT_SIDEBAR_MAX - thisPost.length));
+
+  return { mode: "grouped", thisPost, others };
 }
 
 export function buildRecentNotesModel(
-  data: PreviewDomain,
+  data: SidebarData,
   sidebarPostId: number | null,
 ): RecentNotesModel {
-  const globalRows: RecentNoteRow[] = data.globalNotes.map((n, seq) => ({
-    key: `g:${n.id}`,
-    title: n.title,
-    weight: n.body.length,
-    seq,
-    isGlobal: true,
-    id: n.id,
-  }));
+  const globalRows: RecentNoteRow[] = [];
+  let gSeq = 0;
+  for (const n of data.globalNotes) {
+    globalRows.push({
+      kind: "global",
+      key: `ng:${n.id}`,
+      id: n.id,
+      title: n.title || "Без названия",
+      weight: noteWeight(n.body),
+      seq: gSeq++,
+    });
+  }
   globalRows.sort(byNoteActivity);
 
   const inPostSpace =
@@ -121,13 +140,13 @@ export function buildRecentNotesModel(
     for (const p of data.posts) {
       for (const n of p.notes) {
         allLocal.push({
-          key: `l:${p.id}-${n.id}`,
-          title: n.title,
-          weight: n.body.length,
-          seq: seq++,
-          isGlobal: false,
-          id: n.id,
+          kind: "local",
+          key: `nl:${p.id}-${n.id}`,
           postId: p.id,
+          noteId: n.id,
+          title: n.title || "Без названия",
+          weight: noteWeight(n.body),
+          seq: seq++,
         });
       }
     }
@@ -137,48 +156,51 @@ export function buildRecentNotesModel(
   }
 
   const post = data.posts.find((p) => p.id === sidebarPostId)!;
-  const thisPostRows: RecentNoteRow[] = post.notes.map((n, seq) => ({
-    key: `l:${post.id}-${n.id}`,
-    title: n.title,
-    weight: n.body.length,
-    seq,
-    isGlobal: false,
-    id: n.id,
-    postId: post.id,
-  }));
+  const thisPostRows: RecentNoteRow[] = [];
+  let tpSeq = 0;
+  for (const n of post.notes) {
+    thisPostRows.push({
+      kind: "local",
+      key: `nl:${post.id}-${n.id}`,
+      postId: post.id,
+      noteId: n.id,
+      title: n.title || "Без названия",
+      weight: noteWeight(n.body),
+      seq: tpSeq++,
+    });
+  }
   thisPostRows.sort(byNoteActivity);
 
   const othersRows: RecentNoteRow[] = [];
   let oSeq = 0;
   for (const n of data.globalNotes) {
     othersRows.push({
-      key: `g:${n.id}`,
-      title: n.title,
-      weight: n.body.length,
-      seq: oSeq++,
-      isGlobal: true,
+      kind: "global",
+      key: `ng:${n.id}`,
       id: n.id,
+      title: n.title || "Без названия",
+      weight: noteWeight(n.body),
+      seq: oSeq++,
     });
   }
   for (const p of data.posts) {
     if (p.id === post.id) continue;
     for (const n of p.notes) {
       othersRows.push({
-        key: `l:${p.id}-${n.id}`,
-        title: n.title,
-        weight: n.body.length,
-        seq: oSeq++,
-        isGlobal: false,
-        id: n.id,
+        kind: "local",
+        key: `nl:${p.id}-${n.id}`,
         postId: p.id,
+        noteId: n.id,
+        title: n.title || "Без названия",
+        weight: noteWeight(n.body),
+        seq: oSeq++,
       });
     }
   }
   othersRows.sort(byNoteActivity);
 
-  return {
-    mode: "grouped",
-    thisPost: thisPostRows.slice(0, RECENT_SIDEBAR_MAX),
-    others: othersRows.slice(0, RECENT_SIDEBAR_MAX),
-  };
+  const thisPost = thisPostRows.slice(0, RECENT_SIDEBAR_MAX);
+  const others = othersRows.slice(0, Math.max(0, RECENT_SIDEBAR_MAX - thisPost.length));
+
+  return { mode: "grouped", thisPost, others };
 }
