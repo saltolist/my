@@ -1,0 +1,77 @@
+"use client";
+
+import { buildSidebarRecentSections } from "@/widgets/sidebar/lib/buildSidebarRecentSections";
+import type { useSidebar } from "@/widgets/sidebar/model/useSidebar";
+import { SidebarNavItem } from "@/widgets/sidebar/ui/SidebarNavItem";
+import { SidebarRecentList } from "@/widgets/sidebar/ui/SidebarRecentList";
+import {
+  NavIconAnalytics,
+  NavIconChats,
+  NavIconFeed,
+  NavIconGlobalChat,
+  NavIconNotes,
+} from "@/widgets/sidebar/ui/nav-icons";
+import { SidebarExpandableNav } from "@/widgets/sidebar/ui/sidebar-expandable-nav";
+
+type SidebarNavProps = {
+  sb: ReturnType<typeof useSidebar>;
+  showLabels: boolean;
+};
+
+export function SidebarNav({ sb, showLabels }: SidebarNavProps) {
+  const { chatItems, chatGrouped, noteItems, noteGrouped } = buildSidebarRecentSections(sb);
+
+  return (
+    <nav className="flex flex-col gap-1 p-2" aria-label="Основная навигация">
+      <SidebarNavItem
+        label="Глобальный чат"
+        icon={<NavIconGlobalChat />}
+        active={sb.isScreenActive("home")}
+        onClick={sb.goHome}
+        showLabel={showLabels}
+      />
+      <SidebarNavItem
+        label="Аналитика"
+        icon={<NavIconAnalytics />}
+        active={sb.isScreenActive("analytics")}
+        onClick={() => sb.navigateScreen("analytics")}
+        showLabel={showLabels}
+      />
+      <SidebarNavItem
+        label="Лента"
+        icon={<NavIconFeed />}
+        active={sb.isScreenActive("feed")}
+        onClick={() => sb.navigateScreen("feed")}
+        showLabel={showLabels}
+      />
+
+      <SidebarExpandableNav
+        label="Заметки"
+        icon={<NavIconNotes />}
+        active={sb.isScreenActive("notes")}
+        expanded={sb.notesExpanded}
+        showLabel={showLabels}
+        expandLabel="Развернуть недавние заметки"
+        collapseLabel="Свернуть недавние заметки"
+        onNavClick={sb.openNotesNav}
+        onToggleExpanded={() => sb.setNotesExpanded((v) => !v)}
+      >
+        <SidebarRecentList items={noteItems} grouped={noteGrouped} />
+      </SidebarExpandableNav>
+
+      <SidebarExpandableNav
+        label="Чаты"
+        icon={<NavIconChats />}
+        active={sb.isScreenActive("chats")}
+        expanded={sb.chatsExpanded}
+        showLabel={showLabels}
+        expandLabel="Развернуть недавние чаты"
+        collapseLabel="Свернуть недавние чаты"
+        onNavClick={sb.openChatsNav}
+        onToggleExpanded={() => sb.setChatsExpanded((v) => !v)}
+      >
+        <SidebarRecentList items={chatItems} grouped={chatGrouped} />
+      </SidebarExpandableNav>
+    </nav>
+  );
+}
