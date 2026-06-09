@@ -1,18 +1,20 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useNavigationStore, useUiStore } from "@/app/model/store";
+import { useUiStore } from "@/app/model/store";
 import { useGlobalChats } from "@/entities/chat/model/useGlobalChats";
 import { useGlobalNotes } from "@/entities/note/model/useGlobalNotes";
 import { usePosts } from "@/entities/post/model/usePosts";
 import { RAIL_MIN_MQ, useMediaQuery } from "@/shared/lib/hooks/useMediaQuery";
 import {
   parseAppPath,
+  parseChatSearchParam,
+  parseGChatSearchParam,
   routes,
   screenFromPath,
-} from "@/shared/config/routes";
+} from "@/shared/lib/routes";
 import type { ScreenId } from "@/shared/types";
 import {
   buildRecentChatsModel,
@@ -27,8 +29,11 @@ type UseSidebarOptions = {
 export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
   const route = parseAppPath(pathname);
   const screen = screenFromPath(pathname);
+  const gchatIdFromUrl = parseGChatSearchParam(searchParams.get("id"));
+  const postChatIdFromUrl = parseChatSearchParam(searchParams.get("chat"));
 
   const railAllowed = useMediaQuery(RAIL_MIN_MQ);
   const sidebarCollapsed = useUiStore((s) => s.sidebarCollapsed);
@@ -41,9 +46,6 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
 
   const [notesExpanded, setNotesExpanded] = useState(false);
   const [chatsExpanded, setChatsExpanded] = useState(true);
-
-  const currentGChatId = useNavigationStore((s) => s.currentGChatId);
-  const currentPostChatId = useNavigationStore((s) => s.currentPostChatId);
 
   const sidebarData = useMemo(
     () => ({ posts, globalChats, globalNotes }),
@@ -68,14 +70,14 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
     sidebarPostId != null &&
     screen === "post" &&
     route.postId === sidebarPostId &&
-    currentPostChatId == null;
+    postChatIdFromUrl == null;
 
   const isSidebarPostSubActive =
     sidebarPostId != null &&
     !isSidebarPostFullActive &&
     ((screen === "post" &&
       route.postId === sidebarPostId &&
-      currentPostChatId != null) ||
+      postChatIdFromUrl != null) ||
       (screen === "note" && route.notePostId === sidebarPostId));
 
   const recentChatsModel = useMemo(
@@ -185,15 +187,15 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
   const isRecentChatActive = useCallback(
     (row: RecentRow) => {
       if (row.kind === "global") {
-        return screen === "gchat" && currentGChatId === row.id;
+        return screen === "gchat" && gchatIdFromUrl === row.id;
       }
       return (
         screen === "post" &&
         route.postId === row.postId &&
-        currentPostChatId === row.chatId
+        postChatIdFromUrl === row.chatId
       );
     },
-    [screen, route.postId, currentGChatId, currentPostChatId],
+    [screen, route.postId, gchatIdFromUrl, postChatIdFromUrl],
   );
 
   const isRecentNoteActive = useCallback(

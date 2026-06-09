@@ -4,16 +4,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
-import {
-  PROFILE_HEADER_CHANNEL_SUMMARY_COMPACT_MAX,
-  PROFILE_HEADER_CHANNEL_SUMMARY_TWO_ROW_MAX,
-  PROFILE_HEADER_CHART_MAX_POINTS_MAX,
-  PROFILE_HEADER_CHART_NARROW_MAX,
-  PROFILE_HEADER_CHART_SHORT_MAX,
-  PROFILE_HEADER_PLATFORM_PERIOD_MAX,
-  PROFILE_HEADER_TOP_POSTS_COMPACT_MAX,
-  syncProfileHeaderTrashCompactToDocument,
-} from "@/shared/lib/profileBreakpoints";
 import { screenToHref } from "@/shared/lib/routes";
 import type { BreadcrumbItem } from "@/shared/ui/breadcrumb";
 import type { ScreenId } from "@/shared/types";
@@ -24,6 +14,7 @@ import {
   resolveSearchSpanRightAnchor,
   withMobileSearchClose,
 } from "@/widgets/page-header/lib/pageHeaderSearchUtils";
+import { useProfilePageHeaderSync } from "@/widgets/page-header/model/useProfilePageHeaderSync";
 import type { PageHeaderOverflowItem } from "@/widgets/page-header/ui/page-header-overflow";
 
 export type PageHeaderProps = {
@@ -40,6 +31,7 @@ export type PageHeaderProps = {
   overflowItems?: PageHeaderOverflowItem[];
   compactSearchAtWidth?: number;
   compactSearchOverlay?: boolean;
+  profileBreakpoints?: boolean;
   className?: string;
   showBack?: boolean;
 };
@@ -57,6 +49,7 @@ export function usePageHeader({
   overflowItems,
   compactSearchAtWidth,
   compactSearchOverlay = false,
+  profileBreakpoints = false,
   className,
   showBack,
 }: PageHeaderProps) {
@@ -88,6 +81,8 @@ export function usePageHeader({
   const searchOverlayMode =
     compactSearchOverlay && (isMobile || compactSearch);
 
+  useProfilePageHeaderSync(headerRef, isMobile, profileBreakpoints);
+
   useLayoutEffect(() => {
     const el = headerRef.current;
     if (!el) return;
@@ -99,36 +94,6 @@ export function usePageHeader({
       }
       document.documentElement.style.setProperty("--page-header-w", `${w}px`);
       document.documentElement.style.setProperty("--page-header-w-num", String(w));
-      syncProfileHeaderTrashCompactToDocument(w, isMobile);
-      document.documentElement.toggleAttribute("data-page-header-le-841", !isMobile && w > 0 && w <= 841);
-      document.documentElement.toggleAttribute(
-        "data-page-header-le-780",
-        !isMobile && w > 0 && w <= PROFILE_HEADER_TOP_POSTS_COMPACT_MAX,
-      );
-      document.documentElement.toggleAttribute(
-        "data-page-header-le-1080",
-        !isMobile && w > 0 && w <= PROFILE_HEADER_CHART_MAX_POINTS_MAX,
-      );
-      document.documentElement.toggleAttribute(
-        "data-page-header-le-640",
-        !isMobile && w > 0 && w <= PROFILE_HEADER_CHART_NARROW_MAX,
-      );
-      document.documentElement.toggleAttribute(
-        "data-page-header-le-1130",
-        !isMobile && w > 0 && w <= PROFILE_HEADER_CHANNEL_SUMMARY_COMPACT_MAX,
-      );
-      document.documentElement.toggleAttribute(
-        "data-page-header-le-804",
-        !isMobile && w > 0 && w <= PROFILE_HEADER_CHART_SHORT_MAX,
-      );
-      document.documentElement.toggleAttribute(
-        "data-page-header-le-930",
-        !isMobile && w > 0 && w <= PROFILE_HEADER_CHANNEL_SUMMARY_TWO_ROW_MAX,
-      );
-      document.documentElement.toggleAttribute(
-        "data-page-header-le-650",
-        !isMobile && w > 0 && w <= PROFILE_HEADER_PLATFORM_PERIOD_MAX,
-      );
     };
 
     const observer = new ResizeObserver(sync);
@@ -140,15 +105,6 @@ export function usePageHeader({
       if (compactSearchAtWidth != null) {
         setHeaderWidth(0);
       }
-      document.documentElement.removeAttribute("data-profile-header-trash-compact");
-      document.documentElement.removeAttribute("data-page-header-le-841");
-      document.documentElement.removeAttribute("data-page-header-le-780");
-      document.documentElement.removeAttribute("data-page-header-le-1080");
-      document.documentElement.removeAttribute("data-page-header-le-640");
-      document.documentElement.removeAttribute("data-page-header-le-1130");
-      document.documentElement.removeAttribute("data-page-header-le-804");
-      document.documentElement.removeAttribute("data-page-header-le-930");
-      document.documentElement.removeAttribute("data-page-header-le-650");
       document.documentElement.style.removeProperty("--page-header-w");
       document.documentElement.style.removeProperty("--page-header-w-num");
     };

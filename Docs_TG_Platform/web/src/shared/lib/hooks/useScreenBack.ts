@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback } from "react";
 
-import { getParentPath, routes } from "@/shared/config/routes";
+import { getParentPath, routes } from "@/shared/lib/routes";
 
 export function useScreenBack() {
   const router = useRouter();

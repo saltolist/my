@@ -3,8 +3,9 @@
 import { useMemo, useState } from "react";
 import { FileText } from "lucide-react";
 
+import { useNavigationStore } from "@/app/model/store";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
-import type { NoteListFilter } from "@/shared/types";
+import type { NoteListFilter, NoteScope } from "@/shared/types";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { ScreenShell } from "@/screens/_ui/screen-shell";
 import { PageHeader, PageHeaderSearchInput, PageHeaderSelect } from "@/widgets/page-header";
@@ -23,8 +24,10 @@ const FILTER_OPTIONS = [
 
 export function NotesScreen() {
   const isMobile = useMobile760();
-  const [scope, setScope] = useState<(typeof SCOPE_OPTIONS)[number]["value"]>("all");
-  const [filter, setFilter] = useState<NoteListFilter>("all");
+  const scope = useNavigationStore((s) => s.noteScope);
+  const filter = useNavigationStore((s) => s.noteFilter);
+  const setNoteScope = useNavigationStore((s) => s.setNoteScope);
+  const setNoteFilter = useNavigationStore((s) => s.setNoteFilter);
   const [search, setSearch] = useState("");
 
   const notesScopeSelectProps = useMemo(
@@ -32,9 +35,9 @@ export function NotesScreen() {
       ariaLabel: "Область заметок",
       value: scope,
       options: SCOPE_OPTIONS,
-      onChange: (v: string) => setScope(v as (typeof SCOPE_OPTIONS)[number]["value"]),
+      onChange: (v: string) => setNoteScope(v as NoteScope),
     }),
-    [scope],
+    [scope, setNoteScope],
   );
 
   const notesContextFilterSelectProps = useMemo(
@@ -42,9 +45,9 @@ export function NotesScreen() {
       ariaLabel: "Контекст заметок",
       value: filter,
       options: FILTER_OPTIONS,
-      onChange: (v: string) => setFilter(v as NoteListFilter),
+      onChange: (v: string) => setNoteFilter(v as NoteListFilter),
     }),
-    [filter],
+    [filter, setNoteFilter],
   );
 
   return (

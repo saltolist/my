@@ -9,7 +9,7 @@ export {
   PageHeaderOverflow,
   type PageHeaderOverflowItem,
 } from "./ui/page-header-overflow";
-export { usePageHeaderLe640 } from "./model/usePageHeaderLe640";
-export { usePageHeaderLe650 } from "./model/usePageHeaderLe650";
-export { usePageHeaderLe780 } from "./model/usePageHeaderLe780";
-export { usePageHeaderLe1080 } from "./model/usePageHeaderLe1080";
+export { usePageHeaderLe640 } from "./model/profile/usePageHeaderLe640";
+export { usePageHeaderLe650 } from "./model/profile/usePageHeaderLe650";
+export { usePageHeaderLe780 } from "./model/profile/usePageHeaderLe780";
+export { usePageHeaderLe1080 } from "./model/profile/usePageHeaderLe1080";

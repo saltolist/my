@@ -3,10 +3,10 @@
 import { useState } from "react";
 
 import { EmptyState } from "@/shared/ui/empty-state";
+import { NavIconFeed } from "@/shared/ui/nav-icons";
 import { ScreenShell } from "@/screens/_ui/screen-shell";
 import { FeedHeaderToolbar } from "@/widgets/feed/ui/feed-header-toolbar";
 import { PageHeader } from "@/widgets/page-header";
-import { NavIconFeed } from "@/widgets/sidebar";
 
 export function FeedScreen() {
   const [search, setSearch] = useState("");

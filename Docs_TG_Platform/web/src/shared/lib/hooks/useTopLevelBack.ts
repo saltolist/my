@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 
-import { routes } from "@/shared/config/routes";
+import { routes } from "@/shared/lib/routes";
 
 export function useTopLevelBack() {
   const router = useRouter();

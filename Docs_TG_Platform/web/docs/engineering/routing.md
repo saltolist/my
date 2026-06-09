@@ -123,6 +123,19 @@ See [screens.md](../ux/components/screens.md).
 
 Post mode changes do **not** update URL (except legacy redirect on load).
 
+### Who reads what
+
+| Concern | Source of truth | Read via | Write via |
+|---------|-----------------|----------|-----------|
+| Screen, post id, note path, gchat id | URL | `parseAppPath`, searchParams | `router.push`, `routes.*()` |
+| Post submode | `post-navigation-store` | `getMode(postId)` | `setMode`, `pushMode`, `popMode` |
+| Local chat in post | URL `?chat=` + store | RouteSync | `routes.post(id, chatId)` |
+| Note edit context | `navigation-store` | `currentNote`, `noteMode` | RouteSync, note editor |
+| List filters (chats, notes) | `navigation-store` | `chatsTab`, `noteScope`, `noteFilter` | `setChatsTab`, `setNoteScope`, `setNoteFilter` |
+| Screen data (titles, bodies) | Repository + entity hooks | `usePost`, `useGlobalChat`, … | mutations |
+
+Pure URL → store sync: `syncRouteFromUrl()` in `widgets/app-shell/lib/syncRoute.ts`, called from `RouteSync`.
+
 ---
 
 ## Related

@@ -4,7 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 import { useUiStore } from "@/app/model/store";
-import { screenFromPath } from "@/shared/config/routes";
+import { screenFromPath } from "@/shared/lib/routes";
 import { Sidebar } from "@/widgets/sidebar";
 
 type AppShellProps = {

@@ -8,7 +8,7 @@ import { PageHeader } from "@/widgets/page-header";
 
 export function ProfileScreen() {
   return (
-    <ScreenShell header={<PageHeader title="Профиль" backTo="home" />}>
+    <ScreenShell header={<PageHeader title="Профиль" backTo="home" profileBreakpoints />}>
       <EmptyState
         icon={<UserRound className="size-5" />}
         message="Вкладки «Канал» и «Настройки» появятся на следующем шаге."

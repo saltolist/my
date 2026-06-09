@@ -14,7 +14,6 @@ export type NavigationState = {
   currentPostId: number | null;
   currentPostChatId: number | null;
   postMode: PostMode;
-  postViewStack: { mode: PostMode; chatId: number | null }[];
   isEditing: boolean;
   currentGChatId: string | null;
   currentNote: ActiveNote | null;
@@ -31,7 +30,6 @@ export const initialNavigationState: NavigationState = {
   currentPostId: null,
   currentPostChatId: null,
   postMode: "chat",
-  postViewStack: [],
   isEditing: false,
   currentGChatId: null,
   currentNote: null,

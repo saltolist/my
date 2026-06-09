@@ -5,6 +5,8 @@ import {
   parseAppPath,
   parseGChatLegacyPath,
   parsePostLegacySub,
+  getParentPath,
+  statePatchToHref,
   routes,
 } from "@/shared/lib/routes";
 
@@ -41,6 +43,16 @@ describe("routes", () => {
   it("parseGChatLegacyPath", () => {
     expect(parseGChatLegacyPath("/gchat/gc1/")).toBe("gc1");
     expect(parseGChatLegacyPath("/gchat/")).toBeNull();
+  });
+
+  it("getParentPath for post", () => {
+    expect(getParentPath("/post/1/")).toBe("/feed/");
+  });
+
+  it("statePatchToHref for gchat", () => {
+    expect(
+      statePatchToHref({ screen: "gchat", currentGChatId: "gc1" }, { screen: "chats", currentPostId: null, postMode: "chat" }),
+    ).toBe("/gchat/?id=gc1");
   });
 });
 

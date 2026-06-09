@@ -1,17 +1,19 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { MessageSquare } from "lucide-react";
 
-import { useNavigationStore } from "@/app/model/store";
 import { useGlobalChat } from "@/entities/chat";
 import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
+import { parseGChatSearchParam } from "@/shared/lib/routes";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { ScreenShell } from "@/screens/_ui/screen-shell";
 import { PageHeader } from "@/widgets/page-header";
 
 export function GChatScreen() {
+  const searchParams = useSearchParams();
   const onBack = useScreenBack();
-  const gchatId = useNavigationStore((s) => s.currentGChatId);
+  const gchatId = parseGChatSearchParam(searchParams.get("id"));
   const { data: chat, isLoading, error } = useGlobalChat(gchatId);
 
   return (

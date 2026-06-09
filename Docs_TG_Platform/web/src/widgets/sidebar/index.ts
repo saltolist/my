@@ -1,2 +1,2 @@
 export { Sidebar } from "./ui/Sidebar";
-export { NavIconFeed } from "./ui/nav-icons";
+export { NavIconFeed } from "@/shared/ui/nav-icons";

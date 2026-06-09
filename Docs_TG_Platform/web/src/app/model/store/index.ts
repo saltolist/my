@@ -16,4 +16,3 @@ export {
   type NavigationPatch,
   type NavigationState,
 } from "./navigation/types";
-export { initialNavFromPathname } from "./navigation/initialNavFromPath";

@@ -234,7 +234,6 @@ export function buildRoutePatch(
   currentPostId: number | null;
   currentPostChatId: number | null;
   postMode: PostMode;
-  postViewStack: { mode: PostMode; chatId: number | null }[];
   isEditing: boolean;
   currentGChatId: string | null;
   currentNote: ActiveNote | null;
@@ -244,7 +243,6 @@ export function buildRoutePatch(
 }> {
   const base = {
     screen: parsed.screen,
-    postViewStack: [] as { mode: PostMode; chatId: number | null }[],
     isEditing: false,
     currentGChatId: null as string | null,
     currentPostId: null as number | null,

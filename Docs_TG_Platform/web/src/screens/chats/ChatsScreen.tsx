@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { MessageSquare } from "lucide-react";
 
+import { useNavigationStore } from "@/app/model/store";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import type { ChatsTab } from "@/shared/types";
 import { EmptyState } from "@/shared/ui/empty-state";
@@ -17,7 +18,8 @@ const TAB_OPTIONS = [
 
 export function ChatsScreen() {
   const isMobile = useMobile760();
-  const [tab, setTab] = useState<ChatsTab>("all");
+  const tab = useNavigationStore((s) => s.chatsTab);
+  const setChatsTab = useNavigationStore((s) => s.setChatsTab);
   const [search, setSearch] = useState("");
 
   const chatsScopeSelectProps = useMemo(
@@ -25,9 +27,9 @@ export function ChatsScreen() {
       ariaLabel: "Область чатов",
       value: tab,
       options: TAB_OPTIONS,
-      onChange: (v: string) => setTab(v as ChatsTab),
+      onChange: (v: string) => setChatsTab(v as ChatsTab),
     }),
-    [tab],
+    [tab, setChatsTab],
   );
 
   return (
