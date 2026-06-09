@@ -66,6 +66,8 @@ MswProvider → ThemeProvider → QueryProvider → RepositoryProvider → Toolt
 
 **Пока нет:** features, Composer, FeedWidget, PostWorkspace, NoteEditor, маршруты post/gchat/note.
 
+→ Полный план: [`../web/docs/product/08-roadmap.md`](../web/docs/product/08-roadmap.md)
+
 ## Path aliases
 
 ```ts

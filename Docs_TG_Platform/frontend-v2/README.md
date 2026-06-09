@@ -2,7 +2,9 @@
 
 Reference implementation web-клиента. Каноническая инженерная документация — [`../web/docs/engineering/stack.md`](../web/docs/engineering/stack.md).
 
-Новая версия web-клиента TG Platform. Пишется **с нуля** по UI, но **инфраструктурная основа совпадает с v1** ([`../frontend/`](../frontend/)). [`../web-legacy/`](../web-legacy/) — только референс по UX.
+**Roadmap:** [`../web/docs/product/08-roadmap.md`](../web/docs/product/08-roadmap.md) · кратко: [`../web/docs/engineering/frontend-roadmap.md`](../web/docs/engineering/frontend-roadmap.md)
+
+[`../web-legacy/`](../web-legacy/) — UX reference (read-only). [`../frontend/`](../frontend/) — v1 production client.
 
 ## Quick start
 
@@ -12,7 +14,7 @@ npm ci
 npm run dev
 ```
 
-Откройте [http://localhost:3001](http://localhost:3001) (порт 3001, чтобы не конфликтовать с frontend v1 на 3000).
+Откройте [http://localhost:3001](http://localhost:3001).
 
 ## Environment
 
@@ -34,38 +36,32 @@ npm run dev
 | `npm run test:e2e` | Playwright E2E |
 | `npm run check` | typecheck + lint + test + build |
 
-## Статус
+## Статус — M1 Foundation
 
-**Фаза: Foundation parity + Shell**
+| Готово | В работе / дальше |
+|--------|-------------------|
+| MSW + Repository + seed | Маршруты gchat, post, note |
+| TanStack Query entities | RouteSync, legacy redirects |
+| Sidebar, PageHeader, AppShell (partial) | Widgets: composer, feed, post-workspace… |
+| CI check job | GitHub Pages deploy (M6) |
+| 4 E2E smoke tests | E2E per screen (M5) |
 
-Инфраструктура (как v1):
+**Следующий шаг (roadmap Фаза 1):** все URL из [routing.md](../web/docs/engineering/routing.md) + placeholder screens.
 
-- MSW + Repository pattern + seed-data
-- TanStack Query hooks в `entities/`
-- `post-navigation-store`, полный `ui-store`
-- Playwright E2E + CI
-
-UI v2 (своя реализация):
-
-- Sidebar, PageHeader, top-level screens (тела — заглушки)
-
-Следующие шаги:
-
-1. Home — Composer и глобальный ИИ-чат
-2. Feed — секции ленты и карточки постов
-3. Post workspace → GChat → Note
+Затем **Фаза 2** shell → **Фаза 3** widgets → **Фаза 5** экраны по [pages.md](../web/docs/ux/pages.md).
 
 ## Документация
 
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — FSD, data flow
 - [docs/BACKEND_READINESS.md](./docs/BACKEND_READINESS.md)
 - [docs/API_CONTRACT.yaml](./docs/API_CONTRACT.yaml)
-- Product spec: [`../web/docs/ux/pages.md`](../web/docs/ux/pages.md)
+- UX spec: [`../web/docs/ux/pages.md`](../web/docs/ux/pages.md)
+- Parity tracker: [`../web/docs/ux/parity.md`](../web/docs/ux/parity.md)
 
 ## Связь с другими клиентами
 
 | Путь | Роль |
 |------|------|
 | `frontend/` | Production-клиент v1 |
-| `frontend-v2/` | Новый клиент v2, активная разработка |
-| `web-legacy/` | Архивный референс |
+| `frontend-v2/` | **Active v2 client** |
+| `web-legacy/` | UX reference |

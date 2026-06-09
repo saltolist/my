@@ -2,7 +2,7 @@
 
 Единая точка входа для web-версии TG Platform: продуктовая документация, UX-спецификация и инженерные заметки.
 
-**Сейчас:** документация complete. Код клиента — reference в `frontend-v2/`, UX reference в `web-legacy/`.
+**Сейчас:** документация complete; код — [`frontend-v2/`](../frontend-v2/) на **M1 Foundation**. Roadmap — [docs/product/08-roadmap.md](./docs/product/08-roadmap.md).
 
 ## Структура
 
@@ -28,7 +28,7 @@ web/
 | Продукт (`docs/product/`) | complete |
 | UX (`docs/ux/`) | complete — sync с `web-legacy` |
 | Engineering (`docs/engineering/`) | complete — stack v2 |
-| Код (`src/`) | не начат — reference: `frontend-v2`, `web-legacy` |
+| Код (`frontend-v2/`) | M1 Foundation — shell + data layer; см. [08-roadmap.md](./docs/product/08-roadmap.md) |
 
 ## Legacy-клиенты (вне `web/`)
 

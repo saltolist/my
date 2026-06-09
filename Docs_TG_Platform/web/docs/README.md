@@ -15,7 +15,7 @@
 | [05-channel-profile.md](./product/05-channel-profile.md) | Профиль канала (поля вкладки «Канал») |
 | [06-analytics.md](./product/06-analytics.md) | Аналитика канала и платформы |
 | [07-notes.md](./product/07-notes.md) | Заметки (глобальные и локальные) |
-| [08-roadmap.md](./product/08-roadmap.md) | Фазы разработки |
+| [08-roadmap.md](./product/08-roadmap.md) | **Roadmap** — фазы фронтенда, GH Pages, backend-ready |
 | [09-user-scenario.md](./product/09-user-scenario.md) | Сквозной сценарий (narrative) |
 | [11-reusable-modules-integration.md](./product/11-reusable-modules-integration.md) | Модули backend — **не legacy UI** |
 | [13-chat-context-summaries.md](./product/13-chat-context-summaries.md) | Сводки контекста — **не legacy UI** |
@@ -56,6 +56,7 @@
 | [API_CONTRACT.yaml](./engineering/API_CONTRACT.yaml) | OpenAPI contract |
 | [testing.md](./engineering/testing.md) | Vitest, Playwright, CI |
 | [deploy.md](./engineering/deploy.md) | Static export, hosting |
+| [frontend-roadmap.md](./engineering/frontend-roadmap.md) | Milestones + PR checklist |
 | [web-client.md](./engineering/web-client.md) | Фазы клиента |
 | [BACKEND_READINESS.md](./engineering/BACKEND_READINESS.md) | Подключение backend |
 | [web-client.legacy.md](./engineering/web-client.legacy.md) | Архив v1 |

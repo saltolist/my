@@ -2,23 +2,35 @@
 
 Reference UI = [`web-legacy`](../../../web-legacy/) — **полный эталон**. Spec = [pages.md](./pages.md).
 
-Новая версия должна воспроизвести legacy 1:1 на v2-стеке. Backend-only ограничения (stub AI, in-memory) — [local-first.md](../engineering/local-first.md), [08-roadmap.md](../product/08-roadmap.md).
+Новая версия — [`frontend-v2`](../../../frontend-v2/) — воспроизводит legacy 1:1 на v2-стеке. План фаз — [08-roadmap.md](../product/08-roadmap.md).
+
+## Implementation progress
+
+| Phase | Scope | Status |
+|-------|-------|--------|
+| M1 Foundation | data layer, CI, 6 top-level routes | 🟡 in progress |
+| M2 Shell | sidebar, PageHeader, RouteSync | 🔴 |
+| M3 Widgets | composer, feed, post-workspace, … | 🔴 |
+| M5 Screens | 9 screens parity | 🔴 |
+| M6 GitHub Pages | deploy workflow | 🔴 |
+
+Backend-only limits (stub AI, in-memory) — [local-first.md](../engineering/local-first.md). Снимаются на **Track B** после M7.
 
 ---
 
 ## Screen parity
 
-| Screen | URL | Spec | Reference UI |
-|--------|-----|------|--------------|
-| Home | `/` | [pages.md §1](./pages.md#1-home) | done |
-| GChat | `/gchat/?id=` | [pages.md §2](./pages.md#2-gchat) | done |
-| Feed | `/feed/` | [pages.md §3](./pages.md#3-feed) | done |
-| Post | `/post/{id}/` | [pages.md §4](./pages.md#4-post) | done |
-| Note | `/note/*` | [pages.md §5](./pages.md#5-note) | done |
-| Chats | `/chats/` | [pages.md §6](./pages.md#6-chats) | done |
-| Notes | `/notes/` | [pages.md §7](./pages.md#7-notes) | done |
-| Analytics | `/analytics/` | [pages.md §8](./pages.md#8-analytics) | done |
-| Profile | `/profile/` | [pages.md §9](./pages.md#9-profile) | done |
+| Screen | URL | Spec | Reference UI | frontend-v2 |
+|--------|-----|------|--------------|-------------|
+| Home | `/` | [pages.md §1](./pages.md#1-home) | done | 🟡 shell |
+| GChat | `/gchat/?id=` | [pages.md §2](./pages.md#2-gchat) | done | 🔴 no route |
+| Feed | `/feed/` | [pages.md §3](./pages.md#3-feed) | done | 🟡 shell |
+| Post | `/post/{id}/` | [pages.md §4](./pages.md#4-post) | done | 🔴 no route |
+| Note | `/note/*` | [pages.md §5](./pages.md#5-note) | done | 🔴 no route |
+| Chats | `/chats/` | [pages.md §6](./pages.md#6-chats) | done | 🟡 shell |
+| Notes | `/notes/` | [pages.md §7](./pages.md#7-notes) | done | 🟡 shell |
+| Analytics | `/analytics/` | [pages.md §8](./pages.md#8-analytics) | done | 🟡 shell |
+| Profile | `/profile/` | [pages.md §9](./pages.md#9-profile) | done | 🟡 shell |
 
 Wireframes: [wireframes/](./wireframes/). Components: [components/](./components/).
 
@@ -39,11 +51,11 @@ Wireframes: [wireframes/](./wireframes/). Components: [components/](./components
 
 ## Backend phase (not UX parity)
 
-| Limit | Doc | Phase |
-|-------|-----|-------|
-| Stub AI, no real LLM | [local-first.md](../engineering/local-first.md) | roadmap 2–4 |
-| No persistence on reload | [local-first.md](../engineering/local-first.md) | roadmap 2 |
-| No auth / multi-user | [08-roadmap.md](../product/08-roadmap.md) | roadmap 6+ |
+| Limit | Doc | Milestone |
+|-------|-----|-----------|
+| Stub AI, no real LLM | [local-first.md](../engineering/local-first.md) | M5 demo / Track B |
+| No persistence on reload | [local-first.md](../engineering/local-first.md) | M5 / Track B |
+| No auth / multi-user | [08-roadmap.md](../product/08-roadmap.md) Track B | future |
 
 ---
 

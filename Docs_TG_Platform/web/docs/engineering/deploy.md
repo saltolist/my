@@ -49,6 +49,8 @@ NEXT_PUBLIC_BASE_PATH: /Repositories_Info/Docs_TG_Platform/frontend-v2
 
 Deploy `out/` to Pages. All routes use trailing slashes; gchat uses query `?id=` because path segments don't work well with static export for dynamic ids.
 
+**Deploy workflow** — planned in [08-roadmap.md](../product/08-roadmap.md) Phase 8 (`frontend-v2-pages.yml`: build with MSW demo → GitHub Pages).
+
 ---
 
 ## Self-hosted (nginx)

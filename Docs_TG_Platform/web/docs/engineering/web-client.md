@@ -2,7 +2,7 @@
 
 Web-клиент TG Platform — браузерный интерфейс для полного цикла работы с каналом: лента, пространство поста, чаты, заметки, аналитика, профиль.
 
-**Текущая фаза:** документация и проектирование. Код появится в `web/src/`; reference implementation — [`frontend-v2`](../../../frontend-v2/).
+**Текущая фаза:** **M1 Foundation** — data layer готов, UI ~shell. Полный план — [08-roadmap.md](../product/08-roadmap.md), инженерная выжимка — [frontend-roadmap.md](./frontend-roadmap.md).
 
 ---
 
@@ -47,28 +47,19 @@ Reference implementation до миграции: [`frontend-v2/`](../../../fronte
 
 ## Фазы клиента
 
-### Фаза 0 — Документация (сейчас)
+См. [08-roadmap.md](../product/08-roadmap.md) (полный) и [frontend-roadmap.md](./frontend-roadmap.md) (milestones).
 
-- Продуктовая модель в [`docs/product/`](../product/)
-- UX-спека в [`docs/ux/pages.md`](../ux/pages.md), wireframes, [components/](../ux/components/)
-- Стек и архитектура в [`engineering/`](./)
+| Milestone | Содержание |
+|-----------|------------|
+| **M0** Docs | ✅ complete |
+| **M1** Foundation | routes, CI, repositories, seed — **сейчас** |
+| **M2–M4** UI | shell → widgets → features → 9 screens |
+| **M5** Local-first | MSW + stub AI + full CRUD demo |
+| **M6** GitHub Pages | static export + deploy workflow |
+| **M7** Backend-ready | `http` mode, [BACKEND_READINESS.md](./BACKEND_READINESS.md) |
+| **Track B** | Real Telegram, LLM, persistence — после M7 |
 
-### Фаза 1 — Local-first UI
-
-Детали — [local-first.md](./local-first.md).
-
-- In-memory store + MSW mock API + seed-данные
-- Все экраны из [pages.md](../ux/pages.md)
-- Stub-ответы ИИ (keyword rules), без реальных LLM
-- Без persistence между перезагрузками
-
-### Фаза 2 — Backend
-
-По [08-roadmap.md](../product/08-roadmap.md):
-
-- REST/WebSocket API, persistence
-- Telegram MTProto, реальные LLM
-- Публикация постов, синхронизация
+Local-first limits — [local-first.md](./local-first.md).
 
 ---
 
