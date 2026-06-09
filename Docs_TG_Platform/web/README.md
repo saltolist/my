@@ -24,19 +24,19 @@ web/
 | Слой | Статус |
 |------|--------|
 | Продукт (`docs/product/`) | перенесено из `concept/` |
-| UX (`docs/ux/`) | перенесено из `concept/10-pages` + `wireframes/` |
+| UX (`docs/ux/`) | wireframes синхронизированы с `web-legacy` |
 | Engineering (`docs/engineering/`) | в работе |
 | Код клиента (`src/`) | не начат |
 
 ## Legacy-клиенты (вне `web/`)
 
-Архивные реализации остаются на месте до миграции кода:
+Reference UI для wireframes и будущей реализации:
 
 | Путь | Роль |
 |------|------|
-| [`../web-legacy/`](../web-legacy/) | первый прототип, reference only |
+| [`../web-legacy/`](../web-legacy/) | **reference UI** — wireframes описывают этот клиент |
 | [`../frontend/`](../frontend/) | клиент v1 |
-| [`../frontend-v2/`](../frontend-v2/) | зачаток v2, станет основой `web/src/` |
+| [`../frontend-v2/`](../frontend-v2/) | зачаток v2 |
 
 ## Принципы новой версии
 

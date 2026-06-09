@@ -22,7 +22,7 @@
 | Документ | Содержание |
 |----------|------------|
 | [pages.md](./ux/pages.md) | **Источник правды** — структура всех экранов |
-| [wireframes/](./ux/wireframes/) | Wireframes по экранам |
+| [wireframes/](./ux/wireframes/) | Wireframes по экранам (**соответствуют `web-legacy`**) |
 
 ### Wireframes
 
