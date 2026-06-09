@@ -88,12 +88,6 @@ Mapped to chart granularity via `ANALYTICS_SCREEN_PERIOD_TO_CHART`.
 
 ---
 
-## Not implemented
-
-- «По рубрикам» bar breakdown
-
----
-
 ## Related
 
 - [charts](./charts.md)

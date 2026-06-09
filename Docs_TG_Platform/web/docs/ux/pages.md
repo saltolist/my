@@ -234,15 +234,13 @@ Placeholder: `Сообщение... введите @ чтобы прикрепи
 
 **Периоды (5):** `24 часа`, `7 дней`, `30 дней`, `90 дней`, `Всё время`.
 
-**Блоки:**
+**Блоки** (полный набор экрана):
 
 1. `ChannelAnalyticsSection` — summary metrics + `MultiSeriesTrendChart` + selector серий
 2. `ChannelMetricBars` — «Прирост по метрикам»
 3. `ChannelReactionsPanel` — «Реакции»
 4. `AnalyticsHeatmap` — тепловая карта
 5. `AnalyticsTopPostsTable` — лучшие посты
-
-**Не реализовано:** блок «По рубрикам».
 
 ---
 
@@ -256,17 +254,17 @@ Confirm при уходе с dirty-state с вкладок `Настройки` 
 
 ### `Канал`
 
-Упрощённая форма: ядро канала, голос и формат, правила, рубрики (название + описание). Полная продуктовая модель — [05-channel-profile.md](../product/05-channel-profile.md).
+Форма базы знаний: ядро канала, голос и формат, правила, рубрики (название + описание). Описание полей — [05-channel-profile.md](../product/05-channel-profile.md); UI-структура — [profile-settings.md](./components/widgets/profile-settings.md#channeltab).
 
 ### `Настройки`
 
 - **Тема** — `☀ Светлая` / `🖥 Системная` / `🌙 Тёмная`
 - **ИИ-движок** — LLM, Web Search, Оркестратор, Web Reasoner, RAG Reasoner + системный промпт + мультиответ
-- **Telegram** — MTProto + **Омниканальный бот**; `sessionName` / `syncMode` **не в UI**
+- **Telegram** — MTProto + **Омниканальный бот**; `sessionName` / `syncMode` — в seed/types, **не рендерятся** в форме
 
 ### `Аналитика платформы`
 
-Графики моделей, использование, активность. Без истории агентов и лайк/дизлайк.
+`PlatformModelsChartSection`, `PlatformModelUsageSection`, `PlatformActivitySection` — графики моделей, использование, активность (чаты, заметки, посты).
 
 ---
 

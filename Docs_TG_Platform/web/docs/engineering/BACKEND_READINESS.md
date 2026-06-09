@@ -15,7 +15,7 @@ NEXT_PUBLIC_API_BASE_URL=https://your-api.example.com
 
 ## 2. API contract
 
-Реализовать endpoints из [API_CONTRACT.yaml](./API_CONTRACT.yaml) — paths должны совпадать с MSW handlers 1:1.
+Реализовать endpoints из [API_CONTRACT.yaml](./API_CONTRACT.yaml) — paths и schemas должны совпадать с MSW handlers 1:1. Детали — [api-schemas.md](./api-schemas.md).
 
 ---
 

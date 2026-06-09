@@ -91,7 +91,7 @@ Connection status + **Сбросить настройки**
 - Bot API token input
 - Separate from MTProto user auth
 
-**Not in UI:** sessionName, syncMode (types exist in seed only).
+**Hidden fields (types/seed only):** `sessionName`, `syncMode` — not rendered in form.
 
 ---
 

@@ -1,6 +1,8 @@
 # Модули платформы (web-клиент)
 
-Документ фиксирует модули reference web-клиента ([`web-legacy`](../../../web-legacy/)). Детали экранов — [pages.md](../ux/pages.md), компоненты — [components/](../ux/components/). Целевая продуктовая модель может шире UI (см. [07-notes.md](./07-notes.md), [08-roadmap.md](./08-roadmap.md)).
+Документ фиксирует модули reference web-клиента ([`web-legacy`](../../../web-legacy/)). Детали экранов — [pages.md](../ux/pages.md), компоненты — [components/](../ux/components/).
+
+**UX = legacy 1:1.** Product-доки объясняют модель и контекст; если текст расходится с `pages.md` — правим документацию, а не считаем это «scope gap».
 
 ## Структура навигации
 
@@ -20,7 +22,7 @@ TG Platform
 ├── Чаты ▾                       ← каталог + недавние в сайдбаре
 └── Профиль канала
     ├── Настройки                ← стартовая вкладка
-    ├── Канал                    ← упрощённая форма базы знаний
+    ├── Канал                    ← база знаний (core, voice, rules, rubrics)
     └── Аналитика платформы
 ```
 
@@ -78,12 +80,12 @@ Dropdown scope. FilterToolbar с AI-фильтром. Toggle «В контекс
 
 ## Аналитика канала
 
-5 периодов, trend chart, metric bars, reactions, heatmap, top posts. «По рубрикам» — не реализовано.
+5 периодов, trend chart, metric bars, reactions, heatmap, top posts — см. [pages.md](../ux/pages.md#8-analytics).
 
 ---
 
 ## Профиль
 
-Стартовая вкладка `Настройки`. Канал — упрощённая форма. Настройки — 5 групп моделей + Telegram + омнибот. Аналитика платформы — графики и активность.
+Стартовая вкладка `Настройки`. Канал — core / voice / rules / rubrics. Настройки — тема, 5 групп моделей + Telegram + омнибот. Аналитика платформы — models chart, usage, activity.
 
-Полная модель канала — [05-channel-profile.md](./05-channel-profile.md).
+Контент полей — [05-channel-profile.md](./05-channel-profile.md); UI — [profile-settings.md](../ux/components/widgets/profile-settings.md).

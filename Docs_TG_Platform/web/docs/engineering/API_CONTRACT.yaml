@@ -7,6 +7,245 @@ info:
 servers:
   - url: /api/v1
 
+components:
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    PostStatus:
+      type: string
+      enum: [published, scheduled, draft]
+
+    PostReaction:
+      type: object
+      properties:
+        emoji: { type: string }
+        count: { type: integer }
+
+    PostMetrics:
+      type: object
+      properties:
+        views: { type: string }
+        reposts: { type: integer }
+        reactions:
+          type: array
+          items: { $ref: "#/components/schemas/PostReaction" }
+
+    PostMedia:
+      type: object
+      properties:
+        name: { type: string }
+        url: { type: string }
+        type: { type: string }
+
+    NoteFile:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        type: { type: string }
+        url: { type: string }
+
+    AiVariant:
+      type: object
+      properties:
+        key: { type: string }
+        label: { type: string }
+        text: { type: string }
+        llmCaption: { type: string }
+        webCaption: { type: string }
+
+    ChatMessage:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [user, ai]
+        text: { type: string }
+        variants:
+          type: array
+          items: { $ref: "#/components/schemas/AiVariant" }
+        selectedVariant: { type: integer }
+        mode:
+          type: string
+          enum: [single, multi]
+        llmLabel: { type: string }
+        webLabel: { type: string }
+
+    LocalNote:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        date: { type: string }
+        ai: { type: boolean }
+        body: { type: string }
+        files:
+          type: array
+          items: { $ref: "#/components/schemas/NoteFile" }
+
+    LocalChat:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        preview: { type: string }
+        date: { type: string }
+        history:
+          type: array
+          items: { $ref: "#/components/schemas/ChatMessage" }
+        ai: { type: boolean }
+
+    PostComment:
+      type: object
+      properties:
+        id: { type: integer }
+        author: { type: string }
+        text: { type: string }
+        date: { type: string }
+        replyToId: { type: integer }
+        media:
+          type: array
+          items: { $ref: "#/components/schemas/PostMedia" }
+
+    Post:
+      type: object
+      required: [id, status, text, rubric, notes, chats]
+      properties:
+        id: { type: integer }
+        status: { $ref: "#/components/schemas/PostStatus" }
+        date: { type: string }
+        created: { type: string }
+        rubric:
+          type: string
+          nullable: true
+        text: { type: string }
+        metrics: { $ref: "#/components/schemas/PostMetrics" }
+        media:
+          type: array
+          items: { $ref: "#/components/schemas/PostMedia" }
+        notes:
+          type: array
+          items: { $ref: "#/components/schemas/LocalNote" }
+        chats:
+          type: array
+          items: { $ref: "#/components/schemas/LocalChat" }
+        comments:
+          type: array
+          items: { $ref: "#/components/schemas/PostComment" }
+
+    GlobalChat:
+      type: object
+      properties:
+        id: { type: string }
+        kind:
+          type: string
+          enum: [default, omnichannel]
+        title: { type: string }
+        preview: { type: string }
+        date: { type: string }
+        history:
+          type: array
+          items: { $ref: "#/components/schemas/ChatMessage" }
+
+    GlobalNote:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        ai: { type: boolean }
+        date: { type: string }
+        body: { type: string }
+        files:
+          type: array
+          items: { $ref: "#/components/schemas/NoteFile" }
+
+    ChannelProfileRubric:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string }
+
+    ChannelProfileConfig:
+      type: object
+      properties:
+        core:
+          type: object
+          properties:
+            topic: { type: string }
+            audience: { type: string }
+            promise: { type: string }
+            angle: { type: string }
+            author: { type: string }
+        voice:
+          type: object
+          properties:
+            tone: { type: string }
+            format: { type: string }
+            phrases: { type: string }
+        rules:
+          type: object
+          properties:
+            must: { type: string }
+            avoid: { type: string }
+        rubrics:
+          type: array
+          items: { $ref: "#/components/schemas/ChannelProfileRubric" }
+
+    LlmModel:
+      type: object
+      properties:
+        id: { type: string }
+        provider: { type: string }
+        model: { type: string }
+        apiKey: { type: string }
+        active: { type: boolean }
+        includeInMulti: { type: boolean }
+
+    AiProfileConfig:
+      type: object
+      properties:
+        llmModels:
+          type: array
+          items: { $ref: "#/components/schemas/LlmModel" }
+        webSearchModels:
+          type: array
+          items: { $ref: "#/components/schemas/LlmModel" }
+        orchestratorModels:
+          type: array
+          items: { $ref: "#/components/schemas/LlmModel" }
+        webReasonerModels:
+          type: array
+          items: { $ref: "#/components/schemas/LlmModel" }
+        ragReasonerModels:
+          type: array
+          items: { $ref: "#/components/schemas/LlmModel" }
+        multiResponseEnabled: { type: boolean }
+        systemPrompt: { type: string }
+
+    TelegramProfileConfig:
+      type: object
+      description: Full config; sessionName and syncMode not shown in UI
+
+    PostsReorderBody:
+      type: object
+      required: [posts]
+      properties:
+        posts:
+          type: array
+          items: { $ref: "#/components/schemas/Post" }
+
+    AppendMessageBody:
+      type: object
+      required: [text]
+      properties:
+        text: { type: string }
+
 paths:
   /posts:
     get:
@@ -14,91 +253,260 @@ paths:
       responses:
         "200":
           description: Post list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Post" }
     post:
-      summary: Create post
+      summary: Create or upsert post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Post" }
       responses:
         "201":
           description: Created post
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Post" }
 
   /posts/reorder:
     put:
       summary: Reorder posts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PostsReorderBody" }
       responses:
         "200":
           description: Updated list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Post" }
 
   /posts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
     patch:
       summary: Update post
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Partial Post fields
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Post" }
+        "404":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
     delete:
       summary: Delete post
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
 
   /global-chats:
     get:
       summary: List global chats
       responses:
         "200":
-          description: Chat list
-
-  /global-chats/{id}:
-    patch:
-      summary: Rename chat
-    delete:
-      summary: Delete chat
-
-  /global-chats/{id}/messages:
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GlobalChat" }
     post:
-      summary: Append message to chat
+      summary: Create or upsert global chat
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GlobalChat" }
+      responses:
+        "201":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GlobalChat" }
+
+  /global-chats/{chatId}:
+    parameters:
+      - name: chatId
+        in: path
+        required: true
+        schema: { type: string }
+    patch:
+      summary: Rename or update chat
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                text:
-                  type: string
+                title: { type: string }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GlobalChat" }
+        "404":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+    delete:
+      summary: Delete chat
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /global-chats/{chatId}/messages:
+    parameters:
+      - name: chatId
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      summary: Append message to chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AppendMessageBody" }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GlobalChat" }
+        "404":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
 
   /global-notes:
     get:
       summary: List global notes
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GlobalNote" }
 
-  /global-notes/{id}:
+  /global-notes/{noteId}:
+    parameters:
+      - name: noteId
+        in: path
+        required: true
+        schema: { type: string }
     put:
       summary: Upsert global note
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GlobalNote" }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GlobalNote" }
+        "400":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
     delete:
       summary: Delete global note
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
 
   /profile/channel:
     get:
       summary: Get channel profile
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ChannelProfileConfig" }
     put:
       summary: Update channel profile
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ChannelProfileConfig" }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ChannelProfileConfig" }
 
   /profile/ai:
     get:
       summary: Get AI profile settings
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AiProfileConfig" }
     put:
       summary: Update AI profile settings
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AiProfileConfig" }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AiProfileConfig" }
 
   /profile/telegram:
     get:
       summary: Get Telegram integration settings
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TelegramProfileConfig" }
     put:
       summary: Update Telegram settings
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TelegramProfileConfig" }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TelegramProfileConfig" }
 
   /ai/chat:
     post:
       summary: Send AI message (SSE stream — future)
       description: Stub in frontend; backend implements streaming response
+      responses:
+        "501":
+          description: Not implemented yet

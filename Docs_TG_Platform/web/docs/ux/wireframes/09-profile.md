@@ -29,7 +29,7 @@
 
 ## Вкладка `Канал`
 
-Упрощённая редактируемая модель (не полная спека из product doc):
+Редактируемая база знаний (см. [profile-settings.md](../components/widgets/profile-settings.md#channeltab)):
 
 ### Ядро канала
 
@@ -48,11 +48,11 @@
 
 ### Рубрики
 
-- Название + описание (без частоты, стиля, тегов, примеров в UI)
+- Название + описание на каждую рубрику; добавление и удаление строк
 
 Кнопки: `Сохранить` / `Отменить` (при dirty).
 
-Полная продуктовая модель — в [`05-channel-profile.md`](../../product/05-channel-profile.md).
+Концептуальный гайд по содержанию полей — [05-channel-profile.md](../../product/05-channel-profile.md).
 
 ---
 
@@ -77,14 +77,14 @@
 - Общий переключатель **Мультиответ** (нужно ≥2 пар LLM+Web с multi-flag).
 - **Системный промпт** — textarea.
 
-Параметры `temperature` / `max tokens` **не в UI**.
+Параметры `temperature` / `max tokens` в типах не используются — **поля не рендерятся**.
 
 ### Telegram
 
 - `api_id`, `api_hash` (save/cancel)
 - Телефон, код подтверждения, resend
 - Подключение канала
-- **`sessionName` и `syncMode` — не в UI**
+- **`sessionName` и `syncMode`** — только в seed/types, **не рендерятся** в форме
 - **Омниканальный бот** — отдельная секция (`TelegramOmnibotSection`) с bot API token
 - `Сбросить настройки`
 
@@ -97,5 +97,3 @@
 | График моделей | `PlatformModelsChartSection` — стоимость/использование по моделям, picker периода |
 | Использование моделей | `PlatformModelUsageSection` |
 | Активность | `PlatformActivitySection` — чаты, заметки, посты |
-
-История агентских действий и блок лайк/дизлайк **не реализованы**.

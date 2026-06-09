@@ -19,7 +19,13 @@ Web-клиент TG Platform — браузерный интерфейс для 
 | Документ | Содержание |
 |----------|------------|
 | [stack.md](./stack.md) | **Стек** — Next.js 16, React 19, Tailwind v4, shadcn, FSD, MSW, TanStack Query |
-| [architecture.md](./architecture.md) | FSD-слои, data flow, routing, testing |
+| [architecture.md](./architecture.md) | FSD-слои, data flow, routing |
+| [data-model.md](./data-model.md) | Доменная модель |
+| [routing.md](./routing.md) | URL и navigation |
+| [local-first.md](./local-first.md) | Phase 1: MSW, seed, stub AI |
+| [api-schemas.md](./api-schemas.md) | REST endpoints |
+| [testing.md](./testing.md) | Vitest, Playwright, DoD |
+| [deploy.md](./deploy.md) | Static export |
 | [API_CONTRACT.yaml](./API_CONTRACT.yaml) | REST contract frontend ↔ backend |
 | [BACKEND_READINESS.md](./BACKEND_READINESS.md) | Checklist подключения backend |
 
@@ -48,6 +54,8 @@ Reference implementation до миграции: [`frontend-v2/`](../../../fronte
 - Стек и архитектура в [`engineering/`](./)
 
 ### Фаза 1 — Local-first UI
+
+Детали — [local-first.md](./local-first.md).
 
 - In-memory store + MSW mock API + seed-данные
 - Все экраны из [pages.md](../ux/pages.md)

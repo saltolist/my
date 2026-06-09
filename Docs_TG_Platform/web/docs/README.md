@@ -1,5 +1,8 @@
 # Документация TG Platform Web
 
+→ [doc-maintenance.md](./doc-maintenance.md) — как поддерживать актуальность  
+→ [glossary.md](./glossary.md) — термины
+
 ## Product — что строим
 
 | Документ | Содержание |
@@ -8,22 +11,25 @@
 | [02-modules.md](./product/02-modules.md) | Модули и навигация |
 | [03-spaces.md](./product/03-spaces.md) | Пространственная модель (global + local) |
 | [04-ai-system.md](./product/04-ai-system.md) | Двухуровневая ИИ-система |
-| [04b-ai-system-mempalace.md](./product/04b-ai-system-mempalace.md) | Расширение памяти ИИ |
-| [05-channel-profile.md](./product/05-channel-profile.md) | Профиль канала |
+| [04b-ai-system-mempalace.md](./product/04b-ai-system-mempalace.md) | Backend-память (MemPalace) — **не legacy UI** |
+| [05-channel-profile.md](./product/05-channel-profile.md) | Профиль канала (поля вкладки «Канал») |
 | [06-analytics.md](./product/06-analytics.md) | Аналитика канала и платформы |
-| [07-notes.md](./product/07-notes.md) | Модель заметок |
+| [07-notes.md](./product/07-notes.md) | Заметки (глобальные и локальные) |
 | [08-roadmap.md](./product/08-roadmap.md) | Фазы разработки |
-| [09-user-scenario.md](./product/09-user-scenario.md) | Сквозной сценарий |
-| [11-reusable-modules-integration.md](./product/11-reusable-modules-integration.md) | Связь с reusable-modules |
-| [13-chat-context-summaries.md](./product/13-chat-context-summaries.md) | Сводки контекста чатов |
+| [09-user-scenario.md](./product/09-user-scenario.md) | Сквозной сценарий (narrative) |
+| [11-reusable-modules-integration.md](./product/11-reusable-modules-integration.md) | Модули backend — **не legacy UI** |
+| [13-chat-context-summaries.md](./product/13-chat-context-summaries.md) | Сводки контекста — **не legacy UI** |
 
 ## UX — как выглядит
 
 | Документ | Содержание |
 |----------|------------|
-| [pages.md](./ux/pages.md) | **Источник правды** — структура всех экранов (синхронизирован с `web-legacy`) |
-| [components/](./ux/components/) | Каталог UI — [детальная спека](./ux/components/README.md), [соглашения](./ux/components/conventions.md) |
-| [wireframes/](./ux/wireframes/) | Wireframes по экранам (**соответствуют `web-legacy`**) |
+| [pages.md](./ux/pages.md) | **Источник правды** — структура всех экранов |
+| [flows.md](./ux/flows.md) | Navigation flows (12 сценариев) |
+| [design-tokens.md](./ux/design-tokens.md) | Design tokens (legacy → Tailwind) |
+| [parity.md](./ux/parity.md) | Parity tracker |
+| [components/](./ux/components/) | Каталог UI |
+| [wireframes/](./ux/wireframes/) | Wireframes по экранам |
 
 ### Wireframes
 
@@ -42,11 +48,17 @@
 | Документ | Содержание |
 |----------|------------|
 | [stack.md](./engineering/stack.md) | **Стек** — наследие `frontend-v2` |
-| [architecture.md](./engineering/architecture.md) | FSD, data flow, routing |
-| [web-client.md](./engineering/web-client.md) | Фазы клиента, границы, критерии готовности |
-| [API_CONTRACT.yaml](./engineering/API_CONTRACT.yaml) | REST contract |
+| [architecture.md](./engineering/architecture.md) | FSD, data flow |
+| [data-model.md](./engineering/data-model.md) | Доменная модель |
+| [routing.md](./engineering/routing.md) | URL, query, navigation |
+| [local-first.md](./engineering/local-first.md) | MSW, seed, stub AI |
+| [api-schemas.md](./engineering/api-schemas.md) | REST endpoints |
+| [API_CONTRACT.yaml](./engineering/API_CONTRACT.yaml) | OpenAPI contract |
+| [testing.md](./engineering/testing.md) | Vitest, Playwright, CI |
+| [deploy.md](./engineering/deploy.md) | Static export, hosting |
+| [web-client.md](./engineering/web-client.md) | Фазы клиента |
 | [BACKEND_READINESS.md](./engineering/BACKEND_READINESS.md) | Подключение backend |
-| [web-client.legacy.md](./engineering/web-client.legacy.md) | Архив: описание v1-клиента |
+| [web-client.legacy.md](./engineering/web-client.legacy.md) | Архив v1 |
 
 ## Порядок чтения
 
@@ -54,3 +66,4 @@
 2. [03-spaces.md](./product/03-spaces.md) + [04-ai-system.md](./product/04-ai-system.md) — ключевая модель
 3. [pages.md](./ux/pages.md) — все экраны
 4. [stack.md](./engineering/stack.md) + [web-client.md](./engineering/web-client.md) — стек и фазы
+5. [glossary.md](./glossary.md) — по необходимости

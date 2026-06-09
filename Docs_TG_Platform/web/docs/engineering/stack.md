@@ -195,6 +195,12 @@ web/
 ## Related docs
 
 - [architecture.md](./architecture.md) — FSD, data flow, providers
+- [data-model.md](./data-model.md) — entities, enums, persistence
+- [routing.md](./routing.md) — URLs, query params, post modes
+- [local-first.md](./local-first.md) — MSW, seed, stub AI
+- [api-schemas.md](./api-schemas.md) — REST endpoints
+- [testing.md](./testing.md) — Vitest, Playwright, CI
+- [deploy.md](./deploy.md) — static export, hosting
 - [web-client.md](./web-client.md) — фазы клиента
-- [API_CONTRACT.yaml](./API_CONTRACT.yaml) — REST contract
+- [API_CONTRACT.yaml](./API_CONTRACT.yaml) — OpenAPI
 - [BACKEND_READINESS.md](./BACKEND_READINESS.md) — подключение backend

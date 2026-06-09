@@ -67,7 +67,8 @@ TG Platform
 | UX (экраны, wireframes) | [`web/docs/ux/`](./web/docs/ux/) |
 | Engineering | [`web/docs/engineering/`](./web/docs/engineering/) |
 
-**Источник правды для экранов:** [`web/docs/ux/pages.md`](./web/docs/ux/pages.md)
+**Источник правды для экранов:** [`web/docs/ux/pages.md`](./web/docs/ux/pages.md)  
+**Термины:** [`web/docs/glossary.md`](./web/docs/glossary.md)
 
 ## Legacy-клиенты
 

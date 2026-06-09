@@ -7,11 +7,14 @@
 ## Как читать
 
 1. [conventions.md](./conventions.md) — breakpoints, portal, CSS-паттерны
-2. [shared-ui.md](./shared-ui.md) — примитивы (Breadcrumb, ModelPicker, …)
-3. [entities.md](./entities.md) — доменные карточки
-4. [widgets/](./widgets/) — составные блоки
-5. [features.md](./features.md) — пользовательские сценарии
-6. [screens.md](./screens.md) — композиция экранов
+2. [design-tokens.md](../design-tokens.md) — colors, spacing (Tailwind target)
+3. [shared-ui.md](./shared-ui.md) — примитивы (Breadcrumb, ModelPicker, …)
+4. [entities.md](./entities.md) — доменные карточки
+5. [widgets/](./widgets/) — составные блоки
+6. [features.md](./features.md) — пользовательские сценарии
+7. [screens.md](./screens.md) — композиция экранов
+
+Navigation flows — [flows.md](../flows.md). Parity — [parity.md](../parity.md).
 
 ## Слои (FSD)
 
@@ -40,4 +43,4 @@ app → screens → widgets → features → entities → shared
 
 - Экраны — [pages.md](../pages.md)
 - Wireframes — [wireframes/](../wireframes/)
-- Продуктовая модель (шире UI) — [product/](../../product/)
+- Продуктовая модель (контекст, domain) — [product/](../../product/)
