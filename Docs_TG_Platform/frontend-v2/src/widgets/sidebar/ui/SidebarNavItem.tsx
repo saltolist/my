@@ -11,7 +11,6 @@ type SidebarNavItemProps = {
   active?: boolean;
   onClick: () => void;
   showLabel?: boolean;
-  trailing?: ReactNode;
 };
 
 export function SidebarNavItem({
@@ -20,7 +19,6 @@ export function SidebarNavItem({
   active = false,
   onClick,
   showLabel = true,
-  trailing,
 }: SidebarNavItemProps) {
   const button = (
     <button
@@ -38,7 +36,6 @@ export function SidebarNavItem({
     >
       <span className="flex size-5 shrink-0 items-center justify-center">{icon}</span>
       {showLabel ? <span className="min-w-0 flex-1 truncate text-left">{label}</span> : null}
-      {showLabel && trailing ? <span className="shrink-0">{trailing}</span> : null}
     </button>
   );
 
