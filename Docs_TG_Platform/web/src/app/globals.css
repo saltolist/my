@@ -11,6 +11,8 @@
 @import "./styles/shell-screens.css";
 @import "./styles/shell-analytics.css";
 @import "./styles/shell-feed.css";
+@import "./styles/shell-feed-body.css";
+@import "./styles/shell-media.css";
 @import "./styles/shell-profile.css";
 
 @custom-variant dark (&:is(.dark *, [data-theme="dark"] *));

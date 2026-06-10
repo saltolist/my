@@ -56,6 +56,17 @@
   --post-card-r: calc(var(--r) * 2);
   --block-r: var(--post-card-r);
   --feed-post-w: 500px;
+  --post-inline-icon: 14px;
+  --post-media-clip-r: calc(var(--post-card-r) - 3px);
+  --content-card-shadow: 0 8px 26px rgba(0, 0, 0, 0.22);
+  --reaction-pill-bg: var(--bg3);
+  --reaction-pill-border: var(--border);
+  --reaction-pill-fg: var(--text2);
+  --composer-overlay-h: 168px;
+  --scroll-pad-inline: 20px;
+  --sb-w: 8px;
+  --scroll-thumb: rgba(255, 255, 255, 0.18);
+  --scroll-thumb-hover: rgba(255, 255, 255, 0.32);
   --page-header-search-w: min(350px, max(12rem, calc(100vw - var(--nav-w) - 320px)));
   --dropdown-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   --ctx-dropdown-offset: 12px;
@@ -164,6 +175,8 @@ html.sidebar-collapsed {
   --ctx-dropdown-header-surface-hover: var(--bg3);
   --ctx-dropdown-header-surface-active: var(--bg4);
   --ctx-dropdown-header-border: var(--border2);
+  --scroll-thumb: rgba(0, 0, 0, 0.18);
+  --scroll-thumb-hover: rgba(0, 0, 0, 0.34);
   --page-bg-grad:
     radial-gradient(100% 82% at 94% 0%, rgba(37, 99, 235, 0.075) 0%, transparent 50%),
     radial-gradient(88% 72% at 0% 100%, rgba(124, 58, 237, 0.05) 0%, transparent 52%),

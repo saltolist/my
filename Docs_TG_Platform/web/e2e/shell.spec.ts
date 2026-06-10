@@ -22,7 +22,9 @@ test("navigate feed from sidebar", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
   await page.locator("#nav-feed").click();
-  await expect(page.getByRole("heading", { name: "Лента" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Лента" })).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await expect(page.getByText("Опубликованные")).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await expect(page.getByText("Черновики")).toBeVisible();
 });
 
 test("navigate chats and back to home", async ({ page }) => {
