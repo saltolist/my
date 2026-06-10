@@ -49,6 +49,8 @@ type PageHeaderSearchInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "t
   dismissAlways?: boolean;
 };
 
+export const PAGE_HEADER_SEARCH_INPUT_DISPLAY_NAME = "PageHeaderSearchInput";
+
 export function PageHeaderSearchInput({
   className,
   inputRef,
@@ -89,3 +91,5 @@ export function PageHeaderSearchInput({
     </div>
   );
 }
+
+PageHeaderSearchInput.displayName = PAGE_HEADER_SEARCH_INPUT_DISPLAY_NAME;

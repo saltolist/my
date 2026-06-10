@@ -403,7 +403,7 @@
     width: min(var(--page-header-search-w), 100%);
     display: flex;
     align-items: center;
-    overflow: hidden;
+    overflow: visible;
   }
   .page-header--post-search-overlay.page-header--search-open
     .page-header-search-inline

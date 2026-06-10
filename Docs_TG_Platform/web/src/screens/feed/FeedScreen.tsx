@@ -1,19 +1,21 @@
 "use client";
 
-import { useNavigationStore } from "@/app/model/store";
+import { useNavigationStore, useUiStore } from "@/app/model/store";
 import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
 import { FeedComposer } from "@/screens/feed/ui/FeedComposer";
 import { FeedPublishedSection } from "@/screens/feed/ui/FeedPublishedSection";
 import { FeedScheduledSection } from "@/screens/feed/ui/FeedScheduledSection";
 import { useFeedScreen } from "@/screens/feed/model/useFeedScreen";
 import { FeedDraftsSection } from "@/widgets/feed";
-import { FeedHeaderToolbar } from "@/widgets/feed/ui/feed-header-toolbar";
+import { createFeedHeaderSearchRow } from "@/widgets/feed/ui/feed-header-toolbar";
 import { PageHeader } from "@/widgets/page-header";
 
 export function FeedScreen() {
   const onBack = useScreenBack();
   const search = useNavigationStore((s) => s.feedSearch);
   const setFeedSearch = useNavigationStore((s) => s.setFeedSearch);
+  const feedPostWidth = useUiStore((s) => s.feedCardWidth);
+  const setFeedPostWidth = useUiStore((s) => s.setFeedCardWidth);
   const { data, ui, actions } = useFeedScreen();
   const {
     layoutClassName,
@@ -40,7 +42,12 @@ export function FeedScreen() {
         title="Лента"
         onBack={onBack}
         compactSearchAtWidth={804}
-        search={<FeedHeaderToolbar value={search} onChange={setFeedSearch} />}
+        search={createFeedHeaderSearchRow({
+          value: search,
+          onChange: setFeedSearch,
+          feedPostWidth,
+          onFeedPostWidthChange: setFeedPostWidth,
+        })}
       />
       <div className="feed-layout">
         <div className="composer-scroll-wrap">

@@ -547,7 +547,7 @@
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: min(calc(var(--feed-post-w, 270px) + 20px), calc(100vw - 24px));
+    width: min(var(--page-header-search-w), calc(100vw - 24px));
     flex: none;
     display: flex;
     align-items: center;

@@ -8,11 +8,10 @@ import { screenToHref } from "@/shared/lib/routes";
 import type { BreadcrumbItem } from "@/shared/ui/breadcrumb";
 import type { ScreenId } from "@/shared/types";
 import {
-  findPageHeaderSearchInput,
+  buildExpandableSearchContent,
   measureSearchSpanPx,
   resolveDesktopSearchToggleAnchor,
   resolveSearchSpanRightAnchor,
-  withMobileSearchClose,
 } from "@/widgets/page-header/lib/pageHeaderSearchUtils";
 import { useProfilePageHeaderSync } from "@/widgets/page-header/model/useProfilePageHeaderSync";
 import type { PageHeaderOverflowItem } from "@/widgets/page-header/ui/page-header-overflow";
@@ -199,10 +198,9 @@ export function usePageHeader({
   }, [needsSearchSpan, mobileSearchOpen, searchOverlayMode, mobileOverlaySearch, hasMobileSearchTrailing]);
 
   const showSearchToggle = (mobileOverlaySearch || compactSearch) && !!search;
-  const mobileSearchInput = search ? findPageHeaderSearchInput(search) : null;
   const expandableSearchContent =
-    mobileSearchOpen && mobileSearchInput
-      ? withMobileSearchClose(mobileSearchInput, () => setMobileSearchOpen(false))
+    mobileSearchOpen && search
+      ? buildExpandableSearchContent(search, () => setMobileSearchOpen(false))
       : null;
 
   const hasTrailingToolbar =
