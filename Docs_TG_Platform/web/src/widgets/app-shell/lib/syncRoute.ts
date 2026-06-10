@@ -1,4 +1,4 @@
-import type { NavigationPatch, NavigationState } from "@/app/model/store/navigation/types";
+import type { NavigationState, RouteNavigationPatch } from "@/app/model/store/navigation/types";
 import { queryKeys } from "@/shared/api/queryKeys";
 import { isNoteDirty, noteIdentityKey } from "@/shared/lib/noteDraft";
 import {
@@ -26,7 +26,7 @@ export type PostModeSync = {
 
 export type SyncRouteResult =
   | { kind: "redirect"; href: string; postMode?: PostModeSync }
-  | { kind: "sync"; patch: NavigationPatch; postMode?: PostModeSync };
+  | { kind: "sync"; patch: RouteNavigationPatch; postMode?: PostModeSync };
 
 export type SyncRouteOptions = {
   /** Resolved from legacy redirect or post-navigation store before sync. */
@@ -80,7 +80,7 @@ export function syncRouteFromUrl(
         : parsed.notePostId,
   };
 
-  const routePatch = buildRoutePatch(parsedNote, data, chatId, noteFrom);
+  const routePatch = buildRoutePatch(parsedNote, data, noteFrom);
 
   let postMode = routePatch.postMode ?? "chat";
   let postModeSync: PostModeSync | undefined;
@@ -96,10 +96,9 @@ export function syncRouteFromUrl(
     };
   }
 
-  const patch: NavigationPatch = {
+  const patch: RouteNavigationPatch = {
     screen: routePatch.screen ?? parsed.screen,
     currentPostId: routePatch.currentPostId ?? null,
-    postMode,
     isEditing: routePatch.isEditing ?? false,
     currentNote: routePatch.currentNote ?? null,
     noteMode: routePatch.noteMode ?? "view",
@@ -116,7 +115,10 @@ type NoteDraftState = Pick<
 >;
 
 /** Skip note fields on cache resync when a draft is open or dirty. */
-export function mergeNoteCachePatch(current: NoteDraftState, incoming: NavigationPatch): NavigationPatch {
+export function mergeNoteCachePatch(
+  current: NoteDraftState,
+  incoming: RouteNavigationPatch,
+): RouteNavigationPatch {
   const touchesNote =
     incoming.currentNote !== undefined ||
     incoming.noteMode !== undefined ||
@@ -138,7 +140,7 @@ export function mergeNoteCachePatch(current: NoteDraftState, incoming: Navigatio
   return next;
 }
 
-function shouldPreserveNoteDraft(current: NoteDraftState, incoming: NavigationPatch): boolean {
+function shouldPreserveNoteDraft(current: NoteDraftState, incoming: RouteNavigationPatch): boolean {
   if (!current.currentNote) return false;
   if (current.currentNote.isNew) return true;
 

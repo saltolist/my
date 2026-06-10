@@ -10,9 +10,14 @@ export {
   type PostViewEntry,
 } from "./post-navigation-store";
 
-export { useNavigationStore, type NavigationStore } from "./navigation-store";
+export {
+  applyNavigationPatch,
+  useNavigationStore,
+  type NavigationStore,
+} from "./navigation-store";
 export {
   initialNavigationState,
   type NavigationPatch,
   type NavigationState,
+  type RouteNavigationPatch,
 } from "./navigation/types";

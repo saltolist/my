@@ -1,6 +1,6 @@
 # API schemas
 
-Human-readable REST contract. OpenAPI — [API_CONTRACT.yaml](./API_CONTRACT.yaml). MSW handlers — [`frontend-v2/src/shared/api/msw/handlers.ts`](../../../frontend-v2/src/shared/api/msw/handlers.ts).
+Human-readable REST contract. OpenAPI — [API_CONTRACT.yaml](./API_CONTRACT.yaml). MSW handlers — [`web/src/shared/api/msw/handlers.ts`](../../src/shared/api/msw/handlers.ts).
 
 Base path: `/api/v1`. Errors: `{ "error": "message" }` with HTTP 400/404.
 
@@ -151,7 +151,7 @@ Base path: `/api/v1`. Errors: `{ "error": "message" }` with HTTP 400/404.
 
 ## Entity schemas (summary)
 
-See [data-model.md](./data-model.md) for field details. Zod definitions in `frontend-v2/src/shared/api/schemas/`.
+See [data-model.md](./data-model.md) for field details. Zod definitions in `web/src/shared/api/schemas/`.
 
 **Post** — nested `notes`, `chats`, optional `comments`, `metrics`, `media`.
 

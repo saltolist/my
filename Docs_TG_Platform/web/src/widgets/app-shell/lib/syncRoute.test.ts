@@ -85,7 +85,7 @@ describe("syncRouteFromUrl", () => {
     });
     expect(result.kind).toBe("sync");
     if (result.kind !== "sync") return;
-    expect(result.patch.postMode).toBe("notes");
+    expect(result.patch).not.toHaveProperty("postMode");
     expect(result.postMode?.mode).toBe("notes");
   });
 
@@ -95,7 +95,7 @@ describe("syncRouteFromUrl", () => {
     });
     expect(result.kind).toBe("sync");
     if (result.kind !== "sync") return;
-    expect(result.patch.postMode).toBe("comments");
+    expect(result.postMode?.mode).toBe("comments");
   });
 
   it("loads global note from cache", () => {
@@ -140,6 +140,7 @@ describe("syncRouteFromUrl", () => {
     if (result.kind !== "sync") return;
     expect(result.patch.screen).toBe("feed");
     expect(result.patch.chatsTab).toBeUndefined();
+    expect(result.patch.analyticsPeriod).toBeUndefined();
   });
 });
 

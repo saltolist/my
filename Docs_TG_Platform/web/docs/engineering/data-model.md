@@ -1,6 +1,6 @@
 # Data model
 
-Доменная модель web-клиента. Machine-readable source в reference implementation: [`frontend-v2/src/shared/types/index.ts`](../../../frontend-v2/src/shared/types/index.ts), Zod — [`shared/api/schemas/`](../../../frontend-v2/src/shared/api/schemas/).
+Доменная модель web-клиента. Machine-readable source: [`web/src/shared/types/index.ts`](../../src/shared/types/index.ts), Zod — [`web/src/shared/api/schemas/`](../../src/shared/api/schemas/).
 
 Пространственная модель продукта — [03-spaces.md](../product/03-spaces.md).
 
@@ -278,5 +278,5 @@ API contract — [API_CONTRACT.yaml](./API_CONTRACT.yaml), [api-schemas.md](./ap
 ## Related
 
 - [routing.md](./routing.md) — URL ↔ entities
-- [data-model source](../../../frontend-v2/src/shared/types/index.ts)
+- [data-model source](../../src/shared/types/index.ts)
 - [seed inventory](./local-first.md#seed-inventory)

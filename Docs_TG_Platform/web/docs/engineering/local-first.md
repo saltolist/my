@@ -8,7 +8,7 @@ Data model — [data-model.md](./data-model.md). API — [api-schemas.md](./api-
 
 ## Data source modes
 
-From [`frontend-v2/src/shared/config/dataSource.ts`](../../../frontend-v2/src/shared/config/dataSource.ts):
+From [`web/src/shared/config/dataSource.ts`](../../src/shared/config/dataSource.ts):
 
 | Mode | Condition | Behavior |
 |------|-----------|----------|
@@ -29,7 +29,7 @@ NEXT_PUBLIC_API_BASE_URL=https://api.example.com
 
 ## Seed inventory
 
-Source: [`frontend-v2/src/shared/data/seed-data.ts`](../../../frontend-v2/src/shared/data/seed-data.ts)
+Source: [`web/src/shared/data/seed-data.ts`](../../src/shared/data/seed-data.ts)
 
 ### Posts (5 total)
 
@@ -67,15 +67,15 @@ Source: [`frontend-v2/src/shared/data/seed-data.ts`](../../../frontend-v2/src/sh
 
 ### Analytics seed
 
-[`analytics-seed.ts`](../../../frontend-v2/src/shared/data/analytics-seed.ts): **110 days** of `ChannelDayMetrics`, platform model usage stats for profile tab.
+[`analytics-seed.ts`](../../src/shared/data/analytics-seed.ts): **110 days** of `ChannelDayMetrics`, platform model usage stats for profile tab.
 
 ---
 
 ## Stub AI rules
 
-Provider: [`shared/lib/ai/index.ts`](../../../frontend-v2/src/shared/lib/ai/index.ts) → `createStubAiProvider()`.
+Provider: [`shared/lib/ai/index.ts`](../../src/shared/lib/ai/index.ts) → `createStubAiProvider()`.
 
-Keywords: [`shared/lib/replies.ts`](../../../frontend-v2/src/shared/lib/replies.ts).
+Keywords: [`shared/lib/replies.ts`](../../src/shared/lib/replies.ts).
 
 ### Global scope (`home`, `gchat`)
 
@@ -100,7 +100,7 @@ MSW `POST /global-chats/{id}/messages` uses `getGlobalReply(text)`.
 
 ### After user message edit
 
-Fixed placeholder: `STUB_REPLY_AFTER_USER_EDIT` in [`chatPaths.ts`](../../../frontend-v2/src/shared/lib/chatPaths.ts) — multi-paragraph typography stub ending with «отредактировано».
+Fixed placeholder: `STUB_REPLY_AFTER_USER_EDIT` in [`chatPaths.ts`](../../src/shared/lib/chatPaths.ts) — multi-paragraph typography stub ending with «отредактировано».
 
 ---
 

@@ -4,9 +4,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useUiStore } from "@/app/model/store";
-import { useGlobalChats } from "@/entities/chat/model/useGlobalChats";
-import { useGlobalNotes } from "@/entities/note/model/useGlobalNotes";
-import { usePosts } from "@/entities/post/model/usePosts";
+import { useGlobalChats } from "@/entities/chat";
+import { useGlobalNotes } from "@/entities/note";
+import { usePosts } from "@/entities/post";
 import { RAIL_MIN_MQ, useMediaQuery } from "@/shared/lib/hooks/useMediaQuery";
 import {
   parseAppPath,

@@ -29,7 +29,9 @@
 
 ## Периоды
 
-**5 вариантов:** `24 часа`, `7 дней`, `30 дней`, `90 дней`, `Всё время` (`platformAnalyticsPeriods.ts`).
+**5 вариантов:** `24 часа`, `7 дней`, `30 дней`, `90 дней`, `Всё время` (`web/src/shared/data/analytics-seed.ts` → `ANALYTICS_PERIOD_OPTIONS`).
+
+> **M2 scaffold:** период в шапке на mobile (`PageHeaderSelect`); на desktop — `AnalyticsPeriodFilter` в шапке до появления M3 dashboard с picker внутри карточки «Динамика прироста».
 
 ## Блоки экрана
 

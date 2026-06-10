@@ -12,7 +12,7 @@
 | **UX screens** | `docs/ux/pages.md` | Legacy UI behavior changes |
 | **UX layout** | `docs/ux/wireframes/` | Visual structure changes |
 | **UX components** | `docs/ux/components/` | Widget/feature behavior changes |
-| **Engineering stack** | `docs/engineering/stack.md` | Tooling/deps change in `frontend-v2` |
+| **Engineering stack** | `docs/engineering/stack.md` | Tooling/deps change in `web/` |
 | **Data model** | `docs/engineering/data-model.md` | Types/schemas change |
 | **API** | `API_CONTRACT.yaml`, `api-schemas.md` | MSW handlers change |
 | **Routing** | `docs/engineering/routing.md` | `routes.ts` behavior changes |
@@ -35,7 +35,7 @@
 
 ---
 
-## When frontend-v2 types/API change
+## When web types/API change
 
 1. [data-model.md](./engineering/data-model.md)
 2. [api-schemas.md](./engineering/api-schemas.md) + [API_CONTRACT.yaml](./engineering/API_CONTRACT.yaml)

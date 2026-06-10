@@ -7,7 +7,7 @@
 ## Principles
 
 1. **UX из legacy** — экраны и компоненты по [pages.md](../ux/pages.md) и [components/](../ux/components/).
-2. **Код по v2** — data layer, tooling, FSD как в [`frontend-v2`](../../../frontend-v2/).
+2. **Код в `web/src/`** — data layer, tooling, FSD (изначально из [`frontend-v2`](../../../frontend-v2/) scaffold).
 3. **UI implementation** — Tailwind + shadcn (не копировать legacy CSS).
 4. **Local-first first** — MSW + seed до backend.
 

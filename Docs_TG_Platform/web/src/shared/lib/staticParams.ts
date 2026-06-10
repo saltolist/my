@@ -1,6 +1,7 @@
 import { initialGlobalNotes, initialPosts } from "@/shared/data/seed-data";
+import { POST_NEW_SLUG } from "@/shared/lib/routes";
 
-export const POST_NEW_SLUG = "new";
+export { POST_NEW_SLUG };
 
 export const STATIC_POST_IDS = initialPosts.map((p) => String(p.id));
 export const STATIC_GLOBAL_NOTE_IDS = initialGlobalNotes.map((n) => n.id);

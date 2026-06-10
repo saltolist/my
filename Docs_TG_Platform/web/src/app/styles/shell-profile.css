@@ -1,3 +1,4 @@
+/* M3: styles for profile channel/auth widgets; DOM not yet in web/src */
 /* Profile: content-adapt rules (scaffold until profile widget M3+) */
 
 html[data-content-adapt-le-1000]:not([data-shell-overlay]) .telegram-channel-input {

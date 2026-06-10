@@ -214,10 +214,6 @@ export function getParentPath(pathname: string): string | null {
   return null;
 }
 
-export function canPathGoBack(pathname: string): boolean {
-  return getParentPath(pathname) != null;
-}
-
 type RouteData = {
   posts: Post[];
   globalChats: GlobalChat[];
@@ -227,15 +223,12 @@ type RouteData = {
 export function buildRoutePatch(
   parsed: ParsedAppPath,
   data: RouteData,
-  chatId: number | null,
   noteFromFallback: NoteFromScreen = "notes",
 ): Partial<{
   screen: ScreenId;
   currentPostId: number | null;
-  currentPostChatId: number | null;
   postMode: PostMode;
   isEditing: boolean;
-  currentGChatId: string | null;
   currentNote: ActiveNote | null;
   noteMode: "view" | "edit";
   noteFrom: NoteFromScreen;
@@ -244,14 +237,12 @@ export function buildRoutePatch(
   const base = {
     screen: parsed.screen,
     isEditing: false,
-    currentGChatId: null as string | null,
     currentPostId: null as number | null,
-    currentPostChatId: null as number | null,
     currentNote: null as ActiveNote | null,
   };
 
   if (parsed.screen === "gchat") {
-    return { ...base, currentGChatId: parsed.gchatId };
+    return { ...base };
   }
 
   if (parsed.screen === "post") {
@@ -259,7 +250,6 @@ export function buildRoutePatch(
       ...base,
       screen: "post",
       currentPostId: parsed.postId,
-      currentPostChatId: chatId,
       postMode: parsed.postMode,
     };
   }

@@ -10,10 +10,7 @@ test("home page loads", async ({ page }) => {
 test("navigate feed from sidebar", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
-  await page
-    .getByRole("navigation", { name: "Основная навигация" })
-    .getByRole("button", { name: "Лента" })
-    .click();
+  await page.locator("#nav-feed").click();
   await expect(page.getByRole("heading", { name: "Лента" })).toBeVisible();
 });
 
@@ -27,10 +24,7 @@ test("navigate chats and back to home", async ({ page }) => {
 test("navigate notes from sidebar", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
-  await page
-    .getByRole("navigation", { name: "Основная навигация" })
-    .getByRole("button", { name: "Заметки", exact: true })
-    .click();
+  await page.locator("#nav-notes .nav-item-chats-main").click();
   await expect(page.getByRole("heading", { name: "Заметки" })).toBeVisible();
 });
 
@@ -49,4 +43,41 @@ test("legacy gchat path redirects to query form", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Анализ недели" })).toBeVisible({
     timeout: LOAD_TIMEOUT,
   });
+});
+
+test("analytics page loads with period tabs", async ({ page }) => {
+  await page.goto("/analytics/");
+  await expect(page.getByRole("heading", { name: "Аналитика канала" })).toBeVisible({
+    timeout: LOAD_TIMEOUT,
+  });
+  await expect(
+    page.getByRole("tablist", { name: "Период аналитики" }).getByRole("tab", { name: "24 ч." }),
+  ).toBeVisible();
+});
+
+test("post page loads", async ({ page }) => {
+  await page.goto("/post/1/");
+  await expect(page.getByRole("heading", { name: /Два года я не мог нажать кнопку/ })).toBeVisible({
+    timeout: LOAD_TIMEOUT,
+  });
+});
+
+test("legacy post notes path redirects to canonical post url", async ({ page }) => {
+  await page.goto("/post/5/notes/");
+  await expect(page).toHaveURL(/\/post\/5\/$/, { timeout: LOAD_TIMEOUT });
+});
+
+test("global note page loads after cache sync", async ({ page }) => {
+  await page.goto("/note/global/gn1/");
+  await expect(
+    page.getByRole("heading", { name: "Структура серии про барьеры инвестора" }),
+  ).toBeVisible({ timeout: LOAD_TIMEOUT });
+});
+
+test("chats scope select can be changed", async ({ page }) => {
+  await page.goto("/chats/");
+  await expect(page.getByRole("heading", { name: "Чаты" })).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await page.getByRole("button", { name: "Область чатов" }).click();
+  await page.locator(".ctx-item", { hasText: "Глобальные" }).click();
+  await expect(page.getByRole("button", { name: "Область чатов" })).toContainText("Глобальные");
 });

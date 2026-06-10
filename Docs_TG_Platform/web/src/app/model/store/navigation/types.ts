@@ -1,3 +1,4 @@
+import type { AnalyticsPeriod } from "@/shared/data/analytics-seed";
 import type {
   ActiveNote,
   ChatsTab,
@@ -5,14 +6,11 @@ import type {
   NoteListFilter,
   NoteMode,
   NoteScope,
-  PostMode,
   ScreenId,
 } from "@/shared/types";
 
 export type NavigationState = {
-  screen: ScreenId;
   currentPostId: number | null;
-  postMode: PostMode;
   isEditing: boolean;
   currentNote: ActiveNote | null;
   noteMode: NoteMode;
@@ -24,12 +22,11 @@ export type NavigationState = {
   noteFilter: NoteListFilter;
   notesSearch: string;
   feedSearch: string;
+  analyticsPeriod: AnalyticsPeriod;
 };
 
 export const initialNavigationState: NavigationState = {
-  screen: "home",
   currentPostId: null,
-  postMode: "chat",
   isEditing: false,
   currentNote: null,
   noteMode: "view",
@@ -41,6 +38,12 @@ export const initialNavigationState: NavigationState = {
   noteFilter: "all",
   notesSearch: "",
   feedSearch: "",
+  analyticsPeriod: "30d",
 };
 
 export type NavigationPatch = Partial<NavigationState>;
+
+/** Route sync patch: `screen` is transient (side-effects only, not stored). */
+export type RouteNavigationPatch = NavigationPatch & {
+  screen?: ScreenId;
+};

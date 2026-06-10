@@ -3,6 +3,7 @@
   max-width: min(560px, calc(100vw - var(--nav-w) - 200px));
 }
 
+/* M3: styles for analytics-dashboard chart card; DOM not yet in web/src */
 /* Планшет: шапка графика канала в колонку — порог по content-adapt-w */
 html[data-content-adapt-ge-761] #screen-analytics .analytics-chart-card .analytics-card-head {
   flex-direction: column;

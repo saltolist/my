@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { BarChart3 } from "lucide-react";
 
+import { useNavigationStore } from "@/app/model/store";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
+import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
 import type { AnalyticsPeriod } from "@/shared/data/analytics-seed";
 import { ANALYTICS_PERIOD_OPTIONS } from "@/shared/data/analytics-seed";
 import { EmptyState } from "@/shared/ui/empty-state";
@@ -13,16 +15,18 @@ import { PageHeader, PageHeaderSelect } from "@/widgets/page-header";
 
 export function AnalyticsScreen() {
   const isMobile = useMobile760();
-  const [period, setPeriod] = useState<AnalyticsPeriod>("30d");
+  const onBack = useScreenBack();
+  const period = useNavigationStore((s) => s.analyticsPeriod);
+  const setAnalyticsPeriod = useNavigationStore((s) => s.setAnalyticsPeriod);
 
   const periodSelectProps = useMemo(
     () => ({
       ariaLabel: "Период аналитики",
       value: period,
       options: ANALYTICS_PERIOD_OPTIONS,
-      onChange: (v: string) => setPeriod(v as AnalyticsPeriod),
+      onChange: (v: string) => setAnalyticsPeriod(v as AnalyticsPeriod),
     }),
-    [period],
+    [period, setAnalyticsPeriod],
   );
 
   return (
@@ -30,10 +34,10 @@ export function AnalyticsScreen() {
       header={
         <PageHeader
           title="Аналитика канала"
-          backTo="home"
+          onBack={onBack}
           center={
             !isMobile ? (
-              <AnalyticsPeriodFilter value={period} onChange={setPeriod} />
+              <AnalyticsPeriodFilter value={period} onChange={setAnalyticsPeriod} />
             ) : undefined
           }
           mobileSelect={isMobile ? <PageHeaderSelect {...periodSelectProps} /> : undefined}

@@ -2,7 +2,7 @@
 
 Static export deployment for web client. Stack — [stack.md](./stack.md).
 
-Reference build: [`frontend-v2/next.config.ts`](../../../frontend-v2/next.config.ts).
+Reference build: [`web/next.config.ts`](../../next.config.ts).
 
 ---
 
@@ -18,7 +18,7 @@ Reference build: [`frontend-v2/next.config.ts`](../../../frontend-v2/next.config
 **Commands:**
 
 ```bash
-cd Docs_TG_Platform/frontend-v2
+cd Docs_TG_Platform/web
 npm ci
 npm run build
 ```
@@ -31,7 +31,7 @@ Post-build: `copy-404.mjs` copies `404.html` for SPA fallback on static hosts.
 
 | Variable | Production example | Purpose |
 |----------|-------------------|---------|
-| `NEXT_PUBLIC_BASE_PATH` | `/Repositories_Info/Docs_TG_Platform/frontend-v2` | Asset prefix (GitHub Pages) |
+| `NEXT_PUBLIC_BASE_PATH` | `/Repositories_Info/Docs_TG_Platform/web` | Asset prefix (GitHub Pages) |
 | `NEXT_PUBLIC_USE_MSW` | `0` | Disable mock API |
 | `NEXT_PUBLIC_API_BASE_URL` | `https://api.example.com` | Backend URL (no trailing slash) |
 
@@ -44,12 +44,12 @@ Post-build: `copy-404.mjs` copies `404.html` for SPA fallback on static hosts.
 CI sets:
 
 ```yaml
-NEXT_PUBLIC_BASE_PATH: /Repositories_Info/Docs_TG_Platform/frontend-v2
+NEXT_PUBLIC_BASE_PATH: /Repositories_Info/Docs_TG_Platform/web
 ```
 
 Deploy `out/` to Pages. All routes use trailing slashes; gchat uses query `?id=` because path segments don't work well with static export for dynamic ids.
 
-**Deploy workflow** — planned in [08-roadmap.md](../product/08-roadmap.md) Phase 8 (`frontend-v2-pages.yml`: build with MSW demo → GitHub Pages).
+**Deploy workflow** — planned in [08-roadmap.md](../product/08-roadmap.md) Phase 8 (`web-pages.yml`: build with MSW demo → GitHub Pages).
 
 ---
 

@@ -9,9 +9,3 @@ export {
   PageHeaderOverflow,
   type PageHeaderOverflowItem,
 } from "./ui/page-header-overflow";
-export {
-  usePageHeaderLe640,
-  usePageHeaderLe650,
-  usePageHeaderLe780,
-  usePageHeaderLe1080,
-} from "./model/profile/usePageHeaderBreakpoint";

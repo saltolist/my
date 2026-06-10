@@ -14,7 +14,7 @@ export function SidebarInner({ onNavigate }: SidebarInnerProps) {
   const sb = useSidebar({ onNavigate });
 
   return (
-    <nav id="sidebar" className={sb.railActive ? "sidebar--collapsed" : undefined}>
+    <nav id="sidebar" aria-label="Основная навигация" className={sb.railActive ? "sidebar--collapsed" : undefined}>
       <SidebarHeader
         railActive={sb.railActive}
         railAllowed={sb.railAllowed}

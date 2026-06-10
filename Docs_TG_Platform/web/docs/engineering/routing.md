@@ -1,6 +1,6 @@
 # Routing
 
-URL, query params, navigation stack. Reference: [`frontend-v2/src/shared/lib/routes.ts`](../../../frontend-v2/src/shared/lib/routes.ts), [`post-navigation-store.ts`](../../../frontend-v2/src/app/model/store/post-navigation-store.ts).
+URL, query params, navigation stack. Reference: [`web/src/shared/lib/routes.ts`](../../src/shared/lib/routes.ts), [`post-navigation-store.ts`](../../src/app/model/store/post-navigation-store.ts).
 
 Screen layout — [pages.md](../ux/pages.md). Flows — [flows.md](../ux/flows.md).
 
@@ -143,6 +143,7 @@ Post mode changes do **not** update URL (except legacy redirect on load).
 | Note editor state | `navigation-store` | `currentNote`, `noteMode`, `noteSavedSnapshot` | RouteSync (URL), note editor |
 | List filters (chats, notes) | `navigation-store` | `chatsTab`, `noteScope`, `noteFilter` | `setChatsTab`, `setNoteScope`, `setNoteFilter` |
 | List search (feed, chats, notes) | `navigation-store` | `feedSearch`, `chatsSearch`, `notesSearch` | `setFeedSearch`, `setChatsSearch`, `setNotesSearch` |
+| Analytics period | `navigation-store` | `analyticsPeriod` | `setAnalyticsPeriod` |
 | Screen data (titles, bodies) | React Query cache → store on note routes; entity hooks elsewhere | `NoteScreen` reads `currentNote`; `useGlobalChat(gchatId)` with id from URL | mutations |
 
 Pure URL → store sync: `syncRouteFromUrl()` in `widgets/app-shell/lib/syncRoute.ts`, called from `RouteSync`.
