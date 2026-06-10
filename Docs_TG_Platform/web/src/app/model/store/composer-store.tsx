@@ -22,22 +22,27 @@ import {
   usePushGlobalChatMessage,
   useUpdateGlobalChat,
 } from "@/entities/chat";
+import { useAddLocalChat, usePushLocalChatMessage } from "@/entities/post";
 import { useAiProfile } from "@/entities/channel";
 import { queryKeys } from "@/shared/api/queryKeys";
-import { getGlobalReply } from "@/shared/lib/replies";
+import { getGlobalReply, getPostReply } from "@/shared/lib/replies";
 import { routes } from "@/shared/lib/routes";
 import { truncate } from "@/shared/lib/helpers";
 import { buildMultiResponsePairs } from "@/shared/config/composer";
-import type { ComposerScope, GlobalChat } from "@/shared/types";
+import type { ComposerScope, GlobalChat, LocalChat } from "@/shared/types";
 
 export type ComposerNavBridge = {
   goToHref: (href: string, opts?: { replace?: boolean }) => boolean;
   getCurrentGChatId: () => string | null;
+  getCurrentPostId: () => number | null;
+  getCurrentPostChatId: () => number | null;
+  setCurrentPostChatId: (chatId: number) => void;
 };
 
 export type ComposerContextValue = {
   sendHome: (text: string) => boolean;
   sendGChat: (text: string) => boolean;
+  sendPost: (text: string) => boolean;
   hasLlmForSend: (scope: ComposerScope) => boolean;
   setComposerLlm: (scope: ComposerScope, llmId: string) => void;
   setComposerWeb: (scope: ComposerScope, webId: string) => void;
@@ -52,6 +57,8 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
   const createChat = useCreateGlobalChat();
   const pushMessage = usePushGlobalChatMessage();
   const updateChat = useUpdateGlobalChat();
+  const addLocalChat = useAddLocalChat();
+  const pushLocalChatMessage = usePushLocalChatMessage();
   const setMobileSidebarOpen = useUiStore((s) => s.setMobileSidebarOpen);
   const setLlmId = useComposerTargetStore((s) => s.setLlmId);
   const setWebId = useComposerTargetStore((s) => s.setWebId);
@@ -144,16 +151,56 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
     [assertLlm, pushMessage],
   );
 
+  const sendPost = useCallback(
+    (text: string) => {
+      const bridge = navBridgeRef.current;
+      const cfg = aiProfileRef.current;
+      if (!bridge || !cfg) return false;
+      const postId = bridge.getCurrentPostId();
+      if (!text.trim() || postId == null) return false;
+      if (!assertLlm("post")) return false;
+
+      let chatId = bridge.getCurrentPostChatId();
+      if (chatId == null) {
+        chatId = Date.now();
+        const newChat: LocalChat = {
+          id: chatId,
+          title: truncate(text, 40),
+          preview: text,
+          date: "сейчас",
+          ai: true,
+          history: [{ role: "user", text }],
+        };
+        void addLocalChat(postId, newChat).then(() => {
+          bridge.setCurrentPostChatId(chatId!);
+          bridge.goToHref(routes.post(postId, chatId), { replace: true });
+        });
+      } else {
+        void pushLocalChatMessage(postId, chatId, { role: "user", text });
+      }
+
+      const replyChatId = chatId;
+      window.setTimeout(() => {
+        const reply = buildAiReplyMessage(cfg, getPostReply(text), "post", getTarget("post"));
+        void pushLocalChatMessage(postId, replyChatId, reply);
+      }, 800);
+
+      return true;
+    },
+    [addLocalChat, assertLlm, getTarget, pushLocalChatMessage],
+  );
+
   const value = useMemo<ComposerContextValue>(
     () => ({
       sendHome,
       sendGChat,
+      sendPost,
       hasLlmForSend,
       setComposerLlm,
       setComposerWeb,
       registerNavBridge,
     }),
-    [sendHome, sendGChat, hasLlmForSend, setComposerLlm, setComposerWeb, registerNavBridge],
+    [sendHome, sendGChat, sendPost, hasLlmForSend, setComposerLlm, setComposerWeb, registerNavBridge],
   );
 
   return <ComposerContext.Provider value={value}>{children}</ComposerContext.Provider>;

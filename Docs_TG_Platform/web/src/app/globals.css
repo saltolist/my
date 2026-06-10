@@ -13,6 +13,7 @@
 @import "./styles/shell-feed.css";
 @import "./styles/shell-feed-body.css";
 @import "./styles/shell-media.css";
+@import "./styles/shell-post.css";
 @import "./styles/shell-profile.css";
 
 @custom-variant dark (&:is(.dark *, [data-theme="dark"] *));
@@ -71,4 +72,75 @@
     background: var(--page-bg-grad);
     background-color: var(--bg);
   }
+}
+
+/* Post screen — после @layer base, чтобы перебить Tailwind preflight */
+#screen-post .post-body .composer-scroll-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#screen-post .post-body-inner {
+  width: var(--composer-w);
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+#screen-post .post-body-inner .post-msg-block {
+  width: var(--feed-post-w, 500px);
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+#screen-post .post-msg-block > .post-card.post-msg-card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  cursor: default;
+  background-color: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--post-card-r);
+  box-shadow: var(--content-card-shadow);
+}
+
+#screen-post .post-msg-block > .post-card.post-msg-card:hover {
+  border-color: var(--border2);
+  background-color: var(--bg2);
+}
+
+#screen-post .post-msg-block > .post-card.post-msg-card {
+  transition: none;
+}
+
+#screen-post .post-body-inner > .post-msg-card {
+  box-sizing: border-box;
+  width: var(--feed-post-w, 500px);
+  max-width: 100%;
+  margin-inline: auto;
+  background-color: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--post-card-r);
+  box-shadow: var(--content-card-shadow);
+}
+
+#screen-post .post-msg-block .post-msg-actions {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+#screen-post .input-wrap {
+  justify-content: center;
+}
+
+#screen-post .page-header-actions--desktop {
+  flex-direction: row;
+  justify-content: flex-end;
 }

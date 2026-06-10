@@ -6,6 +6,8 @@ export {
   useReorderPosts,
   useDeletePost,
 } from "./model/usePosts";
+export { useAddLocalChat, usePushLocalChatMessage } from "./model/useLocalChatMutations";
 export { default as PostMediaBlock } from "./ui/PostMediaBlock";
+export { PostStatusBadge } from "./ui/PostStatusBadge";
 export { default as PostStatus, PostStatusIcon } from "./ui/PostStatus";
 export { RepostIcon, ViewsEyeIcon } from "./ui/PostMetricIcons";

@@ -3,7 +3,7 @@
 import { getPostMediaItems } from "@/shared/lib/helpers";
 import type { Post } from "@/shared/types";
 import { PostMediaBlock, PostStatus } from "@/entities/post";
-import PostCommentsRow from "./PostCommentsRow";
+import PostCommentsRow from "@/widgets/post-workspace/ui/PostCommentsRow";
 import { PostReactionPills, PostViewsReposts } from "./PostEngagement";
 
 export default function PostCard({

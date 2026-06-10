@@ -73,9 +73,13 @@ test("analytics page loads with period tabs", async ({ page }) => {
 
 test("post page loads", async ({ page }) => {
   await page.goto("/post/1/");
-  await expect(page.getByRole("heading", { name: /Два года я не мог нажать кнопку/ })).toBeVisible({
-    timeout: LOAD_TIMEOUT,
-  });
+  await expect(page.getByRole("navigation", { name: "Хлебные крошки" })).toContainText(
+    "Два года я не мог нажать кнопку",
+    { timeout: LOAD_TIMEOUT },
+  );
+  await expect(page.locator("#screen-post .post-msg-card")).toBeVisible();
+  await expect(page.locator("#screen-post .input-wrap")).toBeVisible();
+  await expect(page.locator("#screen-post").getByRole("button", { name: "Заметки" })).toBeVisible();
 });
 
 test("legacy post notes path redirects to canonical post url", async ({ page }) => {
