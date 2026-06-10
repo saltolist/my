@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { postStatusSchema } from "@/shared/api/schemas/post";
 import { getGlobalReply, getPostReply } from "@/shared/lib/replies";
+import { resolveScreenBackAction } from "@/shared/lib/hooks/useScreenBack";
 import {
   parseAppPath,
   parseGChatLegacyPath,
@@ -47,6 +48,15 @@ describe("routes", () => {
 
   it("getParentPath for post", () => {
     expect(getParentPath("/post/1/")).toBe("/feed/");
+  });
+
+  it("resolveScreenBackAction prefers browser history", () => {
+    expect(resolveScreenBackAction("/post/1/", 2)).toEqual({ type: "back" });
+  });
+
+  it("resolveScreenBackAction falls back to parent path", () => {
+    expect(resolveScreenBackAction("/post/1/", 1)).toEqual({ type: "push", href: "/feed/" });
+    expect(resolveScreenBackAction("/", 1)).toEqual({ type: "push", href: "/" });
   });
 
   it("statePatchToHref for gchat", () => {

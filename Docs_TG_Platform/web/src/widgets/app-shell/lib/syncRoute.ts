@@ -24,6 +24,20 @@ export type PostModeSync = {
   chatId: number | null;
 };
 
+type PostModeStore = {
+  getMode: (postId: number) => PostMode;
+  getCurrentPostChatId: (postId: number) => number | null;
+  setMode: (postId: number, mode: PostMode, chatId?: number | null) => void;
+};
+
+/** Route sync must not re-call setMode when mode already matches — setMode toggles tab modes. */
+export function syncPostModeFromRoute(store: PostModeStore, postMode: PostModeSync): void {
+  const currentMode = store.getMode(postMode.postId);
+  const currentChatId = store.getCurrentPostChatId(postMode.postId);
+  if (currentMode === postMode.mode && currentChatId === postMode.chatId) return;
+  store.setMode(postMode.postId, postMode.mode, postMode.chatId);
+}
+
 export type SyncRouteResult =
   | { kind: "redirect"; href: string; postMode?: PostModeSync }
   | { kind: "sync"; patch: RouteNavigationPatch; postMode?: PostModeSync };

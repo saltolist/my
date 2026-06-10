@@ -7,9 +7,10 @@ import type { PostComment } from "@/shared/types";
 type Props = {
   comment: PostComment;
   parent?: PostComment;
+  onReply?: () => void;
 };
 
-export default function PostCommentRow({ comment, parent }: Props) {
+export default function PostCommentRow({ comment, parent, onReply }: Props) {
   const hue = avatarHue(comment.author);
   return (
     <article className={`post-comment${parent ? " post-comment--reply" : ""}`}>
@@ -37,6 +38,11 @@ export default function PostCommentRow({ comment, parent }: Props) {
           </div>
         ) : null}
         {comment.text ? <p className="post-comment-text">{comment.text}</p> : null}
+        {onReply ? (
+          <button className="post-comment-reply-btn" onClick={onReply} type="button">
+            Ответить
+          </button>
+        ) : null}
       </div>
     </article>
   );

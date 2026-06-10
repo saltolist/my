@@ -82,7 +82,8 @@
   padding: 20px;
   border-radius: 22px;
   background: var(--bg2);
-  border: 1px solid var(--border);
+  border: none;
+  box-shadow: var(--inset-edge), var(--shadow-strong);
   box-sizing: border-box;
 }
 

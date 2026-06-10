@@ -58,6 +58,9 @@
   --feed-post-w: 500px;
   --post-inline-icon: 14px;
   --post-media-clip-r: calc(var(--post-card-r) - 3px);
+  --shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-focus: 0 10px 28px rgba(0, 0, 0, 0.4);
+  --inset-edge: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   --content-card-shadow: 0 8px 26px rgba(0, 0, 0, 0.22);
   --reaction-pill-bg: var(--bg3);
   --reaction-pill-border: var(--border);
@@ -163,6 +166,10 @@ html.sidebar-collapsed {
   --orange: #d97706;
   --red: #dc2626;
   --purple: #7c3aed;
+  --shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-focus: 0 10px 28px rgba(0, 0, 0, 0.14);
+  --inset-edge: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --content-card-shadow: 0 6px 22px rgba(0, 0, 0, 0.065);
   --glass-bg: rgba(248, 249, 251, 0.62);
   --glass-border: rgba(0, 0, 0, 0.06);
   --glass-shine: rgba(255, 255, 255, 0.85);

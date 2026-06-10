@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import type { GlobalChat, GlobalNote, Post } from "@/shared/types";
+import type { GlobalChat, GlobalNote, Post, PostMode } from "@/shared/types";
 import type { ActiveNote } from "@/shared/types";
 import {
   isNoteRouteDataQuery,
   mergeNoteCachePatch,
   routeNeedsCachedData,
   routeSyncKey,
+  syncPostModeFromRoute,
   syncRouteFromUrl,
 } from "@/widgets/app-shell/lib/syncRoute";
 import { queryKeys } from "@/shared/api/queryKeys";
@@ -33,6 +34,36 @@ const globalChats: GlobalChat[] = [
 ];
 
 const data = { posts, globalChats, globalNotes };
+
+describe("syncPostModeFromRoute", () => {
+  it("skips setMode when route mode already matches store", () => {
+    let setModeCalls = 0;
+    const store = {
+      getMode: () => "comments" as const,
+      getCurrentPostChatId: () => null,
+      setMode: () => {
+        setModeCalls += 1;
+      },
+    };
+
+    syncPostModeFromRoute(store, { postId: 1, mode: "comments", chatId: null });
+    expect(setModeCalls).toBe(0);
+  });
+
+  it("calls setMode when route mode differs", () => {
+    let last: { postId: number; mode: PostMode; chatId: number | null } | null = null;
+    const store = {
+      getMode: () => "chat" as const,
+      getCurrentPostChatId: () => null,
+      setMode: (postId: number, mode: PostMode, chatId?: number | null) => {
+        last = { postId, mode, chatId: chatId ?? null };
+      },
+    };
+
+    syncPostModeFromRoute(store, { postId: 1, mode: "comments", chatId: null });
+    expect(last).toEqual({ postId: 1, mode: "comments", chatId: null });
+  });
+});
 
 describe("syncRouteFromUrl", () => {
   it("redirects legacy gchat path", () => {

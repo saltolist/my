@@ -13,6 +13,7 @@ import {
   mergeNoteCachePatch,
   routeNeedsCachedData,
   routeSyncKey,
+  syncPostModeFromRoute,
   syncRouteFromUrl,
 } from "@/widgets/app-shell/lib/syncRoute";
 import type { GlobalChat, GlobalNote, Post, PostMode } from "@/shared/types";
@@ -47,14 +48,14 @@ function applyRouteSync(
   if (result.kind === "redirect") {
     if (result.postMode) {
       postModeOverrideRef.current = result.postMode.mode;
-      setPostMode(result.postMode.postId, result.postMode.mode, result.postMode.chatId);
+      syncPostModeFromRoute(usePostNavigationStore.getState(), result.postMode);
     }
     router.replace(result.href);
     return;
   }
 
   if (result.postMode) {
-    setPostMode(result.postMode.postId, result.postMode.mode, result.postMode.chatId);
+    syncPostModeFromRoute(usePostNavigationStore.getState(), result.postMode);
   }
 
   let patch = result.patch;

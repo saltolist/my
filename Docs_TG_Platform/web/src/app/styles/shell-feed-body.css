@@ -223,7 +223,7 @@
 .post-card {
   background: var(--bg2); border: 1px solid var(--border); border-radius: var(--post-card-r);
   padding: 3px 16px 14px; cursor: pointer;
-  transition: border-color .15s, background .15s;
+  transition: border-color .15s;
   display: flex; align-items: flex-start; gap: 10px;
   width: var(--feed-post-w); max-width: 100%;
   overflow: visible;
@@ -241,7 +241,7 @@
   width: 100%;
   flex-shrink: 0;
 }
-.post-card:hover { border-color: var(--border2); background: var(--bg3); }
+.post-card:hover { border-color: var(--border2); }
 .drag-handle {
   color: var(--text3);
   font-size: 16px;
