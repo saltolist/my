@@ -27,6 +27,7 @@ export function PageHeader(props: PageHeaderProps) {
     searchToggleAnchorRef,
     compactSearchOverlay,
     searchOverlayMode,
+    desktopPostInlineSearch,
     headerClassName,
     isMobile,
     mobileSearchOpen,
@@ -49,13 +50,14 @@ export function PageHeader(props: PageHeaderProps) {
         title={title}
         left={left}
         breadcrumbs={props.breadcrumbs}
-        showTitle={!mobileSearchOpen || !searchOverlayMode}
-        showLeft={!(mobileSearchOpen && searchOverlayMode)}
+        showTitle={!mobileSearchOpen || !searchOverlayMode || desktopPostInlineSearch}
+        showLeft={!(mobileSearchOpen && searchOverlayMode && !desktopPostInlineSearch)}
       />
       <PageHeaderCenter
         mobileOverlaySearch={mobileOverlaySearch}
         compactSearch={compactSearch}
         compactSearchOverlay={compactSearchOverlay}
+        inlineDesktopSearch={desktopPostInlineSearch}
         mobileSearchOpen={mobileSearchOpen}
         expandableSearchContent={expandableSearchContent}
         mobileSearchWrapRef={mobileSearchWrapRef}
@@ -66,6 +68,9 @@ export function PageHeader(props: PageHeaderProps) {
         isMobile={isMobile}
         showMobileRight={showMobileRight}
         compactSearch={compactSearch}
+        inlineDesktopSearch={desktopPostInlineSearch}
+        expandableSearchContent={expandableSearchContent}
+        mobileSearchWrapRef={mobileSearchWrapRef}
         showSearchToggle={!!search && (mobileOverlaySearch || compactSearch)}
         mobileSearchOpen={mobileSearchOpen}
         setMobileSearchOpen={setMobileSearchOpen}

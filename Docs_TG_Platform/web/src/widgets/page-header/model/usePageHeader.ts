@@ -80,6 +80,7 @@ export function usePageHeader({
   const mobileOverlaySearch = isMobile;
   const searchOverlayMode =
     compactSearchOverlay && (isMobile || compactSearch);
+  const desktopPostInlineSearch = searchOverlayMode && !mobileOverlaySearch;
 
   useProfilePageHeaderSync(headerRef, isMobile, profileBreakpoints);
 
@@ -138,6 +139,7 @@ export function usePageHeader({
 
   const needsSearchSpan =
     mobileSearchOpen &&
+    !desktopPostInlineSearch &&
     (searchOverlayMode || (mobileOverlaySearch && hasMobileSearchTrailing));
 
   useLayoutEffect(() => {
@@ -246,6 +248,7 @@ export function usePageHeader({
     searchToggleAnchorRef,
     compactSearchOverlay,
     searchOverlayMode,
+    desktopPostInlineSearch,
     headerClassName,
     isMobile,
     mobileSearchOpen,

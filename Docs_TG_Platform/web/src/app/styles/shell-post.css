@@ -238,7 +238,7 @@
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   margin-left: auto;
 }
 .page-header--post-search-overlay.page-header--search-open .page-header-menu-btn {
@@ -254,7 +254,20 @@
 }
 .page-header--post-search-overlay.page-header--search-open {
   position: relative;
-  gap: 10px;
+  gap: 8px;
+}
+.post-header-search-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.post-header-search-row .page-header-search-field {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  max-width: var(--page-header-search-w);
 }
 .page-header--post-search-overlay.page-header--search-open .page-header-left,
 .page-header--post-search-overlay.page-header--search-open .page-header-right {
@@ -264,36 +277,6 @@
 .page-header--post-search-overlay.page-header--search-open .page-header-right {
   margin-left: auto;
 }
-.page-header--post-search-overlay.page-header--search-open .page-header-search-expand {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: var(--page-header-search-span-left, 0);
-  right: var(--page-header-search-span-right, 0);
-  flex: none;
-  width: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  padding: 0;
-  pointer-events: none;
-  z-index: 2;
-}
-.page-header--post-search-overlay.page-header--search-open
-  .page-header-search-expand
-  .post-header-search-row {
-  display: contents;
-}
-.page-header--post-search-overlay.page-header--search-open
-  .page-header-search-expand
-  .page-header-search-field {
-  width: calc(100% - var(--page-header-mobile-search-shrink, 50px));
-  max-width: none;
-  flex: 0 0 auto;
-  pointer-events: auto;
-}
-
 /* Desktop: flex — крошки сжимаются при приближении кнопок справа */
 @media (min-width: 761px) {
   .page-header--post:not(.page-header--post-with-search):not(.page-header--post-search-overlay) {
@@ -342,6 +325,110 @@
     flex: 0 1 auto;
     min-width: 0;
     max-width: 100%;
+  }
+
+  .page-header--post .page-header-search-toggle,
+  .page-header--post-search-overlay .page-header-actions--desktop .page-header-search-toggle,
+  .page-header--post-search-overlay .page-header-actions--desktop .page-header-search-toggle-slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    min-height: 32px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text3);
+    cursor: pointer;
+    box-sizing: border-box;
+    box-shadow: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .page-header--post-search-overlay .page-header-actions--desktop .page-header-search-toggle-slot {
+    display: inline-block;
+  }
+
+  /* Схлопнутая «К посту» не должна занимать gap между лупой и остальными кнопками */
+  .page-header--post .page-header-actions--desktop .jump-post-btn:not(.visible) {
+    display: none;
+  }
+
+  .page-header--post-search-overlay .page-header-actions--desktop {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Desktop: поле поиска inline в правой колонке, слева от кнопок */
+  .page-header--post-search-overlay.page-header--search-open.page-header--compact-search
+    .page-header-left {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .page-header--post-search-overlay.page-header--search-open .page-header-center {
+    display: none;
+  }
+  /* Кнопки остаются у правого края; поле растёт только влево */
+  .page-header--post-search-overlay.page-header--search-open .page-header-right {
+    flex: 0 0 auto;
+    min-width: 0;
+    margin-left: auto;
+  }
+  .page-header--post-search-overlay.page-header--search-open .page-header-actions--desktop {
+    flex: 0 0 auto;
+    min-width: 0;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+  }
+  .page-header--post-search-overlay.page-header--search-open .page-header-actions-cluster {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 8px;
+  }
+  .page-header--post-search-overlay.page-header--search-open .page-header-search-inline {
+    flex: 0 1 var(--page-header-search-w);
+    min-width: 0;
+    max-width: var(--page-header-search-w);
+    width: min(var(--page-header-search-w), 100%);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+  .page-header--post-search-overlay.page-header--search-open
+    .page-header-search-inline
+    .post-header-search-row {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
+  .page-header--post-search-overlay.page-header--search-open
+    .page-header-search-inline
+    .page-header-search-field {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    flex: 1 1 auto;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .page-header--post .page-header-search-toggle:hover {
+      color: var(--text);
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
   }
 }
 
@@ -418,6 +505,61 @@
     flex: 0 1 auto;
     min-width: 0;
     max-width: 100%;
+  }
+
+  .page-header--post .page-header-search-toggle,
+  .page-header--post .page-header-search-toggle-slot {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .page-header--post-search-overlay .page-header-right.page-header-right--mobile {
+    gap: 8px;
+  }
+
+  .page-header--post .page-header-search-toggle + .page-header-toolbar-slot,
+  .page-header--post .page-header-search-toggle-slot + .page-header-toolbar-slot,
+  .page-header--post .page-header-search-toggle + .page-header-actions--mobile,
+  .page-header--post .page-header-search-toggle-slot + .page-header-actions--mobile {
+    margin-left: 0;
+  }
+
+  .page-header--post-search-overlay.page-header--search-open {
+    --page-header-mobile-search-shrink: 122px;
+  }
+
+  .page-header--post-search-overlay.page-header--search-open .page-header-search-expand {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--page-header-search-span-left, 0);
+    right: var(--page-header-search-span-right, 0);
+    flex: none;
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .page-header--post-search-overlay.page-header--search-open
+    .page-header-search-expand
+    .post-header-search-row {
+    display: contents;
+  }
+  .page-header--post-search-overlay.page-header--search-open
+    .page-header-search-expand
+    .page-header-search-field {
+    width: calc(100% - var(--page-header-mobile-search-shrink, 50px));
+    max-width: none;
+    flex: 0 0 auto;
+    pointer-events: auto;
   }
 }
 

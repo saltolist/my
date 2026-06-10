@@ -143,4 +143,15 @@
 #screen-post .page-header-actions--desktop {
   flex-direction: row;
   justify-content: flex-end;
+  gap: 8px;
+}
+
+#screen-post
+  .page-header--post-search-overlay.page-header--search-open
+  .page-header-search-inline
+  .page-header-search-field {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
 }

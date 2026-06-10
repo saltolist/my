@@ -6,6 +6,7 @@ export type PageHeaderCenterProps = {
   mobileOverlaySearch?: boolean;
   compactSearch?: boolean;
   compactSearchOverlay?: boolean;
+  inlineDesktopSearch?: boolean;
   mobileSearchOpen?: boolean;
   expandableSearchContent?: ReactNode | null;
   mobileSearchWrapRef?: RefObject<HTMLDivElement | null>;
@@ -17,6 +18,7 @@ export function PageHeaderCenter({
   mobileOverlaySearch = false,
   compactSearch = false,
   compactSearchOverlay = false,
+  inlineDesktopSearch = false,
   mobileSearchOpen = false,
   expandableSearchContent = null,
   mobileSearchWrapRef,
@@ -26,6 +28,7 @@ export function PageHeaderCenter({
   if (
     mobileSearchOpen &&
     expandableSearchContent &&
+    !inlineDesktopSearch &&
     (mobileOverlaySearch || (compactSearch && compactSearchOverlay))
   ) {
     return (

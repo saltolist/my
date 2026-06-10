@@ -13,6 +13,9 @@ export type PageHeaderRightProps = {
   isMobile?: boolean;
   showMobileRight?: boolean;
   compactSearch?: boolean;
+  inlineDesktopSearch?: boolean;
+  expandableSearchContent?: ReactNode | null;
+  mobileSearchWrapRef?: RefObject<HTMLDivElement | null>;
   showSearchToggle?: boolean;
   mobileSearchOpen?: boolean;
   setMobileSearchOpen?: (open: boolean) => void;
@@ -34,6 +37,9 @@ export function PageHeaderRight({
   isMobile = false,
   showMobileRight = false,
   compactSearch = false,
+  inlineDesktopSearch = false,
+  expandableSearchContent = null,
+  mobileSearchWrapRef,
   showSearchToggle = false,
   mobileSearchOpen = false,
   setMobileSearchOpen,
@@ -52,6 +58,34 @@ export function PageHeaderRight({
 }: PageHeaderRightProps) {
   if (isMobile && !showMobileRight) return null;
 
+  const desktopTrailing = (
+    <>
+      {showCompactToolbarSelect ? (
+        <div
+          ref={mobileSelectWrapRef}
+          className="page-header-toolbar-slot page-header-toolbar--desktop-select"
+        >
+          {mobileSelect}
+        </div>
+      ) : null}
+      {trailingDesktopSelect && mobileSelect ? (
+        <div className="page-header-toolbar-slot page-header-toolbar--desktop-select">
+          {mobileSelect}
+        </div>
+      ) : null}
+      {handleBack ? <BackButton onClick={handleBack} label={backLabel} /> : null}
+      {actions}
+      {overflowItems && overflowItems.length > 0 ? (
+        <div ref={overflowWrapRef}>
+          <PageHeaderOverflow items={overflowItems} />
+        </div>
+      ) : null}
+    </>
+  );
+
+  const desktopInlineSearchOpen =
+    inlineDesktopSearch && mobileSearchOpen && !!expandableSearchContent;
+
   return (
     <div
       ref={headerRightRef}
@@ -59,46 +93,27 @@ export function PageHeaderRight({
     >
       {!isMobile ? (
         <div className="page-header-actions--desktop">
-          {compactSearch && showSearchToggle ? (
-            mobileSearchOpen ? (
-              <span
-                ref={searchToggleAnchorRef}
-                className="page-header-search-toggle-slot"
-                aria-hidden
-              />
-            ) : (
-              <button
-                ref={searchToggleAnchorRef as Ref<HTMLButtonElement>}
-                type="button"
-                className="page-header-search-toggle"
-                aria-label="Поиск"
-                aria-expanded={mobileSearchOpen}
-                onClick={() => setMobileSearchOpen?.(true)}
-              >
-                <PageHeaderSearchMagnifier size={20} />
-              </button>
-            )
-          ) : null}
-          {showCompactToolbarSelect ? (
-            <div
-              ref={mobileSelectWrapRef}
-              className="page-header-toolbar-slot page-header-toolbar--desktop-select"
+          {desktopInlineSearchOpen ? (
+            <div className="page-header-search-inline" ref={mobileSearchWrapRef}>
+              {expandableSearchContent}
+            </div>
+          ) : compactSearch && showSearchToggle ? (
+            <button
+              ref={searchToggleAnchorRef as Ref<HTMLButtonElement>}
+              type="button"
+              className="page-header-search-toggle"
+              aria-label="Поиск"
+              aria-expanded={mobileSearchOpen}
+              onClick={() => setMobileSearchOpen?.(true)}
             >
-              {mobileSelect}
-            </div>
+              <PageHeaderSearchMagnifier size={20} />
+            </button>
           ) : null}
-          {trailingDesktopSelect && mobileSelect ? (
-            <div className="page-header-toolbar-slot page-header-toolbar--desktop-select">
-              {mobileSelect}
-            </div>
-          ) : null}
-          {handleBack ? <BackButton onClick={handleBack} label={backLabel} /> : null}
-          {actions}
-          {overflowItems && overflowItems.length > 0 ? (
-            <div ref={overflowWrapRef}>
-              <PageHeaderOverflow items={overflowItems} />
-            </div>
-          ) : null}
+          {desktopInlineSearchOpen ? (
+            <div className="page-header-actions-cluster">{desktopTrailing}</div>
+          ) : (
+            desktopTrailing
+          )}
         </div>
       ) : null}
       {showMobileRight ? (
