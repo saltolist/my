@@ -1,5 +1,6 @@
 "use client";
 
+import { NoteListCard } from "@/entities/note";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { matchesListContextFilter } from "@/shared/lib/listContextFilter";
 import type { LocalNote, NoteListFilter, Post } from "@/shared/types";
@@ -38,29 +39,15 @@ export default function PostNotesList({
           />
         ) : null}
         {notes.map((n) => (
-          <div key={n.id} className="note-card" onClick={() => onOpenNote(n)}>
-            <div className="note-card-body">
-              <div className="note-card-title">{n.title}</div>
-              <div className="note-card-preview-post">{n.body}</div>
-              <div className="note-card-footer">
-                <div className="note-card-footer-start">
-                  <button
-                    type="button"
-                    className={`note-ai-toggle${n.ai ? " on" : " off"}`}
-                    aria-pressed={n.ai}
-                    title={n.ai ? "В контексте ИИ" : "Вне контекста ИИ"}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleNoteAi(n.id);
-                    }}
-                  >
-                    AI
-                  </button>
-                  <span className="note-card-meta">{n.date}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <NoteListCard
+            key={n.id}
+            title={n.title}
+            body={n.body}
+            meta={n.date}
+            ai={n.ai}
+            onClick={() => onOpenNote(n)}
+            onToggleAi={() => onToggleNoteAi(n.id)}
+          />
         ))}
       </div>
     </div>

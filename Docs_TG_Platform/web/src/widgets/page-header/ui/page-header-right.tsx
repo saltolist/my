@@ -97,7 +97,7 @@ export function PageHeaderRight({
             <div className="page-header-search-inline" ref={mobileSearchWrapRef}>
               {expandableSearchContent}
             </div>
-          ) : compactSearch && showSearchToggle ? (
+          ) : showSearchToggle && !mobileSearchOpen ? (
             <button
               ref={searchToggleAnchorRef as Ref<HTMLButtonElement>}
               type="button"

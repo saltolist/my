@@ -34,6 +34,7 @@ export function PageHeader(props: PageHeaderProps) {
     setMobileSearchOpen,
     compactSearch,
     mobileOverlaySearch,
+    showSearchToggle,
     expandableSearchContent,
     hasTrailingToolbar,
     showMobileRight,
@@ -71,7 +72,7 @@ export function PageHeader(props: PageHeaderProps) {
         inlineDesktopSearch={desktopPostInlineSearch}
         expandableSearchContent={expandableSearchContent}
         mobileSearchWrapRef={mobileSearchWrapRef}
-        showSearchToggle={!!search && (mobileOverlaySearch || compactSearch)}
+        showSearchToggle={showSearchToggle}
         mobileSearchOpen={mobileSearchOpen}
         setMobileSearchOpen={setMobileSearchOpen}
         showCompactToolbarSelect={showCompactToolbarSelect}

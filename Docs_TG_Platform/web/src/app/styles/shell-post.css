@@ -982,6 +982,21 @@
 }
 .note-card:hover { border-color: var(--border2); }
 .note-card-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.note-card-page-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  margin-bottom: 4px;
+}
+.note-card-page-head .note-card-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 0;
+}
 .note-card-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
 .note-card-preview-post {
   flex: 1; min-height: 0;
@@ -1299,6 +1314,10 @@
   background: var(--profile-control-bg-active);
   border-color: color-mix(in srgb, var(--border2) 55%, #000 45%);
   color: var(--profile-control-fg);
+}
+.note-card:hover:has(.note-ai-toggle--suppress-hover),
+.note-card:hover:has(.note-card-context-control--suppress-hover) {
+  border-color: var(--border);
 }
 
 @media (max-width: 760px) {

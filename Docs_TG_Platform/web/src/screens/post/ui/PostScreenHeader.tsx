@@ -87,7 +87,6 @@ export default function PostScreenHeader({
             </div>
           ) : undefined
         }
-        compactSearchAtWidth={showListHeaderSearch ? 1200 : undefined}
         compactSearchOverlay={showListHeaderSearch}
         actions={
           !isMobile ? (

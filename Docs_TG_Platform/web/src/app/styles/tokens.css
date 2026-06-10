@@ -84,6 +84,13 @@
   --page-header-control-border: var(--border2);
   --control-border-active: var(--border2);
   --control-border-hover: color-mix(in srgb, var(--border2) 62%, #ffffff 38%);
+  --profile-control-fg: var(--text);
+  --profile-control-fg-muted: var(--text2);
+  --profile-control-bg: var(--bg2);
+  --profile-control-bg-hover: var(--bg3);
+  --profile-control-bg-active: var(--bg3);
+  --profile-control-border: var(--border2);
+  --profile-control-blur: none;
   --input-focus-ring: rgba(91, 143, 249, 0.45);
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
@@ -169,6 +176,12 @@ html.sidebar-collapsed {
   --page-header-control-bg-hover: color-mix(in srgb, var(--bg4) 66%, transparent);
   --page-header-control-bg-focus: color-mix(in srgb, var(--bg4) 72%, transparent);
   --page-header-control-border: color-mix(in srgb, var(--border2) 58%, transparent);
+  --profile-control-fg: #3a3a3a;
+  --profile-control-fg-muted: #3a3a3a;
+  --profile-control-bg: var(--page-header-control-bg);
+  --profile-control-bg-hover: var(--page-header-control-bg-hover);
+  --profile-control-bg-active: var(--page-header-control-bg-focus);
+  --profile-control-border: var(--page-header-control-border);
   --control-border-hover: var(--control-border-active);
   --dropdown-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
   --ctx-dropdown-header-surface: var(--bg2);

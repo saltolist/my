@@ -74,9 +74,11 @@ export function usePageHeader({
 
   const compactSearch =
     !isMobile &&
-    compactSearchAtWidth != null &&
-    headerWidth > 0 &&
-    headerWidth <= compactSearchAtWidth;
+    !!search &&
+    (compactSearchOverlay ||
+      (compactSearchAtWidth != null &&
+        headerWidth > 0 &&
+        headerWidth <= compactSearchAtWidth));
   const mobileOverlaySearch = isMobile;
   const searchOverlayMode =
     compactSearchOverlay && (isMobile || compactSearch);
