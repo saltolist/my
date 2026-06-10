@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-
+import { useNavigationStore } from "@/app/model/store";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { NavIconFeed } from "@/shared/ui/nav-icons";
 import { ScreenShell } from "@/screens/_ui/screen-shell";
@@ -9,7 +8,8 @@ import { FeedHeaderToolbar } from "@/widgets/feed/ui/feed-header-toolbar";
 import { PageHeader } from "@/widgets/page-header";
 
 export function FeedScreen() {
-  const [search, setSearch] = useState("");
+  const search = useNavigationStore((s) => s.feedSearch);
+  const setFeedSearch = useNavigationStore((s) => s.setFeedSearch);
 
   return (
     <ScreenShell
@@ -18,7 +18,7 @@ export function FeedScreen() {
           title="Лента"
           backTo="home"
           compactSearchAtWidth={804}
-          search={<FeedHeaderToolbar value={search} onChange={setSearch} />}
+          search={<FeedHeaderToolbar value={search} onChange={setFeedSearch} />}
         />
       }
     >

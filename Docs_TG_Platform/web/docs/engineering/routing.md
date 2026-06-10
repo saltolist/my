@@ -53,9 +53,11 @@ Path → `ParsedAppPath`:
 
 Query params parsed separately:
 
-- `?id=` on `/gchat/` → `gchatId` (canonical)
-- `?chat=` on `/post/{id}/` → `currentPostChatId`
+- `?id=` on `/gchat/` → global chat id (canonical; read in UI via `parseGChatSearchParam`)
+- `?chat=` on `/post/{id}/` → local chat id (read in UI via `parseChatSearchParam`)
 - `?from=&postId=` on `/note/new/` → note origin
+
+**Gchat and post chat ids are not stored in `navigation-store`** — only in URL (and `post-navigation-store` for post mode/chat stack).
 
 ---
 
@@ -117,22 +119,31 @@ See [screens.md](../ux/components/screens.md).
 
 ## Screen ↔ href sync
 
-`buildRoutePatch(parsed, data)` — URL → UI state patch (load note, gchat, post).
+`buildRoutePatch(parsed, data)` — URL → intermediate patch (load note from React Query cache).
 
-`statePatchToHref(patch, cur)` — UI state → URL for navigation.
+`syncRouteFromUrl()` — pure function; legacy redirects + navigation patch.
+
+`statePatchToHref(patch, cur)` — UI intent → URL (`gchatId`, `postChatId` in patch — not navigation-store fields).
 
 Post mode changes do **not** update URL (except legacy redirect on load).
+
+### RouteSync
+
+1. **URL change** — `syncRouteFromUrl` → `setNav(patch)` (full patch).
+2. **Cache update** on note paths (`routeNeedsCachedData`) — resync when `globalNotes` or `posts` list updates; `isNoteRouteDataQuery` limits which queries trigger resync.
+3. **Draft guard** — `mergeNoteCachePatch` skips overwriting `currentNote` when a new or dirty draft is open.
 
 ### Who reads what
 
 | Concern | Source of truth | Read via | Write via |
 |---------|-----------------|----------|-----------|
-| Screen, post id, note path, gchat id | URL | `parseAppPath`, searchParams | `router.push`, `routes.*()` |
+| Screen, post id, note path | URL | `parseAppPath` | `router.push`, `routes.*()` |
+| Gchat id, post local chat id | URL query | `parseGChatSearchParam`, `parseChatSearchParam` | `routes.gchat(id)`, `routes.post(id, chatId)` |
 | Post submode | `post-navigation-store` | `getMode(postId)` | `setMode`, `pushMode`, `popMode` |
-| Local chat in post | URL `?chat=` + store | RouteSync | `routes.post(id, chatId)` |
-| Note edit context | `navigation-store` | `currentNote`, `noteMode` | RouteSync, note editor |
+| Note editor state | `navigation-store` | `currentNote`, `noteMode`, `noteSavedSnapshot` | RouteSync (URL), note editor |
 | List filters (chats, notes) | `navigation-store` | `chatsTab`, `noteScope`, `noteFilter` | `setChatsTab`, `setNoteScope`, `setNoteFilter` |
-| Screen data (titles, bodies) | Repository + entity hooks | `usePost`, `useGlobalChat`, … | mutations |
+| List search (feed, chats, notes) | `navigation-store` | `feedSearch`, `chatsSearch`, `notesSearch` | `setFeedSearch`, `setChatsSearch`, `setNotesSearch` |
+| Screen data (titles, bodies) | React Query cache → store on note routes; entity hooks elsewhere | `NoteScreen` reads `currentNote`; `useGlobalChat(gchatId)` with id from URL | mutations |
 
 Pure URL → store sync: `syncRouteFromUrl()` in `widgets/app-shell/lib/syncRoute.ts`, called from `RouteSync`.
 

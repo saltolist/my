@@ -1,4 +1,6 @@
-import type { NavigationPatch } from "@/app/model/store/navigation/types";
+import type { NavigationPatch, NavigationState } from "@/app/model/store/navigation/types";
+import { queryKeys } from "@/shared/api/queryKeys";
+import { isNoteDirty, noteIdentityKey } from "@/shared/lib/noteDraft";
 import {
   buildRoutePatch,
   parseAppPath,
@@ -97,10 +99,8 @@ export function syncRouteFromUrl(
   const patch: NavigationPatch = {
     screen: routePatch.screen ?? parsed.screen,
     currentPostId: routePatch.currentPostId ?? null,
-    currentPostChatId: routePatch.currentPostChatId ?? chatId,
     postMode,
     isEditing: routePatch.isEditing ?? false,
-    currentGChatId: routePatch.currentGChatId ?? gchatId,
     currentNote: routePatch.currentNote ?? null,
     noteMode: routePatch.noteMode ?? "view",
     noteFrom: routePatch.noteFrom ?? noteFrom,
@@ -108,6 +108,46 @@ export function syncRouteFromUrl(
   };
 
   return { kind: "sync", patch, postMode: postModeSync };
+}
+
+type NoteDraftState = Pick<
+  NavigationState,
+  "currentNote" | "noteMode" | "noteFrom" | "noteSavedSnapshot" | "currentPostId"
+>;
+
+/** Skip note fields on cache resync when a draft is open or dirty. */
+export function mergeNoteCachePatch(current: NoteDraftState, incoming: NavigationPatch): NavigationPatch {
+  const touchesNote =
+    incoming.currentNote !== undefined ||
+    incoming.noteMode !== undefined ||
+    incoming.noteFrom !== undefined ||
+    incoming.noteSavedSnapshot !== undefined;
+
+  if (!touchesNote || !shouldPreserveNoteDraft(current, incoming)) {
+    return incoming;
+  }
+
+  const next = { ...incoming };
+  delete next.currentNote;
+  delete next.noteMode;
+  delete next.noteFrom;
+  delete next.noteSavedSnapshot;
+  if (current.currentNote?.isNew) {
+    delete next.currentPostId;
+  }
+  return next;
+}
+
+function shouldPreserveNoteDraft(current: NoteDraftState, incoming: NavigationPatch): boolean {
+  if (!current.currentNote) return false;
+  if (current.currentNote.isNew) return true;
+
+  const incomingNote = incoming.currentNote;
+  if (incomingNote && noteIdentityKey(current.currentNote) !== noteIdentityKey(incomingNote)) {
+    return false;
+  }
+
+  return isNoteDirty(current.currentNote, current.noteSavedSnapshot);
 }
 
 /** Build dedup key for RouteSync effect. */
@@ -121,4 +161,17 @@ export function routeNeedsCachedData(pathname: string): boolean {
   if (parsed.screen !== "note") return false;
   if (parsed.noteGlobalId) return true;
   return parsed.notePostId != null && parsed.noteId != null;
+}
+
+/** Which list query updates should trigger note cache resync for this path. */
+export function isNoteRouteDataQuery(pathname: string, queryKey: readonly unknown[]): boolean {
+  if (queryKey[1] !== "list") return false;
+  const parsed = parseAppPath(pathname);
+  if (parsed.noteGlobalId) {
+    return queryKey[0] === queryKeys.globalNotes.all[0];
+  }
+  if (parsed.notePostId != null && parsed.noteId != null) {
+    return queryKey[0] === queryKeys.posts.all[0];
+  }
+  return false;
 }

@@ -51,7 +51,7 @@ describe("routes", () => {
 
   it("statePatchToHref for gchat", () => {
     expect(
-      statePatchToHref({ screen: "gchat", currentGChatId: "gc1" }, { screen: "chats", currentPostId: null, postMode: "chat" }),
+      statePatchToHref({ screen: "gchat", gchatId: "gc1" }, { screen: "chats", currentPostId: null, postMode: "chat" }),
     ).toBe("/gchat/?id=gc1");
   });
 });

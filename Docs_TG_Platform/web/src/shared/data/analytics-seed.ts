@@ -1,6 +1,6 @@
 import type { AiProfileConfig, LlmModel } from "@/shared/types";
 
-export type AnalyticsPeriod = "7d" | "30d" | "90d" | "all";
+export type AnalyticsPeriod = "24h" | "7d" | "30d" | "90d" | "all";
 
 export type ChannelDayMetrics = {
   date: string;
@@ -158,6 +158,7 @@ function generateChannelMetrics110d(): ChannelMetricsDataset {
 export const channelMetrics110d = generateChannelMetrics110d();
 
 const PERIOD_DAYS: Record<Exclude<AnalyticsPeriod, "all">, number> = {
+  "24h": 1,
   "7d": 7,
   "30d": 30,
   "90d": 90,
@@ -249,6 +250,7 @@ export function buildPlatformModelUsage(
 }
 
 export const ANALYTICS_PERIOD_OPTIONS: { value: AnalyticsPeriod; label: string }[] = [
+  { value: "24h", label: "24 ч." },
   { value: "7d", label: "7 дн." },
   { value: "30d", label: "30 дн." },
   { value: "90d", label: "90 дн." },

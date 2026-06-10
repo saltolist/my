@@ -2,7 +2,7 @@
 
 import { useSidebar } from "@/widgets/sidebar/model/useSidebar";
 import { SidebarNavItem } from "@/widgets/sidebar/ui/SidebarNavItem";
-import { NavIconProfile } from "@/widgets/sidebar/ui/nav-icons";
+import { NavIconProfile } from "@/shared/ui/nav-icons";
 import { SidebarHeader } from "@/widgets/sidebar/ui/sidebar-header";
 import { SidebarNav } from "@/widgets/sidebar/ui/sidebar-nav";
 

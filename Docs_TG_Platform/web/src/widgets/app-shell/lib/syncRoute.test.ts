@@ -1,7 +1,16 @@
 import { describe, expect, it } from "vitest";
 
 import type { GlobalChat, GlobalNote, Post } from "@/shared/types";
-import { routeNeedsCachedData, routeSyncKey, syncRouteFromUrl } from "@/widgets/app-shell/lib/syncRoute";
+import type { ActiveNote } from "@/shared/types";
+import {
+  isNoteRouteDataQuery,
+  mergeNoteCachePatch,
+  routeNeedsCachedData,
+  routeSyncKey,
+  syncRouteFromUrl,
+} from "@/widgets/app-shell/lib/syncRoute";
+import { queryKeys } from "@/shared/api/queryKeys";
+import { EMPTY_NOTE_SNAPSHOT } from "@/shared/lib/noteDraft";
 
 const posts: Post[] = [
   {
@@ -56,8 +65,8 @@ describe("syncRouteFromUrl", () => {
     const result = syncRouteFromUrl("/gchat/", new URLSearchParams("id=gc1"), data);
     expect(result.kind).toBe("sync");
     if (result.kind !== "sync") return;
-    expect(result.patch.currentGChatId).toBe("gc1");
     expect(result.patch.screen).toBe("gchat");
+    expect(result.patch).not.toHaveProperty("currentGChatId");
   });
 
   it("syncs post with chat query", () => {
@@ -65,7 +74,7 @@ describe("syncRouteFromUrl", () => {
     expect(result.kind).toBe("sync");
     if (result.kind !== "sync") return;
     expect(result.patch.currentPostId).toBe(1);
-    expect(result.patch.currentPostChatId).toBe(2);
+    expect(result.patch).not.toHaveProperty("currentPostChatId");
     expect(result.postMode).toEqual({ postId: 1, mode: "chat", chatId: 2 });
   });
 
@@ -150,5 +159,80 @@ describe("routeNeedsCachedData", () => {
     expect(routeNeedsCachedData("/notes/")).toBe(false);
     expect(routeNeedsCachedData("/note/new/")).toBe(false);
     expect(routeNeedsCachedData("/feed/")).toBe(false);
+  });
+});
+
+describe("isNoteRouteDataQuery", () => {
+  it("matches global note list only for global note path", () => {
+    const key = queryKeys.globalNotes.list();
+    expect(isNoteRouteDataQuery("/note/global/gn1/", key)).toBe(true);
+    expect(isNoteRouteDataQuery("/note/post/1/10/", key)).toBe(false);
+  });
+
+  it("matches posts list only for post note path", () => {
+    const key = queryKeys.posts.list();
+    expect(isNoteRouteDataQuery("/note/post/1/10/", key)).toBe(true);
+    expect(isNoteRouteDataQuery("/note/global/gn1/", key)).toBe(false);
+  });
+});
+
+describe("mergeNoteCachePatch", () => {
+  const dirtyNote: ActiveNote = {
+    id: "gn1",
+    title: "Edited",
+    body: "changed",
+    ai: false,
+    date: "2024-01-01",
+    isGlobal: true,
+    files: [],
+  };
+
+  it("preserves new note draft on cache resync", () => {
+    const incoming = syncRouteFromUrl("/note/new/", new URLSearchParams(), data);
+    if (incoming.kind !== "sync") throw new Error("expected sync");
+    const merged = mergeNoteCachePatch(
+      {
+        currentNote: { ...dirtyNote, isNew: true },
+        noteMode: "edit",
+        noteFrom: "notes",
+        noteSavedSnapshot: EMPTY_NOTE_SNAPSHOT,
+        currentPostId: null,
+      },
+      incoming.patch,
+    );
+    expect(merged.currentNote).toBeUndefined();
+  });
+
+  it("preserves dirty existing note on cache resync", () => {
+    const incoming = syncRouteFromUrl("/note/global/gn1/", new URLSearchParams(), data);
+    if (incoming.kind !== "sync") throw new Error("expected sync");
+    const merged = mergeNoteCachePatch(
+      {
+        currentNote: dirtyNote,
+        noteMode: "edit",
+        noteFrom: "notes",
+        noteSavedSnapshot: EMPTY_NOTE_SNAPSHOT,
+        currentPostId: null,
+      },
+      incoming.patch,
+    );
+    expect(merged.currentNote).toBeUndefined();
+  });
+
+  it("applies cache when note is clean", () => {
+    const incoming = syncRouteFromUrl("/note/global/gn1/", new URLSearchParams(), data);
+    if (incoming.kind !== "sync") throw new Error("expected sync");
+    const cleanNote = incoming.patch.currentNote!;
+    const merged = mergeNoteCachePatch(
+      {
+        currentNote: cleanNote,
+        noteMode: "view",
+        noteFrom: "notes",
+        noteSavedSnapshot: incoming.patch.noteSavedSnapshot!,
+        currentPostId: null,
+      },
+      incoming.patch,
+    );
+    expect(merged.currentNote?.title).toBe("Global note");
   });
 });

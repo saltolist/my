@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { FileText } from "lucide-react";
 
 import { useNavigationStore } from "@/app/model/store";
@@ -28,7 +28,8 @@ export function NotesScreen() {
   const filter = useNavigationStore((s) => s.noteFilter);
   const setNoteScope = useNavigationStore((s) => s.setNoteScope);
   const setNoteFilter = useNavigationStore((s) => s.setNoteFilter);
-  const [search, setSearch] = useState("");
+  const search = useNavigationStore((s) => s.notesSearch);
+  const setNotesSearch = useNavigationStore((s) => s.setNotesSearch);
 
   const notesScopeSelectProps = useMemo(
     () => ({
@@ -64,8 +65,8 @@ export function NotesScreen() {
               <PageHeaderSearchInput
                 placeholder="Поиск по заметкам..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onDismiss={() => setSearch("")}
+                onChange={(e) => setNotesSearch(e.target.value)}
+                onDismiss={() => setNotesSearch("")}
               />
               <div className="page-header-scope-select page-header-toolbar--desktop">
                 <PageHeaderSelect {...notesScopeSelectProps} />

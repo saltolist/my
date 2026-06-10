@@ -318,8 +318,8 @@ export function statePatchToHref(
     screen: ScreenId;
     currentPostId: number | null;
     postMode: PostMode;
-    currentPostChatId: number | null;
-    currentGChatId: string | null;
+    postChatId: number | null;
+    gchatId: string | null;
     currentNote: ActiveNote | null;
     noteFrom: NoteFromScreen;
   }>,
@@ -330,11 +330,11 @@ export function statePatchToHref(
   if (screen === "post") {
     const id = patch.currentPostId ?? cur.currentPostId;
     if (id == null) return routes.post(POST_NEW_SLUG);
-    return routes.post(id, patch.currentPostChatId ?? null);
+    return routes.post(id, patch.postChatId ?? null);
   }
 
-  if (screen === "gchat" && patch.currentGChatId) {
-    return routes.gchat(patch.currentGChatId);
+  if (screen === "gchat" && patch.gchatId) {
+    return routes.gchat(patch.gchatId);
   }
 
   if (screen === "note" && patch.currentNote) {

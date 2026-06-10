@@ -12,33 +12,35 @@ import type {
 export type NavigationState = {
   screen: ScreenId;
   currentPostId: number | null;
-  currentPostChatId: number | null;
   postMode: PostMode;
   isEditing: boolean;
-  currentGChatId: string | null;
   currentNote: ActiveNote | null;
   noteMode: NoteMode;
   noteFrom: NoteFromScreen;
   noteSavedSnapshot: string;
   chatsTab: ChatsTab;
+  chatsSearch: string;
   noteScope: NoteScope;
   noteFilter: NoteListFilter;
+  notesSearch: string;
+  feedSearch: string;
 };
 
 export const initialNavigationState: NavigationState = {
   screen: "home",
   currentPostId: null,
-  currentPostChatId: null,
   postMode: "chat",
   isEditing: false,
-  currentGChatId: null,
   currentNote: null,
   noteMode: "view",
   noteFrom: "notes",
   noteSavedSnapshot: "",
   chatsTab: "all",
+  chatsSearch: "",
   noteScope: "all",
   noteFilter: "all",
+  notesSearch: "",
+  feedSearch: "",
 };
 
 export type NavigationPatch = Partial<NavigationState>;

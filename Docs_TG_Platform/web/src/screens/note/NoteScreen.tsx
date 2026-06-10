@@ -1,38 +1,31 @@
 "use client";
 
-import { useParams, usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { StickyNote } from "lucide-react";
-import { useGlobalNotes } from "@/entities/note";
-import { usePost } from "@/entities/post";
+
+import { useNavigationStore } from "@/app/model/store";
 import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
-import { NOTE_NEW_SLUG } from "@/shared/lib/routes";
+import { parseAppPath } from "@/shared/lib/routes";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { ScreenShell } from "@/screens/_ui/screen-shell";
 import { PageHeader } from "@/widgets/page-header";
+import { routeNeedsCachedData } from "@/widgets/app-shell/lib/syncRoute";
 
 export function NoteScreen() {
-  const params = useParams();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const pathname = usePathname() ?? "/";
+  const route = parseAppPath(pathname);
   const onBack = useScreenBack();
 
-  const isNew = pathname?.includes(`/note/${NOTE_NEW_SLUG}/`) ?? false;
-  const globalId = typeof params.id === "string" && !isNew ? params.id : null;
-  const postId = params.postId ? Number(params.postId) : null;
-  const noteId = params.noteId ? Number(params.noteId) : null;
+  const currentNote = useNavigationStore((s) => s.currentNote);
+  const noteFrom = useNavigationStore((s) => s.noteFrom);
 
-  const { data: notes, isLoading: notesLoading } = useGlobalNotes();
-  const { data: post, isLoading: postLoading } = usePost(postId ?? 0);
-
-  const globalNote = globalId ? notes?.find((n) => n.id === globalId) : null;
-  const localNote = postId && noteId ? post?.notes.find((n) => n.id === noteId) : null;
+  const isNew = route.noteIsNew;
+  const needsCache = routeNeedsCachedData(pathname);
+  const loading = needsCache && !currentNote;
 
   let title = "Заметка";
   if (isNew) title = "Новая заметка";
-  else if (globalNote) title = globalNote.title;
-  else if (localNote) title = localNote.title;
-
-  const loading = isNew ? false : globalId ? notesLoading : postLoading;
+  else if (currentNote) title = currentNote.title;
 
   return (
     <ScreenShell header={<PageHeader title={title} onBack={onBack} />}>
@@ -42,8 +35,10 @@ export function NoteScreen() {
           loading
             ? "Загрузка заметки…"
             : isNew
-              ? `from=${searchParams.get("from") ?? "notes"}`
-              : "Note editor — M3+ (note-editor widget)."
+              ? `from=${noteFrom}`
+              : currentNote
+                ? "Note editor — M3+ (note-editor widget)."
+                : "Заметка не найдена."
         }
         className="min-h-[50vh]"
       />

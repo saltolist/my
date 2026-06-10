@@ -10,7 +10,7 @@ import {
   NavIconFeed,
   NavIconNotes,
   NavIconPlus,
-} from "@/widgets/sidebar/ui/nav-icons";
+} from "@/shared/ui/nav-icons";
 import { SidebarChevron } from "@/widgets/sidebar/ui/SidebarChevron";
 
 type SidebarNavProps = {

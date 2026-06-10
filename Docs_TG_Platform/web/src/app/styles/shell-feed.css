@@ -147,6 +147,7 @@
 
 .feed-post-width-btn:hover {
   background: var(--page-header-control-bg-hover);
+  border-color: var(--control-border-hover);
   color: var(--text);
 }
 

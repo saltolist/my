@@ -42,7 +42,7 @@ export function PageHeaderRight({
   mobileSelect,
   mobileSelectWrapRef,
   handleBack,
-  backLabel = "← Назад",
+  backLabel = "Назад",
   actions,
   overflowItems,
   overflowWrapRef,

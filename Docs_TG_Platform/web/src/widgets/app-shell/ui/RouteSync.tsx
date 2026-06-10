@@ -9,19 +9,13 @@ import type { NavigationPatch } from "@/app/model/store/navigation/types";
 import { usePostNavigationStore } from "@/app/model/store/post-navigation-store";
 import { queryKeys } from "@/shared/api/queryKeys";
 import {
+  isNoteRouteDataQuery,
+  mergeNoteCachePatch,
   routeNeedsCachedData,
   routeSyncKey,
   syncRouteFromUrl,
 } from "@/widgets/app-shell/lib/syncRoute";
 import type { GlobalChat, GlobalNote, Post, PostMode } from "@/shared/types";
-
-function isRouteDataListQuery(queryKey: readonly unknown[]): boolean {
-  return (
-    (queryKey[0] === queryKeys.posts.all[0] && queryKey[1] === "list") ||
-    (queryKey[0] === queryKeys.globalChats.all[0] && queryKey[1] === "list") ||
-    (queryKey[0] === queryKeys.globalNotes.all[0] && queryKey[1] === "list")
-  );
-}
 
 function applyRouteSync(
   path: string,
@@ -62,7 +56,12 @@ function applyRouteSync(
   if (result.postMode) {
     setPostMode(result.postMode.postId, result.postMode.mode, result.postMode.chatId);
   }
-  setNav(result.patch);
+
+  let patch = result.patch;
+  if (!options.urlDedup) {
+    patch = mergeNoteCachePatch(useNavigationStore.getState(), patch);
+  }
+  setNav(patch);
 }
 
 export function RouteSync() {
@@ -94,7 +93,7 @@ export function RouteSync() {
     if (!routeNeedsCachedData(path)) return;
 
     return queryClient.getQueryCache().subscribe((event) => {
-      if (event.type !== "updated" || !isRouteDataListQuery(event.query.queryKey)) return;
+      if (event.type !== "updated" || !isNoteRouteDataQuery(path, event.query.queryKey)) return;
       applyRouteSync(
         path,
         searchParams,

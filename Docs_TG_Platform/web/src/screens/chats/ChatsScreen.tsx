@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { MessageSquare } from "lucide-react";
 
 import { useNavigationStore } from "@/app/model/store";
@@ -20,7 +20,8 @@ export function ChatsScreen() {
   const isMobile = useMobile760();
   const tab = useNavigationStore((s) => s.chatsTab);
   const setChatsTab = useNavigationStore((s) => s.setChatsTab);
-  const [search, setSearch] = useState("");
+  const search = useNavigationStore((s) => s.chatsSearch);
+  const setChatsSearch = useNavigationStore((s) => s.setChatsSearch);
 
   const chatsScopeSelectProps = useMemo(
     () => ({
@@ -44,8 +45,8 @@ export function ChatsScreen() {
               <PageHeaderSearchInput
                 placeholder="Поиск по чатам..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onDismiss={() => setSearch("")}
+                onChange={(e) => setChatsSearch(e.target.value)}
+                onDismiss={() => setChatsSearch("")}
               />
               <div className="page-header-scope-select page-header-toolbar--desktop">
                 <PageHeaderSelect {...chatsScopeSelectProps} />

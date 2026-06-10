@@ -38,6 +38,11 @@ export function patchNoteSnapshotAi(snapshot: string, ai: boolean): string {
 
 export const EMPTY_NOTE_SNAPSHOT = buildNoteSnapshot("", "", false, []);
 
+export function isNoteDirty(note: ActiveNote, savedSnapshot: string): boolean {
+  const files = Array.isArray(note.files) ? note.files : [];
+  return savedSnapshot !== buildNoteSnapshot(note.title, note.body, note.ai, files);
+}
+
 export function isNoteImageFile(file: NoteFile): boolean {
   if (file.type?.startsWith("image/")) return true;
   return /\.(png|jpe?g|gif|webp|svg|bmp|avif|heic)$/i.test(file.name);

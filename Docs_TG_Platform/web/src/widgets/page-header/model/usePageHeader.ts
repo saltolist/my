@@ -41,7 +41,7 @@ export function usePageHeader({
   left,
   backTo,
   onBack,
-  backLabel = "← Назад",
+  backLabel = "Назад",
   search,
   center,
   mobileSelect,
