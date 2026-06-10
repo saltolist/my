@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { postStatusSchema } from "@/shared/api/schemas/post";
 import { getGlobalReply, getPostReply } from "@/shared/lib/replies";
+import { buildDraftDisplayList } from "@/shared/lib/drafts/draftDnDUtils";
 import { resolveScreenBackAction } from "@/shared/lib/hooks/useScreenBack";
 import { ensureVisibleInScrollParent } from "@/shared/lib/scrollIntoParent";
 import {
@@ -64,6 +65,26 @@ describe("routes", () => {
     expect(
       statePatchToHref({ screen: "gchat", gchatId: "gc1" }, { screen: "chats", currentPostId: null, postMode: "chat" }),
     ).toBe("/gchat/?id=gc1");
+  });
+});
+
+describe("buildDraftDisplayList", () => {
+  const drafts = [
+    { id: 1, status: "draft" as const, text: "a", date: "2024-01-01", rubric: null, notes: [], chats: [] },
+    { id: 2, status: "draft" as const, text: "b", date: "2024-01-02", rubric: null, notes: [], chats: [] },
+  ];
+
+  it("returns cards when not dragging", () => {
+    expect(buildDraftDisplayList(drafts, null, null)).toEqual([
+      { kind: "card", post: drafts[0] },
+      { kind: "card", post: drafts[1] },
+    ]);
+  });
+
+  it("inserts gap when dragging", () => {
+    const items = buildDraftDisplayList(drafts, 1, 2);
+    expect(items.some((i) => i.kind === "gap")).toBe(true);
+    expect(items.filter((i) => i.kind === "card").map((i) => i.post.id)).toEqual([2]);
   });
 });
 

@@ -10,20 +10,53 @@ export default function PostCard({
   post,
   onOpen,
   onOpenComments,
+  draftHandleProps,
 }: {
   post: Post;
   onOpen: () => void;
   onOpenComments?: () => void;
+  draftHandleProps?: {
+    onMouseDown?: () => void;
+    onClickStop: (e: React.MouseEvent) => void;
+    onDragStart?: (e: React.DragEvent) => void;
+    onDragEnd?: (e: React.DragEvent) => void;
+  };
 }) {
   const mediaItems = getPostMediaItems(post);
+  const isDraftDnD = post.status === "draft" && !!draftHandleProps;
   const isTextOnlyPub =
     mediaItems.length === 0 && (post.status === "published" || post.status === "scheduled");
 
+  const draftDragHandle = isDraftDnD && draftHandleProps && (
+    <div
+      className="drag-handle"
+      title="Перетащить"
+      draggable
+      onClick={draftHandleProps.onClickStop}
+      onMouseDown={draftHandleProps.onMouseDown}
+      onDragStart={draftHandleProps.onDragStart}
+      onDragEnd={draftHandleProps.onDragEnd}
+    >
+      <span className="drag-handle-dots" aria-hidden>
+        {Array.from({ length: 6 }, (_, i) => (
+          <span key={i} className="drag-handle-dot" />
+        ))}
+      </span>
+    </div>
+  );
+
   return (
     <div
-      className={["post-card", isTextOnlyPub ? "post-card--no-media" : ""].filter(Boolean).join(" ")}
+      className={[
+        "post-card",
+        isDraftDnD ? "post-card--draft-dnd" : "",
+        isTextOnlyPub ? "post-card--no-media" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       onClick={onOpen}
     >
+      {isDraftDnD ? <div className="draft-drag-handle-rail">{draftDragHandle}</div> : null}
       <div className="post-card-body">
         {mediaItems.length > 0 ? (
           <div className="post-card-media">
