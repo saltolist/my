@@ -9,6 +9,7 @@ import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
 import type { ChatsTab } from "@/shared/types";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { ScreenShell } from "@/screens/_ui/screen-shell";
+import { ChatsFilterRow } from "@/screens/chats/ui/ChatsFilterRow";
 import { PageHeader, PageHeaderSearchInput, PageHeaderSelect } from "@/widgets/page-header";
 
 const TAB_OPTIONS = [
@@ -37,6 +38,7 @@ export function ChatsScreen() {
 
   return (
     <ScreenShell
+      bodyClassName="chats-page"
       header={
         <PageHeader
           title="Чаты"
@@ -58,6 +60,7 @@ export function ChatsScreen() {
         />
       }
     >
+      <ChatsFilterRow />
       <EmptyState
         icon={<MessageSquare className="size-5" />}
         message="Каталог чатов появится на следующем шаге. В сайдбаре — недавние из seed-data через MSW."

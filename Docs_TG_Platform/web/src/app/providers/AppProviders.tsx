@@ -2,6 +2,7 @@
 
 import { type ReactNode } from "react";
 import { TooltipProvider } from "@/shared/ui/tooltip";
+import { ComposerProvider } from "@/app/model/store/composer-store";
 import { MswProvider } from "./MswProvider";
 import { QueryProvider } from "./QueryProvider";
 import { RepositoryProvider } from "./RepositoryProvider";
@@ -17,7 +18,9 @@ export function AppProviders({ children }: AppProvidersProps) {
       <ThemeProvider>
         <QueryProvider>
           <RepositoryProvider>
-            <TooltipProvider delay={0}>{children}</TooltipProvider>
+            <ComposerProvider>
+              <TooltipProvider delay={0}>{children}</TooltipProvider>
+            </ComposerProvider>
           </RepositoryProvider>
         </QueryProvider>
       </ThemeProvider>

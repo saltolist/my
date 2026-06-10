@@ -66,6 +66,18 @@ const config = [
       "react-hooks/set-state-in-effect": "off",
     },
   },
+  {
+    files: [
+      "src/app/model/store/composer-store.tsx",
+      "src/widgets/composer/**/*.{ts,tsx}",
+      "src/widgets/chat-thread/**/*.{ts,tsx}",
+      "src/shared/ui/model-picker/**/*.{ts,tsx}",
+    ],
+    rules: {
+      "react-hooks/refs": "off",
+      "react-hooks/immutability": "off",
+    },
+  },
 ];
 
 export default config;

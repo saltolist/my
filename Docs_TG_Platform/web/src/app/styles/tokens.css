@@ -46,6 +46,10 @@
   --nav-icon-art: 18px;
   --content-w: min(1160px, calc(100vw - var(--nav-w) - 48px));
   --composer-w: min(720px, calc(100vw - var(--nav-w) - 48px));
+  --composer-backdrop-radius: 22px;
+  --composer-backdrop-blur: 14px;
+  --composer-backdrop-blur-outset: 8px;
+  --composer-backdrop-bg: color-mix(in srgb, var(--bg2) 94%, var(--bg) 6%);
   --hdr: 56px;
   --r: 10px;
   --rs: 6px;

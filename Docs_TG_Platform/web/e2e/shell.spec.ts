@@ -7,6 +7,17 @@ test("home page loads", async ({ page }) => {
   await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
 });
 
+test("home composer sends message to new gchat", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
+  const editor = page.getByRole("textbox", { name: /Сообщение|Чем помочь|контент/i });
+  await editor.click();
+  await editor.fill("контент-план на неделю");
+  await page.locator(".send-btn").click();
+  await expect(page).toHaveURL(/\/gchat\/\?id=gc\d+/, { timeout: LOAD_TIMEOUT });
+  await expect(page.getByText("контент-план на неделю").first()).toBeVisible({ timeout: LOAD_TIMEOUT });
+});
+
 test("navigate feed from sidebar", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
@@ -17,6 +28,7 @@ test("navigate feed from sidebar", async ({ page }) => {
 test("navigate chats and back to home", async ({ page }) => {
   await page.goto("/chats/");
   await expect(page.getByRole("heading", { name: "Чаты" })).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await expect(page.getByRole("button", { name: "Новый чат" })).toBeVisible();
   await page.getByRole("button", { name: "Назад" }).click();
   await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
 });
@@ -25,7 +37,9 @@ test("navigate notes from sidebar", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
   await page.locator("#nav-notes .nav-item-chats-main").click();
-  await expect(page.getByRole("heading", { name: "Заметки" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Заметки" })).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await expect(page.locator(".notes-filter-row").getByRole("button", { name: "Все" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Новая заметка" })).toBeVisible();
 });
 
 test("gchat back navigates to chats", async ({ page }) => {

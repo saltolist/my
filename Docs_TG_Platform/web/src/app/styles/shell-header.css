@@ -98,6 +98,7 @@
   flex-shrink: 0;
 }
 .screen > :is(
+  .screen-body,
   .profile-page,
   .analytics-page,
   .notes-page,
@@ -110,6 +111,8 @@
 ) {
   flex: 1;
   min-height: 0;
+  width: 100%;
+  min-width: 0;
 }
 .page-header h2,
 .breadcrumb {

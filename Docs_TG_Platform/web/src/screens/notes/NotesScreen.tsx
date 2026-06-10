@@ -9,6 +9,7 @@ import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
 import type { NoteListFilter, NoteScope } from "@/shared/types";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { ScreenShell } from "@/screens/_ui/screen-shell";
+import { NotesFilterRow } from "@/screens/notes/ui/NotesFilterRow";
 import { PageHeader, PageHeaderSearchInput, PageHeaderSelect } from "@/widgets/page-header";
 
 const SCOPE_OPTIONS = [
@@ -55,6 +56,7 @@ export function NotesScreen() {
 
   return (
     <ScreenShell
+      bodyClassName="notes-page"
       header={
         <PageHeader
           title="Заметки"
@@ -78,6 +80,7 @@ export function NotesScreen() {
         />
       }
     >
+      <NotesFilterRow />
       <EmptyState
         icon={<FileText className="size-5" />}
         message="Сетка заметок появится на следующем шаге."

@@ -1,38 +1,71 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { MessageSquare } from "lucide-react";
 
-import { useGlobalChat } from "@/entities/chat";
 import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
-import { parseGChatSearchParam } from "@/shared/lib/routes";
 import { EmptyState } from "@/shared/ui/empty-state";
-import { ScreenShell } from "@/screens/_ui/screen-shell";
+import { Composer } from "@/widgets/composer";
 import { PageHeader } from "@/widgets/page-header";
+import { ScreenShell } from "@/screens/_ui/screen-shell";
+import { useGChatScreen } from "@/screens/gchat/model/useGChatScreen";
+import { GlobalChatMessages } from "@/screens/gchat/ui/GlobalChatMessages";
 
 export function GChatScreen() {
-  const searchParams = useSearchParams();
   const onBack = useScreenBack();
-  const gchatId = parseGChatSearchParam(searchParams.get("id"));
-  const { data: chat, isLoading, error } = useGlobalChat(gchatId);
+  const {
+    gchatId,
+    chat,
+    isLoading,
+    error,
+    flatMessages,
+    lastAssistantFlat,
+    messagesRef,
+    sendGChat,
+  } = useGChatScreen();
+
+  if (!gchatId) {
+    return (
+      <ScreenShell header={<PageHeader title="Глобальный чат" onBack={onBack} />}>
+        <EmptyState
+          icon={<MessageSquare className="size-5" />}
+          message="Укажите чат: /gchat/?id=gc1"
+          className="min-h-[50vh]"
+        />
+      </ScreenShell>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <ScreenShell header={<PageHeader title="Глобальный чат" onBack={onBack} />}>
+        <EmptyState icon={<MessageSquare className="size-5" />} message="Загрузка чата…" />
+      </ScreenShell>
+    );
+  }
+
+  if (error || !chat) {
+    return (
+      <ScreenShell header={<PageHeader title="Глобальный чат" onBack={onBack} />}>
+        <EmptyState
+          icon={<MessageSquare className="size-5" />}
+          message={error?.message ?? "Чат не найден"}
+        />
+      </ScreenShell>
+    );
+  }
 
   return (
-    <ScreenShell
-      header={<PageHeader title={chat?.title ?? "Глобальный чат"} onBack={onBack} />}
-    >
-      <EmptyState
-        icon={<MessageSquare className="size-5" />}
-        message={
-          !gchatId
-            ? "Укажите чат: /gchat/?id=gc1"
-            : isLoading
-              ? "Загрузка чата…"
-              : error
-                ? error.message
-                : "Chat thread + composer — M3+."
-        }
-        className="min-h-[50vh]"
-      />
-    </ScreenShell>
+    <>
+      <PageHeader title={chat.title} onBack={onBack} />
+      <div className="gchat-layout">
+        <GlobalChatMessages
+          chatId={gchatId}
+          flatMessages={flatMessages}
+          lastAssistantFlat={lastAssistantFlat}
+          messagesRef={messagesRef}
+        />
+        <Composer scope="gchat" onSubmit={sendGChat} />
+      </div>
+    </>
   );
 }

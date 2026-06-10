@@ -5,6 +5,9 @@
 @import "./styles/shell-sidebar.css";
 @import "./styles/shell-header.css";
 @import "./styles/shell-mobile.css";
+@import "./styles/shell-composer.css";
+@import "./styles/shell-filter-toolbar.css";
+@import "./styles/shell-gchat.css";
 @import "./styles/shell-screens.css";
 @import "./styles/shell-analytics.css";
 @import "./styles/shell-feed.css";
