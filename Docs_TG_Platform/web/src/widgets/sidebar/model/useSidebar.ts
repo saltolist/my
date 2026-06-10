@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useUiStore } from "@/app/model/store";
+import { usePostNavigationStore } from "@/app/model/store/post-navigation-store";
 import { useGlobalChats } from "@/entities/chat";
 import { useGlobalNotes } from "@/entities/note";
 import { usePosts } from "@/entities/post";
@@ -39,6 +40,7 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
   const sidebarCollapsed = useUiStore((s) => s.sidebarCollapsed);
   const setSidebarCollapsed = useUiStore((s) => s.setSidebarCollapsed);
   const toggleSidebarCollapsed = useUiStore((s) => s.toggleSidebarCollapsed);
+  const setPostMode = usePostNavigationStore((s) => s.setMode);
 
   const { data: posts = [] } = usePosts();
   const { data: globalChats = [] } = useGlobalChats();
@@ -147,9 +149,10 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
 
   const openPost = useCallback(
     (postId: number) => {
+      setPostMode(postId, "chat");
       goTo(routes.post(postId));
     },
-    [goTo],
+    [goTo, setPostMode],
   );
 
   const openNotesNav = useCallback(() => {
@@ -168,9 +171,10 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
         goTo(routes.gchat(row.id));
         return;
       }
+      setPostMode(row.postId, "chat", row.chatId);
       goTo(routes.post(row.postId, row.chatId));
     },
-    [goTo],
+    [goTo, setPostMode],
   );
 
   const openNoteRow = useCallback(

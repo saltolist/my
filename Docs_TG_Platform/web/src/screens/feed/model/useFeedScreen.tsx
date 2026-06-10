@@ -152,9 +152,10 @@ export function useFeedScreen() {
 
   const openPost = useCallback(
     (id: number) => {
+      setPostMode(id, "chat");
       router.push(routes.post(id));
     },
-    [router],
+    [router, setPostMode],
   );
 
   const openPostComments = useCallback(
