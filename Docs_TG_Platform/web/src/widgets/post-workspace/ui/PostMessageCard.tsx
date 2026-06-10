@@ -4,6 +4,8 @@ import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "re
 
 import { PostMediaBlock } from "@/entities/post";
 import { readFileAsMedia } from "@/shared/lib/helpers";
+import { ensureVisibleInScrollParent } from "@/shared/lib/scrollIntoParent";
+import { NoteIconAttach } from "@/shared/ui/icons/note-header-icons";
 import { PostReactionPills, PostViewsReposts } from "@/widgets/feed";
 import type { PostComment, PostMedia, PostMetrics } from "@/shared/types";
 
@@ -57,10 +59,14 @@ export default function PostMessageCard({
     const id = window.setTimeout(() => {
       const ta = taRef.current;
       if (ta) {
-        ta.focus();
+        ta.focus({ preventScroll: true });
         ta.setSelectionRange(ta.value.length, ta.value.length);
       }
-      cardRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      const block = cardRef.current?.closest<HTMLElement>(".post-msg-block");
+      const scrollParent = document.getElementById("post-chat-scroll");
+      if (block && scrollParent) {
+        ensureVisibleInScrollParent(block, scrollParent);
+      }
     }, 30);
     return () => window.clearTimeout(id);
   }, [isEditing, cardRef]);
@@ -181,7 +187,7 @@ export default function PostMessageCard({
                 title="Прикрепить файл"
                 aria-label="Прикрепить файл"
               >
-                +
+                <NoteIconAttach />
               </button>
               <button
                 className="btn btn-primary post-edit-btn"

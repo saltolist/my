@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useState, type RefObject } from "react";
+import { useCallback, useEffect, useState, type RefObject } from "react";
 
 import { postTitle } from "@/shared/lib/helpers";
 import { getPostListSearchPlaceholder, getPostSubPageLabel } from "@/shared/lib/post/postHeader";
@@ -14,7 +14,6 @@ type Args = {
   postMode: PostMode;
   currentPostChatId: number | null;
   activeChat: LocalChat | null;
-  isEditing: boolean;
   isMobile: boolean;
   postHeaderCompact1000: boolean;
   ctxItems: CtxMenuItem[];
@@ -32,7 +31,6 @@ export function usePostScreenHeader({
   postMode,
   currentPostChatId,
   activeChat,
-  isEditing,
   isMobile,
   postHeaderCompact1000,
   ctxItems,
@@ -50,10 +48,6 @@ export function usePostScreenHeader({
     document.getElementById("post-chat-scroll")?.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  useLayoutEffect(() => {
-    if (isEditing) setShowJump(false);
-  }, [isEditing]);
-
   const postSubPage = getPostSubPageLabel(postMode);
   const showListHeaderSearch = postSubPage != null;
   const listSearchPlaceholder = getPostListSearchPlaceholder(postMode);
@@ -65,10 +59,6 @@ export function usePostScreenHeader({
       return;
     }
     const sync = () => {
-      if (isEditing) {
-        setShowJump(false);
-        return;
-      }
       if (!chatScrollRef.current || !postCardRef.current) return;
       const hdr = chatScrollRef.current
         .closest(".screen")
@@ -87,7 +77,7 @@ export function usePostScreenHeader({
       el?.removeEventListener("scroll", sync);
       window.removeEventListener("resize", sync);
     };
-  }, [postMode, isEditing, post?.id, activeChat?.id, chatScrollRef, postCardRef]);
+  }, [postMode, post?.id, activeChat?.id, chatScrollRef, postCardRef]);
 
   const postHeaderOverflowItems: PageHeaderOverflowItem[] = !post
     ? []

@@ -122,7 +122,6 @@ export function usePostWorkspace() {
     postMode,
     currentPostChatId,
     activeChat,
-    isEditing,
     isMobile,
     postHeaderCompact1000,
     ctxItems,

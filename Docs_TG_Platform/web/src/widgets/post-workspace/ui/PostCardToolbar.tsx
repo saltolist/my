@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { NoteIconEdit } from "@/shared/ui/icons/note-header-icons";
+
 async function copyPlainText(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text);
@@ -24,15 +26,6 @@ function IcCopied() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
       <path d="M20 6 9 17l-5-5" />
-    </svg>
-  );
-}
-
-function IcEdit() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
-      <path d="M12 20h9" />
-      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
     </svg>
   );
 }
@@ -83,7 +76,7 @@ export default function PostCardToolbar({
           title="Редактировать"
           onClick={onEdit}
         >
-          <IcEdit />
+          <NoteIconEdit size={18} />
         </button>
       </div>
     </div>

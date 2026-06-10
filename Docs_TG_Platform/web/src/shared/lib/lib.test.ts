@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { postStatusSchema } from "@/shared/api/schemas/post";
 import { getGlobalReply, getPostReply } from "@/shared/lib/replies";
 import { resolveScreenBackAction } from "@/shared/lib/hooks/useScreenBack";
+import { ensureVisibleInScrollParent } from "@/shared/lib/scrollIntoParent";
 import {
   parseAppPath,
   parseGChatLegacyPath,
@@ -63,6 +64,21 @@ describe("routes", () => {
     expect(
       statePatchToHref({ screen: "gchat", gchatId: "gc1" }, { screen: "chats", currentPostId: null, postMode: "chat" }),
     ).toBe("/gchat/?id=gc1");
+  });
+});
+
+describe("ensureVisibleInScrollParent", () => {
+  it("scrolls down when element extends below parent", () => {
+    const scrollParent = {
+      scrollTop: 0,
+      getBoundingClientRect: () => ({ top: 100, bottom: 200, left: 0, right: 0, width: 0, height: 100, x: 0, y: 100, toJSON: () => ({}) }),
+    } as unknown as HTMLElement;
+    const element = {
+      getBoundingClientRect: () => ({ top: 150, bottom: 220, left: 0, right: 0, width: 0, height: 70, x: 0, y: 150, toJSON: () => ({}) }),
+    } as unknown as HTMLElement;
+
+    ensureVisibleInScrollParent(element, scrollParent);
+    expect(scrollParent.scrollTop).toBe(28);
   });
 });
 

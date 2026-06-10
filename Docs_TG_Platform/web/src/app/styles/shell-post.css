@@ -355,8 +355,8 @@
     display: inline-block;
   }
 
-  /* Схлопнутая «К посту» не должна занимать gap между лупой и остальными кнопками */
-  .page-header--post .page-header-actions--desktop .jump-post-btn:not(.visible) {
+  /* Схлопнутая «К посту» не должна занимать gap только в overlay-поиске */
+  .page-header--post-search-overlay .page-header-actions--desktop .jump-post-btn:not(.visible) {
     display: none;
   }
 
@@ -432,6 +432,12 @@
   }
 }
 
+.post-back-btn {
+  transition: transform 0.2s;
+}
+.page-header--post-has-jump .page-header-right .post-back-btn {
+  transform: translateX(-6px);
+}
 .page-header--post .jump-post-btn {
   display: inline-flex;
   align-items: center;
@@ -647,6 +653,34 @@
   gap: 8px;
   width: 100%;
   flex-wrap: wrap;
+}
+.note-header-plain-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  transition: color 0.12s, background 0.12s;
+}
+.note-header-plain-btn svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.note-header-plain-btn--sm {
+  width: 22px;
+  height: 22px;
+}
+.note-header-plain-btn:hover {
+  color: var(--text);
+  background: transparent;
 }
 .post-edit-toolbar .msg-user-edit-bar {
   margin-left: auto;
