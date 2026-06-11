@@ -247,7 +247,7 @@
 }
 .note-mode-btns { display: flex; gap: 6px; }
 .note-divider { border: none; border-top: 1px solid var(--border); margin: 0 0 14px; }
-.note-body-view { font-size: 15px; line-height: 1.85; color: var(--text); white-space: pre-wrap; min-height: 500px; }
+.note-body-view { font-size: 15px; line-height: normal; color: var(--text); white-space: pre-wrap; min-height: 500px; }
 .note-body-view--rich { white-space: pre-wrap; }
 .note-body-canvas { min-height: 500px; }
 .note-body-canvas.note-body-view {
@@ -261,8 +261,8 @@
 .note-body-empty { color: var(--text3); font-size: 15px; }
 .note-body-line {
   width: 100%;
-  line-height: 1.85;
-  min-height: 1.85em;
+  line-height: normal;
+  min-height: 1lh;
 }
 .note-body-line--text {
   display: block;
@@ -485,13 +485,22 @@
 .note-body-document {
   width: 100%;
   font-size: 15px;
-  line-height: 1.85;
+  line-height: normal;
   color: var(--text);
   white-space: pre-wrap;
   word-break: break-word;
 }
 .note-body-document--view .note-body-doc-line--text {
   display: block;
+}
+.note-body-document--view .note-body-doc-line--text .note-body-cell--text {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+.note-body-document--view .note-body-doc-line--text .note-body-text {
+  display: block;
+  width: 100%;
 }
 .note-body-document--view .note-body-doc-line--embed {
   display: flex;
@@ -507,15 +516,9 @@
   display: block;
   flex: 0 0 auto;
 }
-.note-body-document--view .note-body-text,
 .note-body-document--view .note-body-doc-line--embed .note-embed-chip {
   display: inline;
-}
-.note-body-document--view .note-body-doc-line--embed .note-embed-chip {
-  line-height: 1.85;
-}
-.note-body-document--view .note-body-cell--empty .note-body-text {
-  min-height: 1.85em;
+  line-height: normal;
 }
 .note-body-document--view .note-body-line.note-embed-image-grid {
   display: grid;
@@ -550,7 +553,7 @@
   position: relative;
   display: block;
   width: 100%;
-  min-height: 1.85em;
+  min-height: 1lh;
 }
 .note-body-document-edit-highlight {
   position: absolute;
@@ -559,7 +562,8 @@
   box-sizing: border-box;
   font-family: var(--font);
   font-size: 15px;
-  line-height: 1.85;
+  line-height: normal;
+  letter-spacing: normal;
   white-space: pre-wrap;
   word-break: break-word;
   color: var(--text);
@@ -569,17 +573,21 @@
   display: block;
   width: 100%;
   min-width: 2ch;
-  min-height: 1.85em;
+  min-height: 1lh;
   box-sizing: border-box;
   background: transparent;
   border: none;
   color: var(--text);
   font-family: var(--font);
   font-size: 15px;
-  line-height: 1.85;
+  line-height: normal;
+  letter-spacing: normal;
   padding: 0;
+  margin: 0;
   resize: none;
   overflow: hidden;
+  -webkit-appearance: none;
+  appearance: none;
 }
 .note-body-document-edit--mirror {
   position: relative;
@@ -637,7 +645,7 @@
   display: inline-block;
   color: var(--accent);
   font-size: 14px;
-  line-height: 1.85;
+  line-height: normal;
 }
 .note-embed-chip a { color: inherit; text-decoration: none; }
 .note-embed-chip a:hover { text-decoration: underline; }
