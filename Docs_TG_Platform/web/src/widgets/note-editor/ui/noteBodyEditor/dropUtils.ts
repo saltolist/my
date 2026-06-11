@@ -131,47 +131,88 @@ export function stabilizeDropBeforeCommitted(
   return raw;
 }
 
+function unionLineBounds(els: NodeListOf<HTMLElement>): DOMRect | null {
+  let top = Infinity;
+  let bottom = -Infinity;
+  let left = Infinity;
+  let right = -Infinity;
+  let hasBox = false;
+
+  for (const el of els) {
+    const r = el.getBoundingClientRect();
+    if (r.width <= 0 && r.height <= 0) continue;
+    hasBox = true;
+    top = Math.min(top, r.top);
+    bottom = Math.max(bottom, r.bottom);
+    left = Math.min(left, r.left);
+    right = Math.max(right, r.right);
+  }
+
+  if (!hasBox) return null;
+  return new DOMRect(left, top, right - left, bottom - top);
+}
+
 export function hitTestLine(
   clientX: number,
   clientY: number,
   lines: BodyLine[],
   files: NoteFile[],
 ): { line: BodyLine; lineIndex: number; lineEl: HTMLElement; isImageGrid: boolean } | null {
-  const lineEls = document.querySelectorAll<HTMLElement>(".note-body-line");
+  const tailEl = document.querySelector<HTMLElement>('.note-body-line[data-drop-tail="1"]');
+  if (tailEl) {
+    const tailRect = tailEl.getBoundingClientRect();
+    if (clientY >= tailRect.top && clientY <= tailRect.bottom) {
+      return {
+        line: { cells: [{ type: "text", content: "" }] },
+        lineIndex: lines.length,
+        lineEl: tailEl,
+        isImageGrid: false,
+      };
+    }
+  }
+
+  const lineIndices = new Set<number>();
+  document.querySelectorAll<HTMLElement>(".note-body-canvas [data-line]").forEach((el) => {
+    const index = Number(el.dataset.line);
+    if (!Number.isNaN(index)) lineIndices.add(index);
+  });
+
+  const sorted = [...lineIndices].sort((a, b) => a - b);
   let imageGridBottomEdgeHit: {
     line: BodyLine;
     lineIndex: number;
     lineEl: HTMLElement;
     isImageGrid: boolean;
   } | null = null;
-  for (let li = 0; li < lineEls.length; li++) {
-    const lineEl = lineEls[li]!;
-    const r = lineEl.getBoundingClientRect();
-    if (clientY >= r.top && clientY <= r.bottom) {
-      if (lineEl.dataset.dropTail === "1") {
-        return {
-          line: { cells: [{ type: "text", content: "" }] },
-          lineIndex: lines.length,
-          lineEl,
-          isImageGrid: false,
-        };
-      }
-      const line = lines[li];
-      if (!line) return null;
+
+  for (const li of sorted) {
+    const gridEl = document.querySelector<HTMLElement>(
+      `.note-body-line.note-embed-image-grid[data-line="${li}"]`,
+    );
+    const lineEls = document.querySelectorAll<HTMLElement>(`.note-body-canvas [data-line="${li}"]`);
+    const bounds = gridEl?.getBoundingClientRect() ?? unionLineBounds(lineEls);
+    if (!bounds || bounds.height <= 0) continue;
+
+    const line = lines[li];
+    if (!line) continue;
+    const lineEl = gridEl ?? lineEls[0];
+    if (!lineEl) continue;
+
+    if (clientY >= bounds.top && clientY <= bounds.bottom) {
       return { line, lineIndex: li, lineEl, isImageGrid: isImageEmbedRow(line, files) };
     }
-    const line = lines[li];
+
     if (
-      line &&
       isImageEmbedRow(line, files) &&
-      clientY > r.bottom &&
-      clientY <= r.bottom + IMAGE_GRID_BOTTOM_SIDE_DROP_TOLERANCE_PX &&
+      clientY > bounds.bottom &&
+      clientY <= bounds.bottom + IMAGE_GRID_BOTTOM_SIDE_DROP_TOLERANCE_PX &&
       isWithinImageGridSideDropX(clientX, lineEl)
     ) {
       imageGridBottomEdgeHit = { line, lineIndex: li, lineEl, isImageGrid: true };
     }
-    if (clientY < r.top) break;
+    if (clientY < bounds.top) break;
   }
+
   return imageGridBottomEdgeHit;
 }
 

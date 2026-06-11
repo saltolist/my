@@ -1,30 +1,32 @@
 "use client";
 
-import { useCallback, useLayoutEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import {
   linesToBody,
+  normalizeEmbedImageRows,
   parseNoteBody,
   segmentsToLines,
-  splitLineAtCaret,
   type BodyLine,
-  type CellPos,
 } from "@/shared/lib/noteEmbeds";
 import type { NoteFile } from "@/shared/types";
 
 type Params = {
   body: string;
   files: NoteFile[];
-  isView: boolean;
   onBodyChange: (body: string) => void;
 };
 
-export function useNoteBodyLines({ body, files, isView, onBodyChange }: Params) {
+export function useNoteBodyLines({ body, files, onBodyChange }: Params) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const linesRef = useRef<BodyLine[]>([]);
   const filesRef = useRef<NoteFile[]>(files);
-  const pendingTextFocusRef = useRef<CellPos | null>(null);
+  const bodyRef = useRef(body);
+  bodyRef.current = body;
 
-  const lines = useMemo(() => segmentsToLines(parseNoteBody(body)), [body]);
+  const lines = useMemo(
+    () => normalizeEmbedImageRows(segmentsToLines(parseNoteBody(body)), files),
+    [body, files],
+  );
   linesRef.current = lines;
   filesRef.current = files;
 
@@ -35,38 +37,18 @@ export function useNoteBodyLines({ body, files, isView, onBodyChange }: Params) 
     [onBodyChange],
   );
 
-  const handleTextEnter = useCallback(
-    (pos: CellPos, offset: number) => {
-      pendingTextFocusRef.current = { line: pos.line + 1, cell: 0 };
-      applyLines(splitLineAtCaret(linesRef.current, pos, offset));
-    },
-    [applyLines],
+  const hasContent = lines.some((l) =>
+    l.cells.some((c) => (c.type === "text" ? c.content.trim() : true)),
   );
-
-  useLayoutEffect(() => {
-    const target = pendingTextFocusRef.current;
-    if (!target || isView) return;
-    pendingTextFocusRef.current = null;
-    requestAnimationFrame(() => {
-      const textarea = canvasRef.current?.querySelector<HTMLTextAreaElement>(
-        `.note-body-cell--text[data-line="${target.line}"][data-cell="${target.cell}"] .note-body-line-edit`,
-      );
-      if (!textarea) return;
-      textarea.focus();
-      textarea.setSelectionRange(0, 0);
-    });
-  }, [lines, isView]);
-
-  const hasContent = lines.some((l) => l.cells.some((c) => (c.type === "text" ? c.content.trim() : true)));
 
   return {
     canvasRef,
     linesRef,
     filesRef,
+    bodyRef,
     lines,
     files,
     applyLines,
-    handleTextEnter,
     hasContent,
   };
 }

@@ -56,6 +56,9 @@
   --post-card-r: calc(var(--r) * 2);
   --block-r: var(--post-card-r);
   --feed-post-w: 500px;
+  /* Ряд картинок в заметке: до 3 шт., равные доли ширины, потолок на ячейку */
+  --note-embed-image-max-w: 400px;
+  --note-embed-image-gap: 8px;
   --post-inline-icon: 14px;
   --post-media-clip-r: calc(var(--post-card-r) - 3px);
   --shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.35);

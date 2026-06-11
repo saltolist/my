@@ -15,11 +15,10 @@ type DropApi = {
 type Params = {
   drag: NoteBodyEmbedDragState;
   filesRef: RefObject<NoteFile[]>;
-  isView: boolean;
   drop: DropApi;
 };
 
-export function useNoteBodyEmbedPointer({ drag, filesRef, isView, drop }: Params) {
+export function useNoteBodyEmbedPointer({ drag, filesRef, drop }: Params) {
   const {
     dragFromRef,
     dragSourceRef,
@@ -197,13 +196,6 @@ export function useNoteBodyEmbedPointer({ drag, filesRef, isView, drop }: Params
 
       const fallback = e.currentTarget instanceof HTMLElement ? e.currentTarget : null;
 
-      if (!isView) {
-        e.preventDefault();
-        e.stopPropagation();
-        runEmbedPointerDrag(pos, lineCtx, lineIndexCtx, e.pointerId, e.clientX, e.clientY, fallback);
-        return;
-      }
-
       e.stopPropagation();
       const startX = e.clientX;
       const startY = e.clientY;
@@ -232,7 +224,7 @@ export function useNoteBodyEmbedPointer({ drag, filesRef, isView, drop }: Params
       window.addEventListener("pointerup", onTentativeUp);
       window.addEventListener("pointercancel", onTentativeUp);
     },
-    [isView, pointerDragSessionRef, runEmbedPointerDrag],
+    [pointerDragSessionRef, runEmbedPointerDrag],
   );
 
   return { beginEmbedPointerDrag };

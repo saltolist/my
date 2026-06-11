@@ -16,15 +16,15 @@ export default function NoteBodyEditor(props: NoteBodyEditorProps) {
         ref={editor.canvasRef}
         className={`note-body-canvas${editor.isView ? " note-body-view note-body-view--rich" : " note-body-edit-canvas"}${editor.isDragging ? " note-body-canvas--dragging" : ""}`}
         onDragOver={editor.handleCanvasDragOver}
-        onMouseDown={
-          editor.isView ? editor.handleViewMouseDown : editor.handleEditCanvasMouseDown
-        }
+        onMouseDown={editor.isView ? undefined : editor.handleEditCanvasMouseDown}
         onDoubleClick={editor.isView ? editor.handleViewDoubleClick : undefined}
       >
         <NoteBodyCanvas
+          body={props.body}
           lines={editor.lines}
           files={editor.files}
           isView={editor.isView}
+          onBodyChange={props.onBodyChange}
           hasContent={editor.hasContent}
           dragFrom={editor.dragFrom}
           dropBefore={editor.dropBefore}
@@ -33,7 +33,7 @@ export default function NoteBodyEditor(props: NoteBodyEditorProps) {
           dropGapActive={editor.dropGapActive}
           dropLineBeforeActive={editor.dropLineBeforeActive}
           applyLines={editor.applyLines}
-          onTextEnter={editor.handleTextEnter}
+          onTextEnter={() => {}}
           onEmbedPointerDown={editor.beginEmbedPointerDrag}
         />
       </div>

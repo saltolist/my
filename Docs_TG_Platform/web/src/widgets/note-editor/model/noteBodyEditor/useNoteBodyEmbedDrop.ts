@@ -16,6 +16,7 @@ import {
   findNoteFile,
   imageGridSlotToDropBefore,
   insertEmbedAt,
+  insertEmbedInBody,
   isDropNoop,
   isImageEmbedRow,
   isTextLine,
@@ -29,13 +30,27 @@ import type { NoteFile } from "@/shared/types";
 
 type Params = {
   drag: NoteBodyEmbedDragState;
+  canvasRef: RefObject<HTMLDivElement | null>;
+  bodyRef: RefObject<string>;
   linesRef: RefObject<BodyLine[]>;
   filesRef: RefObject<NoteFile[]>;
   applyLines: (next: BodyLine[]) => void;
+  onBodyChange: (body: string) => void;
+  isView: boolean;
   onAddFile: (file: File) => NoteFile;
 };
 
-export function useNoteBodyEmbedDrop({ drag, linesRef, filesRef, applyLines, onAddFile }: Params) {
+export function useNoteBodyEmbedDrop({
+  drag,
+  canvasRef,
+  bodyRef,
+  linesRef,
+  filesRef,
+  applyLines,
+  onBodyChange,
+  isView,
+  onAddFile,
+}: Params) {
   const {
     dragFromRef,
     dragSourceRef,
@@ -111,6 +126,18 @@ export function useNoteBodyEmbedDrop({ drag, linesRef, filesRef, applyLines, onA
   const commitDropAt = useCallback(
     (before: CellPos, embedName?: string) => {
       const from = dragSourceRef.current ?? dragFromRef.current;
+
+      if (!isView && from == null && embedName && findNoteFile(filesRef.current, embedName)) {
+        const body = bodyRef.current;
+        const textarea = canvasRef.current?.querySelector<HTMLTextAreaElement>(
+          ".note-body-document-edit--mirror",
+        );
+        const offset = textarea?.selectionStart ?? body.length;
+        onBodyChange(insertEmbedInBody(body, offset, embedName));
+        clearDrag();
+        return;
+      }
+
       const curLines = linesRef.current;
       const curFiles = filesRef.current;
       const currentDrop = currentDropRef.current;
@@ -136,13 +163,17 @@ export function useNoteBodyEmbedDrop({ drag, linesRef, filesRef, applyLines, onA
     },
     [
       applyLines,
+      bodyRef,
+      canvasRef,
       clearDrag,
       currentDropRef,
       dragFromRef,
       dragMovedRef,
       dragSourceRef,
       filesRef,
+      isView,
       linesRef,
+      onBodyChange,
     ],
   );
 

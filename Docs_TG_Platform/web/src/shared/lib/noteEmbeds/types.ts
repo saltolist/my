@@ -25,7 +25,7 @@ export type NotePreviewLine = {
 };
 
 export const MAX_IMAGES_PER_EMBED_ROW = 3;
-/** Должно совпадать с `--note-embed-image-max-w` в globals.css (превью при перетаскивании). */
+/** Должно совпадать с `--note-embed-image-max-w` в tokens.css (превью при перетаскивании). */
 export const EMBED_IMAGE_SLOT_W = 400;
 export const EMBED_IMAGE_SLOT_H = 200;
 export const EMBED_IMAGE_SLOT_GAP = 8;

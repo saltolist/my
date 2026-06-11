@@ -10,26 +10,40 @@ import type { NoteFile } from "@/shared/types";
 
 type Params = {
   canvasRef: RefObject<HTMLDivElement | null>;
+  bodyRef: RefObject<string>;
   linesRef: RefObject<BodyLine[]>;
   filesRef: RefObject<NoteFile[]>;
   lines: BodyLine[];
   applyLines: (next: BodyLine[]) => void;
+  onBodyChange: (body: string) => void;
   isView: boolean;
   onAddFile: (file: File) => NoteFile;
 };
 
 export function useNoteBodyEmbedDrag({
   canvasRef,
+  bodyRef,
   linesRef,
   filesRef,
   lines,
   applyLines,
+  onBodyChange,
   isView,
   onAddFile,
 }: Params) {
   const drag = useNoteBodyEmbedDragState();
-  const drop = useNoteBodyEmbedDrop({ drag, linesRef, filesRef, applyLines, onAddFile });
-  const pointer = useNoteBodyEmbedPointer({ drag, filesRef, isView, drop });
+  const drop = useNoteBodyEmbedDrop({
+    drag,
+    canvasRef,
+    bodyRef,
+    linesRef,
+    filesRef,
+    applyLines,
+    onBodyChange,
+    isView,
+    onAddFile,
+  });
+  const pointer = useNoteBodyEmbedPointer({ drag, filesRef, drop });
 
   useEffect(() => {
     const onDocDragOver = (e: DragEvent) => {

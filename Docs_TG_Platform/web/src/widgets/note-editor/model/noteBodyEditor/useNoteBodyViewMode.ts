@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import { useCallback, useLayoutEffect, useRef } from "react";
 import type { RefObject } from "react";
 
 import {
@@ -20,13 +20,6 @@ export function useNoteBodyViewMode({ canvasRef, isView, focusRequest, onEditReq
   const handledFocusRequestRef = useRef(0);
   const pendingFocusPointRef = useRef<{ x: number; y: number } | null>(null);
 
-  const handleViewMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (isView && e.detail > 1) e.preventDefault();
-    },
-    [isView],
-  );
-
   const handleViewDoubleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       const canvas = canvasRef.current;
@@ -42,7 +35,20 @@ export function useNoteBodyViewMode({ canvasRef, isView, focusRequest, onEditReq
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    refreshBodyCanvasCursor(canvas);
+    refreshBodyCanvasCursor(canvas, isView);
+    return () => {
+      canvas.style.cursor = "";
+    };
+  }, [canvasRef, isView]);
+
+  useLayoutEffect(() => {
+    if (isView) return;
+    const point = pendingFocusPointRef.current;
+    if (!point) return;
+    pendingFocusPointRef.current = null;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    focusNoteBodyAtPoint(canvas, point.x, point.y);
   }, [canvasRef, isView]);
 
   const handleEditCanvasMouseDown = useCallback(
@@ -55,30 +61,17 @@ export function useNoteBodyViewMode({ canvasRef, isView, focusRequest, onEditReq
     [canvasRef, isView],
   );
 
-  useEffect(() => {
-    if (isView) return;
-
-    const point = pendingFocusPointRef.current;
-    if (point) {
-      pendingFocusPointRef.current = null;
-      requestAnimationFrame(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        focusNoteBodyAtPoint(canvas, point.x, point.y);
-      });
-      return;
-    }
-
-    if (focusRequest <= handledFocusRequestRef.current) return;
+  useLayoutEffect(() => {
+    if (isView || focusRequest <= handledFocusRequestRef.current) return;
     handledFocusRequestRef.current = focusRequest;
-    requestAnimationFrame(() => {
-      const firstLine = canvasRef.current?.querySelector<HTMLTextAreaElement>(".note-body-line-edit");
-      if (!firstLine) return;
-      firstLine.focus();
-      const end = firstLine.value.length;
-      firstLine.setSelectionRange(end, end);
-    });
+    const editor = canvasRef.current?.querySelector<HTMLTextAreaElement>(
+      ".note-body-document-edit--mirror",
+    );
+    if (!editor) return;
+    editor.focus();
+    const end = editor.value.length;
+    editor.setSelectionRange(end, end);
   }, [canvasRef, focusRequest, isView]);
 
-  return { handleViewMouseDown, handleViewDoubleClick, handleEditCanvasMouseDown };
+  return { handleViewDoubleClick, handleEditCanvasMouseDown };
 }

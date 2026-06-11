@@ -14,14 +14,16 @@ export function useNoteBodyEditor({
   onEditRequest,
   focusRequest = 0,
 }: NoteBodyEditorProps) {
-  const lines = useNoteBodyLines({ body, files, isView, onBodyChange });
+  const lines = useNoteBodyLines({ body, files, onBodyChange });
 
   const drag = useNoteBodyEmbedDrag({
     canvasRef: lines.canvasRef,
+    bodyRef: lines.bodyRef,
     linesRef: lines.linesRef,
     filesRef: lines.filesRef,
     lines: lines.lines,
     applyLines: lines.applyLines,
+    onBodyChange,
     isView,
     onAddFile,
   });
@@ -49,10 +51,8 @@ export function useNoteBodyEditor({
     draggedEmbedCell: drag.draggedEmbedCell,
     dragFloatMountRef: drag.dragFloatMountRef,
     applyLines: lines.applyLines,
-    handleTextEnter: lines.handleTextEnter,
     beginEmbedPointerDrag: drag.beginEmbedPointerDrag,
     handleCanvasDragOver: drag.handleCanvasDragOver,
-    handleViewMouseDown: viewMode.handleViewMouseDown,
     handleViewDoubleClick: viewMode.handleViewDoubleClick,
     handleEditCanvasMouseDown: viewMode.handleEditCanvasMouseDown,
   };

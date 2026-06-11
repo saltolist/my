@@ -1,7 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { embedToken, findNoteFile, isImageEmbed, type CellPos, type LineCell } from "@/shared/lib/noteEmbeds";
+import {
+  embedToken,
+  findNoteFile,
+  isImageEmbed,
+  splitLineHighlightParts,
+  type CellPos,
+  type LineCell,
+} from "@/shared/lib/noteEmbeds";
 import type { NoteFile } from "@/shared/types";
 
 type Props = {
@@ -16,11 +22,6 @@ type Props = {
   onEmbedPointerDown?: (pos: CellPos, e: React.PointerEvent) => void;
 };
 
-function autoGrow(el: HTMLTextAreaElement) {
-  el.style.height = "auto";
-  el.style.height = el.scrollHeight + "px";
-}
-
 export default function NoteBodyCell({
   cell,
   pos,
@@ -32,12 +33,8 @@ export default function NoteBodyCell({
   onTextEnter,
   onEmbedPointerDown,
 }: Props) {
-  const cellRef = useRef<HTMLSpanElement>(null);
-  const lineRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (!isView && cell.type === "text" && lineRef.current) autoGrow(lineRef.current);
-  }, [cell, isView]);
+  void onTextChange;
+  void onTextEnter;
 
   const dragHandlers = {
     onDragOver: (e: React.DragEvent) => {
@@ -46,32 +43,27 @@ export default function NoteBodyCell({
   };
 
   if (cell.type === "text") {
-    if (isView && !cell.content) return null;
+    const parts = splitLineHighlightParts(cell.content);
     return (
       <span
-        ref={cellRef}
-        className="note-body-cell note-body-cell--text"
+        className={`note-body-cell note-body-cell--text${cell.content ? "" : " note-body-cell--empty"}`}
         data-line={pos.line}
         data-cell={pos.cell}
         {...dragHandlers}
       >
-        {isView ? (
-          <span className="note-body-text">{cell.content || "\u00a0"}</span>
-        ) : (
-          <textarea
-            ref={lineRef}
-            className="note-body-line-edit"
-            value={cell.content}
-            rows={1}
-            onChange={(e) => onTextChange(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                onTextEnter(e.currentTarget.selectionStart ?? cell.content.length);
-              }
-            }}
-          />
-        )}
+        <span className="note-body-text">
+          {parts.length > 0
+            ? parts.map((part, index) =>
+                part.type === "embed" ? (
+                  <span key={index} className="note-embed-token">
+                    {part.value}
+                  </span>
+                ) : (
+                  <span key={index}>{part.value}</span>
+                ),
+              )
+            : "\u00a0"}
+        </span>
       </span>
     );
   }
@@ -80,12 +72,11 @@ export default function NoteBodyCell({
   const isImage = isImageEmbed(file);
   const token = embedToken(cell.name);
   const blockLinkNativeDrag = (e: React.DragEvent) => e.preventDefault();
-  const canPointerDrag = !isView && !isPlaceholder && onEmbedPointerDown != null;
+  const canPointerDrag = !isPlaceholder && onEmbedPointerDown != null;
 
   return (
     <span
-      ref={cellRef}
-      className={`note-body-cell note-body-cell--embed${canPointerDrag ? " note-body-cell--embed-draggable" : ""}${isPlaceholder ? " note-body-cell--drop-placeholder" : ""}${isDragLifted ? " note-body-cell--drag-lifted" : ""}`}
+      className={`note-body-cell note-body-cell--embed note-body-cell--embed-draggable${isPlaceholder ? " note-body-cell--drop-placeholder" : ""}${isDragLifted ? " note-body-cell--drag-lifted" : ""}`}
       data-line={pos.line}
       data-cell={pos.cell}
       data-embed-name={cell.name}
@@ -103,23 +94,17 @@ export default function NoteBodyCell({
         // eslint-disable-next-line @next/next/no-img-element
         <img className="note-inline-image" src={file.url} alt={cell.name} draggable={false} />
       ) : (
-        <span className="note-embed-chip">
-          {isView ? (
-            <a
-              href={file?.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              draggable={false}
-              onDragStart={blockLinkNativeDrag}
-              onClick={(e) => !file?.url && e.preventDefault()}
-            >
-              {token}
-            </a>
-          ) : (
-            <code className="note-embed-md" draggable={false}>
-              {token}
-            </code>
-          )}
+        <span className="note-embed-chip note-embed-token">
+          <a
+            href={file?.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            draggable={false}
+            onDragStart={blockLinkNativeDrag}
+            onClick={(e) => !file?.url && e.preventDefault()}
+          >
+            {token}
+          </a>
         </span>
       )}
     </span>

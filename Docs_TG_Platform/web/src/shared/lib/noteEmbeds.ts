@@ -49,4 +49,13 @@ export {
 
 export { buildNotePreviewLines } from "@/shared/lib/noteEmbeds/preview";
 
-export { splitLineAtCaret, updateTextCell } from "@/shared/lib/noteEmbeds/textEdit";
+export { splitBodyHighlightParts, splitLineHighlightParts } from "@/shared/lib/noteEmbeds/lineHighlight";
+
+export {
+  bodyToEditLines,
+  lineEditContent,
+  parseEmbedNameFromEditable,
+  splitLineAtCaret,
+  updateEmbedCell,
+  updateTextCell,
+} from "@/shared/lib/noteEmbeds/textEdit";
