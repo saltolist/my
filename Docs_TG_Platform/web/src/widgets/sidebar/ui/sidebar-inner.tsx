@@ -14,28 +14,31 @@ export function SidebarInner({ onNavigate }: SidebarInnerProps) {
   const sb = useSidebar({ onNavigate });
 
   return (
-    <nav id="sidebar" aria-label="Основная навигация" className={sb.railActive ? "sidebar--collapsed" : undefined}>
-      <SidebarHeader
-        railActive={sb.railActive}
-        railAllowed={sb.railAllowed}
-        onGoHome={sb.goHome}
-        onExpand={() => sb.setSidebarCollapsed(false)}
-        onCollapse={() => sb.setSidebarCollapsed(true)}
-      />
-
-      <div className="nav-items">
-        <SidebarNav sb={sb} />
-      </div>
-
-      <div className="sidebar-bottom">
-        <SidebarNavItem
-          id="profile"
-          label="Профиль"
-          icon={<NavIconProfile />}
-          active={sb.isScreenActive("profile")}
-          onClick={() => sb.navigateScreen("profile")}
+    <>
+      <nav id="sidebar" aria-label="Основная навигация" className={sb.railActive ? "sidebar--collapsed" : undefined}>
+        <SidebarHeader
+          railActive={sb.railActive}
+          railAllowed={sb.railAllowed}
+          onGoHome={sb.goHome}
+          onExpand={() => sb.setSidebarCollapsed(false)}
+          onCollapse={() => sb.setSidebarCollapsed(true)}
         />
-      </div>
-    </nav>
+
+        <div className="nav-items">
+          <SidebarNav sb={sb} />
+        </div>
+
+        <div className="sidebar-bottom">
+          <SidebarNavItem
+            id="profile"
+            label="Профиль"
+            icon={<NavIconProfile />}
+            active={sb.isScreenActive("profile")}
+            onClick={() => sb.navigateScreen("profile")}
+          />
+        </div>
+      </nav>
+      {sb.scheduleModal}
+    </>
   );
 }

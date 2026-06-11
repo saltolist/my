@@ -4,9 +4,23 @@ import { mapChatRows, mapNoteRows } from "@/widgets/sidebar/lib/mapRecentRows";
 type SidebarState = ReturnType<typeof useSidebar>;
 
 export function buildSidebarRecentSections(sb: SidebarState) {
+  const chatMenu = {
+    menuOpenKey: sb.recentMenuOpenKey,
+    onMenuOpenKeyChange: sb.setRecentMenuOpenKey,
+    onRenameRow: sb.renameRecentChat,
+    onDeleteRow: sb.deleteRecentChat,
+  };
+
+  const noteMenu = {
+    menuOpenKey: sb.recentNotesMenuOpenKey,
+    onMenuOpenKeyChange: sb.setRecentNotesMenuOpenKey,
+    onRenameRow: sb.renameRecentNote,
+    onDeleteRow: sb.deleteRecentNote,
+  };
+
   const chatItems =
     sb.recentChatsModel.mode === "flat"
-      ? mapChatRows(sb.recentChatsModel.rows, sb.openChatRow, sb.isRecentChatActive)
+      ? mapChatRows(sb.recentChatsModel.rows, sb.openChatRow, sb.isRecentChatActive, chatMenu)
       : [];
 
   const chatGrouped =
@@ -16,18 +30,20 @@ export function buildSidebarRecentSections(sb: SidebarState) {
             sb.recentChatsModel.thisPost,
             sb.openChatRow,
             sb.isRecentChatActive,
+            chatMenu,
           ),
           others: mapChatRows(
             sb.recentChatsModel.others,
             sb.openChatRow,
             sb.isRecentChatActive,
+            chatMenu,
           ),
         }
       : undefined;
 
   const noteItems =
     sb.recentNotesModel.mode === "flat"
-      ? mapNoteRows(sb.recentNotesModel.rows, sb.openNoteRow, sb.isRecentNoteActive)
+      ? mapNoteRows(sb.recentNotesModel.rows, sb.openNoteRow, sb.isRecentNoteActive, noteMenu)
       : [];
 
   const noteGrouped =
@@ -37,11 +53,13 @@ export function buildSidebarRecentSections(sb: SidebarState) {
             sb.recentNotesModel.thisPost,
             sb.openNoteRow,
             sb.isRecentNoteActive,
+            noteMenu,
           ),
           others: mapNoteRows(
             sb.recentNotesModel.others,
             sb.openNoteRow,
             sb.isRecentNoteActive,
+            noteMenu,
           ),
         }
       : undefined;

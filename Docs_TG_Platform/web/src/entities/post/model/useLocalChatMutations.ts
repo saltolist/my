@@ -51,3 +51,39 @@ export function usePushLocalChatMessage() {
     [queryClient, updatePost],
   );
 }
+
+export function useRenameLocalChat() {
+  const updatePost = useUpdatePost();
+  const queryClient = useQueryClient();
+
+  return useCallback(
+    async (postId: number, chatId: number, title: string) => {
+      const post = getCachedPost(queryClient, postId);
+      if (!post) return;
+      const chats = post.chats.map((chat) =>
+        chat.id === chatId ? { ...chat, title } : chat,
+      );
+      const updated = { ...post, chats };
+      await updatePost.mutateAsync({ id: postId, patch: { chats } });
+      setCachedPost(queryClient, updated);
+    },
+    [queryClient, updatePost],
+  );
+}
+
+export function useDeleteLocalChat() {
+  const updatePost = useUpdatePost();
+  const queryClient = useQueryClient();
+
+  return useCallback(
+    async (postId: number, chatId: number) => {
+      const post = getCachedPost(queryClient, postId);
+      if (!post) return;
+      const chats = post.chats.filter((chat) => chat.id !== chatId);
+      const updated = { ...post, chats };
+      await updatePost.mutateAsync({ id: postId, patch: { chats } });
+      setCachedPost(queryClient, updated);
+    },
+    [queryClient, updatePost],
+  );
+}

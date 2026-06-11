@@ -3,6 +3,7 @@
 import { buildSidebarRecentSections } from "@/widgets/sidebar/lib/buildSidebarRecentSections";
 import type { useSidebar } from "@/widgets/sidebar/model/useSidebar";
 import { SidebarNavItem } from "@/widgets/sidebar/ui/SidebarNavItem";
+import SidebarFeedPostRow from "@/widgets/sidebar/ui/SidebarFeedPostRow";
 import { SidebarRecentList } from "@/widgets/sidebar/ui/SidebarRecentList";
 import {
   NavIconAnalytics,
@@ -44,6 +45,18 @@ export function SidebarNav({ sb }: SidebarNavProps) {
         active={sb.isScreenActive("feed")}
         onClick={() => sb.navigateScreen("feed")}
       />
+
+      {sb.showFeedPostRow && sb.currentPostSidebar ? (
+        <SidebarFeedPostRow
+          post={sb.currentPostSidebar}
+          isFullActive={sb.isSidebarPostFullActive}
+          isSubActive={sb.isSidebarPostSubActive}
+          menuOpen={sb.feedPostMenuOpen}
+          onMenuOpenChange={sb.setFeedPostMenuOpen}
+          onOpen={() => sb.openPost(sb.currentPostSidebar!.id)}
+          menuItems={sb.feedPostCtxItems}
+        />
+      ) : null}
 
       <div
         id="nav-notes"

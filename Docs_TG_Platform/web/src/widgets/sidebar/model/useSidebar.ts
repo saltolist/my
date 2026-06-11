@@ -3,11 +3,23 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { useNavigationStore } from "@/app/model/store/navigation-store";
 import { useUiStore } from "@/app/model/store";
 import { usePostNavigationStore } from "@/app/model/store/post-navigation-store";
-import { useGlobalChats } from "@/entities/chat";
-import { useGlobalNotes } from "@/entities/note";
-import { usePosts } from "@/entities/post";
+import {
+  useDeleteGlobalChat,
+  useGlobalChats,
+  useRenameGlobalChat,
+} from "@/entities/chat";
+import { useGlobalNotes, useDeleteGlobalNote, useUpsertGlobalNote } from "@/entities/note";
+import {
+  useDeleteLocalChat,
+  useDeletePostNote,
+  usePosts,
+  useRenameLocalChat,
+  useUpdatePostNote,
+} from "@/entities/post";
+import { usePostCtxMenuItems } from "@/features/post-context-menu";
 import { RAIL_MIN_MQ, useMediaQuery } from "@/shared/lib/hooks/useMediaQuery";
 import {
   parseAppPath,
@@ -41,13 +53,26 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
   const setSidebarCollapsed = useUiStore((s) => s.setSidebarCollapsed);
   const toggleSidebarCollapsed = useUiStore((s) => s.toggleSidebarCollapsed);
   const setPostMode = usePostNavigationStore((s) => s.setMode);
+  const currentNote = useNavigationStore((s) => s.currentNote);
+  const noteFrom = useNavigationStore((s) => s.noteFrom);
 
   const { data: posts = [] } = usePosts();
   const { data: globalChats = [] } = useGlobalChats();
   const { data: globalNotes = [] } = useGlobalNotes();
+  const renameGlobalChat = useRenameGlobalChat();
+  const deleteGlobalChat = useDeleteGlobalChat();
+  const renameLocalChat = useRenameLocalChat();
+  const deleteLocalChat = useDeleteLocalChat();
+  const upsertGlobalNote = useUpsertGlobalNote();
+  const updatePostNote = useUpdatePostNote();
+  const deleteGlobalNote = useDeleteGlobalNote();
+  const deletePostNote = useDeletePostNote();
 
   const [notesExpanded, setNotesExpanded] = useState(false);
   const [chatsExpanded, setChatsExpanded] = useState(true);
+  const [recentMenuOpenKey, setRecentMenuOpenKey] = useState<string | null>(null);
+  const [recentNotesMenuOpenKey, setRecentNotesMenuOpenKey] = useState<string | null>(null);
+  const [feedPostMenuOpen, setFeedPostMenuOpen] = useState(false);
 
   const sidebarData = useMemo(
     () => ({ posts, globalChats, globalNotes }),
@@ -66,7 +91,9 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
   }, [sidebarPostId, posts]);
 
   const showFeedPostRow =
-    sidebarPostId != null && (screen === "post" || (screen === "note" && route.notePostId != null));
+    sidebarPostId != null &&
+    (screen === "post" ||
+      (screen === "note" && currentNote != null && currentNote.isGlobal === false));
 
   const isSidebarPostFullActive =
     sidebarPostId != null &&
@@ -80,7 +107,10 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
     ((screen === "post" &&
       route.postId === sidebarPostId &&
       postChatIdFromUrl != null) ||
-      (screen === "note" && route.notePostId === sidebarPostId));
+      (screen === "note" &&
+        currentNote != null &&
+        currentNote.isGlobal === false &&
+        currentNote.postId === sidebarPostId));
 
   const recentChatsModel = useMemo(
     () => buildRecentChatsModel(sidebarData, sidebarPostId),
@@ -153,6 +183,88 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
       goTo(routes.post(postId));
     },
     [goTo, setPostMode],
+  );
+
+  const startPostNewChat = useCallback(() => {
+    if (sidebarPostId == null) return;
+    setPostMode(sidebarPostId, "chat", null);
+    goTo(routes.post(sidebarPostId));
+  }, [goTo, setPostMode, sidebarPostId]);
+
+  const startPostNewNote = useCallback(() => {
+    if (sidebarPostId == null) return;
+    goTo(routes.noteNew("post", sidebarPostId));
+  }, [goTo, sidebarPostId]);
+
+  const { items: feedPostCtxItems, modal: scheduleModal } = usePostCtxMenuItems(
+    currentPostSidebar,
+    {
+      onNewChat: startPostNewChat,
+      onNewNote: startPostNewNote,
+    },
+  );
+
+  const renameRecentChat = useCallback(
+    (row: RecentRow, title: string) => {
+      if (row.kind === "global") {
+        void renameGlobalChat.mutateAsync({ chatId: row.id, title });
+        return;
+      }
+      void renameLocalChat(row.postId, row.chatId, title);
+    },
+    [renameGlobalChat, renameLocalChat],
+  );
+
+  const deleteRecentChat = useCallback(
+    (row: RecentRow) => {
+      if (row.kind === "global") {
+        void deleteGlobalChat.mutateAsync(row.id);
+        if (screen === "gchat" && gchatIdFromUrl === row.id) {
+          router.replace(routes.chats());
+        }
+        return;
+      }
+      void deleteLocalChat(row.postId, row.chatId);
+    },
+    [deleteGlobalChat, deleteLocalChat, gchatIdFromUrl, router, screen],
+  );
+
+  const renameRecentNote = useCallback(
+    (row: RecentNoteRow, title: string) => {
+      if (row.kind === "global") {
+        const note = globalNotes.find((n) => n.id === row.id);
+        if (!note) return;
+        void upsertGlobalNote.mutateAsync({ ...note, title });
+        return;
+      }
+      void updatePostNote(row.postId, row.noteId, { title });
+    },
+    [globalNotes, updatePostNote, upsertGlobalNote],
+  );
+
+  const deleteRecentNote = useCallback(
+    (row: RecentNoteRow) => {
+      if (row.kind === "global") {
+        void deleteGlobalNote.mutateAsync(row.id);
+        const cur = currentNote;
+        if (screen === "note" && cur?.isGlobal === true && cur.id === row.id) {
+          router.replace(routes.notes());
+        }
+        return;
+      }
+      void deletePostNote(row.postId, row.noteId);
+      const cur = currentNote;
+      if (
+        screen === "note" &&
+        cur &&
+        cur.isGlobal === false &&
+        cur.postId === row.postId &&
+        cur.id === row.noteId
+      ) {
+        router.replace(noteFrom === "post" ? routes.post(row.postId) : routes.notes());
+      }
+    },
+    [currentNote, deleteGlobalNote, deletePostNote, noteFrom, router, screen],
   );
 
   const openNotesNav = useCallback(() => {
@@ -239,6 +351,18 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
     showFeedPostRow,
     isSidebarPostFullActive,
     isSidebarPostSubActive,
+    feedPostCtxItems,
+    feedPostMenuOpen,
+    setFeedPostMenuOpen,
+    scheduleModal,
+    recentMenuOpenKey,
+    setRecentMenuOpenKey,
+    recentNotesMenuOpenKey,
+    setRecentNotesMenuOpenKey,
+    renameRecentChat,
+    deleteRecentChat,
+    renameRecentNote,
+    deleteRecentNote,
     openPost,
     goHome: () => navigateScreen("home"),
     navigateScreen,

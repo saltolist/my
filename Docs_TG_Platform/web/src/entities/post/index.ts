@@ -6,7 +6,12 @@ export {
   useReorderPosts,
   useDeletePost,
 } from "./model/usePosts";
-export { useAddLocalChat, usePushLocalChatMessage } from "./model/useLocalChatMutations";
+export {
+  useAddLocalChat,
+  usePushLocalChatMessage,
+  useRenameLocalChat,
+  useDeleteLocalChat,
+} from "./model/useLocalChatMutations";
 export { useAddPostComment } from "./model/usePostCommentMutations";
 export {
   useAddPostNote,
