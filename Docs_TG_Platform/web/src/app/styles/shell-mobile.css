@@ -177,6 +177,11 @@ body.mobile-sidebar-open #sidebar {
     min-width: 0;
     gap: 8px;
   }
+.page-header-left:has(.breadcrumb) {
+    flex: 1 1 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
 .page-header.page-header--search-open .page-header-left {
     flex: 0 0 auto;
     gap: 0;

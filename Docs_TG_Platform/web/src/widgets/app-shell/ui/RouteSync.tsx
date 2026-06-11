@@ -4,6 +4,7 @@ import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, type MutableRefObject } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { useUiStore } from "@/app/model/store";
 import { useNavigationStore } from "@/app/model/store/navigation-store";
 import type { RouteNavigationPatch } from "@/app/model/store/navigation/types";
 import { usePostNavigationStore } from "@/app/model/store/post-navigation-store";
@@ -60,7 +61,11 @@ function applyRouteSync(
 
   let patch = result.patch;
   if (!options.urlDedup) {
-    patch = mergeNoteCachePatch(useNavigationStore.getState(), patch);
+    patch = mergeNoteCachePatch(
+      useNavigationStore.getState(),
+      patch,
+      useUiStore.getState().noteDirty,
+    );
   }
   setNav(patch);
 }

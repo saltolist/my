@@ -104,6 +104,7 @@
   .notes-page,
   .chats-page,
   .note-page,
+  .note-screen-wrap,
   .gchat-layout,
   .feed-screen-wrap,
   .post-screen-wrap,
@@ -167,7 +168,18 @@
 #screen-home > .page-header {
   display: none;
 }
-.page-header-left .breadcrumb { flex: 1; min-width: 0; }
+.page-header-left:has(.breadcrumb) {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+.page-header-left .breadcrumb {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
 .page-header-center {
   position: static;
   justify-self: center;
@@ -599,6 +611,8 @@
   padding: 0;
   font: inherit;
   text-align: left;
+  min-width: 0;
+  max-width: 100%;
 }
 .breadcrumb .bc-crumb-fixed {
   flex: 0 0 auto;
@@ -623,13 +637,28 @@
 .breadcrumb .crumb-current {
   font-weight: 400;
   color: var(--text);
-  white-space: nowrap;
 }
 .breadcrumb .crumb-current.bc-crumb-fixed {
   flex: 0 0 auto;
   flex-shrink: 0;
   overflow: visible;
   text-overflow: clip;
+  white-space: nowrap;
+}
+.breadcrumb .bc-crumb-truncate,
+.breadcrumb .crumb-current.bc-crumb-truncate {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Последний сегмент забирает остаток до «Назад»; средние не раздуваются */
+.breadcrumb > .bc-crumb-truncate:last-child,
+.breadcrumb > .crumb-current.bc-crumb-truncate:last-child,
+.breadcrumb > button.bc-crumb-truncate:last-child {
+  flex: 1 1 0;
 }
 .breadcrumb .bc-post-title {
   flex: 0 1 auto;

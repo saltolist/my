@@ -71,6 +71,8 @@ const config = [
       "src/app/model/store/composer-store.tsx",
       "src/widgets/composer/**/*.{ts,tsx}",
       "src/widgets/chat-thread/**/*.{ts,tsx}",
+      "src/widgets/note-editor/**/*.{ts,tsx}",
+      "src/screens/note/**/*.{ts,tsx}",
       "src/shared/ui/model-picker/**/*.{ts,tsx}",
     ],
     rules: {

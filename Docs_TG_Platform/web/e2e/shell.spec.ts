@@ -89,9 +89,10 @@ test("legacy post notes path redirects to canonical post url", async ({ page }) 
 
 test("global note page loads after cache sync", async ({ page }) => {
   await page.goto("/note/global/gn1/");
+  await expect(page.locator("#screen-note .note-shell")).toBeVisible({ timeout: LOAD_TIMEOUT });
   await expect(
-    page.getByRole("heading", { name: "Структура серии про барьеры инвестора" }),
-  ).toBeVisible({ timeout: LOAD_TIMEOUT });
+    page.getByRole("textbox", { name: "Без названия" }),
+  ).toHaveValue("Структура серии про барьеры инвестора");
 });
 
 test("chats scope select can be changed", async ({ page }) => {

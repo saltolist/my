@@ -3,7 +3,7 @@
 import { useEffect, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
-import { useUiStore } from "@/app/model/store";
+import { useNavigationStore, useUiStore } from "@/app/model/store";
 import { screenFromPath } from "@/shared/lib/routes";
 import { Sidebar } from "@/widgets/sidebar";
 
@@ -16,6 +16,18 @@ export function AppShell({ children }: AppShellProps) {
   const mobileSidebarOpen = useUiStore((s) => s.mobileSidebarOpen);
   const setMobileSidebarOpen = useUiStore((s) => s.setMobileSidebarOpen);
   const screen = screenFromPath(pathname ?? "/");
+  const noteDirty = useUiStore((s) => s.noteDirty);
+  const isEditingPost = useNavigationStore((s) => s.isEditing);
+
+  useEffect(() => {
+    function onBeforeUnload(e: BeforeUnloadEvent) {
+      if (!noteDirty && !isEditingPost) return;
+      e.preventDefault();
+      e.returnValue = "";
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [noteDirty, isEditingPost]);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {

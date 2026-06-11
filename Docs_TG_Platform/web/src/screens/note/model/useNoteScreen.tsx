@@ -1,0 +1,170 @@
+"use client";
+
+import { useQueryClient } from "@tanstack/react-query";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useMemo } from "react";
+
+import { useUiStore } from "@/app/model/store";
+import { useNavigationStore } from "@/app/model/store/navigation-store";
+import type { NavigationPatch } from "@/app/model/store/navigation/types";
+import { usePostNavigationStore } from "@/app/model/store/post-navigation-store";
+import { useDeleteGlobalNote, useUpsertGlobalNote } from "@/entities/note";
+import { getCachedPost } from "@/entities/post/lib/getCachedPost";
+import {
+  useDeletePostNote,
+  useTogglePostNoteAi,
+} from "@/entities/post/model/usePostNoteMutations";
+import {
+  resolveScreenBackAction,
+  type ScreenBackAction,
+} from "@/shared/lib/hooks/useScreenBack";
+import { confirmLeaveNote } from "@/shared/lib/noteLeave";
+import { routes } from "@/shared/lib/routes";
+import {
+  MenuIconBrain,
+  MenuIconBrainOff,
+  MenuIconCancel,
+  MenuIconTrash,
+} from "@/shared/ui/icons/header-menu-icons";
+import type { PageHeaderOverflowItem } from "@/widgets/page-header";
+import type { ActiveNote, ScreenId } from "@/shared/types";
+
+export function useNoteScreen(note: ActiveNote | null) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const queryClient = useQueryClient();
+  const noteFrom = useNavigationStore((s) => s.noteFrom);
+  const setNav = useNavigationStore((s) => s.setNav);
+  const setPostMode = usePostNavigationStore((s) => s.setMode);
+  const noteDirty = useUiStore((s) => s.noteDirty);
+  const setNoteDirty = useUiStore((s) => s.setNoteDirty);
+  const deleteGlobalNote = useDeleteGlobalNote();
+  const upsertGlobalNote = useUpsertGlobalNote();
+  const deletePostNote = useDeletePostNote();
+  const togglePostNoteAi = useTogglePostNoteAi();
+
+  const backFallback: ScreenId = noteFrom === "post" ? "post" : "notes";
+
+  const parentPost = useMemo(() => {
+    if (!note || note.isGlobal) return null;
+    return getCachedPost(queryClient, note.postId) ?? null;
+  }, [note, queryClient]);
+
+  const patchNote = useCallback(
+    (patch: NavigationPatch) => {
+      setNav(patch);
+    },
+    [setNav],
+  );
+
+  const navigateWithConfirm = useCallback(
+    (href: string, options?: { replace?: boolean }) => {
+      if (!confirmLeaveNote(note, noteDirty)) return;
+      setNoteDirty(false);
+      if (options?.replace) router.replace(href);
+      else router.push(href);
+    },
+    [note, noteDirty, router, setNoteDirty],
+  );
+
+  const discardNewNote = useCallback(() => {
+    setNoteDirty(false);
+    if (noteFrom === "post" && note && !note.isGlobal) {
+      router.replace(routes.post(note.postId));
+    } else {
+      router.replace(routes.notes());
+    }
+  }, [note, noteFrom, router, setNoteDirty]);
+
+  const onBack = useCallback(() => {
+    if (!confirmLeaveNote(note, noteDirty)) return;
+    setNoteDirty(false);
+    const action: ScreenBackAction = resolveScreenBackAction(
+      pathname,
+      typeof window !== "undefined" ? window.history.length : 1,
+    );
+    if (action.type === "back") router.back();
+    else router.push(action.href);
+  }, [note, noteDirty, pathname, router, setNoteDirty]);
+
+  const setNoteAi = useCallback(
+    (ai: boolean) => {
+      if (!note) return;
+      if (note.ai === ai) return;
+      if (note.isNew) {
+        patchNote({ currentNote: { ...note, ai } });
+        return;
+      }
+      if (note.isGlobal) {
+        void upsertGlobalNote.mutateAsync({ ...note, ai });
+        patchNote({ currentNote: { ...note, ai } });
+      } else {
+        void togglePostNoteAi(note.postId, note.id);
+        patchNote({ currentNote: { ...note, ai } });
+      }
+    },
+    [note, patchNote, togglePostNoteAi, upsertGlobalNote],
+  );
+
+  const deleteNote = useCallback(() => {
+    if (!note || note.isNew) return;
+    if (!confirm(`Удалить заметку «${note.title}»?`)) return;
+    if (note.isGlobal) {
+      void deleteGlobalNote.mutateAsync(note.id);
+      router.replace(routes.notes());
+    } else {
+      void deletePostNote(note.postId, note.id);
+      router.replace(routes.post(note.postId));
+    }
+    setNoteDirty(false);
+  }, [deleteGlobalNote, deletePostNote, note, router, setNoteDirty]);
+
+  const noteHeaderMenuItems = useMemo((): PageHeaderOverflowItem[] => {
+    if (!note) return [];
+    return [
+      {
+        label: note.ai ? "Не учитывать в ИИ" : "Учитывать в ИИ",
+        icon: note.ai ? <MenuIconBrainOff /> : <MenuIconBrain />,
+        onClick: () => setNoteAi(!note.ai),
+      },
+      {
+        label: note.isNew ? "Отменить" : "Удалить заметку",
+        icon: note.isNew ? <MenuIconCancel /> : <MenuIconTrash />,
+        danger: !note.isNew,
+        onClick: () => {
+          if (note.isNew) {
+            discardNewNote();
+            return;
+          }
+          deleteNote();
+        },
+      },
+    ];
+  }, [deleteNote, discardNewNote, note, setNoteAi]);
+
+  const openPost = useCallback(
+    (postId: number) => {
+      setPostMode(postId, "chat");
+      navigateWithConfirm(routes.post(postId));
+    },
+    [navigateWithConfirm, setPostMode],
+  );
+
+  return {
+    data: {
+      backFallback,
+      parentPost,
+    },
+    ui: {
+      noteHeaderMenuItems,
+    },
+    actions: {
+      onBack,
+      navigateNotes: () => navigateWithConfirm(routes.notes()),
+      navigateFeed: () => navigateWithConfirm(routes.feed()),
+      openPost,
+    },
+  };
+}
+
+export type NoteScreenState = ReturnType<typeof useNoteScreen>;

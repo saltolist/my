@@ -6,13 +6,16 @@ type ScreenShellProps = {
   footer?: ReactNode;
   /** When set, replaces default `.screen-body` wrapper (e.g. `notes-page`, `chats-page`). */
   bodyClassName?: string;
+  bodyId?: string;
 };
 
-export function ScreenShell({ header, children, footer, bodyClassName }: ScreenShellProps) {
+export function ScreenShell({ header, children, footer, bodyClassName, bodyId }: ScreenShellProps) {
   return (
     <>
       {header}
-      <div className={bodyClassName ?? "screen-body"}>{children}</div>
+      <div id={bodyId} className={bodyClassName ?? "screen-body"}>
+        {children}
+      </div>
       {footer}
     </>
   );

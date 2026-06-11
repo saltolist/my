@@ -19,6 +19,8 @@ export type UiState = {
   setMobileSidebarOpen: (open: boolean) => void;
   feedCardWidth: FeedPostWidth;
   setFeedCardWidth: (width: FeedPostWidth) => void;
+  noteDirty: boolean;
+  setNoteDirty: (dirty: boolean) => void;
 };
 
 export const useUiStore = create<UiState>()(
@@ -34,6 +36,8 @@ export const useUiStore = create<UiState>()(
         if (!isFeedPostWidth(width)) return;
         set({ feedCardWidth: width });
       },
+      noteDirty: false,
+      setNoteDirty: (noteDirty) => set({ noteDirty }),
     }),
     {
       name: SIDEBAR_COLLAPSED_STORAGE_KEY,

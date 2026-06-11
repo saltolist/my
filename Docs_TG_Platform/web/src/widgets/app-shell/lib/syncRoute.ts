@@ -132,6 +132,7 @@ type NoteDraftState = Pick<
 export function mergeNoteCachePatch(
   current: NoteDraftState,
   incoming: RouteNavigationPatch,
+  noteDirty = false,
 ): RouteNavigationPatch {
   const touchesNote =
     incoming.currentNote !== undefined ||
@@ -139,7 +140,7 @@ export function mergeNoteCachePatch(
     incoming.noteFrom !== undefined ||
     incoming.noteSavedSnapshot !== undefined;
 
-  if (!touchesNote || !shouldPreserveNoteDraft(current, incoming)) {
+  if (!touchesNote || !shouldPreserveNoteDraft(current, incoming, noteDirty)) {
     return incoming;
   }
 
@@ -154,9 +155,14 @@ export function mergeNoteCachePatch(
   return next;
 }
 
-function shouldPreserveNoteDraft(current: NoteDraftState, incoming: RouteNavigationPatch): boolean {
+function shouldPreserveNoteDraft(
+  current: NoteDraftState,
+  incoming: RouteNavigationPatch,
+  noteDirty = false,
+): boolean {
   if (!current.currentNote) return false;
   if (current.currentNote.isNew) return true;
+  if (noteDirty) return true;
 
   const incomingNote = incoming.currentNote;
   if (incomingNote && noteIdentityKey(current.currentNote) !== noteIdentityKey(incomingNote)) {

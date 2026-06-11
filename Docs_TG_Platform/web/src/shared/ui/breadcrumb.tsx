@@ -17,7 +17,7 @@ type BreadcrumbProps = {
   className?: string;
 };
 
-function itemClassName(item: BreadcrumbItem, isLast: boolean): string {
+function itemClassName(item: BreadcrumbItem, index: number, isLast: boolean): string {
   const current = item.current ?? isLast;
   const parts: string[] = [];
 
@@ -27,10 +27,12 @@ function itemClassName(item: BreadcrumbItem, isLast: boolean): string {
     parts.push("bc-link");
   }
 
-  if (item.variant === "title") {
+  if (index === 0) {
+    parts.push("bc-crumb-fixed");
+  } else if (item.variant === "title") {
     parts.push("bc-post-title");
   } else {
-    parts.push("bc-crumb-fixed");
+    parts.push("bc-crumb-truncate");
   }
 
   return parts.join(" ");
@@ -46,7 +48,7 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
     >
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
-        const cls = itemClassName(item, isLast);
+        const cls = itemClassName(item, index, isLast);
         const key = `${index}-${typeof item.label === "string" ? item.label : "node"}`;
 
         return (

@@ -1,6 +1,44 @@
 import { postTitle } from "@/shared/lib/helpers";
 import type { BreadcrumbItem } from "@/shared/ui/breadcrumb";
-import type { LocalChat, Post, PostMode } from "@/shared/types";
+import type { ActiveNote, LocalChat, Post, PostMode } from "@/shared/types";
+
+export type NoteBreadcrumbTrailContext = {
+  note: ActiveNote;
+  parentPost: Post | null;
+  titleLabel?: string;
+  onNavigateNotes: () => void;
+  onNavigateFeed: () => void;
+  onOpenPost: (postId: number) => void;
+};
+
+export function buildNoteBreadcrumbTrail({
+  note,
+  parentPost,
+  titleLabel,
+  onNavigateNotes,
+  onNavigateFeed,
+  onOpenPost,
+}: NoteBreadcrumbTrailContext): BreadcrumbItem[] {
+  const title = titleLabel ?? (note.title || "Новая заметка");
+
+  if (note.isGlobal) {
+    return [
+      { label: "Заметки", onClick: onNavigateNotes },
+      { label: title, current: true },
+    ];
+  }
+
+  const items: BreadcrumbItem[] = [{ label: "Лента", onClick: onNavigateFeed }];
+  if (parentPost) {
+    items.push({
+      label: postTitle(parentPost),
+      onClick: () => onOpenPost(note.postId),
+      variant: "title",
+    });
+  }
+  items.push({ label: title, current: true });
+  return items;
+}
 
 export type PostBreadcrumbTrailContext = {
   post: Post;

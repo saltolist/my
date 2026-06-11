@@ -3,45 +3,67 @@
 import { usePathname } from "next/navigation";
 import { StickyNote } from "lucide-react";
 
-import { useNavigationStore } from "@/app/model/store";
-import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
-import { parseAppPath } from "@/shared/lib/routes";
+import { useNoteFromRoute } from "@/screens/note/model/useNoteFromRoute";
+import { useNoteScreen } from "@/screens/note/model/useNoteScreen";
+import NoteBreadcrumb from "@/screens/note/ui/NoteBreadcrumb";
+import NoteEditor from "@/screens/note/ui/NoteEditor";
 import { EmptyState } from "@/shared/ui/empty-state";
-import { ScreenShell } from "@/screens/_ui/screen-shell";
 import { PageHeader } from "@/widgets/page-header";
-import { routeNeedsCachedData } from "@/widgets/app-shell/lib/syncRoute";
+
+function NoteScreenPlaceholder({
+  title,
+  message,
+  onBack,
+}: {
+  title: string;
+  message: string;
+  onBack: () => void;
+}) {
+  return (
+    <div className="note-screen-wrap">
+      <PageHeader title={title} onBack={onBack} />
+      <div className="note-page">
+        <EmptyState icon={<StickyNote className="size-5" />} message={message} className="min-h-[50vh]" />
+      </div>
+    </div>
+  );
+}
 
 export function NoteScreen() {
   const pathname = usePathname() ?? "/";
-  const route = parseAppPath(pathname);
-  const onBack = useScreenBack();
+  const { note, loading } = useNoteFromRoute(pathname);
+  const { data, ui, actions } = useNoteScreen(note);
 
-  const currentNote = useNavigationStore((s) => s.currentNote);
-  const noteFrom = useNavigationStore((s) => s.noteFrom);
+  if (loading) {
+    return (
+      <NoteScreenPlaceholder title="Заметка" message="Загрузка заметки…" onBack={actions.onBack} />
+    );
+  }
 
-  const isNew = route.noteIsNew;
-  const needsCache = routeNeedsCachedData(pathname);
-  const loading = needsCache && !currentNote;
-
-  let title = "Заметка";
-  if (isNew) title = "Новая заметка";
-  else if (currentNote) title = currentNote.title;
+  if (!note) {
+    return (
+      <NoteScreenPlaceholder title="Заметка" message="Заметка не найдена." onBack={actions.onBack} />
+    );
+  }
 
   return (
-    <ScreenShell header={<PageHeader title={title} onBack={onBack} />}>
-      <EmptyState
-        icon={<StickyNote className="size-5" />}
-        message={
-          loading
-            ? "Загрузка заметки…"
-            : isNew
-              ? `from=${noteFrom}`
-              : currentNote
-                ? "Note editor — M3+ (note-editor widget)."
-                : "Заметка не найдена."
+    <div className="note-screen-wrap">
+      <PageHeader
+        onBack={actions.onBack}
+        overflowItems={ui.noteHeaderMenuItems}
+        left={
+          <NoteBreadcrumb
+            note={note}
+            parentPost={data.parentPost}
+            onNavigateNotes={actions.navigateNotes}
+            onNavigateFeed={actions.navigateFeed}
+            onOpenPost={actions.openPost}
+          />
         }
-        className="min-h-[50vh]"
       />
-    </ScreenShell>
+      <div className="note-page" id="note-page-body">
+        <NoteEditor note={note} />
+      </div>
+    </div>
   );
 }
