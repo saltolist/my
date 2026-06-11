@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  NOTE_HEADER_ICON_STROKE_MODE,
   NoteIconAttach,
   NoteIconEdit,
   NoteIconPreview,
@@ -44,13 +45,17 @@ export default function NoteHeaderToolbar({
       ) : null}
       {showModeToggle && onToggleMode ? (
         <button
-          className="note-header-plain-btn note-header-plain-btn--sm"
+          className="note-header-plain-btn note-header-plain-btn--mode"
           onClick={onToggleMode}
           type="button"
           title={mode === "view" ? "Редактировать" : "Просмотр"}
           aria-label={mode === "view" ? "Редактировать" : "Просмотр"}
         >
-          {mode === "view" ? <NoteIconEdit /> : <NoteIconPreview />}
+          {mode === "view" ? (
+            <NoteIconEdit strokeWidth={NOTE_HEADER_ICON_STROKE_MODE} />
+          ) : (
+            <NoteIconPreview strokeWidth={NOTE_HEADER_ICON_STROKE_MODE} />
+          )}
         </button>
       ) : null}
       <button

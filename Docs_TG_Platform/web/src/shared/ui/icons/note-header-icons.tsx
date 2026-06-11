@@ -1,7 +1,13 @@
-type IconProps = { size?: number | string };
+type IconProps = { size?: number | string; strokeWidth?: number };
+
+/** Толщина контура как у скрепки в `.note-header-plain-btn--sm` (22px). */
+export const NOTE_HEADER_ICON_STROKE = 1.75;
+
+/** Компенсация для `.note-header-plain-btn--mode` (24px) — визуально та же толщина, что у скрепки. */
+export const NOTE_HEADER_ICON_STROKE_MODE = (NOTE_HEADER_ICON_STROKE * 22) / 24;
 
 /** Редактирование — карандаш на линии (не диагональный PencilIcon). */
-export function NoteIconEdit({ size = "100%" }: IconProps) {
+export function NoteIconEdit({ size = "100%", strokeWidth = NOTE_HEADER_ICON_STROKE }: IconProps) {
   return (
     <svg
       width={size}
@@ -9,7 +15,7 @@ export function NoteIconEdit({ size = "100%" }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.75"
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden
@@ -21,7 +27,7 @@ export function NoteIconEdit({ size = "100%" }: IconProps) {
 }
 
 /** Режим просмотра (reading view, как в Obsidian) */
-export function NoteIconPreview({ size = "100%" }: IconProps) {
+export function NoteIconPreview({ size = "100%", strokeWidth = NOTE_HEADER_ICON_STROKE }: IconProps) {
   return (
     <svg
       width={size}
@@ -29,7 +35,7 @@ export function NoteIconPreview({ size = "100%" }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden
@@ -41,7 +47,7 @@ export function NoteIconPreview({ size = "100%" }: IconProps) {
   );
 }
 
-export function NoteIconAttach({ size = "100%" }: IconProps) {
+export function NoteIconAttach({ size = "100%", strokeWidth = NOTE_HEADER_ICON_STROKE }: IconProps) {
   return (
     <svg
       width={size}
@@ -49,7 +55,7 @@ export function NoteIconAttach({ size = "100%" }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.75"
+      strokeWidth={strokeWidth}
       aria-hidden
     >
       <path

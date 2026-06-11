@@ -230,6 +230,10 @@
   width: 22px;
   height: 22px;
 }
+.note-header-plain-btn--mode {
+  width: 24px;
+  height: 24px;
+}
 .note-header-plain-btn--attach {
   transform: translateY(1px);
 }
