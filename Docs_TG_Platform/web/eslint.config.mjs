@@ -73,6 +73,8 @@ const config = [
       "src/widgets/chat-thread/**/*.{ts,tsx}",
       "src/widgets/note-editor/**/*.{ts,tsx}",
       "src/widgets/charts/**/*.{ts,tsx}",
+      "src/widgets/analytics-dashboard/**/*.{ts,tsx}",
+      "src/screens/analytics/**/*.{ts,tsx}",
       "src/screens/note/**/*.{ts,tsx}",
       "src/shared/ui/model-picker/**/*.{ts,tsx}",
     ],

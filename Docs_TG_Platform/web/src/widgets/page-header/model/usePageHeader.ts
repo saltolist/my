@@ -13,7 +13,10 @@ import {
   resolveDesktopSearchToggleAnchor,
   resolveSearchSpanRightAnchor,
 } from "@/widgets/page-header/lib/pageHeaderSearchUtils";
-import { useProfilePageHeaderSync } from "@/widgets/page-header/model/useProfilePageHeaderSync";
+import {
+  clearProfilePageHeaderBreakpoints,
+  syncProfilePageHeaderBreakpoints,
+} from "@/widgets/page-header/model/useProfilePageHeaderSync";
 import type { PageHeaderOverflowItem } from "@/widgets/page-header/ui/page-header-overflow";
 
 export type PageHeaderProps = {
@@ -48,7 +51,8 @@ export function usePageHeader({
   overflowItems,
   compactSearchAtWidth,
   compactSearchOverlay = false,
-  profileBreakpoints = false,
+  /** @deprecated Breakpoints sync on every PageHeader (legacy parity). Prop kept for call sites. */
+  profileBreakpoints: _profileBreakpoints = false,
   className,
   showBack,
 }: PageHeaderProps) {
@@ -83,8 +87,6 @@ export function usePageHeader({
     compactSearchOverlay && (isMobile || compactSearch);
   const desktopPostInlineSearch = searchOverlayMode && !mobileOverlaySearch;
 
-  useProfilePageHeaderSync(headerRef, isMobile, profileBreakpoints);
-
   useLayoutEffect(() => {
     const el = headerRef.current;
     if (!el) return;
@@ -96,6 +98,7 @@ export function usePageHeader({
       }
       document.documentElement.style.setProperty("--page-header-w", `${w}px`);
       document.documentElement.style.setProperty("--page-header-w-num", String(w));
+      syncProfilePageHeaderBreakpoints(w, isMobile);
     };
 
     const observer = new ResizeObserver(sync);
@@ -107,6 +110,7 @@ export function usePageHeader({
       if (compactSearchAtWidth != null) {
         setHeaderWidth(0);
       }
+      clearProfilePageHeaderBreakpoints();
       document.documentElement.style.removeProperty("--page-header-w");
       document.documentElement.style.removeProperty("--page-header-w-num");
     };
