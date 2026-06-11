@@ -76,6 +76,86 @@
   }
 }
 
+/* Карточки профиля, аналитики, постов и заметок — белые, не стекло (legacy globals.css) */
+:root[data-theme="light"] :is(
+  .glass-surface,
+  .stat-card,
+  .analytics-card,
+  .mini-metric
+)::before {
+  background: #ffffff;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+:root[data-theme="light"] :is(
+  .post-card,
+  .post-msg-card,
+  .chat-card,
+  .note-card,
+  .note-card-page,
+  .note-shell
+) {
+  background: #ffffff;
+}
+
+:root[data-theme="light"] :is(
+  .post-card:hover,
+  .chat-card:hover,
+  .note-card:hover,
+  .note-card-page:hover
+) {
+  background: #ffffff;
+}
+
+:root[data-theme="light"] .analytics-page :is(.analytics-card, .stat-card),
+:root[data-theme="light"] .profile-page :is(.profile-section, .profile-channel-actions, .stat-card) {
+  box-shadow: var(--content-card-shadow);
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] {
+    --content-card-surface: #ffffff;
+    --profile-block-bg: #ffffff;
+  }
+
+  :root[data-theme="system"] :is(
+    .glass-surface,
+    .stat-card,
+    .analytics-card,
+    .mini-metric
+  )::before {
+    background: #ffffff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  :root[data-theme="system"] :is(
+    .post-card,
+    .post-msg-card,
+    .chat-card,
+    .note-card,
+    .note-card-page,
+    .note-shell
+  ) {
+    background: #ffffff;
+  }
+
+  :root[data-theme="system"] :is(
+    .post-card:hover,
+    .chat-card:hover,
+    .note-card:hover,
+    .note-card-page:hover
+  ) {
+    background: #ffffff;
+  }
+
+  :root[data-theme="system"] .analytics-page :is(.analytics-card, .stat-card),
+  :root[data-theme="system"] .profile-page :is(.profile-section, .profile-channel-actions, .stat-card) {
+    box-shadow: var(--content-card-shadow);
+  }
+}
+
 /* Post screen — после @layer base, чтобы перебить Tailwind preflight */
 #screen-post .post-body .composer-scroll-body {
   display: flex;
@@ -221,4 +301,29 @@
 
 #screen-note .note-body-edit-canvas {
   cursor: text;
+}
+
+/* Светлая тема: перебить screen-specific bg2 у поста и заметки (идёт после правил выше) */
+:root[data-theme="light"] #screen-post .post-msg-block > .post-card.post-msg-card,
+:root[data-theme="light"] #screen-post .post-msg-block > .post-card.post-msg-card:hover,
+:root[data-theme="light"] #screen-post .post-body-inner > .post-msg-card,
+:root[data-theme="light"] #screen-note .note-shell {
+  background-color: #ffffff;
+}
+
+:root[data-theme="light"] #screen-note .note-shell {
+  box-shadow: var(--content-card-shadow);
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] #screen-post .post-msg-block > .post-card.post-msg-card,
+  :root[data-theme="system"] #screen-post .post-msg-block > .post-card.post-msg-card:hover,
+  :root[data-theme="system"] #screen-post .post-body-inner > .post-msg-card,
+  :root[data-theme="system"] #screen-note .note-shell {
+    background-color: #ffffff;
+  }
+
+  :root[data-theme="system"] #screen-note .note-shell {
+    box-shadow: var(--content-card-shadow);
+  }
 }

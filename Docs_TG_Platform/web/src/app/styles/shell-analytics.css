@@ -150,12 +150,20 @@
 .analytics-page .stat-card::before {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  background: var(--sidebar-glass-overlay);
+  background: var(--content-card-surface);
 }
 .analytics-page .analytics-card,
 .analytics-page .stat-card {
   box-shadow: inset 0 1px 0 var(--sidebar-glass-shine);
   overflow: hidden;
+}
+:root[data-theme="light"] .analytics-page :is(.analytics-card, .stat-card) {
+  box-shadow: var(--content-card-shadow);
+}
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] .analytics-page :is(.analytics-card, .stat-card) {
+    box-shadow: var(--content-card-shadow);
+  }
 }
 .analytics-page .analytics-card:is(
     .analytics-chart-card,

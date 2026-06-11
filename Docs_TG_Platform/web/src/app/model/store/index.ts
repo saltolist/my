@@ -1,7 +1,9 @@
 export {
   useUiStore,
+  useUi,
   type FeedCardWidth,
   type UiState,
+  type DirtyKey,
 } from "./ui-store";
 
 export {
@@ -21,3 +23,20 @@ export {
   type NavigationState,
   type RouteNavigationPatch,
 } from "./navigation/types";
+
+export {
+  useProfileDraftStore,
+  useDomainSelector,
+  useDomainDispatch,
+  useDomainActions,
+  domainActions,
+  selectChannelProfileConfig,
+  selectChannelProfileSavedSnapshot,
+  selectAiProfileConfig,
+  selectModelSettingsSavedSnapshot,
+  selectSystemPromptSavedSnapshot,
+  selectTelegramProfileConfig,
+  selectTelegramSettingsSavedSnapshot,
+} from "./profile-draft-store";
+
+export { useNavigation } from "./profile-navigation";

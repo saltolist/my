@@ -1,22 +1,31 @@
 "use client";
 
-import { UserRound } from "lucide-react";
-
-import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
-import { EmptyState } from "@/shared/ui/empty-state";
-import { ScreenShell } from "@/screens/_ui/screen-shell";
-import { PageHeader } from "@/widgets/page-header";
+import { ChannelTab } from "@/widgets/profile-settings";
+import ProfileAnalyticsPanel from "@/screens/profile/ui/ProfileAnalyticsPanel";
+import ProfileScreenHeader from "@/screens/profile/ui/ProfileScreenHeader";
+import ProfileSettingsPanel from "@/screens/profile/ui/ProfileSettingsPanel";
+import { ProfileHydrator } from "@/widgets/profile-settings/ui/ProfileHydrator";
+import { useProfileScreen } from "@/screens/profile/model/useProfileScreen";
 
 export function ProfileScreen() {
-  const onBack = useScreenBack();
+  const { data, ui, actions } = useProfileScreen();
 
   return (
-    <ScreenShell header={<PageHeader title="Профиль" onBack={onBack} profileBreakpoints />}>
-      <EmptyState
-        icon={<UserRound className="size-5" />}
-        message="Вкладки «Канал» и «Настройки» появятся на следующем шаге."
-        className="min-h-[50vh]"
-      />
-    </ScreenShell>
+    <>
+      <ProfileHydrator />
+      <ProfileScreenHeader data={data} ui={ui} actions={actions} />
+      <div className="profile-page">
+        <div className="profile-scroll-inner">
+          <ChannelTab active={data.channelTabActive} />
+          <ProfileSettingsPanel active={data.tab === 0} settingsTabActive={data.settingsTabActive} />
+          <ProfileAnalyticsPanel
+            active={data.tab === 2}
+            period={data.platformPeriod}
+            onPeriodChange={actions.setPlatformPeriod}
+            periodInHeader={ui.platformPeriodInHeader}
+          />
+        </div>
+      </div>
+    </>
   );
 }
