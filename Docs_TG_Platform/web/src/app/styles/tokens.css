@@ -50,6 +50,9 @@
   --composer-backdrop-blur: 14px;
   --composer-backdrop-blur-outset: 8px;
   --composer-backdrop-bg: color-mix(in srgb, var(--bg2) 94%, var(--bg) 6%);
+  --model-trend-chart-height: 493px;
+  --trend-chart-inset-x: 34px;
+  --trend-tooltip-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.38);
   --hdr: 56px;
   --r: 10px;
   --rs: 6px;
@@ -200,6 +203,7 @@ html.sidebar-collapsed {
   --ctx-dropdown-header-border: var(--border2);
   --scroll-thumb: rgba(0, 0, 0, 0.18);
   --scroll-thumb-hover: rgba(0, 0, 0, 0.34);
+  --trend-tooltip-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.14);
   --nav-sub-active-bg: color-mix(in srgb, var(--bg3) 72%, var(--accent) 10%);
   --page-bg-grad:
     radial-gradient(100% 82% at 94% 0%, rgba(37, 99, 235, 0.075) 0%, transparent 50%),
