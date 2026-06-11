@@ -1,10 +1,11 @@
 "use client";
 
+import { postTitle } from "@/shared/lib/helpers";
 import { buildSidebarRecentSections } from "@/widgets/sidebar/lib/buildSidebarRecentSections";
 import type { useSidebar } from "@/widgets/sidebar/model/useSidebar";
 import { SidebarNavItem } from "@/widgets/sidebar/ui/SidebarNavItem";
-import SidebarFeedPostRow from "@/widgets/sidebar/ui/SidebarFeedPostRow";
 import { SidebarRecentList } from "@/widgets/sidebar/ui/SidebarRecentList";
+import { SidebarRecentRow } from "@/widgets/sidebar/ui/sidebar-recent-row";
 import {
   NavIconAnalytics,
   NavIconChats,
@@ -47,14 +48,18 @@ export function SidebarNav({ sb }: SidebarNavProps) {
       />
 
       {sb.showFeedPostRow && sb.currentPostSidebar ? (
-        <SidebarFeedPostRow
-          post={sb.currentPostSidebar}
-          isFullActive={sb.isSidebarPostFullActive}
-          isSubActive={sb.isSidebarPostSubActive}
-          menuOpen={sb.feedPostMenuOpen}
-          onMenuOpenChange={sb.setFeedPostMenuOpen}
-          onOpen={() => sb.openPost(sb.currentPostSidebar!.id)}
-          menuItems={sb.feedPostCtxItems}
+        <SidebarRecentRow
+          item={{
+            key: `post-${sb.currentPostSidebar.id}`,
+            title: postTitle(sb.currentPostSidebar),
+            active: sb.isSidebarPostFullActive,
+            subActive: sb.isSidebarPostSubActive,
+            onOpen: () => sb.openPost(sb.currentPostSidebar!.id),
+            menuOpen: sb.feedPostMenuOpen,
+            onMenuOpenChange: sb.setFeedPostMenuOpen,
+            menuItems: sb.feedPostCtxItems,
+            wrapSection: true,
+          }}
         />
       ) : null}
 

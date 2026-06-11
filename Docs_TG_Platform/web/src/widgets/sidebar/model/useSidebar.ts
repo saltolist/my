@@ -33,6 +33,13 @@ import {
   buildRecentChatsModel,
   buildRecentNotesModel,
 } from "@/widgets/sidebar/lib/buildRecentModels";
+import {
+  isSidebarPostFullActive,
+  isSidebarPostSubActive,
+  resolveSidebarPostId,
+  shouldShowFeedPostRow,
+} from "@/widgets/sidebar/lib/sidebarPostRowState";
+import { useSidebarRecentMutations } from "@/widgets/sidebar/model/useSidebarRecentMutations";
 import type { RecentNoteRow, RecentRow } from "@/widgets/sidebar/model/types";
 
 type UseSidebarOptions = {
@@ -79,38 +86,36 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
     [posts, globalChats, globalNotes],
   );
 
-  const sidebarPostId = useMemo((): number | null => {
-    if (screen === "post" && route.postId != null) return route.postId;
-    if (screen === "note" && route.notePostId != null) return route.notePostId;
-    return null;
-  }, [screen, route.postId, route.notePostId]);
+  const sidebarPostId = useMemo(
+    () => resolveSidebarPostId(screen, route.postId, route.notePostId),
+    [screen, route.postId, route.notePostId],
+  );
 
   const currentPostSidebar = useMemo(() => {
     if (sidebarPostId == null) return null;
     return posts.find((p) => p.id === sidebarPostId) ?? null;
   }, [sidebarPostId, posts]);
 
-  const showFeedPostRow =
-    sidebarPostId != null &&
-    (screen === "post" ||
-      (screen === "note" && currentNote != null && currentNote.isGlobal === false));
+  const postRowRoute = useMemo(
+    () => ({
+      postId: route.postId,
+      notePostId: route.notePostId,
+      postChatId: postChatIdFromUrl,
+    }),
+    [route.postId, route.notePostId, postChatIdFromUrl],
+  );
 
-  const isSidebarPostFullActive =
-    sidebarPostId != null &&
-    screen === "post" &&
-    route.postId === sidebarPostId &&
-    postChatIdFromUrl == null;
-
-  const isSidebarPostSubActive =
-    sidebarPostId != null &&
-    !isSidebarPostFullActive &&
-    ((screen === "post" &&
-      route.postId === sidebarPostId &&
-      postChatIdFromUrl != null) ||
-      (screen === "note" &&
-        currentNote != null &&
-        currentNote.isGlobal === false &&
-        currentNote.postId === sidebarPostId));
+  const showFeedPostRow = shouldShowFeedPostRow(sidebarPostId, screen, route.notePostId);
+  const isSidebarPostFullActiveState = isSidebarPostFullActive(
+    sidebarPostId,
+    screen,
+    postRowRoute,
+  );
+  const isSidebarPostSubActiveState = isSidebarPostSubActive(
+    sidebarPostId,
+    screen,
+    postRowRoute,
+  );
 
   const recentChatsModel = useMemo(
     () => buildRecentChatsModel(sidebarData, sidebarPostId),
@@ -204,68 +209,25 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
     },
   );
 
-  const renameRecentChat = useCallback(
-    (row: RecentRow, title: string) => {
-      if (row.kind === "global") {
-        void renameGlobalChat.mutateAsync({ chatId: row.id, title });
-        return;
-      }
-      void renameLocalChat(row.postId, row.chatId, title);
-    },
-    [renameGlobalChat, renameLocalChat],
-  );
-
-  const deleteRecentChat = useCallback(
-    (row: RecentRow) => {
-      if (row.kind === "global") {
-        void deleteGlobalChat.mutateAsync(row.id);
-        if (screen === "gchat" && gchatIdFromUrl === row.id) {
-          router.replace(routes.chats());
-        }
-        return;
-      }
-      void deleteLocalChat(row.postId, row.chatId);
-    },
-    [deleteGlobalChat, deleteLocalChat, gchatIdFromUrl, router, screen],
-  );
-
-  const renameRecentNote = useCallback(
-    (row: RecentNoteRow, title: string) => {
-      if (row.kind === "global") {
-        const note = globalNotes.find((n) => n.id === row.id);
-        if (!note) return;
-        void upsertGlobalNote.mutateAsync({ ...note, title });
-        return;
-      }
-      void updatePostNote(row.postId, row.noteId, { title });
-    },
-    [globalNotes, updatePostNote, upsertGlobalNote],
-  );
-
-  const deleteRecentNote = useCallback(
-    (row: RecentNoteRow) => {
-      if (row.kind === "global") {
-        void deleteGlobalNote.mutateAsync(row.id);
-        const cur = currentNote;
-        if (screen === "note" && cur?.isGlobal === true && cur.id === row.id) {
-          router.replace(routes.notes());
-        }
-        return;
-      }
-      void deletePostNote(row.postId, row.noteId);
-      const cur = currentNote;
-      if (
-        screen === "note" &&
-        cur &&
-        cur.isGlobal === false &&
-        cur.postId === row.postId &&
-        cur.id === row.noteId
-      ) {
-        router.replace(noteFrom === "post" ? routes.post(row.postId) : routes.notes());
-      }
-    },
-    [currentNote, deleteGlobalNote, deletePostNote, noteFrom, router, screen],
-  );
+  const { renameRecentChat, deleteRecentChat, renameRecentNote, deleteRecentNote } =
+    useSidebarRecentMutations({
+      router,
+      screen,
+      gchatIdFromUrl,
+      postChatIdFromUrl,
+      routePostId: route.postId,
+      currentNote,
+      noteFrom,
+      globalNotes,
+      renameGlobalChat,
+      deleteGlobalChat,
+      renameLocalChat,
+      deleteLocalChat,
+      upsertGlobalNote,
+      updatePostNote,
+      deleteGlobalNote,
+      deletePostNote,
+    });
 
   const openNotesNav = useCallback(() => {
     if (railActive) setSidebarCollapsed(false);
@@ -334,6 +296,8 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
     [screen],
   );
 
+  const goHome = useCallback(() => navigateScreen("home"), [navigateScreen]);
+
   return {
     screen,
     railAllowed,
@@ -349,8 +313,8 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
     recentNotesModel,
     currentPostSidebar,
     showFeedPostRow,
-    isSidebarPostFullActive,
-    isSidebarPostSubActive,
+    isSidebarPostFullActive: isSidebarPostFullActiveState,
+    isSidebarPostSubActive: isSidebarPostSubActiveState,
     feedPostCtxItems,
     feedPostMenuOpen,
     setFeedPostMenuOpen,
@@ -364,7 +328,7 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
     renameRecentNote,
     deleteRecentNote,
     openPost,
-    goHome: () => navigateScreen("home"),
+    goHome,
     navigateScreen,
     openNotesNav,
     openChatsNav,

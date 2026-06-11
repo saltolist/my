@@ -10,31 +10,37 @@ import {
 } from "@/shared/lib/noteEmbeds";
 import type { NoteFile } from "@/shared/types";
 
-type Props = {
+type BaseProps = {
   cell: LineCell;
   pos: CellPos;
   files: NoteFile[];
-  isView: boolean;
   isPlaceholder?: boolean;
   isDragLifted?: boolean;
-  onTextChange: (content: string) => void;
-  onTextEnter: (caret: number) => void;
   onEmbedPointerDown?: (pos: CellPos, e: React.PointerEvent) => void;
 };
 
-export default function NoteBodyCell({
-  cell,
-  pos,
-  files,
-  isView,
-  isPlaceholder = false,
-  isDragLifted = false,
-  onTextChange,
-  onTextEnter,
-  onEmbedPointerDown,
-}: Props) {
-  void onTextChange;
-  void onTextEnter;
+type ViewProps = BaseProps & {
+  isView: true;
+};
+
+type EditProps = BaseProps & {
+  isView: false;
+  onTextChange: (content: string) => void;
+  onTextEnter: (caret: number) => void;
+};
+
+type Props = ViewProps | EditProps;
+
+export default function NoteBodyCell(props: Props) {
+  const {
+    cell,
+    pos,
+    files,
+    isView,
+    isPlaceholder = false,
+    isDragLifted = false,
+    onEmbedPointerDown,
+  } = props;
 
   const dragHandlers = {
     onDragOver: (e: React.DragEvent) => {

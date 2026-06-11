@@ -4,7 +4,6 @@ import type { ReactNode } from "react";
 import {
   isEmbedLine,
   isImageEmbedRow,
-  updateTextCell,
   type BodyLine,
   type CellPos,
 } from "@/shared/lib/noteEmbeds";
@@ -39,8 +38,6 @@ export default function NoteBodyDocumentView({
   dropLineBefore,
   dropGapActive,
   dropLineBeforeActive,
-  applyLines,
-  onTextEnter,
   onEmbedPointerDown,
 }: Props) {
   if (!hasContent) {
@@ -104,8 +101,6 @@ export default function NoteBodyDocumentView({
             files={files}
             isView
             isDragLifted={lifted}
-            onTextChange={(content) => applyLines(updateTextCell(lines, { line: li, cell: ci }, content))}
-            onTextEnter={(at) => onTextEnter({ line: li, cell: ci }, at)}
             onEmbedPointerDown={(pos, e) => onEmbedPointerDown(pos, e, line, li)}
           />,
         );
@@ -134,8 +129,6 @@ export default function NoteBodyDocumentView({
             pos={{ line: li, cell: ci }}
             files={files}
             isView
-            onTextChange={(content) => applyLines(updateTextCell(lines, { line: li, cell: ci }, content))}
-            onTextEnter={(at) => onTextEnter({ line: li, cell: ci }, at)}
           />
         </div>,
       );

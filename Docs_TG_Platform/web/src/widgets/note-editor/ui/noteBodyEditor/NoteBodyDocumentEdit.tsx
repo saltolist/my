@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 
-import { splitBodyHighlightParts } from "@/shared/lib/noteEmbeds/lineHighlight";
+import { splitLineHighlightParts } from "@/shared/lib/noteEmbeds/lineHighlight";
 
 type Props = {
   body: string;
@@ -15,7 +15,7 @@ function autoGrow(el: HTMLTextAreaElement) {
 }
 
 function renderHighlight(body: string): ReactNode {
-  const parts = splitBodyHighlightParts(body);
+  const parts = splitLineHighlightParts(body);
   if (parts.length === 0) {
     return "\u00a0";
   }

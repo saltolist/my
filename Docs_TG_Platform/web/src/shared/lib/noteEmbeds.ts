@@ -49,7 +49,7 @@ export {
 
 export { buildNotePreviewLines } from "@/shared/lib/noteEmbeds/preview";
 
-export { splitBodyHighlightParts, splitLineHighlightParts } from "@/shared/lib/noteEmbeds/lineHighlight";
+export { splitLineHighlightParts } from "@/shared/lib/noteEmbeds/lineHighlight";
 
 export {
   bodyToEditLines,

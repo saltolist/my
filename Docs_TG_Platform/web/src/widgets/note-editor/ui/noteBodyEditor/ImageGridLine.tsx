@@ -63,23 +63,41 @@ export default function ImageGridLine({
       ) : null}
       {slots.map((item, slotIdx) =>
         item ? (
-          <NoteBodyCell
-            key={`ig-${lineIndex}-${slotIdx}`}
-            cell={item.cell}
-            pos={item.pos}
-            files={files}
-            isView={isView}
-            isPlaceholder={item.isPlaceholder}
-            onTextChange={() => {}}
-            onTextEnter={() => {}}
-            onEmbedPointerDown={onEmbedPointerDown}
-            isDragLifted={
-              !item.isPlaceholder &&
-              dragFrom != null &&
-              dragFrom.line === lineIndex &&
-              dragFrom.cell === item.pos.cell
-            }
-          />
+          isView ? (
+            <NoteBodyCell
+              key={`ig-${lineIndex}-${slotIdx}`}
+              cell={item.cell}
+              pos={item.pos}
+              files={files}
+              isView
+              isPlaceholder={item.isPlaceholder}
+              onEmbedPointerDown={onEmbedPointerDown}
+              isDragLifted={
+                !item.isPlaceholder &&
+                dragFrom != null &&
+                dragFrom.line === lineIndex &&
+                dragFrom.cell === item.pos.cell
+              }
+            />
+          ) : (
+            <NoteBodyCell
+              key={`ig-${lineIndex}-${slotIdx}`}
+              cell={item.cell}
+              pos={item.pos}
+              files={files}
+              isView={false}
+              isPlaceholder={item.isPlaceholder}
+              onTextChange={() => {}}
+              onTextEnter={() => {}}
+              onEmbedPointerDown={onEmbedPointerDown}
+              isDragLifted={
+                !item.isPlaceholder &&
+                dragFrom != null &&
+                dragFrom.line === lineIndex &&
+                dragFrom.cell === item.pos.cell
+              }
+            />
+          )
         ) : (
           <div
             key={`empty-${lineIndex}-${slotIdx}`}

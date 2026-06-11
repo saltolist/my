@@ -1,19 +1,18 @@
 "use client";
 
 import { FilterToolbar, FilterToolbarAction } from "@/widgets/filter-toolbar";
-import { buildListContextFilterTabs } from "@/shared/lib/listContextFilter";
 import { type PostWorkspace } from "@/widgets/post-workspace";
 import PostChatsList from "@/screens/post/ui/PostChatsList";
 import type { Post } from "@/shared/types";
 
 type Props = {
   post: Post;
-  ui: Pick<PostWorkspace["ui"], "listSearch" | "listContextFilter" | "setListContextFilter">;
+  ui: Pick<PostWorkspace["ui"], "listSearch">;
   actions: Pick<PostWorkspace["actions"], "startNewChat" | "openLocalChat">;
 };
 
 export default function PostChatsView({ post, ui, actions }: Props) {
-  const { listSearch, listContextFilter, setListContextFilter } = ui;
+  const { listSearch } = ui;
   const { startNewChat, openLocalChat } = actions;
 
   return (
@@ -21,12 +20,6 @@ export default function PostChatsView({ post, ui, actions }: Props) {
       <FilterToolbar
         className="post-subpage-toolbar"
         width="composer"
-        tabs={buildListContextFilterTabs(true)}
-        mobileTabs={buildListContextFilterTabs(false)}
-        value={listContextFilter}
-        onChange={setListContextFilter}
-        selectClassName="post-list-context-filter-select"
-        tabAriaLabel="Фильтр по контексту"
         action={
           <FilterToolbarAction
             label="Новый чат"
@@ -36,12 +29,7 @@ export default function PostChatsView({ post, ui, actions }: Props) {
           />
         }
       />
-      <PostChatsList
-        post={post}
-        search={listSearch}
-        contextFilter={listContextFilter}
-        onOpenChat={openLocalChat}
-      />
+      <PostChatsList post={post} search={listSearch} onOpenChat={openLocalChat} />
     </div>
   );
 }

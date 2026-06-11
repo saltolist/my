@@ -2,20 +2,17 @@
 
 import { EmptyState } from "@/shared/ui/empty-state";
 import { chatListAssistantLine, chatListUserLine } from "@/shared/lib/helpers";
-import { matchesListContextFilter } from "@/shared/lib/listContextFilter";
-import type { NoteListFilter, Post } from "@/shared/types";
+import type { Post } from "@/shared/types";
 
 type Props = {
   post: Post;
   search: string;
-  contextFilter: NoteListFilter;
   onOpenChat: (chatId: number) => void;
 };
 
-export default function PostChatsList({ post, search, contextFilter, onOpenChat }: Props) {
+export default function PostChatsList({ post, search, onOpenChat }: Props) {
   const q = search.trim().toLowerCase();
   const chats = post.chats.filter((c) => {
-    if (!matchesListContextFilter(c.ai, contextFilter)) return false;
     if (!q) return true;
     const u = chatListUserLine(c.history, c.title || "Без названия");
     const a = chatListAssistantLine(c.history, c.preview || "");
@@ -28,10 +25,7 @@ export default function PostChatsList({ post, search, contextFilter, onOpenChat 
         {post.chats.length === 0 ? (
           <EmptyState icon="💬" message="Пока нет локальных чатов" />
         ) : chats.length === 0 ? (
-          <EmptyState
-            icon="💬"
-            message={contextFilter === "all" ? "Ничего не найдено" : "Нет чатов по фильтру"}
-          />
+          <EmptyState icon="💬" message="Ничего не найдено" />
         ) : (
           chats.map((c) => {
             const userLine = chatListUserLine(c.history, c.title || "Без названия");

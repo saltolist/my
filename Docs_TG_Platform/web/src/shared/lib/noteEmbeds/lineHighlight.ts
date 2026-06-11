@@ -2,11 +2,6 @@ import { EMBED_RE } from "@/shared/lib/noteEmbeds/types";
 
 export type LineHighlightPart = { type: "text" | "embed"; value: string };
 
-/** Разбить тело заметки на текст и токены `[file]` для подсветки в edit. */
-export function splitBodyHighlightParts(body: string): LineHighlightPart[] {
-  return splitLineHighlightParts(body);
-}
-
 /** Разбить строку на текст и токены `[file]` для подсветки в edit. */
 export function splitLineHighlightParts(line: string): LineHighlightPart[] {
   const parts: LineHighlightPart[] = [];
