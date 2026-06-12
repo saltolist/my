@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, type CSSProperties, type Ref } from "react";
+import { useMemo, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import {
   buildChannelMetricSummaries,
@@ -36,36 +36,20 @@ export default function ChannelMetricBars({ periodIndex }: ChannelMetricBarsProp
   );
 
   return (
-    <table
-      className={`channel-metrics-table${isMobile ? " channel-metrics-table--mobile" : ""}`}
+    <div
+      className={`channel-metrics-grid model-usage-grid${isMobile ? " channel-metrics-grid--mobile" : ""}`}
       style={{ "--channel-metric-rows": metrics.length } as CSSProperties}
     >
-      <colgroup>
-        <col className="cmt-col-metric" />
-        {!isMobile ? <col className="cmt-col-bar" /> : null}
-        <col className="cmt-col-growth" />
-        <col className="cmt-col-quantity" />
-      </colgroup>
-      <thead>
-        <tr>
-          <th className="cmt-metric" scope="col">
-            Метрика
-          </th>
-          {!isMobile ? <th className="cmt-bar" scope="col" aria-hidden /> : null}
-          <th className="cmt-growth" scope="col">
-            Прирост
-          </th>
-          <th className="cmt-quantity" scope="col">
-            Количество
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {metrics.map((metric) => (
-          <ChannelMetricBarRow key={metric.id} metric={metric} isMobile={isMobile} />
-        ))}
-      </tbody>
-    </table>
+      <div className="model-usage-head channel-metrics-head">
+        <span>Метрика</span>
+        {!isMobile ? <span className="model-usage-head-bar" aria-hidden /> : null}
+        <span>Прирост</span>
+        <span>Количество</span>
+      </div>
+      {metrics.map((metric) => (
+        <ChannelMetricBarRow key={metric.id} metric={metric} isMobile={isMobile} />
+      ))}
+    </div>
   );
 }
 
@@ -94,53 +78,47 @@ function ChannelMetricBarRow({
   const fillPercent = metric.barFillPercent;
 
   return (
-    <tr
-      ref={rowRef as Ref<HTMLTableRowElement>}
-      className={`channel-metric-row${open && isMobile ? " channel-metric-row--tooltip-open" : ""}`}
+    <div
+      ref={rowRef}
+      className={`bar-row model-usage-bar channel-metric-row${open && isMobile ? " channel-metric-row--tooltip-open" : ""}`}
       style={{ "--bar-row-color": metric.color } as CSSProperties}
       tabIndex={isMobile ? 0 : undefined}
       aria-expanded={isMobile ? open : undefined}
       {...(isMobile ? mobileHandlers : {})}
     >
-      <td className="cmt-metric">
-        <div className="bar-label">
-          <span className="bar-label-text-clip">{metric.label}</span>
-          {isMobile && open ? (
-            <div className="model-usage-tooltip model-usage-tooltip--anchored-row">
-              <ChannelMetricTooltipBody metric={metric} />
-            </div>
-          ) : null}
-        </div>
-      </td>
-      {!isMobile ? (
-        <td className="cmt-bar">
-          <div className="channel-metric-bar-zone">
-            <div
-              className="bar-track model-usage-track channel-metric-track"
-              tabIndex={0}
-              style={{ "--fill-width": `${fillPercent}%` } as CSSProperties}
-              {...desktopTooltipHandlers}
-            >
-              <div
-                className="bar-fill"
-                style={
-                  {
-                    "--fill-width": `${fillPercent}%`,
-                    "--bar-color": metric.color,
-                    backgroundColor: metric.color,
-                  } as CSSProperties
-                }
-              />
-            </div>
+      <div className="bar-label">
+        <span className="bar-label-text-clip">{metric.label}</span>
+        {isMobile && open ? (
+          <div className="model-usage-tooltip model-usage-tooltip--anchored-row">
+            <ChannelMetricTooltipBody metric={metric} />
           </div>
-        </td>
+        ) : null}
+      </div>
+      {!isMobile ? (
+        <div
+          className="bar-track model-usage-track channel-metric-track"
+          tabIndex={0}
+          style={{ "--fill-width": `${fillPercent}%` } as CSSProperties}
+          {...desktopTooltipHandlers}
+        >
+          <div
+            className="bar-fill"
+            style={
+              {
+                "--fill-width": `${fillPercent}%`,
+                "--bar-color": metric.color,
+                backgroundColor: metric.color,
+              } as CSSProperties
+            }
+          />
+        </div>
       ) : null}
-      <td className="cmt-growth channel-metric-value channel-metric-value--growth">
+      <div className="channel-metric-value channel-metric-value--growth">
         {metric.displayGrowth}
-      </td>
-      <td className="cmt-quantity channel-metric-value channel-metric-value--quantity">
+      </div>
+      <div className="channel-metric-value channel-metric-value--quantity">
         {metric.displayQuantity}
-      </td>
+      </div>
       {!isMobile && desktopTooltipPos && typeof document !== "undefined"
         ? createPortal(
             <div
@@ -152,6 +130,6 @@ function ChannelMetricBarRow({
             document.body,
           )
         : null}
-    </tr>
+    </div>
   );
 }

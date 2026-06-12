@@ -170,7 +170,7 @@
     .analytics-metrics-card,
     .channel-reactions-card
   ),
-.analytics-page .analytics-card:has(.analytics-top-posts-table, .channel-metrics-table) {
+.analytics-page .analytics-card:has(.analytics-top-posts-table, .channel-metrics-grid) {
   overflow: visible;
 }
 .analytics-page .analytics-chart-card {
@@ -339,106 +339,69 @@
   align-items: flex-start;
   min-height: 0;
 }
-.channel-metrics-table {
-  --channel-metric-growth-col: 80px;
-  --channel-metric-quantity-col: 88px;
-  --channel-metric-col-gap: 10px;
-  --channel-metric-row-gap-min: 10px;
+/* Прирост по метрикам канала — та же сетка, что «Модели за период» в профиле */
+.channel-metrics-grid.model-usage-grid {
   width: 100%;
   flex: 1 1 auto;
   min-height: 0;
-  border-collapse: separate;
-  border-spacing: 0 var(--channel-metric-row-gap-min);
-  table-layout: auto;
+  grid-template-columns:
+    max-content
+    minmax(0, 1fr)
+    max-content
+    max-content;
 }
-.channel-metrics-table thead th {
-  padding: 0 0 2px;
-  color: var(--text3);
-  font-size: 10px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  vertical-align: bottom;
-  line-height: 1.2;
+.channel-metrics-grid--mobile.model-usage-grid {
+  grid-template-columns:
+    minmax(0, 1fr)
+    max-content
+    max-content;
 }
-.channel-metrics-table tbody td {
-  padding: 0;
-  vertical-align: middle;
-}
-.channel-metrics-table:not(.channel-metrics-table--mobile) {
-  table-layout: fixed;
-}
-/* Ширина по содержимому (как max-content в grid), не 1% от таблицы */
-.channel-metrics-table:not(.channel-metrics-table--mobile) .cmt-col-metric {
-  width: 11rem;
-}
-.channel-metrics-table:not(.channel-metrics-table--mobile) .cmt-col-growth {
-  width: var(--channel-metric-growth-col);
-}
-.channel-metrics-table:not(.channel-metrics-table--mobile) .cmt-col-quantity {
-  width: var(--channel-metric-quantity-col);
-}
-/* .cmt-col-bar без width — оставшееся место под цветные полосы */
-.channel-metrics-table .cmt-metric {
-  text-align: left;
-  padding-right: var(--channel-metric-col-gap);
-  white-space: nowrap;
-}
-.channel-metrics-table:not(.channel-metrics-table--mobile) .cmt-metric .bar-label {
-  max-width: 100%;
-}
-.channel-metrics-table:not(.channel-metrics-table--mobile) .cmt-metric .bar-label-text-clip {
-  display: inline-block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-}
-.channel-metrics-table:not(.channel-metrics-table--mobile) .cmt-bar {
-  width: 100%;
-  padding-left: 0;
-  padding-right: var(--channel-metric-col-gap);
-}
-.channel-metrics-table:not(.channel-metrics-table--mobile) .cmt-growth,
-.channel-metrics-table:not(.channel-metrics-table--mobile) .cmt-quantity,
-.channel-metrics-table:not(.channel-metrics-table--mobile) thead th.cmt-growth,
-.channel-metrics-table:not(.channel-metrics-table--mobile) thead th.cmt-quantity {
-  white-space: nowrap;
-  text-align: right;
-  padding-left: var(--channel-metric-col-gap);
-}
-.channel-metrics-table--mobile thead th.cmt-growth,
-.channel-metrics-table--mobile thead th.cmt-quantity,
-.channel-metrics-table--mobile tbody td.cmt-growth,
-.channel-metrics-table--mobile tbody td.cmt-quantity {
-  white-space: nowrap;
-}
-.channel-metrics-table--mobile {
-  --channel-metric-growth-col: 72px;
-  --channel-metric-quantity-col: 88px;
-  table-layout: fixed;
-}
-.channel-metrics-table--mobile .cmt-col-metric {
-  width: auto;
-}
-.channel-metrics-table--mobile .cmt-col-growth {
-  width: var(--channel-metric-growth-col);
-}
-.channel-metrics-table--mobile .cmt-col-quantity {
-  width: var(--channel-metric-quantity-col);
-}
-.channel-metrics-table--mobile .cmt-metric {
-  padding-right: 8px;
-}
-.channel-metrics-table--mobile thead th.cmt-growth,
-.channel-metrics-table--mobile thead th.cmt-quantity {
-  padding: 0 0 2px;
+.channel-metrics-head.model-usage-head > span:nth-child(3),
+.channel-metrics-head.model-usage-head > span:nth-child(4) {
   text-align: right;
 }
-.channel-metrics-table--mobile tbody td.cmt-growth,
-.channel-metrics-table--mobile tbody td.cmt-quantity {
-  padding: 0;
+.channel-metrics-grid .bar-row.model-usage-bar > .channel-metric-value {
   text-align: right;
+  white-space: nowrap;
+}
+.channel-metrics-grid--mobile .model-usage-head .model-usage-head-bar {
+  display: none;
+}
+.channel-metrics-grid--mobile .channel-metrics-head.model-usage-head > span:nth-child(3) {
+  grid-column: 2;
+}
+.channel-metrics-grid--mobile .channel-metrics-head.model-usage-head > span:nth-child(4) {
+  grid-column: 3;
+}
+.channel-metrics-grid--mobile .bar-row.model-usage-bar > .channel-metric-value--growth {
+  grid-column: 2;
+}
+.channel-metrics-grid--mobile .bar-row.model-usage-bar > .channel-metric-value--quantity {
+  grid-column: 3;
+}
+.channel-metrics-grid .model-usage-head > span:first-child {
+  grid-column: 1;
+}
+.channel-metrics-grid .model-usage-head .model-usage-head-bar {
+  grid-column: 2;
+}
+.channel-metrics-grid .model-usage-head > span:nth-child(3) {
+  grid-column: 3;
+}
+.channel-metrics-grid .model-usage-head > span:nth-child(4) {
+  grid-column: 4;
+}
+.channel-metrics-grid .bar-row.model-usage-bar > .bar-label {
+  grid-column: 1;
+}
+.channel-metrics-grid .bar-row.model-usage-bar > .bar-track {
+  grid-column: 2;
+}
+.channel-metrics-grid .bar-row.model-usage-bar > .channel-metric-value--growth {
+  grid-column: 3;
+}
+.channel-metrics-grid .bar-row.model-usage-bar > .channel-metric-value--quantity {
+  grid-column: 4;
 }
 .channel-reactions-panel {
   flex: 0 1 auto;
@@ -1023,30 +986,11 @@
   background: var(--bar-row-color, var(--accent));
   flex-shrink: 0;
 }
-.channel-metrics-table:not(.channel-metrics-table--mobile) .channel-metric-bar-zone {
-  min-width: 0;
-  max-width: 100%;
-  width: 100%;
-  padding-left: 0;
-  box-sizing: border-box;
-}
-.channel-metrics-table--mobile .channel-metric-bar-zone {
-  min-width: 0;
-  max-width: 100%;
-}
-.channel-metric-row .channel-metric-track {
-  flex: none;
-  width: 100%;
-  max-width: 100%;
-  display: block;
-  overflow: hidden;
-  position: relative;
-}
 .channel-metric-row .channel-metric-track .bar-fill {
   display: block;
   box-sizing: border-box;
 }
-.channel-metrics-table .channel-metric-value {
+.channel-metrics-grid .channel-metric-value {
   color: var(--text2);
   font-size: 12px;
   font-weight: 500;
@@ -1486,6 +1430,19 @@ html[data-content-adapt-ge-761]
       minmax(0, max-content);
     max-width: 100%;
   }
+.channel-metrics-grid.model-usage-grid {
+    grid-template-columns:
+      max-content
+      minmax(0, 1fr)
+      max-content
+      max-content;
+  }
+.channel-metrics-grid--mobile.model-usage-grid {
+    grid-template-columns:
+      minmax(0, 1fr)
+      max-content
+      max-content;
+  }
 .bar-row.model-usage-bar > .bar-label {
     width: auto;
   }
@@ -1660,7 +1617,7 @@ html[data-page-header-le-1130]
     .analytics-metrics-card-body {
     overflow: visible;
   }
-#screen-analytics .channel-metrics-table {
+#screen-analytics .channel-metrics-grid {
     overflow: visible;
   }
 #screen-analytics .channel-metric-row {
@@ -1720,7 +1677,7 @@ html[data-page-header-le-1130]
     .analytics-metrics-card,
     .channel-reactions-card
   ),
-  #screen-analytics .analytics-card:has(.analytics-top-posts-table, .channel-metrics-table) {
+  #screen-analytics .analytics-card:has(.analytics-top-posts-table, .channel-metrics-grid) {
     overflow: visible;
     max-width: 100%;
     min-width: 0;
@@ -1870,7 +1827,7 @@ html[data-page-header-le-1130]
     font-size: 11px;
     line-height: 1.2;
   }
-#screen-analytics .channel-metrics-table {
+#screen-analytics .channel-metrics-grid {
     max-width: 100%;
     min-width: 0;
   }
