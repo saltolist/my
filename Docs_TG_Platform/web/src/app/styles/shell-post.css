@@ -496,9 +496,13 @@
   }
 }
 @media (max-width: 760px) {
+  .page-header--post:not(.page-header--post-with-search) .page-header-center {
+    display: none;
+  }
   .page-header--post:not(.page-header--post-with-search) .page-header-left {
-    flex: 1 1 auto;
+    flex: 1 1 0;
     min-width: 0;
+    overflow: hidden;
   }
   .page-header--post:not(.page-header--post-with-search) .page-header-left .breadcrumb {
     flex: 1 1 0;

@@ -206,6 +206,16 @@ body.mobile-sidebar-open #sidebar {
     justify-self: auto;
     max-width: none;
   }
+/* Пустая центральная колонка не раздувается между крошками и правым тулбаром */
+.page-header .page-header-center:empty {
+    display: none;
+  }
+.page-header:has(.page-header-left .breadcrumb) .page-header-left .breadcrumb {
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+    max-width: 100%;
+  }
 .page-header-right {
     flex: 0 0 auto;
     margin-left: auto;
