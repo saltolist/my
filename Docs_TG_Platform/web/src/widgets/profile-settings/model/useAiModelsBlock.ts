@@ -17,6 +17,7 @@ import {
   useDomainSelector,
   useUi,
 } from "@/app/model/store";
+import { useUpdateAiProfile } from "@/entities/channel";
 import type { AiProfileConfig, LlmModel } from "@/shared/types";
 
 export function useAiModelsBlock() {
@@ -25,6 +26,7 @@ export function useAiModelsBlock() {
   const dispatch = useDomainDispatch();
   const { applyPatch } = useDomainActions();
   const { setDirty } = useUi();
+  const updateAiProfile = useUpdateAiProfile();
 
   const update = (next: AiProfileConfig) => dispatch(domainActions.updateAiConfig(next));
 
@@ -46,6 +48,7 @@ export function useAiModelsBlock() {
   const save = () => {
     if (!dirty) return;
     applyPatch({ modelSettingsSavedSnapshot: currentSnapshot });
+    void updateAiProfile.mutateAsync(cfg);
   };
 
   const cancel = () => {

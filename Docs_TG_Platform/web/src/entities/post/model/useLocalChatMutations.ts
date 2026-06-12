@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useRepositories } from "@/app/providers/RepositoryProvider";
+import { assistantPlainText } from "@/entities/message";
 import { getCachedPost, setCachedPost } from "@/entities/post/lib/getCachedPost";
 import { fetchPost, patchPostChatHistory } from "@/entities/post/lib/patchPostChatHistory";
 import { queryKeys } from "@/shared/api/queryKeys";
@@ -13,7 +14,7 @@ import type { ChatMessage, LocalChat } from "@/shared/types";
 import { useUpdatePost } from "./usePosts";
 
 function previewForMessage(message: ChatMessage): string | undefined {
-  const text = message.text?.trim();
+  const text = assistantPlainText(message).trim();
   if (!text) return undefined;
   return text.slice(0, 80);
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { BrainIcon } from "@/shared/ui/model-picker";
 import { BranchChevronIcon } from "@/entities/message";
+import AiMsgModelHint from "@/widgets/chat-thread/ui/AiMsgModelHint";
 
 type Props = {
   modelTitle: string;
@@ -30,18 +30,7 @@ export default function ChatAiVariantNav({
       >
         <BranchChevronIcon dir="left" />
       </button>
-      <span
-        className={`ai-msg-model-hint msg-ai-variant-model${modelTitle.trim() ? "" : " msg-ai-variant-model--empty"}`}
-        role="img"
-        tabIndex={modelTitle.trim() ? 0 : undefined}
-        aria-label={modelTitle.trim() ? `Модель: ${modelTitle}` : "Модель"}
-        title={modelTitle.trim() || undefined}
-        data-tooltip={modelTitle.trim() || undefined}
-      >
-        <span className="ai-msg-toolbar-model-ico" aria-hidden>
-          <BrainIcon />
-        </span>
-      </span>
+      <AiMsgModelHint modelTitle={modelTitle} />
       <button
         type="button"
         className="msg-user-branch-arrow"

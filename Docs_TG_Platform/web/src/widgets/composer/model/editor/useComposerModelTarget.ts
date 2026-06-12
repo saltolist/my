@@ -2,31 +2,31 @@
 
 import { useEffect, useMemo } from "react";
 
-import { useComposer, useComposerLabels } from "@/app/model/store/composer-store";
+import { useComposer } from "@/app/model/store/composer-store";
+import { selectAiProfileConfig, useProfileDraftStore } from "@/app/model/store/profile-draft-store";
 import { useComposerTargetStore } from "@/app/model/store/composer-target-store";
-import { useAiProfile } from "@/entities/channel";
 import { isWebSearchVisibleForLlm } from "@/shared/config/composer";
 import type { ComposerScope } from "@/shared/types";
 
 export function useComposerModelTarget(scope: ComposerScope) {
-  const { data: cfg } = useAiProfile();
+  const cfg = useProfileDraftStore(selectAiProfileConfig);
   const target = useComposerTargetStore((s) => s.targets[scope]);
   const setLlmId = useComposerTargetStore((s) => s.setLlmId);
   const { setComposerLlm, setComposerWeb } = useComposer();
 
   const llmOptions = useMemo(
-    () => (cfg?.llmModels ?? []).filter((m) => m.provider && m.model && m.active),
-    [cfg?.llmModels],
+    () => cfg.llmModels.filter((m) => m.provider && m.model && m.active),
+    [cfg.llmModels],
   );
 
   useEffect(() => {
-    if (!cfg || target.llmId || llmOptions.length === 0) return;
+    if (target.llmId || llmOptions.length === 0) return;
     setLlmId(scope, llmOptions[0]!.id);
-  }, [cfg, llmOptions, scope, setLlmId, target.llmId]);
+  }, [llmOptions, scope, setLlmId, target.llmId]);
 
   const webOptionsAll = useMemo(
-    () => (cfg?.webSearchModels ?? []).filter((m) => m.provider && m.model && m.active),
-    [cfg?.webSearchModels],
+    () => cfg.webSearchModels.filter((m) => m.provider && m.model && m.active),
+    [cfg.webSearchModels],
   );
   const selectedLlm = llmOptions.find((m) => m.id === target.llmId);
   const webOptions = webOptionsAll.filter((m) => isWebSearchVisibleForLlm(m, selectedLlm));
@@ -39,12 +39,12 @@ export function useComposerModelTarget(scope: ComposerScope) {
       webOptions,
       llmId: target.llmId,
       webId: webValue,
-      isMulti: cfg?.multiResponseEnabled ?? false,
+      isMulti: cfg.multiResponseEnabled,
       setComposerLlm,
       setComposerWeb,
     }),
     [
-      cfg?.multiResponseEnabled,
+      cfg.multiResponseEnabled,
       llmOptions,
       setComposerLlm,
       setComposerWeb,

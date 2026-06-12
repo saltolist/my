@@ -8,6 +8,7 @@ import {
   patchGlobalChatHistory,
   syncGlobalChatInCache,
 } from "@/entities/chat/lib/patchGlobalChatHistory";
+import { assistantPlainText } from "@/entities/message";
 import { appendToActiveHistory } from "@/shared/lib/chatPaths";
 import type { ChatMessage, GlobalChat } from "@/shared/types";
 
@@ -52,7 +53,7 @@ export function useUpdateGlobalChat() {
 }
 
 function previewForMessage(message: ChatMessage): string | undefined {
-  const text = message.text?.trim();
+  const text = assistantPlainText(message).trim();
   if (!text) return undefined;
   return text.slice(0, 80);
 }

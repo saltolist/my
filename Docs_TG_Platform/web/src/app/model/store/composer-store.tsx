@@ -16,9 +16,9 @@ import {
   resolveLlmLabel,
   resolveWebLabel,
 } from "@/app/model/store/composer/helpers";
+import { selectAiProfileConfig, useProfileDraftStore } from "@/app/model/store/profile-draft-store";
 import { useCreateGlobalChat, usePushGlobalChatMessage } from "@/entities/chat";
 import { useAddLocalChat, usePushLocalChatMessage } from "@/entities/post";
-import { useAiProfile } from "@/entities/channel";
 import { getGlobalReply, getPostReply } from "@/shared/lib/replies";
 import { routes } from "@/shared/lib/routes";
 import { truncate } from "@/shared/lib/helpers";
@@ -46,7 +46,7 @@ export type ComposerContextValue = {
 const ComposerContext = createContext<ComposerContextValue | null>(null);
 
 export function ComposerProvider({ children }: { children: ReactNode }) {
-  const { data: aiProfile } = useAiProfile();
+  const aiProfile = useProfileDraftStore(selectAiProfileConfig);
   const createChat = useCreateGlobalChat();
   const pushMessage = usePushGlobalChatMessage();
   const addLocalChat = useAddLocalChat();
@@ -204,12 +204,12 @@ export function useComposer(): ComposerContextValue {
 }
 
 export function useComposerLabels() {
-  const { data: cfg } = useAiProfile();
+  const cfg = useProfileDraftStore(selectAiProfileConfig);
   return useMemo(
     () => ({
-      llmLabel: (id: string) => (cfg ? resolveLlmLabel(cfg, id) : ""),
-      webLabel: (id: string) => (cfg ? resolveWebLabel(cfg, id) : ""),
-      multiResponsePairs: () => (cfg ? buildMultiResponsePairs(cfg.llmModels, cfg.webSearchModels) : []),
+      llmLabel: (id: string) => resolveLlmLabel(cfg, id),
+      webLabel: (id: string) => resolveWebLabel(cfg, id),
+      multiResponsePairs: () => buildMultiResponsePairs(cfg.llmModels, cfg.webSearchModels),
     }),
     [cfg],
   );

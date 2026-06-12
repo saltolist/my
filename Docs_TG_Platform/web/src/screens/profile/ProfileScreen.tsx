@@ -4,7 +4,6 @@ import { ChannelTab } from "@/widgets/profile-settings";
 import ProfileAnalyticsPanel from "@/screens/profile/ui/ProfileAnalyticsPanel";
 import ProfileScreenHeader from "@/screens/profile/ui/ProfileScreenHeader";
 import ProfileSettingsPanel from "@/screens/profile/ui/ProfileSettingsPanel";
-import { ProfileHydrator } from "@/widgets/profile-settings/ui/ProfileHydrator";
 import { useProfileScreen } from "@/screens/profile/model/useProfileScreen";
 
 export function ProfileScreen() {
@@ -12,7 +11,6 @@ export function ProfileScreen() {
 
   return (
     <>
-      <ProfileHydrator />
       <ProfileScreenHeader data={data} ui={ui} actions={actions} />
       <div className="profile-page">
         <div className="profile-scroll-inner">
