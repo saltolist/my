@@ -104,7 +104,7 @@ describe("buildPostBreadcrumbTrail", () => {
     expect(items[2]?.variant).toBeUndefined();
   });
 
-  it("builds active chat trail without truncating chat title", () => {
+  it("truncates active chat title", () => {
     const items = buildPostBreadcrumbTrail({
       ...base,
       currentPostChatId: 10,
@@ -112,7 +112,7 @@ describe("buildPostBreadcrumbTrail", () => {
     });
     expect(items).toHaveLength(3);
     expect(items[2]?.label).toBe("Chat title");
-    expect(items[2]?.variant).toBeUndefined();
+    expect(items[2]?.variant).toBe("truncate");
   });
 });
 

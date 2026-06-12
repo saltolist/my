@@ -1,6 +1,52 @@
 /* Home + global chat screen styles */
 /* Extracted from globals.css */
 
+/* ── GChat screen header: крошки сокращаются как на экране заметки ── */
+@media (min-width: 761px) {
+  #screen-gchat .page-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+  #screen-gchat .page-header-center {
+    display: none;
+  }
+  #screen-gchat .page-header-right {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+  #screen-gchat .page-header-left {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+  #screen-gchat .page-header-left .breadcrumb {
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+}
+@media (max-width: 760px) {
+  #screen-gchat .page-header-center {
+    display: none;
+  }
+  #screen-gchat .page-header-left {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+  #screen-gchat .page-header-left .breadcrumb {
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+}
+
 /* ── Scrollbar + iOS scroll (gchat messages) ── */
 .gchat-messages::-webkit-scrollbar {
   width: var(--sb-w);

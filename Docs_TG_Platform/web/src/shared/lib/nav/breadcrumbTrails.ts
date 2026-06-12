@@ -90,7 +90,7 @@ export function buildPostBreadcrumbTrail({
     return [
       { label: "Лента", onClick: onNavigateFeed },
       { label: postIntermediateCrumb, onClick: onResetToPostChatRoot, variant: "title" },
-      { label: activeChat.title, current: true },
+      { label: activeChat.title, current: true, variant: "truncate" },
     ];
   }
 

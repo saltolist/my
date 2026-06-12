@@ -2,30 +2,41 @@
 
 import { MessageSquare } from "lucide-react";
 
-import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { Composer } from "@/widgets/composer";
-import { PageHeader } from "@/widgets/page-header";
 import { ScreenShell } from "@/screens/_ui/screen-shell";
 import { useGChatScreen } from "@/screens/gchat/model/useGChatScreen";
+import { GChatScreenHeader } from "@/screens/gchat/ui/GChatScreenHeader";
 import { GlobalChatMessages } from "@/screens/gchat/ui/GlobalChatMessages";
 
 export function GChatScreen() {
-  const onBack = useScreenBack();
   const {
     gchatId,
     chat,
     isLoading,
     error,
+    omnichannel,
     flatMessages,
     lastAssistantFlat,
     messagesRef,
     sendGChat,
+    navigateBackToChats,
+    handleDeleteChat,
   } = useGChatScreen();
+
+  const header = (
+    <GChatScreenHeader
+      chatTitle={chat?.title ?? ""}
+      omnichannel={omnichannel}
+      showDelete={Boolean(chat)}
+      onNavigateBackToChats={navigateBackToChats}
+      onDeleteChat={handleDeleteChat}
+    />
+  );
 
   if (!gchatId) {
     return (
-      <ScreenShell header={<PageHeader title="Глобальный чат" onBack={onBack} />}>
+      <ScreenShell header={header}>
         <EmptyState
           icon={<MessageSquare className="size-5" />}
           message="Укажите чат: /gchat/?id=gc1"
@@ -37,7 +48,7 @@ export function GChatScreen() {
 
   if (isLoading) {
     return (
-      <ScreenShell header={<PageHeader title="Глобальный чат" onBack={onBack} />}>
+      <ScreenShell header={header}>
         <EmptyState icon={<MessageSquare className="size-5" />} message="Загрузка чата…" />
       </ScreenShell>
     );
@@ -45,7 +56,7 @@ export function GChatScreen() {
 
   if (error || !chat) {
     return (
-      <ScreenShell header={<PageHeader title="Глобальный чат" onBack={onBack} />}>
+      <ScreenShell header={header}>
         <EmptyState
           icon={<MessageSquare className="size-5" />}
           message={error?.message ?? "Чат не найден"}
@@ -56,7 +67,7 @@ export function GChatScreen() {
 
   return (
     <>
-      <PageHeader title={chat.title} onBack={onBack} />
+      {header}
       <div className="gchat-layout">
         <GlobalChatMessages
           chatId={gchatId}
