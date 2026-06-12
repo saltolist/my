@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { useComposer } from "@/app/model/store/composer-store";
 import { useNavigationStore } from "@/app/model/store/navigation-store";
@@ -10,7 +10,6 @@ import { usePost, useUpdatePost } from "@/entities/post";
 import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/shared/lib/chatPaths";
 import { postTitle } from "@/shared/lib/helpers";
 import { parseAppPath, routes } from "@/shared/lib/routes";
-import { POST_NEW_SLUG } from "@/shared/lib/staticParams";
 import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
 import { usePostCtxMenuItems } from "@/features/post-context-menu";
 import { useFeedPostLayout } from "@/widgets/feed";
@@ -22,13 +21,11 @@ import type { LocalNote, NoteListFilter, PostMedia, PostMode } from "@/shared/ty
 export function usePostWorkspace() {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const params = useParams<{ id: string }>();
-  const isNew = params.id === POST_NEW_SLUG;
   const parsed = parseAppPath(pathname);
   const currentPostId = useNavigationStore((s) => s.currentPostId);
   const isEditing = useNavigationStore((s) => s.isEditing);
   const setNav = useNavigationStore((s) => s.setNav);
-  const postId = isNew ? null : (currentPostId ?? parsed.postId);
+  const postId = currentPostId ?? parsed.postId;
   const postMode = usePostNavigationStore((s) =>
     postId != null ? s.getMode(postId) : "chat",
   );
@@ -183,10 +180,9 @@ export function usePostWorkspace() {
     setListContextFilter("all");
   }, [post?.id]);
 
-  const headerTitle = post ? postTitle(post) : isNew ? "Новый пост" : "Пост";
+  const headerTitle = post ? postTitle(post) : "Пост";
 
   return {
-    isNew,
     isLoading,
     error,
     data: {

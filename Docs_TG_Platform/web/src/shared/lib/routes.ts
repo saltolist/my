@@ -72,9 +72,6 @@ export function parseAppPath(pathname: string): ParsedAppPath {
   }
 
   if (segments[0] === "post" && segments[1]) {
-    if (segments[1] === POST_NEW_SLUG) {
-      return { ...empty, screen: "post", postId: null, postMode: "chat" };
-    }
     const postId = parsePositiveInt(segments[1]);
     if (!postId) return empty;
     return {
@@ -145,8 +142,8 @@ export const routes = {
   analytics: () => "/analytics/",
   profile: () => "/profile/",
   gchat: (id: string) => `/gchat/?${GCHAT_ID_PARAM}=${encodeURIComponent(id)}`,
-  post: (id: number | string, chatId?: number | null) => {
-    const base = id === POST_NEW_SLUG ? `/post/${POST_NEW_SLUG}/` : `/post/${id}/`;
+  post: (id: number, chatId?: number | null) => {
+    const base = `/post/${id}/`;
     if (chatId != null) return `${base}?chat=${chatId}`;
     return base;
   },
@@ -187,12 +184,18 @@ export function screenFromPath(pathname: string): ScreenId {
   return parseAppPath(pathname).screen;
 }
 
+export function isPostNewPath(pathname: string): boolean {
+  return norm(pathname) === `/post/${POST_NEW_SLUG}/`;
+}
+
 export function getParentPath(pathname: string): string | null {
   const path = norm(pathname);
   if (path === "/") return null;
 
+  if (isPostNewPath(path)) return routes.feed();
+
   const mPost = path.match(/^\/post\/([^/]+)\/$/);
-  if (mPost && mPost[1] !== POST_NEW_SLUG) return routes.feed();
+  if (mPost) return routes.feed();
 
   if (path === "/gchat/" || path.startsWith("/gchat/")) return routes.chats();
   if (path.startsWith("/note/global/")) return routes.notes();
@@ -319,7 +322,7 @@ export function statePatchToHref(
 
   if (screen === "post") {
     const id = patch.currentPostId ?? cur.currentPostId;
-    if (id == null) return routes.post(POST_NEW_SLUG);
+    if (id == null) return routes.feed();
     return routes.post(id, patch.postChatId ?? null);
   }
 

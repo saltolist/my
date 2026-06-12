@@ -1,7 +1,5 @@
 "use client";
 
-import { FileText } from "lucide-react";
-
 import { PostCommentsPanel, usePostWorkspace } from "@/widgets/post-workspace";
 import { PostStatusBadge } from "@/entities/post";
 import { EmptyState } from "@/shared/ui/empty-state";
@@ -12,20 +10,7 @@ import PostNotesView from "@/screens/post/ui/PostNotesView";
 import PostScreenHeader from "@/screens/post/ui/PostScreenHeader";
 
 export function PostScreen() {
-  const { isNew, isLoading, error, data, ui, actions } = usePostWorkspace();
-
-  if (isNew) {
-    return (
-      <div className="post-screen-wrap">
-        <PageHeader className="page-header--post" title="Новый пост" onBack={actions.handleBack} />
-        <EmptyState
-          icon={<FileText className="size-5" />}
-          message="Создание поста — в следующих итерациях."
-          className="min-h-[50vh]"
-        />
-      </div>
-    );
-  }
+  const { isLoading, error, data, ui, actions } = usePostWorkspace();
 
   if (isLoading) {
     return (

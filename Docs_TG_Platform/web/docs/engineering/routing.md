@@ -21,7 +21,7 @@ Screen layout — [pages.md](../ux/pages.md). Flows — [flows.md](../ux/flows.m
 | home | `/` | — |
 | feed | `/feed/` | — |
 | post | `/post/{id}/` | `?chat={localChatId}` optional |
-| post (new) | `/post/new/` | — |
+| post (new) | — | создание только через композер на `/feed/`; `/post/new/` → redirect на feed |
 | gchat | `/gchat/` | `?id={globalChatId}` |
 | note (global) | `/note/global/{id}/` | — |
 | note (local) | `/note/post/{postId}/{noteId}/` | — |
@@ -43,7 +43,7 @@ Path → `ParsedAppPath`:
 |-----------------|----------|-----------|
 | `/` | `home` | defaults |
 | `/feed/` | `feed` | |
-| `/post/new/` | `post` | `postId: null` |
+| `/post/new/` | — | RouteSync → `/feed/` |
 | `/post/{n}/` | `post` | `postId`, `postMode: chat` (default) |
 | `/gchat/` | `gchat` | `gchatId` from path segment if legacy |
 | `/note/new/` | `note` | `noteIsNew: true` |

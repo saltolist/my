@@ -3,6 +3,7 @@ import { queryKeys } from "@/shared/api/queryKeys";
 import { isNoteDirty, noteIdentityKey } from "@/shared/lib/noteDraft";
 import {
   buildRoutePatch,
+  isPostNewPath,
   parseAppPath,
   parseChatSearchParam,
   parseGChatLegacyPath,
@@ -59,6 +60,10 @@ export function syncRouteFromUrl(
   const legacyGchatId = parseGChatLegacyPath(path);
   if (legacyGchatId) {
     return { kind: "redirect", href: routes.gchat(legacyGchatId) };
+  }
+
+  if (isPostNewPath(path)) {
+    return { kind: "redirect", href: routes.feed() };
   }
 
   const legacySub = parsePostLegacySub(path);

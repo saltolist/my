@@ -71,6 +71,11 @@ describe("syncRouteFromUrl", () => {
     expect(result).toEqual({ kind: "redirect", href: "/gchat/?id=gc1" });
   });
 
+  it("redirects /post/new/ to feed (posts are created via composer only)", () => {
+    const result = syncRouteFromUrl("/post/new/", new URLSearchParams(), data);
+    expect(result).toEqual({ kind: "redirect", href: "/feed/" });
+  });
+
   it("redirects legacy post notes subpath with mode", () => {
     const result = syncRouteFromUrl("/post/5/notes/", new URLSearchParams(), data);
     expect(result.kind).toBe("redirect");

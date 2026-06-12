@@ -50,6 +50,16 @@ describe("routes", () => {
 
   it("getParentPath for post", () => {
     expect(getParentPath("/post/1/")).toBe("/feed/");
+    expect(getParentPath("/post/new/")).toBe("/feed/");
+  });
+
+  it("statePatchToHref for post without id goes to feed", () => {
+    expect(
+      statePatchToHref(
+        { screen: "post", currentPostId: null },
+        { screen: "feed", currentPostId: null, postMode: "chat" },
+      ),
+    ).toBe("/feed/");
   });
 
   it("resolveScreenBackAction prefers browser history", () => {
