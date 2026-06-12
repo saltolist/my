@@ -18,7 +18,6 @@ export function GChatScreen() {
     isLoading,
     error,
     flatMessages,
-    historyRevision,
     lastAssistantFlat,
     messagesRef,
     sendGChat,
@@ -62,7 +61,6 @@ export function GChatScreen() {
         <GlobalChatMessages
           chatId={gchatId}
           flatMessages={flatMessages}
-          historyRevision={historyRevision}
           lastAssistantFlat={lastAssistantFlat}
           messagesRef={messagesRef}
         />

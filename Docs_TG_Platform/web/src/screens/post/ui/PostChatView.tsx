@@ -13,7 +13,6 @@ type Props = {
     | "isEditing"
     | "mediaItems"
     | "flatMessages"
-    | "chatHistoryRevision"
     | "lastAssistantFlat"
     | "activeChat"
   >;
@@ -25,8 +24,7 @@ type Props = {
 };
 
 export default function PostChatView({ post, data, ui, actions }: Props) {
-  const { isEditing, mediaItems, flatMessages, chatHistoryRevision, lastAssistantFlat, activeChat } =
-    data;
+  const { isEditing, mediaItems, flatMessages, lastAssistantFlat, activeChat } = data;
   const { phoneFormat, chatScrollRef, postCardRef } = ui;
   const { startEdit, cancelEdit, savePost, openComments, sendPost } = actions;
 
@@ -56,7 +54,6 @@ export default function PostChatView({ post, data, ui, actions }: Props) {
                 }
                 phoneFormat={phoneFormat}
               />
-              <div key={chatHistoryRevision}>
               {flatMessages.map(({ message: m, path }, i) => (
                 <ChatMessage
                   key={path.join("-")}
@@ -70,7 +67,6 @@ export default function PostChatView({ post, data, ui, actions }: Props) {
                   isLastAssistantMessage={m.role === "ai" && i === lastAssistantFlat}
                 />
               ))}
-              </div>
             </div>
           </div>
         </div>

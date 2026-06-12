@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { useComposer } from "@/app/model/store/composer-store";
@@ -11,6 +11,7 @@ import {
   normalizeBranchedHistory,
   visibleHistoryRevision,
 } from "@/shared/lib/chatPaths";
+import { useChatThreadAutoScroll } from "@/shared/lib/hooks/useChatThreadAutoScroll";
 import { parseGChatSearchParam } from "@/shared/lib/routes";
 
 export function useGChatScreen() {
@@ -25,11 +26,7 @@ export function useGChatScreen() {
   const flatMessages = flattenVisibleWithPaths(history);
   const lastAssistantFlat = lastAssistantFlatIndex(flatMessages);
 
-  useEffect(() => {
-    if (messagesRef.current) {
-      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
-    }
-  }, [flatMessages.length]);
+  useChatThreadAutoScroll(messagesRef, flatMessages.length, historyRevision);
 
   return {
     gchatId,
@@ -37,7 +34,6 @@ export function useGChatScreen() {
     isLoading,
     error,
     flatMessages,
-    historyRevision,
     lastAssistantFlat,
     messagesRef,
     sendGChat,

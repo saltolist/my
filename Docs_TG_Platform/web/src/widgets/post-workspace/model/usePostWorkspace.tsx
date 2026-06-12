@@ -15,6 +15,7 @@ import {
 } from "@/shared/lib/chatPaths";
 import { postTitle } from "@/shared/lib/helpers";
 import { parseAppPath, routes } from "@/shared/lib/routes";
+import { useChatThreadAutoScroll } from "@/shared/lib/hooks/useChatThreadAutoScroll";
 import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
 import { usePostCtxMenuItems } from "@/features/post-context-menu";
 import { useFeedPostLayout } from "@/widgets/feed";
@@ -170,11 +171,12 @@ export function usePostWorkspace() {
     [post, updatePost],
   );
 
-  useEffect(() => {
-    if (postMode === "chat" && chatScrollRef.current) {
-      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
-    }
-  }, [flatMessages.length, postMode]);
+  useChatThreadAutoScroll(
+    chatScrollRef,
+    flatMessages.length,
+    chatHistoryRevision,
+    postMode === "chat",
+  );
 
   useEffect(() => {
     setListContextFilter("all");
@@ -192,7 +194,6 @@ export function usePostWorkspace() {
       currentPostChatId,
       activeChat,
       flatMessages,
-      chatHistoryRevision,
       lastAssistantFlat,
       mediaItems,
     },
