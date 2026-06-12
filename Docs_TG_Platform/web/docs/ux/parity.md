@@ -27,8 +27,8 @@ Backend-only limits (stub AI, in-memory) — [local-first.md](../engineering/loc
 | Feed | `/feed/` | [pages.md §3](./pages.md#3-feed) | done | 🟡 shell |
 | Post | `/post/{id}/` | [pages.md §4](./pages.md#4-post) | done | 🟡 placeholder |
 | Note | `/note/*` | [pages.md §5](./pages.md#5-note) | done | 🟡 placeholder |
-| Chats | `/chats/` | [pages.md §6](./pages.md#6-chats) | done | 🟡 shell |
-| Notes | `/notes/` | [pages.md §7](./pages.md#7-notes) | done | 🟡 shell |
+| Chats | `/chats/` | [pages.md §6](./pages.md#6-chats) | done | done |
+| Notes | `/notes/` | [pages.md §7](./pages.md#7-notes) | done | done |
 | Analytics | `/analytics/` | [pages.md §8](./pages.md#8-analytics) | done | 🟡 shell |
 | Profile | `/profile/` | [pages.md §9](./pages.md#9-profile) | done | 🟡 shell |
 

@@ -762,14 +762,12 @@
 }
 .page-header-search::placeholder { color: var(--text3); }
 .page-header-search:hover {
-  background: var(--page-header-control-bg-hover);
+  background: var(--page-header-control-bg);
   border-color: var(--control-border-hover);
 }
-.page-header-search:focus {
-  border-color: var(--control-border-active);
-  background: var(--page-header-control-bg);
-}
+.page-header-search:focus,
 .page-header-search:focus:hover {
+  border-color: var(--control-border-active);
   background: var(--page-header-control-bg);
 }
 

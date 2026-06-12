@@ -1,15 +1,15 @@
 "use client";
 
 import { useMemo } from "react";
-import { MessageSquare } from "lucide-react";
 
 import { useNavigationStore } from "@/app/model/store";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
 import type { ChatsTab } from "@/shared/types";
-import { EmptyState } from "@/shared/ui/empty-state";
 import { ScreenShell } from "@/screens/_ui/screen-shell";
+import { useChatsScreen } from "@/screens/chats/model/useChatsScreen";
 import { ChatsFilterRow } from "@/screens/chats/ui/ChatsFilterRow";
+import { ChatsList } from "@/screens/chats/ui/ChatsList";
 import { PageHeader, PageHeaderSearchInput, PageHeaderSelect } from "@/widgets/page-header";
 
 const TAB_OPTIONS = [
@@ -21,6 +21,7 @@ const TAB_OPTIONS = [
 export function ChatsScreen() {
   const onBack = useScreenBack();
   const isMobile = useMobile760();
+  const { data, actions } = useChatsScreen();
   const tab = useNavigationStore((s) => s.chatsTab);
   const setChatsTab = useNavigationStore((s) => s.setChatsTab);
   const search = useNavigationStore((s) => s.chatsSearch);
@@ -61,10 +62,7 @@ export function ChatsScreen() {
       }
     >
       <ChatsFilterRow />
-      <EmptyState
-        icon={<MessageSquare className="size-5" />}
-        message="Каталог чатов появится на следующем шаге. В сайдбаре — недавние из seed-data через MSW."
-      />
+      <ChatsList data={data} actions={actions} />
     </ScreenShell>
   );
 }

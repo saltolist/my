@@ -1,15 +1,16 @@
 "use client";
 
 import { useMemo } from "react";
-import { FileText } from "lucide-react";
 
 import { useNavigationStore } from "@/app/model/store";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
 import type { NoteListFilter, NoteScope } from "@/shared/types";
-import { EmptyState } from "@/shared/ui/empty-state";
 import { ScreenShell } from "@/screens/_ui/screen-shell";
+import { useNotesScreen } from "@/screens/notes/model/useNotesScreen";
+import { NotesDesktopGrid } from "@/screens/notes/ui/NotesDesktopGrid";
 import { NotesFilterRow } from "@/screens/notes/ui/NotesFilterRow";
+import { NotesMobileGrid } from "@/screens/notes/ui/NotesMobileGrid";
 import { PageHeader, PageHeaderSearchInput, PageHeaderSelect } from "@/widgets/page-header";
 
 const SCOPE_OPTIONS = [
@@ -27,6 +28,7 @@ const FILTER_OPTIONS = [
 export function NotesScreen() {
   const onBack = useScreenBack();
   const isMobile = useMobile760();
+  const { data, ui, actions } = useNotesScreen();
   const scope = useNavigationStore((s) => s.noteScope);
   const filter = useNavigationStore((s) => s.noteFilter);
   const setNoteScope = useNavigationStore((s) => s.setNoteScope);
@@ -53,6 +55,13 @@ export function NotesScreen() {
     }),
     [filter, setNoteFilter],
   );
+
+  const gridProps = {
+    notes: data.filtered,
+    emptyLabel: data.emptyLabel,
+    onOpen: actions.openNote,
+    onToggleAi: actions.toggleAi,
+  };
 
   return (
     <ScreenShell
@@ -81,10 +90,15 @@ export function NotesScreen() {
       }
     >
       <NotesFilterRow />
-      <EmptyState
-        icon={<FileText className="size-5" />}
-        message="Сетка заметок появится на следующем шаге."
-      />
+      <div className="notes-grid-page">
+        {data.isLoading ? (
+          <p className="screen-placeholder">Загрузка заметок…</p>
+        ) : ui.isMobile ? (
+          <NotesMobileGrid {...gridProps} />
+        ) : (
+          <NotesDesktopGrid {...gridProps} />
+        )}
+      </div>
     </ScreenShell>
   );
 }

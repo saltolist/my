@@ -47,6 +47,11 @@
   line-height: 0;
 }
 
+.chats-new-chat-btn-icon svg,
+.notes-new-note-btn-icon svg {
+  stroke-width: 2.3;
+}
+
 .filter-toolbar__filters .page-header-control {
   white-space: nowrap;
 }
@@ -157,6 +162,13 @@
   max-width: var(--content-w);
   flex-shrink: 0;
   box-sizing: border-box;
+}
+
+.chats-new-chat-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
 }
 
 .chats-new-chat-btn.filter-tab--dropdown {
