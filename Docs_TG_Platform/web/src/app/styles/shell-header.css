@@ -928,3 +928,21 @@
 .ctx-item.danger:hover .ctx-item-icon { color: var(--red); }
 .ctx-item.disabled { color: var(--text3); cursor: default; }
 .ctx-item.disabled:hover { background: transparent; color: var(--text3); }
+
+@media (max-width: 1200px) {
+  .page-header,
+  .page-header--post {
+    padding-left: 18px;
+    padding-right: 18px;
+    column-gap: 10px;
+  }
+}
+
+@media (max-width: 920px) {
+  .page-header,
+  .page-header--post {
+    padding-left: 16px;
+    padding-right: 16px;
+    column-gap: 10px;
+  }
+}

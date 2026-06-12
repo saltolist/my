@@ -1647,10 +1647,6 @@ html[data-page-header-le-1130]
 #screen-analytics .analytics-page {
     scrollbar-gutter: stable;
   }
-#screen-analytics .analytics-scroll-inner {
-    padding-left: max(12px, var(--content-card-shadow-gutter));
-    padding-right: max(12px, var(--content-card-shadow-gutter));
-  }
 #screen-analytics
     .analytics-metrics-row
     > .analytics-card.analytics-metrics-card:not(.channel-reactions-card) {
@@ -1714,8 +1710,8 @@ html[data-page-header-le-1130]
     max-width: 100%;
     width: 100%;
     box-sizing: border-box;
-    padding-left: max(12px, var(--content-card-shadow-gutter));
-    padding-right: max(12px, var(--content-card-shadow-gutter));
+    padding-left: 12px;
+    padding-right: 12px;
   }
 #screen-analytics .analytics-card:is(
     .analytics-chart-card,
