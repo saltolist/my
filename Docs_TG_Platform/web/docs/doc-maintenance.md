@@ -9,6 +9,9 @@
 | Layer | Source of truth | Update when |
 |-------|-----------------|-------------|
 | **Product** | `docs/product/` | Product model, roadmap, scope changes |
+| **Roadmap** | `docs/product/08-roadmap.md` | Milestone shift, new widget/screen/feature layer |
+| **Parity tracker** | `docs/ux/parity.md` | Screen reaches `done` or gaps change |
+| **Testing** | `docs/engineering/testing.md` | New/removed E2E or unit test |
 | **UX screens** | `docs/ux/pages.md` | Legacy UI behavior changes |
 | **UX layout** | `docs/ux/wireframes/` | Visual structure changes |
 | **UX components** | `docs/ux/components/` | Widget/feature behavior changes |
@@ -16,6 +19,8 @@
 | **Data model** | `docs/engineering/data-model.md` | Types/schemas change |
 | **API** | `API_CONTRACT.yaml`, `api-schemas.md` | MSW handlers change |
 | **Routing** | `docs/engineering/routing.md` | `routes.ts` behavior changes |
+
+**Widget specs** live in `docs/ux/components/widgets/` — not in `src/widgets/*/README.md`.
 
 ## Принцип
 
@@ -41,6 +46,15 @@
 2. [api-schemas.md](./engineering/api-schemas.md) + [API_CONTRACT.yaml](./engineering/API_CONTRACT.yaml)
 3. [local-first.md](./engineering/local-first.md) if seed/stub changes
 4. [BACKEND_READINESS.md](./engineering/BACKEND_READINESS.md) if new endpoints
+
+---
+
+## When implementation progresses
+
+1. Widget or screen ready → update row in [parity.md](./ux/parity.md) (`partial` → `done`, gaps column)
+2. Milestone shift → [08-roadmap.md](./product/08-roadmap.md) § «Текущее состояние» + phase tables; sync [frontend-roadmap.md](./engineering/frontend-roadmap.md)
+3. New E2E test → [testing.md](./engineering/testing.md) + parity E2E table
+4. New widget slice → optional status in [components/widgets/README.md](./ux/components/widgets/README.md)
 
 ---
 

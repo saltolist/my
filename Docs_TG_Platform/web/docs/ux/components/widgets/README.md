@@ -2,19 +2,19 @@
 
 Детальная спецификация каждого widget. Reference: [`web-legacy`](../../../../../web-legacy/).
 
-| Widget | Doc | Ключевые subcomponents |
-|--------|-----|------------------------|
-| app-shell | [app-shell.md](./app-shell.md) | AppShell, RouteSync |
-| sidebar | [sidebar.md](./sidebar.md) | SidebarHeader, FeedPostRow, Recents |
-| page-header | [page-header.md](./page-header.md) | SearchInput, Select, Overflow |
-| composer | [composer.md](./composer.md) | Toolbar, AttachMenu, MentionDropdown |
-| feed | [feed.md](./feed.md) | PostCard, DraftsSection |
-| post-workspace | [post-workspace.md](./post-workspace.md) | MessageCard, Comments, Toolbar |
-| chat-thread | [chat-thread.md](./chat-thread.md) | UserMessage, AiMessage, BranchNav |
-| note-editor | [note-editor.md](./note-editor.md) | BodyEditor, FilesPanel, HeaderToolbar |
-| filter-toolbar | [filter-toolbar.md](./filter-toolbar.md) | FilterToolbar, Action |
-| analytics-dashboard | [analytics-dashboard.md](./analytics-dashboard.md) | ChannelSection, MetricBars |
-| charts | [charts.md](./charts.md) | MultiSeriesTrendChart |
-| profile-settings | [profile-settings.md](./profile-settings.md) | Theme, AI, Telegram, Channel |
+| Widget | Doc | Code | Status |
+|--------|-----|------|--------|
+| app-shell | [app-shell.md](./app-shell.md) | [`widgets/app-shell`](../../../../src/widgets/app-shell/) | ✅ |
+| sidebar | [sidebar.md](./sidebar.md) | [`widgets/sidebar`](../../../../src/widgets/sidebar/) | ✅ |
+| page-header | [page-header.md](./page-header.md) | [`widgets/page-header`](../../../../src/widgets/page-header/) | ✅ |
+| filter-toolbar | [filter-toolbar.md](./filter-toolbar.md) | [`widgets/filter-toolbar`](../../../../src/widgets/filter-toolbar/) | ✅ |
+| composer | [composer.md](./composer.md) | [`widgets/composer`](../../../../src/widgets/composer/) | 🟡 |
+| feed | [feed.md](./feed.md) | [`widgets/feed`](../../../../src/widgets/feed/) | 🟡 |
+| post-workspace | [post-workspace.md](./post-workspace.md) | [`widgets/post-workspace`](../../../../src/widgets/post-workspace/) | 🟡 |
+| chat-thread | [chat-thread.md](./chat-thread.md) | [`widgets/chat-thread`](../../../../src/widgets/chat-thread/) | 🟡 |
+| note-editor | [note-editor.md](./note-editor.md) | [`widgets/note-editor`](../../../../src/widgets/note-editor/) | 🟡 |
+| analytics-dashboard | [analytics-dashboard.md](./analytics-dashboard.md) | [`widgets/analytics-dashboard`](../../../../src/widgets/analytics-dashboard/) | 🟡 |
+| charts | [charts.md](./charts.md) | [`widgets/charts`](../../../../src/widgets/charts/) | 🟡 |
+| profile-settings | [profile-settings.md](./profile-settings.md) | [`widgets/profile-settings`](../../../../src/widgets/profile-settings/) | 🟡 |
 
 ← [Каталог компонентов](../README.md)

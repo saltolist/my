@@ -20,12 +20,14 @@
 M0 Docs ✅
 M1 Foundation (routes, CI, data layer)     ✅
 M2 Shell (sidebar, PageHeader, RouteSync)   ✅
-M3 Widgets layer (composer → profile-settings)  ← сейчас
-M4 Features + 9 screens
-M5 Local-first demo complete
-M6 GitHub Pages live
-M7 Backend adapter verified (http mode)
+M3 Widgets layer (composer → profile-settings)  🟡 ~85%
+M4 Features + 9 screens                        🟡 ~75%  ← сейчас
+M5 Local-first demo complete                   🔴
+M6 GitHub Pages live                           🔴
+M7 Backend adapter verified (http mode)        🔴
 ```
+
+Карта экранов → код: [08-roadmap.md § Карта экранов](../product/08-roadmap.md#карта-экранов--код). Parity: [parity.md](../ux/parity.md).
 
 ---
 
@@ -74,5 +76,6 @@ Same static bundle. Verify: [BACKEND_READINESS.md](./BACKEND_READINESS.md).
 
 | Step | Today | Target |
 |------|-------|--------|
-| check job | ✅ | ✅ |
+| check job (typecheck, lint, test, e2e, build) | ✅ | ✅ |
+| E2E smoke (12 tests: nav, post, note, analytics) | ✅ | expand per-screen deep scenarios |
 | pages deploy | ❌ | Phase 8 |

@@ -2,7 +2,7 @@
 
 Web-клиент TG Platform — браузерный интерфейс для полного цикла работы с каналом: лента, пространство поста, чаты, заметки, аналитика, профиль.
 
-**Текущая фаза:** **M2 Shell** complete — sidebar, PageHeader, RouteSync, ContentAdaptSync. Следующий шаг — **M3 Widgets**. План — [08-roadmap.md](../product/08-roadmap.md), выжимка — [frontend-roadmap.md](./frontend-roadmap.md).
+**Текущая фаза:** **M3 Widgets** ~85%, **M4 Features + screens** ~75% (фокус: parity gaps, E2E deep). M2 Shell complete. План — [08-roadmap.md](../product/08-roadmap.md), parity — [parity.md](../ux/parity.md), выжимка — [frontend-roadmap.md](./frontend-roadmap.md).
 
 ---
 

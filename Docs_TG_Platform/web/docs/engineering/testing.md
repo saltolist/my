@@ -53,6 +53,7 @@ Unit (Vitest)                ← lib, schemas, repositories
 | Test | Path |
 |------|------|
 | Home loads | `/` → «Чем помочь сегодня?» |
+| Home send → gchat | `/` → fill composer → `/gchat/?id=gc…` |
 | Navigate feed from sidebar | `/` → Лента heading |
 | Chats back to home | `/chats/` → Назад → home |
 | Navigate notes from sidebar | `/` → Заметки heading |
@@ -70,7 +71,6 @@ Unit (Vitest)                ← lib, schemas, repositories
 
 | Screen | Scenarios |
 |--------|-----------|
-| home | Send message → gchat |
 | feed | Open post, draft DnD, search |
 | post | Mode tabs, context menu, inline edit |
 | gchat | Thread, delete chat |

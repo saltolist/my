@@ -2,7 +2,7 @@
 
 Единая точка входа для web-версии TG Platform: продуктовая документация, UX-спецификация и **Next.js клиент**.
 
-**Сейчас:** M2 Shell complete (sidebar, PageHeader, RouteSync, ContentAdaptSync). Roadmap — [docs/product/08-roadmap.md](./docs/product/08-roadmap.md).
+**Сейчас:** M3 widgets ~85%, M4 features + screens ~75% (chats + notes ближе к done). Roadmap — [docs/product/08-roadmap.md](./docs/product/08-roadmap.md). Parity — [docs/ux/parity.md](./docs/ux/parity.md).
 
 ## Структура
 
@@ -39,7 +39,7 @@ npm run check  # typecheck + lint + test + build
 | Продукт (`docs/product/`) | complete |
 | UX (`docs/ux/`) | complete — sync с `web-legacy` |
 | Engineering (`docs/engineering/`) | complete |
-| Код (`src/`) | M2 Shell ✅ — M3 widgets next |
+| Код (`src/`) | M3 🟡 / M4 🟡 — see [parity.md](./docs/ux/parity.md) |
 
 ## Legacy-клиенты (вне `web/`)
 
