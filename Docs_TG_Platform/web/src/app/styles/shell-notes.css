@@ -496,6 +496,7 @@
 }
 .note-body-document--view .note-body-doc-line--text {
   display: block;
+  position: relative;
 }
 .note-body-document--view .note-body-doc-line--text .note-body-cell--text {
   display: block;
@@ -544,10 +545,6 @@
   margin: 0;
   border-radius: var(--rs);
   border: 1px solid var(--border);
-}
-.note-body-doc-drop-break {
-  display: block;
-  width: 100%;
 }
 .note-embed-token,
 .note-embed-chip.note-embed-token {

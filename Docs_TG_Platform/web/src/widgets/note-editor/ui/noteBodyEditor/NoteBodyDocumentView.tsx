@@ -28,6 +28,21 @@ type Props = {
   onEmbedPointerDown: (pos: CellPos, e: React.PointerEvent, line?: BodyLine, lineIndex?: number) => void;
 };
 
+function renderLineLeadSlot(
+  lineIndex: number,
+  dropGapActive: boolean,
+  dropBefore: CellPos | null,
+): ReactNode {
+  if (!dropGapActive || dropBefore == null) return null;
+  if (dropBefore.line !== lineIndex || dropBefore.cell !== 0) return null;
+
+  return (
+    <div key={`slot-lead-${lineIndex}`} className="note-embed-drop-lead-abs" aria-hidden>
+      <NoteBodyDropIndicator axis="horizontal" />
+    </div>
+  );
+}
+
 export default function NoteBodyDocumentView({
   lines,
   files,
@@ -44,27 +59,12 @@ export default function NoteBodyDocumentView({
     return <span className="note-body-empty">Заметка пустая</span>;
   }
 
-  const nodes: ReactNode[] = [];
-
-  lines.forEach((line, li) => {
+  const nodes: ReactNode[] = lines.map((line, li) => {
     const isImageLine = isImageEmbedRow(line, files);
-
-    if (
-      dropGapActive &&
-      dropBefore != null &&
-      dropBefore.line === li &&
-      dropBefore.cell === 0 &&
-      !isImageLine
-    ) {
-      nodes.push(
-        <span key={`drop-lead-${li}`} className="note-body-doc-drop-break" aria-hidden>
-          <NoteBodyDropIndicator axis="horizontal" />
-        </span>,
-      );
-    }
+    const leadSlot = !isImageLine ? renderLineLeadSlot(li, dropGapActive, dropBefore) : null;
 
     if (isImageLine) {
-      nodes.push(
+      return (
         <ImageGridLine
           key={`line-${li}`}
           line={line}
@@ -76,9 +76,8 @@ export default function NoteBodyDocumentView({
           imageDropSlot={imageDropSlot}
           dropSlotBefore={dropLineBeforeActive && dropLineBefore === li}
           onEmbedPointerDown={(pos, e) => onEmbedPointerDown(pos, e, line, li)}
-        />,
+        />
       );
-      return;
     }
 
     if (isEmbedLine(line)) {
@@ -113,26 +112,39 @@ export default function NoteBodyDocumentView({
       ) {
         embedNodes.push(<NoteBodyDropIndicator key={`slot-flex-tail-${li}`} axis="vertical" />);
       }
-      nodes.push(
-        <div key={`line-${li}`} className="note-body-doc-line note-body-doc-line--embed" data-line={li}>
+
+      return (
+        <div
+          key={`line-${li}`}
+          className="note-body-doc-line note-body-doc-line--embed"
+          data-line={li}
+          onDragOver={(e) => e.preventDefault()}
+        >
+          {leadSlot}
           {embedNodes}
-        </div>,
+        </div>
       );
-      return;
     }
 
-    line.cells.forEach((cell, ci) => {
-      nodes.push(
-        <div key={`line-${li}-${ci}`} className="note-body-doc-line note-body-doc-line--text" data-line={li}>
+    return (
+      <div
+        key={`line-${li}`}
+        className="note-body-doc-line note-body-doc-line--text"
+        data-line={li}
+        onDragOver={(e) => e.preventDefault()}
+      >
+        {leadSlot}
+        {line.cells.map((cell, ci) => (
           <NoteBodyCell
+            key={`cell-${li}-${ci}-${cell.type === "embed" ? cell.name : "t"}`}
             cell={cell}
             pos={{ line: li, cell: ci }}
             files={files}
             isView
           />
-        </div>,
-      );
-    });
+        ))}
+      </div>
+    );
   });
 
   if (dropGapActive && dropBefore != null && dropBefore.line === lines.length && dropBefore.cell === 0) {
