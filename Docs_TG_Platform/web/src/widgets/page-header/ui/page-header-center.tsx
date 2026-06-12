@@ -41,7 +41,7 @@ export function PageHeaderCenter({
     );
   }
 
-  if (compactSearch && mobileSearchOpen && expandableSearchContent) {
+  if (compactSearch && mobileSearchOpen && expandableSearchContent && !inlineDesktopSearch) {
     return (
       <div
         className="page-header-center page-header-compact-search-field"

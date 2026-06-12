@@ -1,17 +1,22 @@
 "use client";
 
 import { useNavigationStore, useUiStore } from "@/app/model/store";
+import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
 import { FeedComposer } from "@/screens/feed/ui/FeedComposer";
 import { FeedPublishedSection } from "@/screens/feed/ui/FeedPublishedSection";
 import { FeedScheduledSection } from "@/screens/feed/ui/FeedScheduledSection";
 import { useFeedScreen } from "@/screens/feed/model/useFeedScreen";
 import { FeedDraftsSection } from "@/widgets/feed";
-import { createFeedHeaderSearchRow } from "@/widgets/feed/ui/feed-header-toolbar";
+import {
+  createFeedHeaderSearchRow,
+  createFeedPostWidthSelect,
+} from "@/widgets/feed/ui/feed-header-toolbar";
 import { PageHeader } from "@/widgets/page-header";
 
 export function FeedScreen() {
   const onBack = useScreenBack();
+  const isMobile = useMobile760();
   const search = useNavigationStore((s) => s.feedSearch);
   const setFeedSearch = useNavigationStore((s) => s.setFeedSearch);
   const feedPostWidth = useUiStore((s) => s.feedCardWidth);
@@ -42,6 +47,14 @@ export function FeedScreen() {
         title="Лента"
         onBack={onBack}
         compactSearchAtWidth={804}
+        mobileSelect={
+          isMobile
+            ? undefined
+            : createFeedPostWidthSelect({
+                feedPostWidth,
+                onFeedPostWidthChange: setFeedPostWidth,
+              })
+        }
         search={createFeedHeaderSearchRow({
           value: search,
           onChange: setFeedSearch,

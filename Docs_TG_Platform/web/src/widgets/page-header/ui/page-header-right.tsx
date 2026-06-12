@@ -31,6 +31,7 @@ export type PageHeaderRightProps = {
   headerRightRef?: Ref<HTMLDivElement>;
   searchToggleAnchorRef?: Ref<HTMLElement>;
   hasTrailingToolbar?: boolean;
+  clusterDesktopActions?: boolean;
 };
 
 export function PageHeaderRight({
@@ -55,6 +56,7 @@ export function PageHeaderRight({
   headerRightRef,
   searchToggleAnchorRef,
   hasTrailingToolbar = false,
+  clusterDesktopActions = false,
 }: PageHeaderRightProps) {
   if (isMobile && !showMobileRight) return null;
 
@@ -97,6 +99,25 @@ export function PageHeaderRight({
             <div className="page-header-search-inline" ref={mobileSearchWrapRef}>
               {expandableSearchContent}
             </div>
+          ) : compactSearch && showSearchToggle ? (
+            mobileSearchOpen ? (
+              <span
+                ref={searchToggleAnchorRef}
+                className="page-header-search-toggle-slot"
+                aria-hidden
+              />
+            ) : (
+              <button
+                ref={searchToggleAnchorRef as Ref<HTMLButtonElement>}
+                type="button"
+                className="page-header-search-toggle"
+                aria-label="Поиск"
+                aria-expanded={mobileSearchOpen}
+                onClick={() => setMobileSearchOpen?.(true)}
+              >
+                <PageHeaderSearchMagnifier size={20} />
+              </button>
+            )
           ) : showSearchToggle && !mobileSearchOpen ? (
             <button
               ref={searchToggleAnchorRef as Ref<HTMLButtonElement>}
@@ -109,7 +130,7 @@ export function PageHeaderRight({
               <PageHeaderSearchMagnifier size={20} />
             </button>
           ) : null}
-          {desktopInlineSearchOpen ? (
+          {clusterDesktopActions ? (
             <div className="page-header-actions-cluster">{desktopTrailing}</div>
           ) : (
             desktopTrailing

@@ -8,7 +8,8 @@ export type BreadcrumbItem = {
   label: ReactNode;
   onClick?: () => void;
   href?: string;
-  variant?: "default" | "title";
+  /** `title` — название поста (ellipsis в шапке поста); `truncate` — длинный заголовок заметки/чата. */
+  variant?: "default" | "title" | "truncate";
   current?: boolean;
 };
 
@@ -17,7 +18,11 @@ type BreadcrumbProps = {
   className?: string;
 };
 
-function itemClassName(item: BreadcrumbItem, index: number, isLast: boolean): string {
+export function breadcrumbItemClassName(
+  item: BreadcrumbItem,
+  index: number,
+  isLast: boolean,
+): string {
   const current = item.current ?? isLast;
   const parts: string[] = [];
 
@@ -28,11 +33,15 @@ function itemClassName(item: BreadcrumbItem, index: number, isLast: boolean): st
   }
 
   if (index === 0) {
-    parts.push("bc-crumb-fixed");
-  } else if (item.variant === "title") {
+    parts.push("bc-crumb-first");
+  }
+
+  if (item.variant === "title") {
     parts.push("bc-post-title");
-  } else {
+  } else if (item.variant === "truncate") {
     parts.push("bc-crumb-truncate");
+  } else {
+    parts.push("bc-crumb-fixed");
   }
 
   return parts.join(" ");
@@ -48,7 +57,7 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
     >
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
-        const cls = itemClassName(item, index, isLast);
+        const cls = breadcrumbItemClassName(item, index, isLast);
         const key = `${index}-${typeof item.label === "string" ? item.label : "node"}`;
 
         return (

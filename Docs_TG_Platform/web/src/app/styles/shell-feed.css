@@ -59,57 +59,19 @@
   }
 
   #screen-feed .page-header.page-header--compact-search.page-header--search-open {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    align-items: center;
-    column-gap: 16px;
     gap: 16px;
+    column-gap: 16px;
   }
 
+  /* Поле в правой колонке, растёт влево — как page-header--post-search-overlay */
   #screen-feed .page-header.page-header--compact-search.page-header--search-open .page-header-left {
-    justify-self: start;
-  }
-
-  #screen-feed .page-header.page-header--compact-search.page-header--search-open .page-header-compact-search-field {
-    justify-self: center;
-    flex: none;
-    display: flex;
-    align-items: center;
+    flex: 1 1 0;
     min-width: 0;
-    width: auto;
-    max-width: none;
+    overflow: hidden;
   }
 
-  #screen-feed
-    .page-header.page-header--compact-search.page-header--search-open
-    .page-header-compact-search-field
-    .page-header-feed-search-row {
-    width: var(--page-header-search-w);
-    max-width: 100%;
-    flex: 0 1 auto;
-    min-width: 0;
-  }
-
-  #screen-feed
-    .page-header.page-header--compact-search.page-header--search-open
-    .page-header-compact-search-field
-    .feed-post-width-toggles,
-  #screen-feed
-    .page-header.page-header--compact-search.page-header--search-open
-    .page-header-compact-search-field
-    .page-header-feed-width-select {
-    display: none !important;
-  }
-
-  #screen-feed
-    .page-header.page-header--compact-search.page-header--search-open
-    .page-header-compact-search-field
-    .page-header-search-field {
-    box-sizing: border-box;
-    width: var(--page-header-search-w);
-    max-width: 100%;
-    flex: 0 0 var(--page-header-search-w);
-    min-width: 0;
+  #screen-feed .page-header.page-header--compact-search.page-header--search-open .page-header-center {
+    display: none;
   }
 
   #screen-feed .page-header.page-header--compact-search .page-header-right {
@@ -118,14 +80,70 @@
   }
 
   #screen-feed .page-header.page-header--compact-search.page-header--search-open .page-header-right {
-    justify-self: end;
-    flex: none;
-    margin-left: 0;
+    flex: 0 0 auto;
+    min-width: 0;
+    margin-left: auto;
   }
 
   #screen-feed .page-header.page-header--compact-search .page-header-actions--desktop {
     flex-wrap: nowrap;
     flex-shrink: 0;
+    gap: 10px;
+  }
+
+  #screen-feed .page-header.page-header--compact-search.page-header--search-open .page-header-actions--desktop {
+    flex: 0 0 auto;
+    min-width: 0;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  #screen-feed .page-header.page-header--compact-search .page-header-actions-cluster {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #screen-feed .page-header.page-header--compact-search.page-header--search-open .page-header-search-inline {
+    flex: 0 1 var(--page-header-search-w);
+    min-width: 0;
+    max-width: var(--page-header-search-w);
+    width: min(var(--page-header-search-w), 100%);
+    display: flex;
+    align-items: center;
+    overflow: visible;
+  }
+
+  #screen-feed
+    .page-header.page-header--compact-search.page-header--search-open
+    .page-header-search-inline
+    .page-header-feed-search-row {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  #screen-feed
+    .page-header.page-header--compact-search.page-header--search-open
+    .page-header-search-inline
+    .feed-post-width-toggles,
+  #screen-feed
+    .page-header.page-header--compact-search.page-header--search-open
+    .page-header-search-inline
+    .page-header-feed-width-select {
+    display: none !important;
+  }
+
+  #screen-feed
+    .page-header.page-header--compact-search.page-header--search-open
+    .page-header-search-inline
+    .page-header-search-field {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    flex: 1 1 auto;
   }
 
   #screen-feed .page-header.page-header--compact-search .page-header-search-toggle {
@@ -154,10 +172,15 @@
     color: var(--text);
   }
 
+  /* −2px компенсирует асимметричный padding лупы; одинаково до и после раскрытия поля */
   #screen-feed
     .page-header.page-header--compact-search
     .page-header-search-toggle
-    + .page-header-toolbar-slot {
+    + .page-header-actions-cluster,
+  #screen-feed
+    .page-header.page-header--compact-search
+    .page-header-search-inline
+    + .page-header-actions-cluster {
     margin-left: -2px;
   }
 }

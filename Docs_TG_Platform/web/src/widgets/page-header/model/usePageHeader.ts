@@ -85,7 +85,11 @@ export function usePageHeader({
   const mobileOverlaySearch = isMobile;
   const searchOverlayMode =
     compactSearchOverlay && (isMobile || compactSearch);
-  const desktopPostInlineSearch = searchOverlayMode && !mobileOverlaySearch;
+  /** Desktop: поле в правой колонке, растёт влево (пост overlay, лента ≤ compactSearchAtWidth). */
+  const desktopInlineSearch =
+    compactSearch &&
+    !mobileOverlaySearch &&
+    (compactSearchOverlay || compactSearchAtWidth != null);
 
   useLayoutEffect(() => {
     const el = headerRef.current;
@@ -144,7 +148,7 @@ export function usePageHeader({
 
   const needsSearchSpan =
     mobileSearchOpen &&
-    !desktopPostInlineSearch &&
+    !desktopInlineSearch &&
     (searchOverlayMode || (mobileOverlaySearch && hasMobileSearchTrailing));
 
   useLayoutEffect(() => {
@@ -218,6 +222,10 @@ export function usePageHeader({
   const trailingDesktopSelect =
     !isMobile && !!mobileSelect && compactSearchAtWidth == null;
   const showCompactToolbarSelect = compactSearch && !!mobileSelect;
+  /** Лента: кластер всегда при compact; пост — только при раскрытом inline-поиске. */
+  const clusterDesktopActions =
+    (desktopInlineSearch && mobileSearchOpen) ||
+    (compactSearch && !isMobile && compactSearchAtWidth != null);
 
   const headerClassName = [
     "page-header",
@@ -252,7 +260,7 @@ export function usePageHeader({
     searchToggleAnchorRef,
     compactSearchOverlay,
     searchOverlayMode,
-    desktopPostInlineSearch,
+    desktopInlineSearch,
     headerClassName,
     isMobile,
     mobileSearchOpen,
@@ -265,6 +273,7 @@ export function usePageHeader({
     showMobileRight,
     trailingDesktopSelect,
     showCompactToolbarSelect,
+    clusterDesktopActions,
     handleBack,
   };
 }

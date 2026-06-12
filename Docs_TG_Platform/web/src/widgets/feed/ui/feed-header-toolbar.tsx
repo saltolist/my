@@ -20,6 +20,24 @@ export type FeedHeaderSearchRowProps = {
   dismissAlways?: boolean;
 };
 
+/** Compact select — справа от лупы при compact-search (шапка ≤804px). */
+export function createFeedPostWidthSelect({
+  feedPostWidth,
+  onFeedPostWidthChange,
+}: Pick<FeedHeaderSearchRowProps, "feedPostWidth" | "onFeedPostWidthChange">): ReactNode {
+  return (
+    <PageHeaderSelect
+      ariaLabel="Ширина карточки поста в ленте"
+      value={String(feedPostWidth)}
+      options={FEED_POST_WIDTH_SELECT_OPTIONS}
+      onChange={(v) => {
+        const n = Number(v);
+        if (isFeedPostWidth(n)) onFeedPostWidthChange(n);
+      }}
+    />
+  );
+}
+
 /** Статическое JSX-дерево для PageHeader.search (нужно для expandable-поиска по лупе). */
 export function createFeedHeaderSearchRow({
   value,
@@ -57,15 +75,7 @@ export function createFeedHeaderSearchRow({
         ))}
       </div>
       <div className="page-header-feed-width-select feed-post-width-select--compact page-header-toolbar--desktop">
-        <PageHeaderSelect
-          ariaLabel="Ширина карточки поста в ленте"
-          value={String(feedPostWidth)}
-          options={FEED_POST_WIDTH_SELECT_OPTIONS}
-          onChange={(v) => {
-            const n = Number(v);
-            if (isFeedPostWidth(n)) onFeedPostWidthChange(n);
-          }}
-        />
+        {createFeedPostWidthSelect({ feedPostWidth, onFeedPostWidthChange })}
       </div>
     </div>
   );

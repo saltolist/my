@@ -24,7 +24,7 @@ export function buildNoteBreadcrumbTrail({
   if (note.isGlobal) {
     return [
       { label: "Заметки", onClick: onNavigateNotes },
-      { label: title, current: true },
+      { label: title, current: true, variant: "truncate" },
     ];
   }
 
@@ -36,8 +36,23 @@ export function buildNoteBreadcrumbTrail({
       variant: "title",
     });
   }
-  items.push({ label: title, current: true });
+  items.push({ label: title, current: true, variant: "truncate" });
   return items;
+}
+
+export type GChatBreadcrumbTrailContext = {
+  chatTitle: string;
+  onNavigateBackToChats: () => void;
+};
+
+export function buildGChatBreadcrumbTrail({
+  chatTitle,
+  onNavigateBackToChats,
+}: GChatBreadcrumbTrailContext): BreadcrumbItem[] {
+  return [
+    { label: "Чаты", onClick: onNavigateBackToChats },
+    { label: chatTitle || "—", current: true, variant: "truncate" },
+  ];
 }
 
 export type PostBreadcrumbTrailContext = {

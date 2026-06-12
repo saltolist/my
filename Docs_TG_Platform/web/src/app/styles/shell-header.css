@@ -621,8 +621,10 @@
   text-overflow: clip;
   white-space: nowrap;
 }
+.breadcrumb .bc-crumb-first,
 .breadcrumb > .bc-link:first-child,
-.breadcrumb > .bc-crumb-fixed:first-child {
+.breadcrumb > .bc-crumb-fixed:first-child,
+.breadcrumb > button.bc-link:first-child {
   font-weight: 600;
 }
 .breadcrumb .bc-sep {
@@ -630,13 +632,19 @@
   color: var(--text2);
   flex-shrink: 0;
 }
+.breadcrumb .bc-crumb-first + .bc-sep,
 .breadcrumb > .bc-link:first-child + .bc-sep,
-.breadcrumb > .bc-crumb-fixed:first-child + .bc-sep {
+.breadcrumb > .bc-crumb-fixed:first-child + .bc-sep,
+.breadcrumb > button.bc-link:first-child + .bc-sep {
   font-weight: 600;
 }
 .breadcrumb .crumb-current {
   font-weight: 400;
   color: var(--text);
+}
+.breadcrumb .bc-crumb-first.crumb-current,
+.breadcrumb button.bc-crumb-first.bc-link {
+  font-weight: 600;
 }
 .breadcrumb .crumb-current.bc-crumb-fixed {
   flex: 0 0 auto;
