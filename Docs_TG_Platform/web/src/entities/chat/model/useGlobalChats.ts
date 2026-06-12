@@ -4,7 +4,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api/queryKeys";
 import type { GlobalChatPatch } from "@/shared/api/repositories";
 import { useRepositories } from "@/app/providers/RepositoryProvider";
-import type { GlobalChat } from "@/shared/types";
+import {
+  patchGlobalChatHistory,
+  syncGlobalChatInCache,
+} from "@/entities/chat/lib/patchGlobalChatHistory";
+import { appendToActiveHistory } from "@/shared/lib/chatPaths";
+import type { ChatMessage, GlobalChat } from "@/shared/types";
 
 export function useGlobalChats() {
   const { chats } = useRepositories();
@@ -40,22 +45,32 @@ export function useUpdateGlobalChat() {
   return useMutation({
     mutationFn: ({ chatId, patch }: { chatId: string; patch: GlobalChatPatch }) =>
       chats.update(chatId, patch),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.globalChats.all });
+    onSuccess: (updatedChat) => {
+      syncGlobalChatInCache(queryClient, updatedChat);
     },
   });
 }
 
+function previewForMessage(message: ChatMessage): string | undefined {
+  const text = message.text?.trim();
+  if (!text) return undefined;
+  return text.slice(0, 80);
+}
+
+/** Добавить сообщение в конец активной ветки (GET → append → PATCH). */
 export function usePushGlobalChatMessage() {
   const { chats } = useRepositories();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ chatId, text }: { chatId: string; text: string }) =>
-      chats.pushMessage(chatId, text),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.globalChats.all });
-    },
+    mutationFn: ({ chatId, message }: { chatId: string; message: ChatMessage }) =>
+      patchGlobalChatHistory(
+        queryClient,
+        chats,
+        chatId,
+        (history) => appendToActiveHistory(history, message),
+        { preview: previewForMessage(message) },
+      ),
   });
 }
 
@@ -66,8 +81,8 @@ export function useRenameGlobalChat() {
   return useMutation({
     mutationFn: ({ chatId, title }: { chatId: string; title: string }) =>
       chats.rename(chatId, title),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.globalChats.all });
+    onSuccess: (updatedChat) => {
+      syncGlobalChatInCache(queryClient, updatedChat);
     },
   });
 }

@@ -65,20 +65,21 @@ Base path: `/api/v1`. Errors: `{ "error": "message" }` with HTTP 400/404.
 | Response | `GlobalChat` (201) |
 | MSW | Upsert by id |
 
-### POST `/global-chats/{chatId}/messages`
+### POST `/global-chats/{chatId}/messages` (legacy / MSW only)
 
 | | |
 |---|---|
 | Body | `{ "text": string }` |
 | Response | Updated `GlobalChat` |
-| MSW | Appends user message + stub AI reply via `getGlobalReply(text)` |
+| Note | **Клиент не вызывает.** История меняется только через `PATCH` с полным `history` (ветки, `activeUserBranch`). MSW handler оставлен для совместимости. |
 
 ### PATCH `/global-chats/{chatId}`
 
 | | |
 |---|---|
-| Body | `Partial<GlobalChat>` (e.g. `title`) |
-| Response | Updated `GlobalChat` |
+| Body | `Partial<GlobalChat>` — `title`, `preview`, `date`, **`history`** (полное дерево `ChatMessage[]`) |
+| Response | Updated `GlobalChat` (источник правды для React Query) |
+| Client | Все мутации треда: edit, branch switch, append message → `GET` + transform + `PATCH` (`patchGlobalChatHistory`) |
 
 ### DELETE `/global-chats/{chatId}`
 

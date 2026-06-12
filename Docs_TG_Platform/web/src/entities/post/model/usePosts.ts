@@ -47,9 +47,11 @@ export function useUpdatePost() {
 
   return useMutation({
     mutationFn: ({ id, patch }: { id: number; patch: Partial<Post> }) => posts.update(id, patch),
-    onSuccess: (_data, { id }) => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.posts.detail(id) });
+    onSuccess: (updatedPost) => {
+      queryClient.setQueryData(queryKeys.posts.detail(updatedPost.id), updatedPost);
+      queryClient.setQueryData<Post[]>(queryKeys.posts.list(), (prev) =>
+        prev?.map((p) => (p.id === updatedPost.id ? updatedPost : p)),
+      );
     },
   });
 }

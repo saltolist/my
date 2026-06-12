@@ -138,6 +138,8 @@ Union for note editor:
 | `date` | `string` |
 | `history` | `ChatMessage[]` |
 
+**Client mutations:** read latest chat from API (`fetchQuery`), apply `chatPaths` transforms (`normalizeBranchedHistory`, `appendToActiveHistory`, …), persist via `PATCH /global-chats/{id}` with full `history`. React Query cache is updated from the API response, not as a separate source of truth.
+
 Omnichannel chat cannot be deleted (UI).
 
 ### LocalChat

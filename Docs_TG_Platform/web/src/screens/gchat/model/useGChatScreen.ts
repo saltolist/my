@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { useComposer } from "@/app/model/store/composer-store";
 import { useGlobalChat } from "@/entities/chat";
-import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/shared/lib/chatPaths";
+import {
+  flattenVisibleWithPaths,
+  lastAssistantFlatIndex,
+  normalizeBranchedHistory,
+  visibleHistoryRevision,
+} from "@/shared/lib/chatPaths";
 import { parseGChatSearchParam } from "@/shared/lib/routes";
 
 export function useGChatScreen() {
@@ -15,14 +20,10 @@ export function useGChatScreen() {
   const { sendGChat } = useComposer();
   const messagesRef = useRef<HTMLDivElement>(null);
 
-  const flatMessages = useMemo(
-    () => flattenVisibleWithPaths(chat?.history ?? []),
-    [chat?.history],
-  );
-  const lastAssistantFlat = useMemo(
-    () => lastAssistantFlatIndex(flatMessages),
-    [flatMessages],
-  );
+  const history = normalizeBranchedHistory(chat?.history ?? []);
+  const historyRevision = visibleHistoryRevision(history);
+  const flatMessages = flattenVisibleWithPaths(history);
+  const lastAssistantFlat = lastAssistantFlatIndex(flatMessages);
 
   useEffect(() => {
     if (messagesRef.current) {
@@ -36,6 +37,7 @@ export function useGChatScreen() {
     isLoading,
     error,
     flatMessages,
+    historyRevision,
     lastAssistantFlat,
     messagesRef,
     sendGChat,

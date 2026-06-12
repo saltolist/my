@@ -8,7 +8,6 @@ import {
   useRef,
   type ReactNode,
 } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useUiStore } from "@/app/model/store/ui-store";
 import { useComposerTargetStore } from "@/app/model/store/composer-target-store";
 import {
@@ -17,14 +16,9 @@ import {
   resolveLlmLabel,
   resolveWebLabel,
 } from "@/app/model/store/composer/helpers";
-import {
-  useCreateGlobalChat,
-  usePushGlobalChatMessage,
-  useUpdateGlobalChat,
-} from "@/entities/chat";
+import { useCreateGlobalChat, usePushGlobalChatMessage } from "@/entities/chat";
 import { useAddLocalChat, usePushLocalChatMessage } from "@/entities/post";
 import { useAiProfile } from "@/entities/channel";
-import { queryKeys } from "@/shared/api/queryKeys";
 import { getGlobalReply, getPostReply } from "@/shared/lib/replies";
 import { routes } from "@/shared/lib/routes";
 import { truncate } from "@/shared/lib/helpers";
@@ -52,11 +46,9 @@ export type ComposerContextValue = {
 const ComposerContext = createContext<ComposerContextValue | null>(null);
 
 export function ComposerProvider({ children }: { children: ReactNode }) {
-  const queryClient = useQueryClient();
   const { data: aiProfile } = useAiProfile();
   const createChat = useCreateGlobalChat();
   const pushMessage = usePushGlobalChatMessage();
-  const updateChat = useUpdateGlobalChat();
   const addLocalChat = useAddLocalChat();
   const pushLocalChatMessage = usePushLocalChatMessage();
   const setMobileSidebarOpen = useUiStore((s) => s.setMobileSidebarOpen);
@@ -123,32 +115,31 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
       void createChat.mutateAsync(newChat).then(() => {
         bridge.goToHref(routes.gchat(id));
         window.setTimeout(() => {
-          const chats = queryClient.getQueryData<GlobalChat[]>(queryKeys.globalChats.list()) ?? [];
-          const chat = chats.find((c) => c.id === id);
-          if (!chat) return;
           const reply = buildAiReplyMessage(cfg, getGlobalReply(text), "home", getTarget("home"));
-          void updateChat.mutateAsync({
-            chatId: id,
-            patch: { history: [...chat.history, reply], preview: reply.text?.slice(0, 80) ?? chat.preview },
-          });
+          void pushMessage.mutateAsync({ chatId: id, message: reply });
         }, 900);
       });
 
       return true;
     },
-    [assertLlm, createChat, getTarget, queryClient, setMobileSidebarOpen, updateChat],
+    [assertLlm, createChat, getTarget, pushMessage, setMobileSidebarOpen],
   );
 
   const sendGChat = useCallback(
     (text: string) => {
       const bridge = navBridgeRef.current;
+      const cfg = aiProfileRef.current;
       const chatId = bridge?.getCurrentGChatId();
-      if (!text.trim() || !chatId) return false;
+      if (!text.trim() || !chatId || !cfg) return false;
       if (!assertLlm("gchat")) return false;
-      void pushMessage.mutateAsync({ chatId, text });
+      void pushMessage.mutateAsync({ chatId, message: { role: "user", text } });
+      window.setTimeout(() => {
+        const reply = buildAiReplyMessage(cfg, getGlobalReply(text), "gchat", getTarget("gchat"));
+        void pushMessage.mutateAsync({ chatId, message: reply });
+      }, 900);
       return true;
     },
-    [assertLlm, pushMessage],
+    [assertLlm, getTarget, pushMessage],
   );
 
   const sendPost = useCallback(

@@ -118,6 +118,77 @@ export function mapMessageAtPath(
   });
 }
 
+/** Сигнатура активных веток — для пересчёта плоского списка при переключении branch. */
+export function visibleHistoryRevision(history: ChatMessage[]): string {
+  const parts: string[] = [];
+  function walk(list: ChatMessage[], prefix: string) {
+    for (let i = 0; i < list.length; i++) {
+      const m = list[i];
+      const path = `${prefix}${i}`;
+      if (m.role === "user" && m.userBranches?.length) {
+        const bi = clampActiveBranchIndex(m);
+        parts.push(`${path}@${bi}`);
+        walk(m.userBranches[bi].continuation, `${path}.`);
+      }
+    }
+  }
+  walk(history, "");
+  return parts.join(",");
+}
+
+/**
+ * Сообщения с `userBranches` держат хвост только в continuation активной ветки.
+ * Линейные соседи после такого узла — артефакт (push без appendToActiveHistory) и не показываются.
+ */
+/** Влить линейных соседей после branched user в continuation ветки 0 (рекурсивно). */
+export function normalizeBranchedHistory(history: ChatMessage[]): ChatMessage[] {
+  function normalizeList(list: ChatMessage[]): ChatMessage[] {
+    const out: ChatMessage[] = [];
+    for (let i = 0; i < list.length; i++) {
+      const m = list[i];
+      if (m.role === "user" && m.userBranches?.length) {
+        const orphans = list.slice(i + 1);
+        out.push({
+          ...m,
+          userBranches: m.userBranches.map((b, j) => ({
+            ...b,
+            continuation: normalizeList(
+              j === 0 ? [...b.continuation, ...orphans] : b.continuation,
+            ),
+          })),
+        });
+        return out;
+      }
+      out.push(m);
+    }
+    return out;
+  }
+  return normalizeList(history);
+}
+
+export function healOrphanLinearSiblingsAfterBranchedUser(
+  history: ChatMessage[],
+  path: number[],
+): ChatMessage[] {
+  const ctx = getParentListAndIndex(history, path);
+  if (!ctx) return history;
+  const { list, index } = ctx;
+  const target = list[index];
+  if (!target || target.role !== "user" || !target.userBranches?.length) return history;
+
+  const linearTail = list.slice(index + 1);
+  if (linearTail.length === 0) return history;
+
+  const healedTarget: ChatMessage = {
+    ...target,
+    userBranches: target.userBranches.map((b, j) =>
+      j === 0 ? { ...b, continuation: [...b.continuation, ...linearTail] } : b,
+    ),
+  };
+  const newList = [...list.slice(0, index), healedTarget];
+  return replaceContainingList(history, path, newList);
+}
+
 /** Плоский порядок отображения (только активные ветки). */
 export function flattenVisibleWithPaths(
   history: ChatMessage[],
@@ -131,6 +202,7 @@ export function flattenVisibleWithPaths(
       if (m.role === "user" && m.userBranches?.length) {
         const bi = clampActiveBranchIndex(m);
         walk(m.userBranches[bi].continuation, path);
+        break;
       }
     }
   }
@@ -221,7 +293,8 @@ export function replaceTailAfterUserWithStubAi(history: ChatMessage[], path: num
 
 /** Сохранение текста пользователя: форк при «хвосте» снизу, иначе правка на месте; без заглушки ИИ. */
 function applyUserMessageSaveCore(history: ChatMessage[], path: number[], newText: string): ChatMessage[] {
-  const ctx = getParentListAndIndex(history, path);
+  const healed = healOrphanLinearSiblingsAfterBranchedUser(history, path);
+  const ctx = getParentListAndIndex(healed, path);
   if (!ctx) return history;
   const { list, index } = ctx;
   const target = list[index];
@@ -239,12 +312,12 @@ function applyUserMessageSaveCore(history: ChatMessage[], path: number[], newTex
   const hasNestedTail = activeCont.length > 0;
 
   if (!hasLinearTail && !hasNestedTail) {
-    if (trimmed === oldDisplay.trim()) return history;
+    if (trimmed === oldDisplay.trim()) return healed;
     const updated = setUserDisplayText(target, trimmed);
-    return mapMessageAtPath(history, path, () => updated);
+    return mapMessageAtPath(healed, path, () => updated);
   }
 
-  if (trimmed === oldDisplay.trim()) return history;
+  if (trimmed === oldDisplay.trim()) return healed;
 
   if (!target.userBranches?.length) {
     const forked: ChatMessage = {
@@ -256,7 +329,7 @@ function applyUserMessageSaveCore(history: ChatMessage[], path: number[], newTex
       activeUserBranch: 1,
     };
     const newList = [...list.slice(0, index), forked];
-    return replaceContainingList(history, path, newList);
+    return replaceContainingList(healed, path, newList);
   }
 
   const bi = clampActiveBranchIndex(target);
@@ -273,11 +346,17 @@ function applyUserMessageSaveCore(history: ChatMessage[], path: number[], newTex
     activeUserBranch: bi + 1,
   };
   const newList = [...list.slice(0, index), forkedUser];
-  return replaceContainingList(history, path, newList);
+  return replaceContainingList(healed, path, newList);
 }
 
 /** Как `applyUserMessageSaveCore`, плюс всегда новый ответ ассистента-заглушка под отредактированным сообщением (если текст реально менялся / был форк). */
 export function applyUserMessageSave(history: ChatMessage[], path: number[], newText: string): ChatMessage[] {
+  const trimmed = newText.trim();
+  const original = resolveMessage(history, path);
+  if (!original || original.role !== "user") return history;
+  if (trimmed === displayUserText(original).trim()) {
+    return normalizeBranchedHistory(history);
+  }
   const next = applyUserMessageSaveCore(history, path, newText);
   if (next === history) return history;
   return replaceTailAfterUserWithStubAi(next, path);

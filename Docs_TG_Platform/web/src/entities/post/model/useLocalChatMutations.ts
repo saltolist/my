@@ -3,52 +3,53 @@
 import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
+import { useRepositories } from "@/app/providers/RepositoryProvider";
 import { getCachedPost, setCachedPost } from "@/entities/post/lib/getCachedPost";
+import { fetchPost, patchPostChatHistory } from "@/entities/post/lib/patchPostChatHistory";
+import { queryKeys } from "@/shared/api/queryKeys";
+import { appendToActiveHistory } from "@/shared/lib/chatPaths";
 import type { ChatMessage, LocalChat } from "@/shared/types";
 
 import { useUpdatePost } from "./usePosts";
 
+function previewForMessage(message: ChatMessage): string | undefined {
+  const text = message.text?.trim();
+  if (!text) return undefined;
+  return text.slice(0, 80);
+}
+
 export function useAddLocalChat() {
+  const { posts } = useRepositories();
   const updatePost = useUpdatePost();
   const queryClient = useQueryClient();
 
   return useCallback(
     async (postId: number, chat: LocalChat) => {
-      const post = getCachedPost(queryClient, postId);
-      if (!post) return;
+      const post = await fetchPost(queryClient, posts, postId);
       const updated = { ...post, chats: [...post.chats, chat] };
-      await updatePost.mutateAsync({
-        id: postId,
-        patch: { chats: updated.chats },
-      });
+      await updatePost.mutateAsync({ id: postId, patch: { chats: updated.chats } });
       setCachedPost(queryClient, updated);
     },
-    [queryClient, updatePost],
+    [posts, queryClient, updatePost],
   );
 }
 
 export function usePushLocalChatMessage() {
-  const updatePost = useUpdatePost();
+  const { posts } = useRepositories();
   const queryClient = useQueryClient();
 
   return useCallback(
     async (postId: number, chatId: number, message: ChatMessage) => {
-      const post = getCachedPost(queryClient, postId);
-      if (!post) return;
-      const chats = post.chats.map((chat) => {
-        if (chat.id !== chatId) return chat;
-        const history = [...chat.history, message];
-        const preview =
-          message.role === "ai" && message.text
-            ? message.text.slice(0, 80)
-            : chat.preview;
-        return { ...chat, history, preview };
-      });
-      const updated = { ...post, chats };
-      await updatePost.mutateAsync({ id: postId, patch: { chats } });
-      setCachedPost(queryClient, updated);
+      await patchPostChatHistory(
+        queryClient,
+        posts,
+        postId,
+        chatId,
+        (history) => appendToActiveHistory(history, message),
+        { preview: previewForMessage(message) },
+      );
     },
-    [queryClient, updatePost],
+    [posts, queryClient],
   );
 }
 

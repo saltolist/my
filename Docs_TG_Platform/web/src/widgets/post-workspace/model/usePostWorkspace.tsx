@@ -7,7 +7,12 @@ import { useComposer } from "@/app/model/store/composer-store";
 import { useNavigationStore } from "@/app/model/store/navigation-store";
 import { usePostNavigationStore } from "@/app/model/store/post-navigation-store";
 import { usePost, useUpdatePost } from "@/entities/post";
-import { flattenVisibleWithPaths, lastAssistantFlatIndex } from "@/shared/lib/chatPaths";
+import {
+  flattenVisibleWithPaths,
+  lastAssistantFlatIndex,
+  normalizeBranchedHistory,
+  visibleHistoryRevision,
+} from "@/shared/lib/chatPaths";
 import { postTitle } from "@/shared/lib/helpers";
 import { parseAppPath, routes } from "@/shared/lib/routes";
 import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
@@ -50,15 +55,10 @@ export function usePostWorkspace() {
 
   const mediaItems: PostMedia[] = post?.media ?? [];
   const activeChat = post?.chats.find((c) => c.id === currentPostChatId) ?? null;
-  const chatHistory = activeChat?.history;
-  const flatMessages = useMemo(
-    () => flattenVisibleWithPaths(chatHistory ?? []),
-    [chatHistory],
-  );
-  const lastAssistantFlat = useMemo(
-    () => lastAssistantFlatIndex(flatMessages),
-    [flatMessages],
-  );
+  const chatHistory = normalizeBranchedHistory(activeChat?.history ?? []);
+  const chatHistoryRevision = visibleHistoryRevision(chatHistory);
+  const flatMessages = flattenVisibleWithPaths(chatHistory);
+  const lastAssistantFlat = lastAssistantFlatIndex(flatMessages);
 
   const syncPostUrl = useCallback(
     (mode: PostMode, chatId: number | null) => {
@@ -192,6 +192,7 @@ export function usePostWorkspace() {
       currentPostChatId,
       activeChat,
       flatMessages,
+      chatHistoryRevision,
       lastAssistantFlat,
       mediaItems,
     },

@@ -1,4 +1,5 @@
 import { http, HttpResponse } from "msw";
+import { appendToActiveHistory } from "@/shared/lib/chatPaths";
 import { getGlobalReply } from "@/shared/lib/replies";
 import type { GlobalChat, GlobalNote, Post } from "@/shared/types";
 import { mswStore } from "./store";
@@ -56,18 +57,16 @@ export const handlers = [
     if (!chat) return notFound(`Chat ${chatId} not found`);
 
     const aiText = getGlobalReply(text);
+    let history = appendToActiveHistory(chat.history, { role: "user", text });
+    history = appendToActiveHistory(history, {
+      role: "ai",
+      text: aiText,
+      llmLabel: "OpenAI / gpt-4o",
+      webLabel: "Perplexity / search-api",
+    });
     const updated: GlobalChat = {
       ...chat,
-      history: [
-        ...chat.history,
-        { role: "user", text },
-        {
-          role: "ai",
-          text: aiText,
-          llmLabel: "OpenAI / gpt-4o",
-          webLabel: "Perplexity / search-api",
-        },
-      ],
+      history,
       preview: aiText.slice(0, 80),
       date: "сейчас",
     };
