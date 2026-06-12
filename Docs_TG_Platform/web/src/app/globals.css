@@ -311,19 +311,11 @@
   background-color: #ffffff;
 }
 
-:root[data-theme="light"] #screen-note .note-shell {
-  box-shadow: var(--content-card-shadow);
-}
-
 @media (prefers-color-scheme: light) {
   :root[data-theme="system"] #screen-post .post-msg-block > .post-card.post-msg-card,
   :root[data-theme="system"] #screen-post .post-msg-block > .post-card.post-msg-card:hover,
   :root[data-theme="system"] #screen-post .post-body-inner > .post-msg-card,
   :root[data-theme="system"] #screen-note .note-shell {
     background-color: #ffffff;
-  }
-
-  :root[data-theme="system"] #screen-note .note-shell {
-    box-shadow: var(--content-card-shadow);
   }
 }

@@ -43,7 +43,7 @@
   --content-adapt-w: 100vw;
   --nav-active-bg: var(--bg3);
   --nav-hover-bg: var(--bg3);
-  --nav-sub-active-bg: color-mix(in srgb, var(--bg3) 88%, var(--accent) 12%);
+  --nav-sub-active-bg: color-mix(in srgb, var(--bg3) 62%, #ffffff 38%);
   --nav-icon-slot: 28px;
   --nav-icon-art: 18px;
   --content-w: min(1160px, calc(100vw - var(--nav-w) - 48px));
@@ -230,7 +230,6 @@ html.sidebar-collapsed {
   --scroll-thumb: rgba(0, 0, 0, 0.18);
   --scroll-thumb-hover: rgba(0, 0, 0, 0.34);
   --trend-tooltip-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.14);
-  --nav-sub-active-bg: color-mix(in srgb, var(--bg3) 72%, var(--accent) 10%);
   --page-bg-grad:
     radial-gradient(100% 82% at 94% 0%, rgba(37, 99, 235, 0.075) 0%, transparent 50%),
     radial-gradient(88% 72% at 0% 100%, rgba(124, 58, 237, 0.05) 0%, transparent 52%),
