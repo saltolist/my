@@ -24,7 +24,7 @@ web/
 ```bash
 cd Docs_TG_Platform/web
 npm install
-npm run dev    # http://localhost:3020
+npm run dev    # http://localhost:3020 (в сети: http://<ваш-LAN-IP>:3020)
 npm run check  # typecheck + lint + test + build
 ```
 

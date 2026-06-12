@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3020",
+    "dev": "next dev --port 3020 --hostname 0.0.0.0",
     "build": "next build && node scripts/copy-404.mjs",
     "start": "next start",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
