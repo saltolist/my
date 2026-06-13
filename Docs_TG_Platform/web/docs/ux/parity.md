@@ -2,7 +2,7 @@
 
 Reference UI = [`web-legacy`](../../../web-legacy/) — **полный эталон**. Spec = [pages.md](./pages.md).
 
-Новая версия — [`web/src/`](../../src/) — воспроизводит legacy 1:1 на v2-стеке. План фаз — [08-roadmap.md](../product/08-roadmap.md). Карта экранов → код — [08-roadmap § Карта экранов](../product/08-roadmap.md#карта-экранов--код).
+Новая версия — [`web/src/`](../../src/) — воспроизводит legacy 1:1 на v2-стеке. План фаз — [08-roadmap.md](../product/08-roadmap.md). **Gate checklist M3–M5:** [m3-m5-gate-checklist.md](../engineering/m3-m5-gate-checklist.md). Карта экранов → код — [08-roadmap § Карта экранов](../product/08-roadmap.md#карта-экранов--код).
 
 ## Implementation progress
 

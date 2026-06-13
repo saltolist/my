@@ -27,7 +27,7 @@ M6 GitHub Pages live                           🔴
 M7 Backend adapter verified (http mode)        🔴
 ```
 
-Карта экранов → код: [08-roadmap.md § Карта экранов](../product/08-roadmap.md#карта-экранов--код). Parity: [parity.md](../ux/parity.md).
+Карта экранов → код: [08-roadmap.md § Карта экранов](../product/08-roadmap.md#карта-экранов--код). Parity: [parity.md](../ux/parity.md). **Gate M3–M5:** [m3-m5-gate-checklist.md](./m3-m5-gate-checklist.md).
 
 ---
 

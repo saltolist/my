@@ -2,7 +2,7 @@
 
 Единая точка входа для web-версии TG Platform: продуктовая документация, UX-спецификация и **Next.js клиент**.
 
-**Сейчас:** M3 widgets ~85%, M4 features + screens ~75% (chats + notes ближе к done). Roadmap — [docs/product/08-roadmap.md](./docs/product/08-roadmap.md). Parity — [docs/ux/parity.md](./docs/ux/parity.md).
+**Сейчас:** M3 widgets ~85%, M4 features + screens ~75%. **План до Pages:** [docs/engineering/pre-pages-execution-plan.md](./docs/engineering/pre-pages-execution-plan.md). **Чеклист:** [m3-m5-gate-checklist.md](./docs/engineering/m3-m5-gate-checklist.md). Roadmap — [08-roadmap.md](./docs/product/08-roadmap.md).
 
 ## Структура
 

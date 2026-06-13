@@ -12,6 +12,7 @@
 | **Roadmap** | `docs/product/08-roadmap.md` | Milestone shift, new widget/screen/feature layer |
 | **Parity tracker** | `docs/ux/parity.md` | Screen reaches `done` or gaps change |
 | **Testing** | `docs/engineering/testing.md` | New/removed E2E or unit test |
+| **M3–M5 gate** | `docs/engineering/m3-m5-gate-checklist.md` | Screen/widget done, scenario pass, before Pages |
 | **UX screens** | `docs/ux/pages.md` | Legacy UI behavior changes |
 | **UX layout** | `docs/ux/wireframes/` | Visual structure changes |
 | **UX components** | `docs/ux/components/` | Widget/feature behavior changes |
@@ -54,7 +55,8 @@
 1. Widget or screen ready → update row in [parity.md](./ux/parity.md) (`partial` → `done`, gaps column)
 2. Milestone shift → [08-roadmap.md](./product/08-roadmap.md) § «Текущее состояние» + phase tables; sync [frontend-roadmap.md](./engineering/frontend-roadmap.md)
 3. New E2E test → [testing.md](./engineering/testing.md) + parity E2E table
-4. New widget slice → optional status in [components/widgets/README.md](./ux/components/widgets/README.md)
+4. Gate item done → [m3-m5-gate-checklist.md](./engineering/m3-m5-gate-checklist.md)
+5. New widget slice → optional status in [components/widgets/README.md](./ux/components/widgets/README.md)
 
 ---
 

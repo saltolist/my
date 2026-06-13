@@ -21,6 +21,8 @@
 
 **Не входит во фронтенд-roadmap:** реальный Telegram, LLM, persistence на сервере, auth — [Track B](#track-b--backend-после-фронтенда).
 
+**Gate перед GitHub Pages (M6):** [m3-m5-gate-checklist.md](../engineering/m3-m5-gate-checklist.md) — закрыть M3–M5 + polish.
+
 ---
 
 ## Текущее состояние
