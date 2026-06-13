@@ -2,7 +2,7 @@
 
 Единая точка входа для web-версии TG Platform: продуктовая документация, UX-спецификация и **Next.js клиент**.
 
-**Сейчас:** M3 widgets ~85%, M4 features + screens ~75%. **План до Pages:** [docs/engineering/pre-pages-execution-plan.md](./docs/engineering/pre-pages-execution-plan.md). **Чеклист:** [m3-m5-gate-checklist.md](./docs/engineering/m3-m5-gate-checklist.md). Roadmap — [08-roadmap.md](./docs/product/08-roadmap.md).
+**Сейчас:** M3 widgets ~85%, M4 features + screens ~75%. **GitHub Pages demo (MSW):** https://saltolist.github.io/my/ — см. [deploy.md](./docs/engineering/deploy.md). **Чеклист:** [m3-m5-gate-checklist.md](./docs/engineering/m3-m5-gate-checklist.md). Roadmap — [08-roadmap.md](./docs/product/08-roadmap.md).
 
 ## Структура
 
@@ -26,6 +26,13 @@ cd Docs_TG_Platform/web
 npm install
 npm run dev    # http://localhost:3020 (в сети: http://<ваш-LAN-IP>:3020)
 npm run check  # typecheck + lint + test + build
+```
+
+**Preview как на GitHub Pages** (basePath `/my`, MSW):
+
+```bash
+NEXT_PUBLIC_BASE_PATH=/my NEXT_PUBLIC_USE_MSW=1 npm run build
+npx serve out -p 3021   # → http://localhost:3021/my/
 ```
 
 ## Карта документации

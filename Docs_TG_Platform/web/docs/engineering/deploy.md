@@ -31,7 +31,7 @@ Post-build: `copy-404.mjs` copies `404.html` for SPA fallback on static hosts.
 
 | Variable | Production example | Purpose |
 |----------|-------------------|---------|
-| `NEXT_PUBLIC_BASE_PATH` | `/Repositories_Info/Docs_TG_Platform/web` | Asset prefix (GitHub Pages) |
+| `NEXT_PUBLIC_BASE_PATH` | `/my` | Asset prefix (GitHub Pages, repo `saltolist/my`) |
 | `NEXT_PUBLIC_USE_MSW` | `0` | Disable mock API |
 | `NEXT_PUBLIC_API_BASE_URL` | `https://api.example.com` | Backend URL (no trailing slash) |
 
@@ -41,15 +41,27 @@ Post-build: `copy-404.mjs` copies `404.html` for SPA fallback on static hosts.
 
 ## GitHub Pages
 
-CI sets:
+**Live demo:** https://saltolist.github.io/my/ (MSW + seed, `NEXT_PUBLIC_USE_MSW=1`).
+
+CI / deploy workflow (`.github/workflows/web-pages.yml`):
 
 ```yaml
-NEXT_PUBLIC_BASE_PATH: /Repositories_Info/Docs_TG_Platform/web
+NEXT_PUBLIC_BASE_PATH: /my
+NEXT_PUBLIC_USE_MSW: "1"
 ```
 
-Deploy `out/` to Pages. All routes use trailing slashes; gchat uses query `?id=` because path segments don't work well with static export for dynamic ids.
+Deploy uploads `out/` as the site root. All routes use trailing slashes; gchat uses query `?id=` because path segments don't work well with static export for dynamic ids.
 
-**Deploy workflow** — planned in [08-roadmap.md](../product/08-roadmap.md) Phase 8 (`web-pages.yml`: build with MSW demo → GitHub Pages).
+**Local preview** (same env as Pages):
+
+```bash
+cd Docs_TG_Platform/web
+NEXT_PUBLIC_BASE_PATH=/my NEXT_PUBLIC_USE_MSW=1 npm run build
+npx serve out -p 3021
+# open http://localhost:3021/my/
+```
+
+**Repo settings:** Pages → Source → GitHub Actions (required once per repo).
 
 ---
 

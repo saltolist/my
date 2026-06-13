@@ -47,4 +47,4 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_BASE_PATH: /Repositories_Info/Docs_TG_Platform/web
+          NEXT_PUBLIC_BASE_PATH: /my
