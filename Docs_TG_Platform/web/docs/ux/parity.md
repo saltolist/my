@@ -11,7 +11,7 @@ Reference UI = [`web-legacy`](../../../web-legacy/) — **полный этал�
 | M1 Foundation | data layer, CI, all routes | ✅ |
 | M2 Shell | sidebar, PageHeader, RouteSync, ContentAdaptSync | ✅ |
 | M3 Widgets | composer, feed, post-workspace, … | 🟡 ~85% |
-| M4 Features + screens | features slices + 9 screen parity | 🟡 ~75% |
+| M4 Features + screens | features slices + 9 screen parity | 🟡 ~85% — 4/9 done |
 | M5 Local-first | full demo CRUD + user scenario | 🔴 |
 | M6 GitHub Pages | deploy workflow | 🔴 |
 | M7 Backend gate | http mode verified | 🔴 |
@@ -26,8 +26,8 @@ Backend-only limits (stub AI, in-memory) — [local-first.md](../engineering/loc
 |--------|-----|------|--------------|-----|----------------|
 | Home | `/` | [pages.md §1](./pages.md#1-home) | done | 🟡 partial | attach / `@` mention E2E |
 | GChat | `/gchat/?id=` | [pages.md §2](./pages.md#2-gchat) | done | 🟡 partial | delete, message edit E2E |
-| Feed | `/feed/` | [pages.md §3](./pages.md#3-feed) | done | 🟡 partial | open post, draft DnD E2E |
-| Post | `/post/{id}/` | [pages.md §4](./pages.md#4-post) | done | 🟡 partial | modes, inline edit, ctx menu E2E |
+| Feed | `/feed/` | [pages.md §3](./pages.md#3-feed) | done | done | — |
+| Post | `/post/{id}/` | [pages.md §4](./pages.md#4-post) | done | done | — |
 | Note | `/note/*` | [pages.md §5](./pages.md#5-note) | done | 🟡 partial | edit, DnD, dirty E2E |
 | Chats | `/chats/` | [pages.md §6](./pages.md#6-chats) | done | done | — |
 | Notes | `/notes/` | [pages.md §7](./pages.md#7-notes) | done | done | AI filter interaction E2E (minor) |
@@ -71,7 +71,7 @@ Wireframes: [wireframes/](./wireframes/). Components: [components/](./components
 
 ## E2E coverage
 
-Source: [`e2e/shell.spec.ts`](../../e2e/shell.spec.ts) (12 tests). Details: [testing.md](../engineering/testing.md).
+Source: [`e2e/shell.spec.ts`](../../e2e/shell.spec.ts) (17 tests). Details: [testing.md](../engineering/testing.md).
 
 | Area | Covered | Notes |
 |------|---------|-------|
@@ -87,8 +87,9 @@ Source: [`e2e/shell.spec.ts`](../../e2e/shell.spec.ts) (12 tests). Details: [tes
 | Post load | yes | breadcrumbs, card, composer |
 | Post legacy redirect | yes | `/post/5/notes/` → `/post/5/` |
 | Global note load | yes | title from seed |
-| Feed open post | planned | |
-| Post modes / edit / menu | planned | |
+| Feed open post | yes | click card → post chat |
+| Feed create draft | yes | composer ↑ |
+| Post modes / edit / menu | yes | Заметки/Чаты, inline edit, publish draft |
 | Note edit / DnD / dirty | planned | |
 | GChat delete | planned | |
 | Profile tabs / dirty | planned | |

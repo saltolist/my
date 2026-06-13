@@ -12,6 +12,7 @@ import {
 import { useDeletePost, useUpdatePost } from "@/entities/post";
 import { formatPostDateTime, parsePostDateTime, postTitle } from "@/shared/lib/helpers";
 import { routes } from "@/shared/lib/routes";
+import { confirmDialog } from "@/shared/ui/dialog";
 import type { CtxMenuItem } from "@/shared/ui/context-menu";
 import type { Post } from "@/shared/types";
 
@@ -96,10 +97,17 @@ export function usePostCtxMenuItems(
         });
       },
       onDelete: () => {
-        if (!confirm(`Удалить пост «${postTitle(post)}»?`)) return;
-        void deletePost.mutateAsync(post.id).then(() => {
-          router.replace(routes.feed());
-        });
+        void (async () => {
+          const ok = await confirmDialog({
+            message: `Удалить пост «${postTitle(post)}»?`,
+            confirmLabel: "Удалить",
+            destructive: true,
+          });
+          if (!ok) return;
+          void deletePost.mutateAsync(post.id).then(() => {
+            router.replace(routes.feed());
+          });
+        })();
       },
     });
   }, [actions.onNewChat, actions.onNewNote, deletePost, openScheduleModal, post, router, updatePost]);

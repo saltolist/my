@@ -85,22 +85,22 @@ Spec: [chat-thread.md](../ux/components/widgets/chat-thread.md)
 
 Spec: [feed.md](../ux/components/widgets/feed.md)
 
-- [ ] PostCard: media, text, status icon, metrics, PostCommentsRow
-- [ ] Published: day groups
-- [ ] Scheduled section
-- [ ] Drafts: 6-dot DnD handle, reorder → repository
-- [ ] feed-header-toolbar: search + width toggle (500/390/270)
-- [ ] FeedComposer → create draft
+- [x] PostCard: media, text, status icon, metrics, PostCommentsRow
+- [x] Published: day groups
+- [x] Scheduled section
+- [x] Drafts: 6-dot DnD handle, reorder → repository
+- [x] feed-header-toolbar: search + width toggle (500/390/270)
+- [x] FeedComposer → create draft
 
 ### post-workspace
 
 Spec: [post-workspace.md](../ux/components/widgets/post-workspace.md)
 
-- [ ] PostMessageCard: copy, edit toolbar
-- [ ] Inline edit: textarea, media, Save / Cancel
-- [ ] PostCommentsPanel + CommentComposer (published/scheduled)
-- [ ] PostCardToolbar icons
-- [ ] Mode integration: chat / notes / chats / comments
+- [x] PostMessageCard: copy, edit toolbar
+- [x] Inline edit: textarea, media, Save / Cancel
+- [x] PostCommentsPanel + CommentComposer (published/scheduled)
+- [x] PostCardToolbar icons
+- [x] Mode integration: chat / notes / chats / comments
 
 ### note-editor
 
@@ -145,14 +145,14 @@ DoD: сценарий работает через repository; e2e или manual 
 
 | Feature | Checklist |
 |---------|-----------|
-| **post-context-menu** | [ ] draft: publish, schedule, delete · [ ] scheduled: publish, reschedule, cancel, delete · [ ] published: delete · [ ] always: new chat, new note |
-| **schedule-post** | [ ] SchedulePickerModal opens · [ ] updates status + date |
-| **manage-drafts** | [ ] DnD reorder persists in session · [ ] survives until reload |
+| **post-context-menu** | [x] draft: publish, schedule, delete · [x] scheduled: publish, reschedule, cancel, delete · [x] published: delete · [x] always: new chat, new note |
+| **schedule-post** | [x] SchedulePickerModal opens · [x] updates status + date |
+| **manage-drafts** | [x] DnD reorder persists in session · [x] survives until reload |
 | **send-message** | [ ] home/gchat/post send · [ ] stub AI reply (keywords) |
 | **attach-post-mention** | [ ] `@` dropdown · [ ] chip remove |
 | **attach-media** | [ ] per-scope attach menus |
-| **inline-edit-post** | [ ] edit card · [ ] save patch to post |
-| **publish-post** | [ ] draft → published via menu |
+| **inline-edit-post** | [x] edit card · [x] save patch to post |
+| **publish-post** | [x] draft → published via menu |
 | **note-ai-flag** | [ ] toggle in note menu + notes catalog |
 | **delete/rename chat** | [ ] gchat header, chats catalog, message menu |
 | **delete/rename note** | [ ] note header, notes catalog |
@@ -194,31 +194,31 @@ Wireframe: [05-global-chat](../ux/wireframes/05-global-chat.md)
 
 Wireframe: [02-feed](../ux/wireframes/02-feed.md)
 
-- [ ] Header: search + width toggle
-- [ ] Sections: Опубликованные (by day), Отложенные, Черновики
-- [ ] Click card → post chat mode
-- [ ] Comments row click → post comments mode
-- [ ] Composer → new draft in Черновики
-- [ ] Draft DnD reorder
-- [ ] Search filters cards
-- [ ] E2E: nav, open post, draft create/reorder
-- [ ] **parity.md → done**
+- [x] Header: search + width toggle
+- [x] Sections: Опубликованные (by day), Отложенные, Черновики
+- [x] Click card → post chat mode
+- [x] Comments row click → post comments mode
+- [x] Composer → new draft in Черновики
+- [x] Draft DnD reorder
+- [x] Search filters cards
+- [x] E2E: nav, open post, draft create/reorder
+- [x] **parity.md → done**
 
 ### post — `/post/{id}/`
 
 Wireframe: [03-post](../ux/wireframes/03-post.md)
 
-- [ ] Breadcrumbs: Лента / title
-- [ ] Tabs: ↑ К посту, Заметки, Чаты, ← Назад, •••
-- [ ] **chat:** card + composer, inline edit, local chat create
-- [ ] **notes:** FilterToolbar + list + new note + AI toggle
-- [ ] **chats:** FilterToolbar + list + new chat
-- [ ] **comments:** readonly card + list + CommentComposer
-- [ ] Context menu by status (publish/schedule/delete)
-- [ ] List search in notes/chats/comments modes
-- [ ] Legacy redirect `/post/{id}/notes/` → canonical
-- [ ] E2E: load, modes, edit, publish draft
-- [ ] **parity.md → done**
+- [x] Breadcrumbs: Лента / title
+- [x] Tabs: ↑ К посту, Заметки, Чаты, ← Назад, •••
+- [x] **chat:** card + composer, inline edit, local chat create
+- [x] **notes:** FilterToolbar + list + new note + AI toggle
+- [x] **chats:** FilterToolbar + list + new chat
+- [x] **comments:** readonly card + list + CommentComposer
+- [x] Context menu by status (publish/schedule/delete)
+- [x] List search in notes/chats/comments modes
+- [x] Legacy redirect `/post/{id}/notes/` → canonical
+- [x] E2E: load, modes, edit, publish draft
+- [x] **parity.md → done**
 
 ### note — `/note/*`
 
@@ -434,12 +434,12 @@ DoD: demo полностью функционален без backend; [local-fir
 
 ### To add (gate)
 
-- [ ] Feed → open post
-- [ ] Feed → create draft (composer)
+- [x] Feed → open post
+- [x] Feed → create draft (composer)
 - [ ] Feed → draft DnD (optional if flaky)
-- [ ] Post → switch to Заметки / Чаты
-- [ ] Post → publish draft via •••
-- [ ] Post → inline edit save
+- [x] Post → switch to Заметки / Чаты
+- [x] Post → publish draft via •••
+- [x] Post → inline edit save
 - [ ] Note → edit + save
 - [ ] Note → dirty leave confirm
 - [ ] Gchat → delete chat

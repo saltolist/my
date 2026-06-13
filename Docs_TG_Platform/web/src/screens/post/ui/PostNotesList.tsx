@@ -1,6 +1,7 @@
 "use client";
 
 import { NoteListCard } from "@/entities/note";
+import { NoteListCardMenu } from "@/widgets/note-editor";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { matchesListContextFilter } from "@/shared/lib/listContextFilter";
 import type { LocalNote, NoteListFilter, Post } from "@/shared/types";
@@ -47,6 +48,9 @@ export default function PostNotesList({
             ai={n.ai}
             onClick={() => onOpenNote(n)}
             onToggleAi={() => onToggleNoteAi(n.id)}
+            menu={
+              <NoteListCardMenu isGlobal={false} postId={post.id} noteId={n.id} title={n.title} />
+            }
           />
         ))}
       </div>

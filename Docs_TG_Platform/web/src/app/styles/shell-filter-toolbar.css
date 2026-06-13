@@ -56,6 +56,24 @@
   white-space: nowrap;
 }
 
+/* «Новая заметка» / «Новый чат»: как активная вкладка, но с hover-анимацией */
+.page-header-control.filter-toolbar-action {
+  color: var(--text);
+  border-color: var(--control-border-active);
+}
+
+.page-header-control.filter-toolbar-action:hover {
+  background: var(--page-header-control-bg-hover);
+  border-color: var(--control-border-hover);
+  color: var(--text);
+}
+
+.page-header-control.active.filter-toolbar-action:hover {
+  background: var(--page-header-control-bg-hover);
+  border-color: var(--control-border-hover);
+  color: var(--text);
+}
+
 .page-header-control.filter-tab--dropdown {
   gap: 6px;
   padding-right: 10px;

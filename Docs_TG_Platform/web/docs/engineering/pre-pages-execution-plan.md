@@ -14,7 +14,7 @@
 |------|--------|
 | M1 Foundation, M2 Shell | ✅ |
 | M3 Widgets | 🟡 ~85% |
-| M4 Screens | 🟡 ~75% — **2/9 done** (chats, notes) |
+| M4 Screens | 🟡 ~75% — **4/9 done** (chats, notes, feed, post) |
 | M5 Local-first | 🔴 |
 | M6 Pages | 🔴 |
 | CI `npm run check` | ✅ |
@@ -92,25 +92,25 @@
 
 Wireframe: [02-feed](../ux/wireframes/02-feed.md)
 
-- [ ] Ручной проход vs legacy: секции, search, width toggle, PostCommentsRow
-- [ ] Composer → новый черновик в «Черновики»
-- [ ] Click card → `/post/{id}/`
-- [ ] Draft DnD reorder (session)
-- [ ] E2E: open post, create draft
-- [ ] Widgets: `feed`, `manage-drafts` — отметить в gate-checklist
-- [ ] **parity.md:** feed → `done`
+- [x] Ручной проход vs legacy: секции, search, width toggle, PostCommentsRow
+- [x] Composer → новый черновик в «Черновики»
+- [x] Click card → `/post/{id}/`
+- [x] Draft DnD reorder (session)
+- [x] E2E: open post, create draft
+- [x] Widgets: `feed`, `manage-drafts` — отметить в gate-checklist
+- [x] **parity.md:** feed → `done`
 
 ### PR 2b: post → done
 
 Wireframe: [03-post](../ux/wireframes/03-post.md)
 
-- [ ] Режимы: chat, notes, chats, comments — переключение, FilterToolbar
-- [ ] Inline edit карточки → save
-- [ ] Context menu: publish / schedule / delete по status
-- [ ] Composer scope post, local chat create
-- [ ] E2E: modes, publish draft, inline edit
-- [ ] Widgets: `post-workspace`, `composer`, `filter-toolbar` — gate-checklist
-- [ ] **parity.md:** post → `done`
+- [x] Режимы: chat, notes, chats, comments — переключение, FilterToolbar
+- [x] Inline edit карточки → save
+- [x] Context menu: publish / schedule / delete по status
+- [x] Composer scope post, local chat create
+- [x] E2E: modes, publish draft, inline edit
+- [x] Widgets: `post-workspace`, `composer`, `filter-toolbar` — gate-checklist
+- [x] **parity.md:** post → `done`
 
 **Выход:** сценарий «черновик → работа → публикация» работает end-to-end.
 

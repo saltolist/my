@@ -1,5 +1,6 @@
 "use client";
 
+import { ChatListCardMenu } from "@/widgets/chat-thread";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { chatListAssistantLine, chatListUserLine } from "@/shared/lib/helpers";
 import type { Post } from "@/shared/types";
@@ -36,6 +37,14 @@ export default function PostChatsList({ post, search, onOpenChat }: Props) {
                   <div className="chat-card-main">
                     <div className="chat-card-row1">
                       <div className="chat-card-title">{userLine}</div>
+                      <div className="chat-card-menu-slot" onClick={(e) => e.stopPropagation()}>
+                        <ChatListCardMenu
+                          scope="local"
+                          postId={post.id}
+                          chatId={c.id}
+                          title={c.title || "Без названия"}
+                        />
+                      </div>
                     </div>
                     <div className="chat-card-row2">
                       <div className="chat-card-preview">{assistantLine || "—"}</div>

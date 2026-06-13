@@ -1,5 +1,6 @@
 "use client";
 
+import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import { FilterToolbar, FilterToolbarAction } from "@/widgets/filter-toolbar";
 import { type PostWorkspace } from "@/widgets/post-workspace";
 import PostChatsList from "@/screens/post/ui/PostChatsList";
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export default function PostChatsView({ post, ui, actions }: Props) {
+  const isMobile = useMobile760();
   const { listSearch } = ui;
   const { startNewChat, openLocalChat } = actions;
 
@@ -24,7 +26,7 @@ export default function PostChatsView({ post, ui, actions }: Props) {
           <FilterToolbarAction
             label="Новый чат"
             onClick={startNewChat}
-            className="filter-tab filter-tab--action chats-new-chat-btn filter-tab--dropdown"
+            className={`chats-new-chat-btn${isMobile ? " filter-tab--dropdown" : ""}`}
             iconClassName="chats-new-chat-btn-icon"
           />
         }

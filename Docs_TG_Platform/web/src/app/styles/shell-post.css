@@ -944,33 +944,10 @@
   cursor: pointer;
   padding: 0;
 }
+
 .post-subpage-toolbar .filter-toolbar__filters {
   flex: 1 1 auto;
   min-width: 0;
-}
-
-/* Действие «Новый чат» / «Новая заметка» — заливка и текст как у .filter-tab.active, обводка — обычная */
-.filter-tab.filter-tab--action,
-.filter-tab.filter-tab--action.active {
-  background: var(--bg4);
-  border-color: var(--border2);
-  color: var(--text);
-}
-.filter-tab.filter-tab--action:hover {
-  background: var(--bg4);
-  border-color: var(--text);
-  color: var(--text);
-}
-:root[data-theme="dark"] .filter-tab.filter-tab--action,
-:root[data-theme="dark"] .filter-tab.filter-tab--action.active {
-  background: var(--bg3);
-  border-color: var(--border2);
-  color: var(--text);
-}
-:root[data-theme="dark"] .filter-tab.filter-tab--action:hover {
-  background: var(--bg3);
-  border-color: var(--text);
-  color: var(--text);
 }
 
 /* Подстраницы поста (заметки, чаты): скролл на .post-subpage-scroll, не на сетке */

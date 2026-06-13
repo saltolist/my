@@ -105,3 +105,54 @@ test("chats scope select can be changed", async ({ page }) => {
   await page.locator(".ctx-item", { hasText: "Глобальные" }).click();
   await expect(page.getByRole("button", { name: "Область чатов" })).toContainText("Глобальные");
 });
+
+test("feed opens published post in chat mode", async ({ page }) => {
+  await page.goto("/feed/");
+  await expect(page.getByRole("heading", { name: "Лента" })).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await page.locator(".post-card").first().click();
+  await expect(page).toHaveURL(/\/post\/\d+\//, { timeout: LOAD_TIMEOUT });
+  await expect(page.locator("#screen-post .post-msg-card")).toBeVisible();
+});
+
+test("feed composer creates draft", async ({ page }) => {
+  await page.goto("/feed/");
+  await expect(page.getByRole("heading", { name: "Лента" })).toBeVisible({ timeout: LOAD_TIMEOUT });
+  const draftText = `E2E черновик ${Date.now()}`;
+  await page.locator("#feed-input").fill(draftText);
+  await page.locator("#screen-feed .send-btn").click();
+  await expect(page.getByText(draftText)).toBeVisible({ timeout: LOAD_TIMEOUT });
+});
+
+test("post switches notes and chats modes", async ({ page }) => {
+  await page.goto("/post/1/");
+  await expect(page.locator("#screen-post .post-msg-card")).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await page.locator("#screen-post").getByRole("button", { name: "Заметки" }).click();
+  await expect(page.getByRole("navigation", { name: "Хлебные крошки" })).toContainText("Заметки");
+  await expect(page.getByRole("button", { name: "Новая заметка" })).toBeVisible();
+  await page.locator("#screen-post").getByRole("button", { name: "Чаты" }).click();
+  await expect(page.getByRole("navigation", { name: "Хлебные крошки" })).toContainText("Чаты");
+  await expect(page.getByRole("button", { name: "Новый чат" })).toBeVisible();
+});
+
+test("post inline edit saves text", async ({ page }) => {
+  await page.goto("/post/1/");
+  await expect(page.locator("#screen-post .post-msg-card")).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await page.getByRole("button", { name: "Редактировать" }).click();
+  const textarea = page.getByRole("textbox", { name: "Текст поста" });
+  await expect(textarea).toBeVisible();
+  const suffix = ` [e2e ${Date.now()}]`;
+  const original = await textarea.inputValue();
+  await textarea.fill(`${original}${suffix}`);
+  await page.getByRole("button", { name: "Сохранить" }).click();
+  await expect(page.locator(".post-msg-card")).toContainText(suffix);
+});
+
+test("post publishes draft via context menu", async ({ page }) => {
+  await page.goto("/post/4/");
+  await expect(page.locator("#screen-post .post-msg-card")).toBeVisible({ timeout: LOAD_TIMEOUT });
+  const menuBtn = page.locator("#screen-post button").filter({ hasText: "•••" });
+  await menuBtn.click();
+  await page.locator(".ctx-item", { hasText: "Опубликовать" }).click();
+  await menuBtn.click();
+  await expect(page.locator(".ctx-item", { hasText: "Опубликовать" })).toHaveCount(0);
+});
