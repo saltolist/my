@@ -1,3 +1,4 @@
+import { API_V1 } from "@/shared/config/basePath";
 import { apiRequest } from "@/shared/api/httpClient";
 import type { RepositoryBundle } from "@/shared/api/repositories";
 import type {
@@ -9,7 +10,7 @@ import type {
   TelegramProfileConfig,
 } from "@/shared/types";
 
-const v1 = "/api/v1";
+const v1 = API_V1;
 
 export function createHttpRepositories(): RepositoryBundle {
   return {

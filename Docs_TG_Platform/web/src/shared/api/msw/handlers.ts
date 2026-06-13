@@ -1,10 +1,11 @@
 import { http, HttpResponse } from "msw";
+import { API_V1 } from "@/shared/config/basePath";
 import { appendToActiveHistory } from "@/shared/lib/chatPaths";
 import { getGlobalReply } from "@/shared/lib/replies";
 import type { GlobalChat, GlobalNote, Post } from "@/shared/types";
 import { mswStore } from "./store";
 
-const v1 = "/api/v1";
+const v1 = API_V1;
 
 function notFound(message: string) {
   return HttpResponse.json({ error: message }, { status: 404 });
