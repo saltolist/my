@@ -32,7 +32,7 @@ export default function NoteEditor({ note }: { note: ActiveNote }) {
             mode={editor.isView ? "view" : "edit"}
             showAttach={!editor.isView}
             onAttach={() => editor.fileInputRef.current?.click()}
-            showModeToggle={!note.isNew}
+            showModeToggle
             onToggleMode={editor.isView ? editor.setEditMode : editor.setViewMode}
             onSave={editor.save}
             onCancel={editor.cancel}

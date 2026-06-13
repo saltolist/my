@@ -28,10 +28,12 @@ test("navigate feed from sidebar", async ({ page }) => {
 });
 
 test("navigate chats and back to home", async ({ page }) => {
+  await page.goto("/");
   await page.goto("/chats/");
   await expect(page.getByRole("heading", { name: "Чаты" })).toBeVisible({ timeout: LOAD_TIMEOUT });
   await expect(page.getByRole("button", { name: "Новый чат" })).toBeVisible();
   await page.getByRole("button", { name: "Назад" }).click();
+  await expect(page).toHaveURL(/\/?$/, { timeout: LOAD_TIMEOUT });
   await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
 });
 
@@ -46,9 +48,10 @@ test("navigate notes from sidebar", async ({ page }) => {
 
 test("gchat back navigates to chats", async ({ page }) => {
   await page.goto("/gchat/?id=gc1");
-  await expect(page.getByRole("heading", { name: "Анализ недели" })).toBeVisible({
-    timeout: LOAD_TIMEOUT,
-  });
+  await expect(page.getByRole("navigation", { name: "Хлебные крошки" })).toContainText(
+    "Анализ недели",
+    { timeout: LOAD_TIMEOUT },
+  );
   await page.getByRole("button", { name: "Назад" }).click();
   await expect(page.getByRole("heading", { name: "Чаты" })).toBeVisible();
 });
@@ -56,19 +59,19 @@ test("gchat back navigates to chats", async ({ page }) => {
 test("legacy gchat path redirects to query form", async ({ page }) => {
   await page.goto("/gchat/gc1/");
   await expect(page).toHaveURL(/\/gchat\/\?id=gc1/, { timeout: LOAD_TIMEOUT });
-  await expect(page.getByRole("heading", { name: "Анализ недели" })).toBeVisible({
-    timeout: LOAD_TIMEOUT,
-  });
+  await expect(page.getByRole("navigation", { name: "Хлебные крошки" })).toContainText(
+    "Анализ недели",
+    { timeout: LOAD_TIMEOUT },
+  );
 });
 
-test("analytics page loads with period tabs", async ({ page }) => {
+test("analytics page loads with period picker", async ({ page }) => {
   await page.goto("/analytics/");
   await expect(page.getByRole("heading", { name: "Аналитика канала" })).toBeVisible({
     timeout: LOAD_TIMEOUT,
   });
-  await expect(
-    page.getByRole("tablist", { name: "Период аналитики" }).getByRole("tab", { name: "24 ч." }),
-  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Период" })).toContainText("30 дн.");
+  await expect(page.getByText("Динамика прироста")).toBeVisible();
 });
 
 test("post page loads", async ({ page }) => {

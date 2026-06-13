@@ -32,7 +32,7 @@ export function useNoteEditor(note: ActiveNote) {
   const updatePostNote = useUpdatePostNote();
   const isMobile = useMobile760();
   const noteKey = noteIdentityKey(note);
-  const isView = noteMode === "view" && !note.isNew;
+  const isView = noteMode === "view";
 
   const patchNote = useCallback(
     (patch: NavigationPatch) => {

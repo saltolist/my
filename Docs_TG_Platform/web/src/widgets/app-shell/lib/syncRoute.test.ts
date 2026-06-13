@@ -165,7 +165,7 @@ describe("syncRouteFromUrl", () => {
     );
     expect(result.kind).toBe("sync");
     if (result.kind !== "sync") return;
-    expect(result.patch.noteMode).toBe("edit");
+    expect(result.patch.noteMode).toBe("view");
     expect(result.patch.currentNote?.isNew).toBe(true);
     expect(result.patch.currentPostId).toBe(1);
   });

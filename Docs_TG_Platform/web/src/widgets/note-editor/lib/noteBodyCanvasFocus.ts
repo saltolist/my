@@ -91,7 +91,7 @@ export function shouldHandleBodyCanvasPointerDown(
 ): boolean {
   if (!(target instanceof HTMLElement)) return false;
   if (!canvas.contains(target)) return false;
-  if (target.closest(".note-body-document-edit, .note-body-line-edit")) return false;
+  if (target.closest(".note-body-line-edit")) return false;
   if (target.closest("a, button, img.note-inline-image, .note-embed-chip, .note-body-cell--embed")) {
     return false;
   }

@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, type ReactNode } from "react";
 
+import {
+  focusNoteBodyAtPoint,
+  shouldHandleBodyCanvasPointerDown,
+} from "@/widgets/note-editor/lib/noteBodyCanvasFocus";
 import { splitLineHighlightParts } from "@/shared/lib/noteEmbeds/lineHighlight";
 
 type Props = {
@@ -10,8 +14,11 @@ type Props = {
 };
 
 function autoGrow(el: HTMLTextAreaElement) {
+  const canvas = el.closest(".note-body-canvas");
+  const minHeight = canvas instanceof HTMLElement ? canvas.clientHeight : 0;
   el.style.height = "auto";
-  el.style.height = `${el.scrollHeight}px`;
+  const contentHeight = el.scrollHeight;
+  el.style.height = `${Math.max(contentHeight, minHeight)}px`;
 }
 
 function renderHighlight(body: string): ReactNode {
@@ -37,14 +44,28 @@ function renderHighlight(body: string): ReactNode {
 
 export default function NoteBodyDocumentEdit({ body, onChange }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const stackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (textareaRef.current) autoGrow(textareaRef.current);
   }, [body]);
 
+  const handleStackMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    const canvas = stackRef.current?.closest(".note-body-canvas");
+    if (!(canvas instanceof HTMLElement)) return;
+    if (!shouldHandleBodyCanvasPointerDown(e.target, canvas)) return;
+    e.preventDefault();
+    focusNoteBodyAtPoint(canvas, e.clientX, e.clientY);
+  }, []);
+
   return (
     <div className="note-body-document note-body-document--edit">
-      <div className="note-body-document-edit-stack">
+      <div
+        ref={stackRef}
+        className="note-body-document-edit-stack"
+        onMouseDown={handleStackMouseDown}
+      >
         <div className="note-body-document-edit-highlight" aria-hidden>
           {renderHighlight(body)}
         </div>

@@ -267,7 +267,7 @@ export function buildRoutePatch(
         ...base,
         screen: "note",
         currentNote,
-        noteMode: "edit",
+        noteMode: "view",
         noteFrom: noteFromFallback,
         noteSavedSnapshot: EMPTY_NOTE_SNAPSHOT,
         ...(fromPost ? { currentPostId: parsed.notePostId } : {}),
