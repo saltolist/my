@@ -32,6 +32,8 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
+    "@emnapi/core": "1.11.1",
+    "@emnapi/runtime": "1.11.1",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
