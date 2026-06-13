@@ -4,7 +4,7 @@ import { useMemo } from "react";
 
 import { useNavigationStore } from "@/app/model/store";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
-import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
+import { useScreenBack } from "@/widgets/app-shell/model/useScreenBack";
 import type { NoteListFilter, NoteScope } from "@/shared/types";
 import { ScreenShell } from "@/screens/_ui/screen-shell";
 import { useNotesScreen } from "@/screens/notes/model/useNotesScreen";

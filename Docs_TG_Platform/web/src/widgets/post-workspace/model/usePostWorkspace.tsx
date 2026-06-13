@@ -16,7 +16,7 @@ import {
 import { postTitle } from "@/shared/lib/helpers";
 import { parseAppPath, routes } from "@/shared/lib/routes";
 import { useChatThreadAutoScroll } from "@/shared/lib/hooks/useChatThreadAutoScroll";
-import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
+import { useScreenBack } from "@/widgets/app-shell/model/useScreenBack";
 import { usePostCtxMenuItems } from "@/features/post-context-menu";
 import { useFeedPostLayout } from "@/widgets/feed";
 import { usePostScreenHeader } from "./usePostScreenHeader";

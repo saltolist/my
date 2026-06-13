@@ -3,7 +3,7 @@
 import { PageHeader, PageHeaderSelect } from "@/widgets/page-header";
 import { PLATFORM_ANALYTICS_PERIODS } from "@/shared/lib/platformAnalyticsPeriods";
 import { PROFILE_TABS } from "@/shared/lib/profileTabs";
-import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
+import { useScreenBack } from "@/widgets/app-shell/model/useScreenBack";
 import type { ProfileScreenState } from "@/screens/profile/model/useProfileScreen";
 
 type Props = {

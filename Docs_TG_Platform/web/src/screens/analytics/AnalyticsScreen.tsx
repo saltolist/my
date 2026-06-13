@@ -4,7 +4,7 @@ import { ChannelAnalyticsSection } from "@/widgets/analytics-dashboard";
 import { useAnalyticsScreen } from "@/screens/analytics/model/useAnalyticsScreen";
 import AnalyticsHeatmap from "@/screens/analytics/ui/AnalyticsHeatmap";
 import AnalyticsTopPostsTable from "@/screens/analytics/ui/AnalyticsTopPostsTable";
-import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
+import { useScreenBack } from "@/widgets/app-shell/model/useScreenBack";
 import { ScreenShell } from "@/screens/_ui/screen-shell";
 import { PageHeader, PageHeaderSelect } from "@/widgets/page-header";
 

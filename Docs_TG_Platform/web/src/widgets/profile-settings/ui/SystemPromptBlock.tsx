@@ -10,6 +10,7 @@ import {
   useDomainDispatch,
   useDomainSelector,
   useUi,
+  useUiStore,
 } from "@/app/model/store";
 
 export default function SystemPromptBlock({ active = true }: { active?: boolean }) {
@@ -18,9 +19,16 @@ export default function SystemPromptBlock({ active = true }: { active?: boolean 
   const dispatch = useDomainDispatch();
   const { applyPatch } = useDomainActions();
   const { setDirty } = useUi();
+  const profilePromptDirty = useUiStore((s) => s.dirtyMap["profile-prompt"]);
   const [draft, setDraft] = useState(aiProfileConfig.systemPrompt);
   const dirty = draft !== systemPromptSavedSnapshot;
   const { ref: textareaRef, resize } = useProfileTextareaAutoResize(draft, active);
+
+  useEffect(() => {
+    if (!profilePromptDirty) {
+      setDraft(systemPromptSavedSnapshot);
+    }
+  }, [profilePromptDirty, systemPromptSavedSnapshot]);
 
   useEffect(() => {
     setDirty("profile-prompt", dirty);

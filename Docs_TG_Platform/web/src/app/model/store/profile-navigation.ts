@@ -11,13 +11,10 @@ export function useNavigation() {
   const pathname = usePathname();
   const parsed = parseAppPath(pathname ?? "/");
   const screen = parsed?.screen ?? "home";
-  const discardDraft = useProfileDraftStore((s) => s.discardEdits);
-  const clearProfileDirtyFlags = useUiStore((s) => s.clearProfileDirtyFlags);
-
   const discardProfileEdits = useCallback(() => {
-    discardDraft();
-    clearProfileDirtyFlags();
-  }, [clearProfileDirtyFlags, discardDraft]);
+    useProfileDraftStore.getState().discardEdits();
+    useUiStore.getState().clearProfileDirtyFlags();
+  }, []);
 
   return {
     screen,

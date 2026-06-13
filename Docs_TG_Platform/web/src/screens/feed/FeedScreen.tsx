@@ -2,7 +2,7 @@
 
 import { useNavigationStore, useUiStore } from "@/app/model/store";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
-import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
+import { useScreenBack } from "@/widgets/app-shell/model/useScreenBack";
 import { FeedComposer } from "@/screens/feed/ui/FeedComposer";
 import { FeedPublishedSection } from "@/screens/feed/ui/FeedPublishedSection";
 import { FeedScheduledSection } from "@/screens/feed/ui/FeedScheduledSection";
