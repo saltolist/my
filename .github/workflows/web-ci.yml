@@ -26,6 +26,9 @@ jobs:
           cache: npm
           cache-dependency-path: Docs_TG_Platform/web/package-lock.json
 
+      - name: Align npm with lockfile
+        run: npm install -g npm@11
+
       - name: Install dependencies
         run: npm ci
 
