@@ -9,6 +9,7 @@ import {
   parseGChatLegacyPath,
   parseGChatSearchParam,
   parsePostLegacySub,
+  routeSyncKey,
   routes,
 } from "@/shared/lib/routes";
 import type { GlobalChat, GlobalNote, NoteFromScreen, Post, PostMode } from "@/shared/types";
@@ -177,10 +178,7 @@ function shouldPreserveNoteDraft(
   return isNoteDirty(current.currentNote, current.noteSavedSnapshot);
 }
 
-/** Build dedup key for RouteSync effect. */
-export function routeSyncKey(pathname: string, searchParams: URLSearchParams): string {
-  return `${pathname || "/"}?${searchParams.toString()}`;
-}
+export { routeSyncKey };
 
 /** Note screens load `currentNote` from React Query cache in RouteSync. */
 export function routeNeedsCachedData(pathname: string): boolean {

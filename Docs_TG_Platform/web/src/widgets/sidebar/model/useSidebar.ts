@@ -20,6 +20,7 @@ import {
   useUpdatePostNote,
 } from "@/entities/post";
 import { usePostCtxMenuItems } from "@/features/post-context-menu";
+import { guardedPush } from "@/widgets/app-shell/lib/guardedNavigation";
 import { RAIL_MIN_MQ, useMediaQuery } from "@/shared/lib/hooks/useMediaQuery";
 import {
   parseAppPath,
@@ -148,8 +149,9 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
 
   const goTo = useCallback(
     (href: string) => {
-      router.push(href);
-      onNavigate?.();
+      void guardedPush(router, href).then((ok) => {
+        if (ok) onNavigate?.();
+      });
     },
     [router, onNavigate],
   );

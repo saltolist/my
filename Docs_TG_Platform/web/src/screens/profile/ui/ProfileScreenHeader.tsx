@@ -3,6 +3,7 @@
 import { PageHeader, PageHeaderSelect } from "@/widgets/page-header";
 import { PLATFORM_ANALYTICS_PERIODS } from "@/shared/lib/platformAnalyticsPeriods";
 import { PROFILE_TABS } from "@/shared/lib/profileTabs";
+import { useScreenBack } from "@/shared/lib/hooks/useScreenBack";
 import type { ProfileScreenState } from "@/screens/profile/model/useProfileScreen";
 
 type Props = {
@@ -40,6 +41,7 @@ function ProfileTabToolbar({
 }
 
 export default function ProfileScreenHeader({ data, ui, actions }: Props) {
+  const onBack = useScreenBack();
   const { tab, platformPeriod } = data;
   const { isCompactHeader, platformPeriodInHeader, profileTabSelectProps } = ui;
   const { setPlatformPeriod, switchTab } = actions;
@@ -63,7 +65,7 @@ export default function ProfileScreenHeader({ data, ui, actions }: Props) {
   return (
     <PageHeader
       title="Профиль канала"
-      backTo="home"
+      onBack={onBack}
       center={
         isCompactHeader ? undefined : (
           <div className="page-header-toolbar--desktop page-header-profile-center-toolbar">

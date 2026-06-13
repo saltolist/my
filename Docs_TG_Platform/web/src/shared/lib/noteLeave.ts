@@ -1,4 +1,3 @@
-import { runNotePersist } from "@/shared/lib/notePersistRegistry";
 import { confirmDialog } from "@/shared/ui/dialog";
 import type { ActiveNote } from "@/shared/types";
 
@@ -11,10 +10,6 @@ export async function confirmLeaveNote(
   noteDirty: boolean,
 ): Promise<boolean> {
   if (!note || !noteDirty) return true;
-  if (note.isNew) {
-    runNotePersist();
-    return true;
-  }
   return confirmDialog({
     message: NOTE_LEAVE_MSG,
     confirmLabel: "Покинуть",

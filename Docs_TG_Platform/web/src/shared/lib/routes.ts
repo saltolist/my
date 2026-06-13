@@ -352,3 +352,8 @@ export function isPathActive(
   if (opts?.exact) return a === b;
   return a === b || a.startsWith(b);
 }
+
+/** Dedup key for route sync and in-app navigation stack. */
+export function routeSyncKey(pathname: string, searchParams: URLSearchParams): string {
+  return `${pathname || "/"}?${searchParams.toString()}`;
+}

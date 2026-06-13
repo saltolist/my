@@ -2,7 +2,30 @@ import { describe, expect, it } from "vitest";
 import { postStatusSchema } from "@/shared/api/schemas/post";
 import { getGlobalReply, getPostReply } from "@/shared/lib/replies";
 import { buildDraftDisplayList } from "@/shared/lib/drafts/draftDnDUtils";
+import { recordAppNavigation, resetAppNavStackForTests } from "@/shared/lib/appNavStack";
 import { resolveScreenBackAction } from "@/shared/lib/hooks/useScreenBack";
+
+function withSessionStorageMock(run: () => void) {
+  const data = new Map<string, string>();
+  const storage = {
+    getItem: (key: string) => data.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      data.set(key, value);
+    },
+    removeItem: (key: string) => {
+      data.delete(key);
+    },
+  };
+  Object.defineProperty(globalThis, "sessionStorage", {
+    value: storage,
+    configurable: true,
+  });
+  try {
+    run();
+  } finally {
+    Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
+}
 import { ensureVisibleInScrollParent } from "@/shared/lib/scrollIntoParent";
 import {
   parseAppPath,
@@ -62,13 +85,33 @@ describe("routes", () => {
     ).toBe("/feed/");
   });
 
-  it("resolveScreenBackAction prefers browser history", () => {
-    expect(resolveScreenBackAction("/post/1/", 2)).toEqual({ type: "back" });
+  it("resolveScreenBackAction prefers in-app visit stack", () => {
+    withSessionStorageMock(() => {
+      resetAppNavStackForTests();
+      recordAppNavigation("/feed/", new URLSearchParams());
+      recordAppNavigation("/post/1/", new URLSearchParams());
+      expect(resolveScreenBackAction("/post/1/", new URLSearchParams())).toEqual({ type: "back" });
+    });
+  });
+
+  it("resolveScreenBackAction prefers in-app visit stack for profile", () => {
+    withSessionStorageMock(() => {
+      resetAppNavStackForTests();
+      recordAppNavigation("/notes/", new URLSearchParams());
+      recordAppNavigation("/profile/", new URLSearchParams());
+      expect(resolveScreenBackAction("/profile/", new URLSearchParams())).toEqual({ type: "back" });
+    });
   });
 
   it("resolveScreenBackAction falls back to parent path", () => {
-    expect(resolveScreenBackAction("/post/1/", 1)).toEqual({ type: "push", href: "/feed/" });
-    expect(resolveScreenBackAction("/", 1)).toEqual({ type: "push", href: "/" });
+    withSessionStorageMock(() => {
+      resetAppNavStackForTests();
+      expect(resolveScreenBackAction("/post/1/", new URLSearchParams())).toEqual({
+        type: "push",
+        href: "/feed/",
+      });
+      expect(resolveScreenBackAction("/", new URLSearchParams())).toEqual({ type: "push", href: "/" });
+    });
   });
 
   it("statePatchToHref for gchat", () => {

@@ -6,6 +6,7 @@ import { useCallback, useMemo } from "react";
 import { useNavigationStore } from "@/app/model/store";
 import { useGlobalNotes, useUpsertGlobalNote } from "@/entities/note";
 import { usePosts, useTogglePostNoteAi } from "@/entities/post";
+import { guardedPush } from "@/widgets/app-shell/lib/guardedNavigation";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import {
   buildAnyNoteItems,
@@ -40,11 +41,8 @@ export function useNotesScreen() {
 
   const openNote = useCallback(
     (n: AnyNote) => {
-      if (n.isGlobal) {
-        router.push(routes.noteGlobal(n.id));
-      } else {
-        router.push(routes.notePost(n.postId, n.id));
-      }
+      const href = n.isGlobal ? routes.noteGlobal(n.id) : routes.notePost(n.postId, n.id);
+      void guardedPush(router, href);
     },
     [router],
   );
@@ -61,7 +59,7 @@ export function useNotesScreen() {
   );
 
   const newGlobal = useCallback(() => {
-    router.push(routes.noteNew("notes"));
+    void guardedPush(router, routes.noteNew("notes"));
   }, [router]);
 
   return {

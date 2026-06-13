@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useComposer } from "@/app/model/store/composer-store";
 import { usePostNavigationStore } from "@/app/model/store/post-navigation-store";
+import { guardedPush } from "@/widgets/app-shell/lib/guardedNavigation";
 import { parseAppPath, parseChatSearchParam, parseGChatSearchParam } from "@/shared/lib/routes";
 
 export function ComposerNavBridge() {
@@ -16,8 +17,7 @@ export function ComposerNavBridge() {
   useEffect(() => {
     return registerNavBridge({
       goToHref: (href, opts) => {
-        if (opts?.replace) router.replace(href);
-        else router.push(href);
+        void guardedPush(router, href, { replace: opts?.replace });
         return true;
       },
       getCurrentGChatId: () => {

@@ -9,6 +9,7 @@ import { useNavigationStore } from "@/app/model/store/navigation-store";
 import type { RouteNavigationPatch } from "@/app/model/store/navigation/types";
 import { usePostNavigationStore } from "@/app/model/store/post-navigation-store";
 import { queryKeys } from "@/shared/api/queryKeys";
+import { recordAppNavigation } from "@/shared/lib/appNavStack";
 import {
   isNoteRouteDataQuery,
   mergeNoteCachePatch,
@@ -68,6 +69,7 @@ function applyRouteSync(
     );
   }
   setNav(patch);
+  recordAppNavigation(path, searchParams);
 }
 
 export function RouteSync() {

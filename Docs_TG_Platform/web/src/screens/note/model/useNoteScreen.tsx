@@ -19,6 +19,7 @@ import {
   type ScreenBackAction,
 } from "@/shared/lib/hooks/useScreenBack";
 import { confirmLeaveNote } from "@/shared/lib/noteLeave";
+import { confirmDialog } from "@/shared/ui/dialog";
 import { routes } from "@/shared/lib/routes";
 import {
   MenuIconBrain,
@@ -67,22 +68,24 @@ export function useNoteScreen(note: ActiveNote | null) {
     [note, noteDirty, router, setNoteDirty],
   );
 
-  const discardNewNote = useCallback(() => {
+  const discardNewNote = useCallback(async () => {
+    if (!(await confirmLeaveNote(note, noteDirty))) return;
     setNoteDirty(false);
     if (noteFrom === "post" && note && !note.isGlobal) {
       router.replace(routes.post(note.postId));
     } else {
       router.replace(routes.notes());
     }
-  }, [note, noteFrom, router, setNoteDirty]);
+  }, [note, noteDirty, noteFrom, router, setNoteDirty]);
 
   const onBack = useCallback(async () => {
     if (!(await confirmLeaveNote(note, noteDirty))) return;
     setNoteDirty(false);
-    const action: ScreenBackAction = resolveScreenBackAction(
-      pathname,
-      typeof window !== "undefined" ? window.history.length : 1,
-    );
+    const params =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search)
+        : new URLSearchParams();
+    const action: ScreenBackAction = resolveScreenBackAction(pathname, params);
     if (action.type === "back") router.back();
     else router.push(action.href);
   }, [note, noteDirty, pathname, router, setNoteDirty]);
@@ -106,9 +109,14 @@ export function useNoteScreen(note: ActiveNote | null) {
     [note, patchNote, togglePostNoteAi, upsertGlobalNote],
   );
 
-  const deleteNote = useCallback(() => {
+  const deleteNote = useCallback(async () => {
     if (!note || note.isNew) return;
-    if (!confirm(`Удалить заметку «${note.title}»?`)) return;
+    const ok = await confirmDialog({
+      message: `Удалить заметку «${note.title}»?`,
+      confirmLabel: "Удалить",
+      destructive: true,
+    });
+    if (!ok) return;
     if (note.isGlobal) {
       void deleteGlobalNote.mutateAsync(note.id);
       router.replace(routes.notes());
@@ -133,10 +141,10 @@ export function useNoteScreen(note: ActiveNote | null) {
         danger: !note.isNew,
         onClick: () => {
           if (note.isNew) {
-            discardNewNote();
+            void discardNewNote();
             return;
           }
-          deleteNote();
+          void deleteNote();
         },
       },
     ];
