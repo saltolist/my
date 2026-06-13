@@ -5,6 +5,7 @@ import { useCallback } from "react";
 
 import { useDeleteGlobalChat } from "@/entities/chat";
 import { useDeleteLocalChat } from "@/entities/post";
+import { confirmDialog } from "@/shared/ui/dialog";
 import { parseGChatSearchParam, routes, screenFromPath } from "@/shared/lib/routes";
 
 type GlobalTarget = { scope: "global"; chatId: string; title: string };
@@ -33,15 +34,20 @@ export function useDeleteChat() {
   const deleteLocalChat = useDeleteLocalChat();
 
   return useCallback(
-    (target: GlobalTarget | LocalTarget) => {
-      if (!window.confirm(`Удалить чат «${target.title}»?`)) return;
+    async (target: GlobalTarget | LocalTarget) => {
+      const ok = await confirmDialog({
+        message: `Удалить чат «${target.title}»?`,
+        confirmLabel: "Удалить",
+        destructive: true,
+      });
+      if (!ok) return;
       if (target.scope === "global") {
-        void deleteGlobalChat.mutateAsync(target.chatId);
+        await deleteGlobalChat.mutateAsync(target.chatId);
         if (screen === "gchat" && gchatIdFromUrl === target.chatId) {
           router.replace(routes.chats());
         }
       } else {
-        void deleteLocalChat(target.postId, target.chatId);
+        await deleteLocalChat(target.postId, target.chatId);
         if (
           screen === "post" &&
           routePostId === target.postId &&

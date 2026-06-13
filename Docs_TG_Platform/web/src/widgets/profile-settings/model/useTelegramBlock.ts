@@ -17,6 +17,7 @@ import {
   useUi,
 } from "@/app/model/store";
 import type { TelegramProfileConfig } from "@/shared/types";
+import { confirmDialog } from "@/shared/ui/dialog";
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
@@ -105,12 +106,15 @@ export function useTelegramBlock() {
     normalizeTelegramValue(cfg.botApiToken) !== normalizeTelegramValue(savedSnapshot.botApiToken || "");
   const addBotDisabled = !botTokenTrimmed || (isBotConnected && !botTokenChangedFromSaved);
 
-  const startAuth = () => {
+  const startAuth = async () => {
     if (sendCodeDisabled) return;
     if (isAuthorized && phoneChangedFromSaved) {
-      const ok = window.confirm(
-        "При переподключении телефона данные прошлого аккаунта и подключенного канала будут недоступны, пока вы не подключите их снова.",
-      );
+      const ok = await confirmDialog({
+        message:
+          "При переподключении телефона данные прошлого аккаунта и подключенного канала будут недоступны, пока вы не подключите их снова.",
+        confirmLabel: "Продолжить",
+        destructive: true,
+      });
       if (!ok) return;
       setSyncing(false);
       if (syncTimerRef.current !== null) {
@@ -157,12 +161,15 @@ export function useTelegramBlock() {
     });
   };
 
-  const connectChannel = () => {
+  const connectChannel = async () => {
     if (connectChannelDisabled) return;
     if (isConnected && channelChangedFromSaved) {
-      const ok = window.confirm(
-        "При подключении другого канала данные прошлого канала будут недоступны, пока вы не подключите его снова.",
-      );
+      const ok = await confirmDialog({
+        message:
+          "При подключении другого канала данные прошлого канала будут недоступны, пока вы не подключите его снова.",
+        confirmLabel: "Продолжить",
+        destructive: true,
+      });
       if (!ok) return;
     }
     if (syncTimerRef.current !== null) window.clearTimeout(syncTimerRef.current);

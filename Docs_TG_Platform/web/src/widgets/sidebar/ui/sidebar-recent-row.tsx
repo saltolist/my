@@ -2,6 +2,7 @@
 
 import { MessageRenameIcon, MessageTrashIcon } from "@/entities/message";
 import { ContextMenu, type CtxMenuItem } from "@/shared/ui/context-menu";
+import { confirmDialog } from "@/shared/ui/dialog";
 
 export type SidebarRecentRowKind = "chat" | "note";
 
@@ -80,14 +81,15 @@ export function SidebarRecentRow({ item }: SidebarRecentRowProps) {
               icon: <MessageTrashIcon />,
               danger: true,
               onClick: () => {
-                if (
-                  !window.confirm(
-                    `Удалить ${item.kind === "note" ? "заметку" : "чат"} «${item.title}»?`,
-                  )
-                ) {
-                  return;
-                }
-                item.onDelete?.();
+                void (async () => {
+                  const ok = await confirmDialog({
+                    message: `Удалить ${item.kind === "note" ? "заметку" : "чат"} «${item.title}»?`,
+                    confirmLabel: "Удалить",
+                    destructive: true,
+                  });
+                  if (!ok) return;
+                  item.onDelete?.();
+                })();
               },
             },
           ]}

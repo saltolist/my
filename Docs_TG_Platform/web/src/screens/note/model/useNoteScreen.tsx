@@ -58,8 +58,8 @@ export function useNoteScreen(note: ActiveNote | null) {
   );
 
   const navigateWithConfirm = useCallback(
-    (href: string, options?: { replace?: boolean }) => {
-      if (!confirmLeaveNote(note, noteDirty)) return;
+    async (href: string, options?: { replace?: boolean }) => {
+      if (!(await confirmLeaveNote(note, noteDirty))) return;
       setNoteDirty(false);
       if (options?.replace) router.replace(href);
       else router.push(href);
@@ -76,8 +76,8 @@ export function useNoteScreen(note: ActiveNote | null) {
     }
   }, [note, noteFrom, router, setNoteDirty]);
 
-  const onBack = useCallback(() => {
-    if (!confirmLeaveNote(note, noteDirty)) return;
+  const onBack = useCallback(async () => {
+    if (!(await confirmLeaveNote(note, noteDirty))) return;
     setNoteDirty(false);
     const action: ScreenBackAction = resolveScreenBackAction(
       pathname,

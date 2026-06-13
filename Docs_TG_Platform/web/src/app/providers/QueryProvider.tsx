@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
+import { reportMutationError } from "@/shared/ui/toast";
 
 function createQueryClient(): QueryClient {
   return new QueryClient({
@@ -14,6 +15,7 @@ function createQueryClient(): QueryClient {
       },
       mutations: {
         retry: 0,
+        onError: (error) => reportMutationError(error),
       },
     },
   });

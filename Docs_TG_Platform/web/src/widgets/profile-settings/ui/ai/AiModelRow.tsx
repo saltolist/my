@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ModelPicker from "@/shared/ui/model-picker";
 import { MessageTrashIcon } from "@/entities/message";
+import { confirmDialog } from "@/shared/ui/dialog";
 import ProfileCheckbox from "@/widgets/profile-settings/ui/ProfileCheckbox";
 import ProfileEyeIcon from "@/widgets/profile-settings/ui/ProfileEyeIcon";
 import type { LlmModel } from "@/shared/types";
@@ -114,9 +115,16 @@ export default function AiModelRow({
             aria-label="Удалить модель"
             title={canRemove ? "Удалить модель" : "Нельзя удалить последнюю модель"}
             onClick={() => {
-              const label = model.model || model.provider || "модель";
-              if (!window.confirm(`Удалить модель «${label}»?`)) return;
-              onRemove();
+              void (async () => {
+                const label = model.model || model.provider || "модель";
+                const ok = await confirmDialog({
+                  message: `Удалить модель «${label}»?`,
+                  confirmLabel: "Удалить",
+                  destructive: true,
+                });
+                if (!ok) return;
+                onRemove();
+              })();
             }}
           >
             <MessageTrashIcon />

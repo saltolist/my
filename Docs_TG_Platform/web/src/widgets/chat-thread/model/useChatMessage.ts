@@ -142,15 +142,17 @@ export function useChatMessage({ message, ctx }: Props) {
   }, [editing, isUser, ctx, cancelEdit]);
 
   const startEdit = useCallback(() => {
-    if (!ctx) return;
-    if (!editing) {
-      if (!confirmDiscardAnyChatEdit(isPostEditing)) return;
-      discardUserMessageEdit();
-    }
-    setDraft(userShown);
-    setEditSession((n) => n + 1);
-    setUserActionsOpen(false);
-    setEditing(true);
+    void (async () => {
+      if (!ctx) return;
+      if (!editing) {
+        if (!(await confirmDiscardAnyChatEdit(isPostEditing))) return;
+        discardUserMessageEdit();
+      }
+      setDraft(userShown);
+      setEditSession((n) => n + 1);
+      setUserActionsOpen(false);
+      setEditing(true);
+    })();
   }, [ctx, userShown, editing, isPostEditing]);
 
   const saveEdit = useCallback(() => {

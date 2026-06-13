@@ -10,6 +10,7 @@ import {
 } from "react";
 import { useUiStore } from "@/app/model/store/ui-store";
 import { useComposerTargetStore } from "@/app/model/store/composer-target-store";
+import { alertDialog } from "@/shared/ui/dialog";
 import {
   buildAiReplyMessage,
   hasLlmForComposerScope,
@@ -72,7 +73,7 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
     if (!cfg) return false;
     const target = getTarget(scope);
     if (hasLlmForComposerScope(cfg, scope, target.llmId)) return true;
-    if (typeof window !== "undefined") window.alert("Активируйте LLM модель.");
+    void alertDialog({ message: "Активируйте LLM модель.", title: "Composer" });
     return false;
   }, [getTarget]);
 

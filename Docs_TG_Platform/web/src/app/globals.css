@@ -18,6 +18,7 @@
 @import "./styles/shell-notes.css";
 @import "./styles/shell-charts.css";
 @import "./styles/shell-profile.css";
+@import "./styles/shell-dialog.css";
 
 @custom-variant dark (&:is(.dark *, [data-theme="dark"] *));
 

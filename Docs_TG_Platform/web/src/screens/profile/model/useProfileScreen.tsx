@@ -5,6 +5,7 @@ import { useNavigation } from "@/app/model/store";
 import { useUi } from "@/app/model/store";
 import { useCompactHeader1000 } from "@/shared/lib/hooks/useCompactHeader1000";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
+import { confirmDialog } from "@/shared/ui/dialog";
 import { usePageHeaderLe650 } from "@/widgets/page-header";
 import { PROFILE_TABS } from "@/shared/lib/profileTabs";
 
@@ -22,18 +23,22 @@ export function useProfileScreen() {
   const channelTabActive = tab === 1 && profileScreenActive;
 
   const switchTab = useCallback(
-    (next: number) => {
+    async (next: number) => {
       if (tab === 0 && next !== 0 && profileSettingsDirty) {
-        const ok = window.confirm(
-          "Есть несохранённые изменения в настройках профиля. Перейти без сохранения?",
-        );
+        const ok = await confirmDialog({
+          message: "Есть несохранённые изменения в настройках профиля. Перейти без сохранения?",
+          confirmLabel: "Перейти",
+          destructive: true,
+        });
         if (!ok) return;
         discardProfileEdits();
       }
       if (tab === 1 && next !== 1 && profileChannelDirty) {
-        const ok = window.confirm(
-          "Есть несохранённые изменения в профиле канала. Перейти без сохранения?",
-        );
+        const ok = await confirmDialog({
+          message: "Есть несохранённые изменения в профиле канала. Перейти без сохранения?",
+          confirmLabel: "Перейти",
+          destructive: true,
+        });
         if (!ok) return;
         discardProfileEdits();
       }
@@ -47,7 +52,9 @@ export function useProfileScreen() {
       ariaLabel: "Раздел профиля",
       value: String(tab),
       options: PROFILE_TABS.map((label, i) => ({ value: String(i), label })),
-      onChange: (v: string) => switchTab(Number(v)),
+      onChange: (v: string) => {
+        void switchTab(Number(v));
+      },
     }),
     [switchTab, tab],
   );

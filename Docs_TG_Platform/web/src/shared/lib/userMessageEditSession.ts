@@ -1,3 +1,5 @@
+import { confirmDialog } from "@/shared/ui/dialog";
+
 export const USER_MSG_EDIT_LEAVE_MSG =
   "Вы редактируете сообщение. Покинуть без сохранения?";
 
@@ -15,9 +17,13 @@ export function unregisterUserMessageEdit(discard: () => void): void {
   if (activeSession?.discard === discard) activeSession = null;
 }
 
-export function confirmDiscardUserMessageEdit(): boolean {
+export async function confirmDiscardUserMessageEdit(): Promise<boolean> {
   if (!activeSession) return true;
-  return window.confirm(USER_MSG_EDIT_LEAVE_MSG);
+  return confirmDialog({
+    message: USER_MSG_EDIT_LEAVE_MSG,
+    confirmLabel: "Покинуть",
+    destructive: true,
+  });
 }
 
 export function discardUserMessageEdit(): void {
@@ -25,8 +31,17 @@ export function discardUserMessageEdit(): void {
   activeSession = null;
 }
 
-export function confirmDiscardAnyChatEdit(isPostEditing: boolean): boolean {
-  if (isPostEditing && !window.confirm(POST_EDIT_LEAVE_MSG)) return false;
-  if (!confirmDiscardUserMessageEdit()) return false;
+export async function confirmDiscardAnyChatEdit(isPostEditing: boolean): Promise<boolean> {
+  if (
+    isPostEditing &&
+    !(await confirmDialog({
+      message: POST_EDIT_LEAVE_MSG,
+      confirmLabel: "Покинуть",
+      destructive: true,
+    }))
+  ) {
+    return false;
+  }
+  if (!(await confirmDiscardUserMessageEdit())) return false;
   return true;
 }

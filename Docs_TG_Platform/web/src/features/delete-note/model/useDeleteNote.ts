@@ -6,6 +6,7 @@ import { useCallback } from "react";
 import { useNavigationStore } from "@/app/model/store/navigation-store";
 import { useDeleteGlobalNote } from "@/entities/note";
 import { useDeletePostNote } from "@/entities/post/model/usePostNoteMutations";
+import { confirmDialog } from "@/shared/ui/dialog";
 import { routes, screenFromPath } from "@/shared/lib/routes";
 
 type GlobalTarget = { isGlobal: true; noteId: string; title: string };
@@ -21,16 +22,21 @@ export function useDeleteNote() {
   const deletePostNote = useDeletePostNote();
 
   return useCallback(
-    (target: GlobalTarget | LocalTarget) => {
-      if (!window.confirm(`Удалить заметку «${target.title}»?`)) return;
+    async (target: GlobalTarget | LocalTarget) => {
+      const ok = await confirmDialog({
+        message: `Удалить заметку «${target.title}»?`,
+        confirmLabel: "Удалить",
+        destructive: true,
+      });
+      if (!ok) return;
       if (target.isGlobal) {
-        void deleteGlobalNote.mutateAsync(target.noteId);
+        await deleteGlobalNote.mutateAsync(target.noteId);
         const cur = currentNote;
         if (screen === "note" && cur?.isGlobal === true && cur.id === target.noteId) {
           router.replace(routes.notes());
         }
       } else {
-        void deletePostNote(target.postId, target.noteId);
+        await deletePostNote(target.postId, target.noteId);
         const cur = currentNote;
         if (
           screen === "note" &&
