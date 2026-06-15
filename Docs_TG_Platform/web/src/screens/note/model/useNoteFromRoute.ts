@@ -9,6 +9,7 @@ import { usePosts } from "@/entities/post";
 import { createNewGlobalNote, createNewPostNote } from "@/shared/lib/noteDraft";
 import { parseAppPath } from "@/shared/lib/routes";
 import type { ActiveNote } from "@/shared/types";
+import { isListQueryBootstrapping } from "@/shared/lib/query/isQueryBootstrapping";
 import { routeNeedsCachedData } from "@/widgets/app-shell/lib/syncRoute";
 
 function noteFromCache(
@@ -61,9 +62,11 @@ export function useNoteFromRoute(pathname: string) {
 
   const note = storeNote ?? cachedNote;
   const needsCache = routeNeedsCachedData(pathname);
+  const globalNotesBootstrapping = isListQueryBootstrapping(globalNotesLoading, globalNotes);
+  const postsBootstrapping = isListQueryBootstrapping(postsLoading, posts);
   const queriesLoading =
-    (parsed.noteGlobalId ? globalNotesLoading : false) ||
-    (parsed.notePostId != null && parsed.noteId != null ? postsLoading : false);
+    (parsed.noteGlobalId ? globalNotesBootstrapping : false) ||
+    (parsed.notePostId != null && parsed.noteId != null ? postsBootstrapping : false);
   const loading = needsCache && !note && queriesLoading;
 
   return { note, loading, parsed };

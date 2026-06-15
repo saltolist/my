@@ -16,6 +16,7 @@ export function usePosts() {
     queryKey: queryKeys.posts.list(accountId),
     queryFn: () => posts.list(),
     enabled,
+    placeholderData: (previous) => previous,
   });
 }
 
@@ -64,9 +65,6 @@ export function useCreatePost() {
       if (context?.previous) {
         queryClient.setQueryData(queryKeys.posts.list(accountId), context.previous);
       }
-    },
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.posts.all(accountId) });
     },
   });
 }

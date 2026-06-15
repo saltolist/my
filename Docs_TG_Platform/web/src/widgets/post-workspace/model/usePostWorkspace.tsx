@@ -14,6 +14,7 @@ import {
   visibleHistoryRevision,
 } from "@/shared/lib/chatPaths";
 import { postTitle } from "@/shared/lib/helpers";
+import { isQueryBootstrapping } from "@/shared/lib/query/isQueryBootstrapping";
 import { parseAppPath, routes } from "@/shared/lib/routes";
 import { useChatThreadAutoScroll } from "@/shared/lib/hooks/useChatThreadAutoScroll";
 import { useScreenBack } from "@/widgets/app-shell/model/useScreenBack";
@@ -185,7 +186,7 @@ export function usePostWorkspace() {
   const headerTitle = post ? postTitle(post) : "Пост";
 
   return {
-    isLoading,
+    isLoading: isQueryBootstrapping(isLoading, post),
     error,
     data: {
       post: post ?? null,

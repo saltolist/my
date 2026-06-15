@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient, type QueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, type MutableRefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, type MutableRefObject } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useUiStore } from "@/app/model/store";
@@ -87,7 +87,7 @@ export function RouteSync() {
   const syncKeyRef = useRef("");
   const postModeOverrideRef = useRef<PostMode | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     applyRouteSync(
       pathname ?? "/",
       searchParams,

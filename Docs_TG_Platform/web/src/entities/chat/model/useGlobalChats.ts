@@ -12,6 +12,7 @@ import {
 } from "@/entities/chat/lib/patchGlobalChatHistory";
 import { assistantPlainText } from "@/entities/message";
 import { appendToActiveHistory } from "@/shared/lib/chatPaths";
+import { isListQueryBootstrapping } from "@/shared/lib/query/isQueryBootstrapping";
 import type { ChatMessage, GlobalChat } from "@/shared/types";
 
 export function useGlobalChats() {
@@ -23,13 +24,18 @@ export function useGlobalChats() {
     queryKey: queryKeys.globalChats.list(accountId),
     queryFn: () => chats.listGlobal(),
     enabled,
+    placeholderData: (previous) => previous,
   });
 }
 
 export function useGlobalChat(chatId: string | null) {
-  const { data: chats = [], ...rest } = useGlobalChats();
+  const { data: chats = [], isLoading, ...rest } = useGlobalChats();
   const chat = chatId ? chats.find((c) => c.id === chatId) ?? null : null;
-  return { data: chat, ...rest };
+  return {
+    data: chat,
+    isLoading: isListQueryBootstrapping(isLoading, chats),
+    ...rest,
+  };
 }
 
 export function useCreateGlobalChat() {

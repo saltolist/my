@@ -20,6 +20,8 @@ export function useChannelProfile() {
     queryKey: queryKeys.profile.channel(accountId),
     queryFn: () => profile.getChannel(),
     enabled,
+    staleTime: 5 * 60_000,
+    placeholderData: (previous) => previous,
   });
 }
 
@@ -45,6 +47,8 @@ export function useAiProfile() {
     queryKey: queryKeys.profile.ai(accountId),
     queryFn: () => profile.getAi(),
     enabled,
+    staleTime: 5 * 60_000,
+    placeholderData: (previous) => previous,
   });
 }
 
@@ -70,6 +74,8 @@ export function useTelegramProfile() {
     queryKey: queryKeys.profile.telegram(accountId),
     queryFn: () => profile.getTelegram(),
     enabled,
+    staleTime: 5 * 60_000,
+    placeholderData: (previous) => previous,
   });
 }
 

@@ -13,6 +13,7 @@ import { useGlobalChats } from "@/entities/chat";
 import { useChannelConnected } from "@/entities/channel";
 import { usePosts } from "@/entities/post";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
+import { isListQueryBootstrapping } from "@/shared/lib/query/isQueryBootstrapping";
 import { routes } from "@/shared/lib/routes";
 import type { ChatsTab } from "@/shared/types";
 
@@ -46,7 +47,9 @@ export function useChatsScreen() {
       tab,
       globalChats,
       localChats,
-      isLoading: globalLoading || postsLoading,
+      isLoading:
+        isListQueryBootstrapping(globalLoading, globalChatsSource) ||
+        isListQueryBootstrapping(postsLoading, posts),
       showConnectChannel,
     },
     ui: {

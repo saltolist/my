@@ -16,6 +16,7 @@ export function useGlobalNotes() {
     queryKey: queryKeys.globalNotes.list(accountId),
     queryFn: () => notes.listGlobal(),
     enabled,
+    placeholderData: (previous) => previous,
   });
 }
 

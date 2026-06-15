@@ -147,6 +147,15 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
     if (screen === "gchat") setChatsExpanded(true);
   }, [screen]);
 
+  useEffect(() => {
+    router.prefetch(routes.home());
+    router.prefetch(routes.feed());
+    router.prefetch(routes.analytics());
+    router.prefetch(routes.notes());
+    router.prefetch(routes.chats());
+    router.prefetch(routes.profile());
+  }, [router]);
+
   const goTo = useCallback(
     (href: string) => {
       void guardedPush(router, href).then((ok) => {

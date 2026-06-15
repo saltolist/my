@@ -21,6 +21,7 @@ import {
 import { isFeedPath } from "@/shared/lib/feed/isFeedPath";
 import { buildPublishedFeedDayGroups } from "@/shared/lib/feedTimeline";
 import { autoResize, readFileAsMedia } from "@/shared/lib/helpers";
+import { isListQueryBootstrapping } from "@/shared/lib/query/isQueryBootstrapping";
 import { routes } from "@/shared/lib/routes";
 import type { PostMedia } from "@/shared/types";
 import { useFeedPostLayout } from "@/widgets/feed";
@@ -32,6 +33,7 @@ export function useFeedScreen() {
   const search = useNavigationStore((s) => s.feedSearch);
   const setNav = useNavigationStore((s) => s.setNav);
   const { data: posts = [], isLoading } = usePosts();
+  const showPostsLoading = isListQueryBootstrapping(isLoading, posts);
   const createPost = useCreatePost();
   const setPostMode = usePostNavigationStore((s) => s.setMode);
   const { layoutClassName, layoutStyle } = useFeedPostLayout();
@@ -173,7 +175,7 @@ export function useFeedScreen() {
       publishedDayGroups,
       scheduled,
       drafts,
-      isLoading,
+      isLoading: showPostsLoading,
       isEmpty: published.length === 0 && scheduled.length === 0 && drafts.length === 0,
     },
     ui: {

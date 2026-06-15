@@ -16,6 +16,7 @@ import {
   notesEmptyLabel,
   type AnyNote,
 } from "@/shared/lib/notes/noteList";
+import { isListQueryBootstrapping } from "@/shared/lib/query/isQueryBootstrapping";
 import { routes } from "@/shared/lib/routes";
 
 export function useNotesScreen() {
@@ -72,7 +73,9 @@ export function useNotesScreen() {
       filtered,
       emptyLabel: notesEmptyLabel(scope),
       showConnectChannel,
-      isLoading: globalLoading || postsLoading,
+      isLoading:
+        isListQueryBootstrapping(globalLoading, globalNotes) ||
+        isListQueryBootstrapping(postsLoading, posts),
     },
     ui: {
       isMobile,
