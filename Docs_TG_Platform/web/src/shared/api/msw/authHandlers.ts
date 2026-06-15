@@ -6,7 +6,7 @@ import {
   DEMO_EMAIL_CODE,
   DEMO_PASSWORD,
 } from "@/shared/lib/auth/constants";
-import { apiV1Path } from "@/shared/config/basePath";
+import { apiV1MswPath } from "@/shared/config/basePath";
 import {
   createAuthToken,
   createFreshAccount,
@@ -33,7 +33,7 @@ function createSessionResponse(accountId: string, email: string): AuthSession {
 }
 
 export const authHandlers = [
-  http.post(apiV1Path("auth/login"), async ({ request }) => {
+  http.post(apiV1MswPath("auth/login"), async ({ request }) => {
     const body = (await request.json()) as { email?: string; password?: string };
     const email = body.email?.trim().toLowerCase() ?? "";
     const password = body.password ?? "";
@@ -46,12 +46,12 @@ export const authHandlers = [
     return HttpResponse.json(createSessionResponse(DEMO_ACCOUNT_ID, DEMO_EMAIL));
   }),
 
-  http.post(apiV1Path("auth/logout"), () => {
+  http.post(apiV1MswPath("auth/logout"), () => {
     resetAccountRegistry();
     return new HttpResponse(null, { status: 204 });
   }),
 
-  http.post(apiV1Path("auth/register/send-code"), async ({ request }) => {
+  http.post(apiV1MswPath("auth/register/send-code"), async ({ request }) => {
     const body = (await request.json()) as { email?: string; password?: string };
     const email = body.email?.trim().toLowerCase() ?? "";
     const password = body.password ?? "";
@@ -67,7 +67,7 @@ export const authHandlers = [
     return new HttpResponse(null, { status: 204 });
   }),
 
-  http.post(apiV1Path("auth/register/verify"), async ({ request }) => {
+  http.post(apiV1MswPath("auth/register/verify"), async ({ request }) => {
     const body = (await request.json()) as { email?: string; code?: string };
     const email = body.email?.trim().toLowerCase() ?? "";
     const code = body.code?.trim() ?? "";
@@ -85,7 +85,7 @@ export const authHandlers = [
     return HttpResponse.json(createSessionResponse(accountId, email));
   }),
 
-  http.post(apiV1Path("auth/forgot-password/send-code"), async ({ request }) => {
+  http.post(apiV1MswPath("auth/forgot-password/send-code"), async ({ request }) => {
     const body = (await request.json()) as { email?: string };
     const email = body.email?.trim().toLowerCase() ?? "";
     if (!email) return badRequest("Укажите email");
@@ -95,7 +95,7 @@ export const authHandlers = [
     return new HttpResponse(null, { status: 204 });
   }),
 
-  http.post(apiV1Path("auth/forgot-password/reset"), async ({ request }) => {
+  http.post(apiV1MswPath("auth/forgot-password/reset"), async ({ request }) => {
     const body = (await request.json()) as { email?: string; code?: string; password?: string };
     const email = body.email?.trim().toLowerCase() ?? "";
     const code = body.code?.trim() ?? "";

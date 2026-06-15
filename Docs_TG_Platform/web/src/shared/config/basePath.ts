@@ -9,3 +9,8 @@ export function apiV1Path(subpath: string): string {
   if (!normalized) return `${API_V1}/`;
   return `${API_V1}/${normalized}/`;
 }
+
+/** MSW v2 handler pattern — bare `/api/...` paths are not matched; `*` prefix is required. */
+export function apiV1MswPath(subpath: string): string {
+  return `*${apiV1Path(subpath)}`;
+}

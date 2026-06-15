@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUpdateTelegramProfile } from "@/entities/channel";
+import { DEMO_CHANNEL_TITLE } from "@/shared/lib/auth/constants";
 import { isDemoChannelHandle } from "@/shared/lib/channel/isDemoChannelHandle";
 import { refreshPostsAfterChannelImport } from "@/widgets/profile-settings/lib/syncProfileDraftAfterChannelImport";
 import {
@@ -184,9 +185,10 @@ export function useTelegramBlock() {
       authStatus: "connected",
       authStep: "connected",
       channelStatus: "connected",
-      channelTitle: cfg.channel.replace("@", "") || "Telegram канал",
+      channelTitle: isDemoChannelHandle(cfg.channel)
+        ? DEMO_CHANNEL_TITLE
+        : cfg.channel.replace("@", "") || "Telegram канал",
       lastSync: "только что",
-      importedPosts: Math.max(cfg.importedPosts, 128),
     };
     const merged = { ...cfg, ...next };
     update(next);

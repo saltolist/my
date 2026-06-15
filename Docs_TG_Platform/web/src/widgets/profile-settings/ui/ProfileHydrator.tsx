@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 
+import { useQueryAccountScope } from "@/app/providers/useQueryAccountScope";
 import { useProfileDraftStore } from "@/app/model/store/profile-draft-store";
 import {
   useAiProfile,
@@ -9,8 +10,9 @@ import {
   useTelegramProfile,
 } from "@/entities/channel";
 
-/** Loads React Query profile data into the local draft store once per session. */
+/** Loads React Query profile data into the local draft store after account switch. */
 export function ProfileHydrator() {
+  const accountId = useQueryAccountScope();
   const { data: channel } = useChannelProfile();
   const { data: ai } = useAiProfile();
   const { data: telegram } = useTelegramProfile();
@@ -20,7 +22,7 @@ export function ProfileHydrator() {
   useEffect(() => {
     if (hydrated || !channel || !ai || !telegram) return;
     hydrateFromServer(channel, ai, telegram);
-  }, [ai, channel, hydrated, hydrateFromServer, telegram]);
+  }, [accountId, ai, channel, hydrated, hydrateFromServer, telegram]);
 
   return null;
 }

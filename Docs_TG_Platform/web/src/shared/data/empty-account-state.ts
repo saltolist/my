@@ -43,11 +43,12 @@ function emptyAiProfile(): AiProfileConfig {
 function emptyTelegramProfile(): TelegramProfileConfig {
   return {
     authStatus: "idle",
-    authStep: "channel",
+    authStep: "credentials",
     apiId: "",
     apiHash: "",
     phone: "",
     sessionName: "",
+    /** Prefilled for onboarding; channel block appears after phone code is confirmed. */
     channel: DEMO_CHANNEL_HANDLE,
     channelTitle: "",
     channelStatus: "idle",

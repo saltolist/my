@@ -28,6 +28,7 @@ function cloneSeed<T>(value: T): T {
   return structuredClone(value);
 }
 
+/** Full demo account seed (`demo-full`): posts, notes, chats, profiles, connected @demochannel. */
 export function createInitialMswStore(): MswStore {
   return {
     posts: cloneSeed(initialPosts),
