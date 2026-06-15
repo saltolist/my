@@ -1,45 +1,3 @@
-.page-header-feed-width-select {
-  flex-shrink: 0;
-}
-
-#screen-feed {
-  --feed-header-width-tabs-w: 18rem;
-}
-
-#screen-feed .page-header-center {
-  width: fit-content;
-  max-width: min(
-    calc(var(--page-header-search-w) + 10px + var(--feed-header-width-tabs-w)),
-    calc(100vw - var(--nav-w) - 48px)
-  );
-}
-
-.feed-post-width-toggles {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.feed-post-width-select--compact {
-  display: none;
-  flex-shrink: 0;
-}
-
-@media (max-width: 1150px) {
-  #screen-feed {
-    --feed-header-width-tabs-w: 9.5rem;
-  }
-
-  .feed-post-width-toggles--tabs {
-    display: none !important;
-  }
-
-  .feed-post-width-select--compact {
-    display: flex;
-  }
-}
-
 /* Лента, desktop 761+: при ширине шапки ≤804px — поиск по лупе */
 @media (min-width: 761px) {
   #screen-feed .page-header.page-header--compact-search {
@@ -127,11 +85,7 @@
   #screen-feed
     .page-header.page-header--compact-search.page-header--search-open
     .page-header-search-inline
-    .feed-post-width-toggles,
-  #screen-feed
-    .page-header.page-header--compact-search.page-header--search-open
-    .page-header-search-inline
-    .page-header-feed-width-select {
+    .page-header-scope-select {
     display: none !important;
   }
 
@@ -185,38 +139,6 @@
   }
 }
 
-.feed-post-width-btn {
-  height: 32px;
-  min-width: 40px;
-  padding: 0 10px;
-  border-radius: 999px;
-  border: 1px solid var(--page-header-control-border);
-  background: var(--page-header-control-bg);
-  color: var(--text2);
-  font-family: var(--font);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: border-color 0.12s, background 0.12s, color 0.12s;
-}
-
-.feed-post-width-btn:hover {
-  background: var(--page-header-control-bg-hover);
-  border-color: var(--control-border-hover);
-  color: var(--text);
-}
-
-.feed-post-width-btn.active {
-  background: var(--page-header-control-bg);
-  color: var(--text);
-  border-color: var(--control-border-active);
-}
-
-.feed-post-width-btn.active:hover {
-  background: var(--page-header-control-bg);
-  color: var(--text);
-}
-
 @media (max-width: 760px) {
   #screen-feed .page-header.page-header--search-open {
     position: relative;
@@ -247,11 +169,7 @@
   #screen-feed
     .page-header.page-header--search-open
     .page-header-search-expand
-    .feed-post-width-toggles,
-  #screen-feed
-    .page-header.page-header--search-open
-    .page-header-search-expand
-    .page-header-feed-width-select {
+    .page-header-scope-select {
     display: none !important;
   }
 

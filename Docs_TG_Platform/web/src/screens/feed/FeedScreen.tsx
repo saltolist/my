@@ -1,7 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { useNavigationStore, useUiStore } from "@/app/model/store";
-import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import { useScreenBack } from "@/widgets/app-shell/model/useScreenBack";
 import { FeedComposer } from "@/screens/feed/ui/FeedComposer";
 import { FeedPublishedSection } from "@/screens/feed/ui/FeedPublishedSection";
@@ -11,14 +12,13 @@ import { useChannelConnected } from "@/entities/channel";
 import { ConnectChannelEmptyState } from "@/features/connect-channel";
 import { FeedDraftsSection } from "@/widgets/feed";
 import {
+  buildFeedPostWidthSelectProps,
   createFeedHeaderSearchRow,
-  createFeedPostWidthSelect,
 } from "@/widgets/feed/ui/feed-header-toolbar";
-import { PageHeader } from "@/widgets/page-header";
+import { PageHeader, PageHeaderSelect } from "@/widgets/page-header";
 
 export function FeedScreen() {
   const onBack = useScreenBack();
-  const isMobile = useMobile760();
   const search = useNavigationStore((s) => s.feedSearch);
   const setFeedSearch = useNavigationStore((s) => s.setFeedSearch);
   const feedPostWidth = useUiStore((s) => s.feedCardWidth);
@@ -44,20 +44,18 @@ export function FeedScreen() {
     handleAttach,
   } = actions;
 
+  const feedPostWidthSelectProps = useMemo(
+    () => buildFeedPostWidthSelectProps(feedPostWidth, setFeedPostWidth),
+    [feedPostWidth, setFeedPostWidth],
+  );
+
   return (
     <div className={`feed-screen-wrap${layoutClassName}`} style={layoutStyle}>
       <PageHeader
         title="Лента"
         onBack={onBack}
         compactSearchAtWidth={804}
-        mobileSelect={
-          isMobile
-            ? undefined
-            : createFeedPostWidthSelect({
-                feedPostWidth,
-                onFeedPostWidthChange: setFeedPostWidth,
-              })
-        }
+        mobileSelect={<PageHeaderSelect {...feedPostWidthSelectProps} />}
         search={createFeedHeaderSearchRow({
           value: search,
           onChange: setFeedSearch,

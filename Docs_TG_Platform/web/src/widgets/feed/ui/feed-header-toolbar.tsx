@@ -3,13 +3,18 @@
 import type { ReactNode } from "react";
 
 import {
-  FEED_POST_WIDTHS,
   FEED_POST_WIDTH_SELECT_OPTIONS,
-  feedPostWidthLabel,
   isFeedPostWidth,
   type FeedPostWidth,
 } from "@/shared/lib/feedPostWidth";
 import { PageHeaderSearchInput, PageHeaderSelect } from "@/widgets/page-header";
+
+export type FeedPostWidthSelectProps = {
+  ariaLabel: string;
+  value: string;
+  options: typeof FEED_POST_WIDTH_SELECT_OPTIONS;
+  onChange: (value: string) => void;
+};
 
 export type FeedHeaderSearchRowProps = {
   value: string;
@@ -20,22 +25,26 @@ export type FeedHeaderSearchRowProps = {
   dismissAlways?: boolean;
 };
 
-/** Compact select — справа от лупы при compact-search (шапка ≤804px). */
-export function createFeedPostWidthSelect({
-  feedPostWidth,
-  onFeedPostWidthChange,
-}: Pick<FeedHeaderSearchRowProps, "feedPostWidth" | "onFeedPostWidthChange">): ReactNode {
-  return (
-    <PageHeaderSelect
-      ariaLabel="Ширина карточки поста в ленте"
-      value={String(feedPostWidth)}
-      options={FEED_POST_WIDTH_SELECT_OPTIONS}
-      onChange={(v) => {
-        const n = Number(v);
-        if (isFeedPostWidth(n)) onFeedPostWidthChange(n);
-      }}
-    />
-  );
+export function buildFeedPostWidthSelectProps(
+  feedPostWidth: FeedPostWidth,
+  onFeedPostWidthChange: (width: FeedPostWidth) => void,
+): FeedPostWidthSelectProps {
+  return {
+    ariaLabel: "Ширина карточки поста в ленте",
+    value: String(feedPostWidth),
+    options: FEED_POST_WIDTH_SELECT_OPTIONS,
+    onChange: (v) => {
+      const n = Number(v);
+      if (isFeedPostWidth(n)) onFeedPostWidthChange(n);
+    },
+  };
+}
+
+/** Селектор ширины — в правой колонке (mobile / узкий desktop) и в mobileSelect. */
+export function createFeedPostWidthSelect(
+  props: Pick<FeedHeaderSearchRowProps, "feedPostWidth" | "onFeedPostWidthChange">,
+): ReactNode {
+  return <PageHeaderSelect {...buildFeedPostWidthSelectProps(props.feedPostWidth, props.onFeedPostWidthChange)} />;
 }
 
 /** Статическое JSX-дерево для PageHeader.search (нужно для expandable-поиска по лупе). */
@@ -50,7 +59,7 @@ export function createFeedHeaderSearchRow({
   const showDismissAlways = dismissAlways || !!onSearchClose;
 
   return (
-    <div className="page-header-search-tools-row page-header-feed-search-row">
+    <div className="page-header-search-tools-row">
       <PageHeaderSearchInput
         placeholder="Поиск по постам..."
         value={value}
@@ -58,24 +67,8 @@ export function createFeedHeaderSearchRow({
         onDismiss={onSearchClose ?? (() => onChange(""))}
         dismissAlways={showDismissAlways}
       />
-      <div
-        className="feed-post-width-toggles feed-post-width-toggles--tabs page-header-toolbar--desktop"
-        role="group"
-        aria-label="Ширина карточки поста в ленте"
-      >
-        {FEED_POST_WIDTHS.map((w) => (
-          <button
-            key={w}
-            type="button"
-            className={`feed-post-width-btn${feedPostWidth === w ? " active" : ""}`}
-            onClick={() => onFeedPostWidthChange(w)}
-          >
-            {feedPostWidthLabel(w)}
-          </button>
-        ))}
-      </div>
-      <div className="page-header-feed-width-select feed-post-width-select--compact page-header-toolbar--desktop">
-        {createFeedPostWidthSelect({ feedPostWidth, onFeedPostWidthChange })}
+      <div className="page-header-scope-select page-header-toolbar--desktop">
+        <PageHeaderSelect {...buildFeedPostWidthSelectProps(feedPostWidth, onFeedPostWidthChange)} />
       </div>
     </div>
   );

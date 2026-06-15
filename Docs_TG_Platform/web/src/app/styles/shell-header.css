@@ -196,11 +196,13 @@
   flex-shrink: 0;
 }
 #screen-chats,
-#screen-notes {
+#screen-notes,
+#screen-feed {
   --header-scope-select-w: 9.5rem;
 }
 #screen-chats .page-header-center,
-#screen-notes .page-header-center {
+#screen-notes .page-header-center,
+#screen-feed .page-header-center {
   width: fit-content;
   max-width: min(
     calc(var(--page-header-search-w) + 10px + var(--header-scope-select-w)),
