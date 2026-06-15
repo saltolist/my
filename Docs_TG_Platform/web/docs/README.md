@@ -57,6 +57,7 @@
 | [testing.md](./engineering/testing.md) | Vitest, Playwright, CI |
 | [m3-m5-gate-checklist.md](./engineering/m3-m5-gate-checklist.md) | **Gate M3–M5** — чеклист до GitHub Pages |
 | [pre-pages-execution-plan.md](./engineering/pre-pages-execution-plan.md) | **План до Pages** — этапы и PR-порядок |
+| [auth-onboarding-plan.md](./engineering/auth-onboarding-plan.md) | **Auth + онбординг** — вход, регистрация, demo_kanal |
 | [deploy.md](./engineering/deploy.md) | Static export, hosting |
 | [frontend-roadmap.md](./engineering/frontend-roadmap.md) | Milestones + PR checklist |
 | [web-client.md](./engineering/web-client.md) | Фазы клиента |
