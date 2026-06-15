@@ -1,6 +1,7 @@
 import { importDemoKanalContent } from "@/shared/data/channel-pools/demo-kanal-content";
 import { createEmptyAccountStore } from "@/shared/data/empty-account-state";
-import { DEMO_ACCOUNT_ID } from "@/shared/lib/auth/constants";
+import { createPresentationMswStore } from "@/shared/data/presentation-seed";
+import { DEMO_ACCOUNT_ID, PRESENTATION_ACCOUNT_ID } from "@/shared/lib/auth/constants";
 import { isDemoChannelHandle } from "@/shared/lib/channel/isDemoChannelHandle";
 import { randomId } from "@/shared/lib/randomId";
 import { createInitialMswStore, type MswStore } from "./store";
@@ -17,12 +18,18 @@ export function initAccountRegistry(): void {
   accounts.clear();
   pendingRegistrations.clear();
   accounts.set(DEMO_ACCOUNT_ID, createInitialMswStore());
+  accounts.set(PRESENTATION_ACCOUNT_ID, createPresentationMswStore());
 }
 
 initAccountRegistry();
 
 export function resetAccountRegistry(): void {
   initAccountRegistry();
+}
+
+/** Restore demo-full from seed (runs inside the MSW worker on login). */
+export function resetDemoFullAccount(): void {
+  accounts.set(DEMO_ACCOUNT_ID, createInitialMswStore());
 }
 
 /** Token format: `{accountId}:{uuid}` — survives MSW worker restarts on full page reload. */

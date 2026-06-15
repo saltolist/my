@@ -8,6 +8,7 @@ import { useUiStore } from "@/app/model/store";
 import { useNavigationStore } from "@/app/model/store/navigation-store";
 import type { RouteNavigationPatch } from "@/app/model/store/navigation/types";
 import { usePostNavigationStore } from "@/app/model/store/post-navigation-store";
+import { useQueryAccountScope } from "@/app/providers/useQueryAccountScope";
 import { queryKeys } from "@/shared/api/queryKeys";
 import { recordAppNavigation } from "@/shared/lib/appNavStack";
 import {
@@ -24,6 +25,7 @@ function applyRouteSync(
   path: string,
   searchParams: URLSearchParams,
   queryClient: QueryClient,
+  accountId: string,
   syncKeyRef: MutableRefObject<string>,
   postModeOverrideRef: MutableRefObject<PostMode | null>,
   router: ReturnType<typeof useRouter>,
@@ -37,9 +39,11 @@ function applyRouteSync(
     syncKeyRef.current = syncKey;
   }
 
-  const posts = queryClient.getQueryData<Post[]>(queryKeys.posts.list()) ?? [];
-  const globalChats = queryClient.getQueryData<GlobalChat[]>(queryKeys.globalChats.list()) ?? [];
-  const globalNotes = queryClient.getQueryData<GlobalNote[]>(queryKeys.globalNotes.list()) ?? [];
+  const posts = queryClient.getQueryData<Post[]>(queryKeys.posts.list(accountId)) ?? [];
+  const globalChats =
+    queryClient.getQueryData<GlobalChat[]>(queryKeys.globalChats.list(accountId)) ?? [];
+  const globalNotes =
+    queryClient.getQueryData<GlobalNote[]>(queryKeys.globalNotes.list(accountId)) ?? [];
 
   const result = syncRouteFromUrl(path, searchParams, { posts, globalChats, globalNotes }, {
     postModeOverride: postModeOverrideRef.current,
@@ -77,6 +81,7 @@ export function RouteSync() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const accountId = useQueryAccountScope();
   const setNav = useNavigationStore((s) => s.setNav);
   const setPostMode = usePostNavigationStore((s) => s.setMode);
   const syncKeyRef = useRef("");
@@ -87,6 +92,7 @@ export function RouteSync() {
       pathname ?? "/",
       searchParams,
       queryClient,
+      accountId,
       syncKeyRef,
       postModeOverrideRef,
       router,
@@ -94,7 +100,7 @@ export function RouteSync() {
       setPostMode,
       { urlDedup: true },
     );
-  }, [pathname, searchParams, router, queryClient, setNav, setPostMode]);
+  }, [pathname, searchParams, router, queryClient, accountId, setNav, setPostMode]);
 
   useEffect(() => {
     const path = pathname ?? "/";
@@ -106,6 +112,7 @@ export function RouteSync() {
         path,
         searchParams,
         queryClient,
+        accountId,
         syncKeyRef,
         postModeOverrideRef,
         router,
@@ -114,7 +121,7 @@ export function RouteSync() {
         { urlDedup: false },
       );
     });
-  }, [pathname, searchParams, router, queryClient, setNav, setPostMode]);
+  }, [pathname, searchParams, router, queryClient, accountId, setNav, setPostMode]);
 
   return null;
 }

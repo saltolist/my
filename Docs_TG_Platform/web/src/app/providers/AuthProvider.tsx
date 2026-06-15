@@ -12,14 +12,16 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import type { AuthSession } from "@/shared/lib/auth/types";
 import { logout as logoutApi } from "@/entities/auth";
-import { resetAccountRegistry } from "@/shared/api/msw/accountRegistry";
-import { USE_MSW } from "@/shared/config/dataSource";
 import { clearSession, readSession, writeSession } from "@/shared/lib/auth/session";
 import { useProfileDraftStore } from "@/app/model/store/profile-draft-store";
 
 type AuthContextValue = {
   session: AuthSession | null;
   ready: boolean;
+  isPresentationMode: boolean;
+  authOverlayOpen: boolean;
+  openAuthOverlay: () => void;
+  closeAuthOverlay: () => void;
   setSession: (session: AuthSession | null) => void;
   logout: () => Promise<void>;
 };
@@ -30,22 +32,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [session, setSessionState] = useState<AuthSession | null>(null);
   const [ready, setReady] = useState(false);
+  const [authOverlayOpen, setAuthOverlayOpen] = useState(false);
 
   useEffect(() => {
     setSessionState(readSession());
     setReady(true);
   }, []);
 
+  const isPresentationMode = ready && !session;
+
+  const openAuthOverlay = useCallback(() => setAuthOverlayOpen(true), []);
+  const closeAuthOverlay = useCallback(() => setAuthOverlayOpen(false), []);
+
   const setSession = useCallback(
     (next: AuthSession | null) => {
       if (next) {
         writeSession(next);
-        useProfileDraftStore.setState({ hydrated: false });
+        useProfileDraftStore.getState().resetForLogout();
+        setAuthOverlayOpen(false);
       } else {
         clearSession();
       }
       setSessionState(next);
-      void queryClient.invalidateQueries();
+      void queryClient.clear();
     },
     [queryClient],
   );
@@ -56,9 +65,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // Client session is cleared even if the request fails.
     }
-    if (USE_MSW) resetAccountRegistry();
     clearSession();
     setSessionState(null);
+    setAuthOverlayOpen(false);
     useProfileDraftStore.getState().resetForLogout();
     void queryClient.clear();
   }, [queryClient]);
@@ -67,10 +76,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       session,
       ready,
+      isPresentationMode,
+      authOverlayOpen,
+      openAuthOverlay,
+      closeAuthOverlay,
       setSession,
       logout,
     }),
-    [logout, ready, session, setSession],
+    [
+      authOverlayOpen,
+      closeAuthOverlay,
+      isPresentationMode,
+      logout,
+      openAuthOverlay,
+      ready,
+      session,
+      setSession,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

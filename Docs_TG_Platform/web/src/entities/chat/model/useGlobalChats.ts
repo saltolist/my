@@ -5,6 +5,7 @@ import { queryKeys } from "@/shared/api/queryKeys";
 import type { GlobalChatPatch } from "@/shared/api/repositories";
 import { useRepositories } from "@/app/providers/RepositoryProvider";
 import { useAuthenticatedQueryEnabled } from "@/app/providers/useAuthenticatedQueryEnabled";
+import { useQueryAccountScope } from "@/app/providers/useQueryAccountScope";
 import {
   patchGlobalChatHistory,
   syncGlobalChatInCache,
@@ -16,9 +17,10 @@ import type { ChatMessage, GlobalChat } from "@/shared/types";
 export function useGlobalChats() {
   const { chats } = useRepositories();
   const enabled = useAuthenticatedQueryEnabled();
+  const accountId = useQueryAccountScope();
 
   return useQuery({
-    queryKey: queryKeys.globalChats.list(),
+    queryKey: queryKeys.globalChats.list(accountId),
     queryFn: () => chats.listGlobal(),
     enabled,
   });
@@ -33,11 +35,12 @@ export function useGlobalChat(chatId: string | null) {
 export function useCreateGlobalChat() {
   const { chats } = useRepositories();
   const queryClient = useQueryClient();
+  const accountId = useQueryAccountScope();
 
   return useMutation({
     mutationFn: (chat: GlobalChat) => chats.create(chat),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.globalChats.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.globalChats.all(accountId) });
     },
   });
 }
@@ -94,11 +97,12 @@ export function useRenameGlobalChat() {
 export function useDeleteGlobalChat() {
   const { chats } = useRepositories();
   const queryClient = useQueryClient();
+  const accountId = useQueryAccountScope();
 
   return useMutation({
     mutationFn: (chatId: string) => chats.remove(chatId),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.globalChats.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.globalChats.all(accountId) });
     },
   });
 }

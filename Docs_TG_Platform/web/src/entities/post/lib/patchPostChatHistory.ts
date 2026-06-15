@@ -3,6 +3,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { setCachedPost } from "@/entities/post/lib/getCachedPost";
 import { queryKeys } from "@/shared/api/queryKeys";
 import type { PostsRepository } from "@/shared/api/repositories";
+import { getQueryAccountIdFromAuth } from "@/shared/lib/auth/queryAccountScope";
 import { lastUserPreviewFromVisibleHistory, normalizeBranchedHistory } from "@/shared/lib/chatPaths";
 import type { ChatMessage, LocalChat, Post } from "@/shared/types";
 
@@ -33,8 +34,9 @@ export async function fetchPost(
   posts: PostsRepository,
   postId: number,
 ): Promise<Post> {
+  const accountId = getQueryAccountIdFromAuth();
   return queryClient.fetchQuery({
-    queryKey: queryKeys.posts.detail(postId),
+    queryKey: queryKeys.posts.detail(accountId, postId),
     queryFn: async () => {
       const list = await posts.list();
       const post = list.find((p) => p.id === postId);

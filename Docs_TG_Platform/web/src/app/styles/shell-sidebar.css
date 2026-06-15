@@ -293,6 +293,10 @@ button.nav-item {
   font: inherit;
   appearance: none;
   -webkit-tap-highlight-color: transparent;
+  width: auto;
+  align-self: stretch;
+  min-height: 0;
+  line-height: normal;
 }
 .nav-item:hover:not(.active) { background: var(--nav-hover-bg); color: var(--text); }
 .nav-item.active { background: var(--nav-active-bg); color: var(--text); }

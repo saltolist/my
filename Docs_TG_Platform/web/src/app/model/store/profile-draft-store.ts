@@ -3,11 +3,7 @@ import { create } from "zustand";
 import { buildProfileDiscardPatch } from "@/shared/lib/profileDiscard";
 import { snapshotAiConfig } from "@/shared/lib/profile/aiModelsSnapshot";
 import { telegramConfigSnapshot } from "@/shared/lib/profile/telegramSnapshot";
-import {
-  initialAiProfileConfig,
-  initialChannelProfileConfig,
-  initialTelegramProfileConfig,
-} from "@/shared/data/seed-data";
+import { createEmptyAccountStore } from "@/shared/data/empty-account-state";
 import type {
   AiProfileConfig,
   ChannelProfileConfig,
@@ -102,14 +98,16 @@ type ProfileDraftActions = {
   resetForLogout: () => void;
 };
 
+const emptyAccountBaselines = createEmptyAccountStore();
+
 const initialProfileDraftState: ProfileDraftState = {
-  aiProfileConfig: initialAiProfileConfig,
-  channelProfileConfig: initialChannelProfileConfig,
-  telegramProfileConfig: initialTelegramProfileConfig,
-  systemPromptSavedSnapshot: initialAiProfileConfig.systemPrompt,
-  modelSettingsSavedSnapshot: buildInitialAiSnapshot(initialAiProfileConfig),
-  channelProfileSavedSnapshot: JSON.stringify(initialChannelProfileConfig),
-  telegramSettingsSavedSnapshot: buildInitialTelegramSnapshot(initialTelegramProfileConfig),
+  aiProfileConfig: emptyAccountBaselines.aiProfile,
+  channelProfileConfig: emptyAccountBaselines.channelProfile,
+  telegramProfileConfig: emptyAccountBaselines.telegramProfile,
+  systemPromptSavedSnapshot: emptyAccountBaselines.aiProfile.systemPrompt,
+  modelSettingsSavedSnapshot: buildInitialAiSnapshot(emptyAccountBaselines.aiProfile),
+  channelProfileSavedSnapshot: JSON.stringify(emptyAccountBaselines.channelProfile),
+  telegramSettingsSavedSnapshot: buildInitialTelegramSnapshot(emptyAccountBaselines.telegramProfile),
   hydrated: false,
 };
 

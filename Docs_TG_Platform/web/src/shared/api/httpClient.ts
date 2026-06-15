@@ -1,5 +1,5 @@
 import { API_BASE_URL, USE_MSW } from "@/shared/config/dataSource";
-import { getSessionToken } from "@/shared/lib/auth/session";
+import { getApiAuthToken } from "@/shared/lib/auth/session";
 
 export class ApiError extends Error {
   constructor(
@@ -25,7 +25,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
   const { method = "GET", body, signal } = options;
   const headers: HeadersInit = {};
-  const token = getSessionToken();
+  const token = getApiAuthToken();
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }

@@ -5,18 +5,20 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/providers/AuthProvider";
 import { routes } from "@/shared/lib/routes";
 
+/** Allows shell when logged in or in presentation mode (no session). */
 export function AuthGuard({ children }: { children: ReactNode }) {
-  const { session, ready } = useAuth();
+  const { ready, session, isPresentationMode } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!ready) return;
-    if (!session) {
+    if (!session && !isPresentationMode) {
       router.replace(routes.login());
     }
-  }, [ready, router, session]);
+  }, [isPresentationMode, ready, router, session]);
 
-  if (!ready || !session) return null;
+  if (!ready) return null;
+  if (!session && !isPresentationMode) return null;
 
   return children;
 }

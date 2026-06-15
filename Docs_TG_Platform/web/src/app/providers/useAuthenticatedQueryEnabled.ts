@@ -1,9 +1,9 @@
 "use client";
 
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "@/app/providers/AuthProvider";
 
-/** Gate React Query fetches until auth session is restored from localStorage. */
+/** Gate React Query until auth is ready; presentation guests use the presentation account. */
 export function useAuthenticatedQueryEnabled(): boolean {
-  const { session, ready } = useAuth();
-  return ready && !!session;
+  const { session, ready, isPresentationMode } = useAuth();
+  return ready && (!!session || isPresentationMode);
 }

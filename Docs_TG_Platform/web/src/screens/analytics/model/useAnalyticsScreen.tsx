@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useMemo, type CSSProperties } from "react";
 
 import { useNavigationStore } from "@/app/model/store";
-import { ANALYTICS_TOP_POSTS_SEED } from "@/shared/data/analyticsSeedData";
+import { usePosts } from "@/entities/post";
+import { buildAnalyticsTopPostsFromPosts } from "@/shared/lib/analytics/buildTopPostsFromPosts";
 import {
   analyticsIndexToPeriod,
   analyticsPeriodToIndex,
@@ -22,6 +23,7 @@ export function useAnalyticsScreen() {
   const setAnalyticsPeriod = useNavigationStore((s) => s.setAnalyticsPeriod);
   const isMobile = useMobile760();
   const isHeaderLe780 = usePageHeaderLe780();
+  const { data: posts = [] } = usePosts();
 
   const periodIndex = analyticsPeriodToIndex(period);
 
@@ -31,8 +33,8 @@ export function useAnalyticsScreen() {
   );
 
   const rankedTopPosts = useMemo(
-    () => [...ANALYTICS_TOP_POSTS_SEED].sort((a, b) => b.subscribers - a.subscribers),
-    [],
+    () => buildAnalyticsTopPostsFromPosts(posts),
+    [posts],
   );
 
   const topPostsDesktopGridStyle = useMemo(

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent as Re
 import { useQueryClient } from "@tanstack/react-query";
 
 import { usePosts, useReorderPosts } from "@/entities/post";
+import { useQueryAccountScope } from "@/app/providers/useQueryAccountScope";
 import { queryKeys } from "@/shared/api/queryKeys";
 import {
   appendZoneBottom,
@@ -17,6 +18,7 @@ import type { Post } from "@/shared/types";
 
 export function useDraftsSection(drafts: Post[], onOpenPost: (id: number) => void) {
   const queryClient = useQueryClient();
+  const accountId = useQueryAccountScope();
   const { data: posts = [] } = usePosts();
   const reorderPosts = useReorderPosts();
 
@@ -85,15 +87,15 @@ export function useDraftsSection(drafts: Post[], onOpenPost: (id: number) => voi
       }
       nextPosts.splice(insertAt, 0, item);
 
-      const previous = queryClient.getQueryData<Post[]>(queryKeys.posts.list());
-      queryClient.setQueryData(queryKeys.posts.list(), nextPosts);
+      const previous = queryClient.getQueryData<Post[]>(queryKeys.posts.list(accountId));
+      queryClient.setQueryData(queryKeys.posts.list(accountId), nextPosts);
       reorderPosts.mutate(nextPosts, {
         onError: () => {
-          if (previous) queryClient.setQueryData(queryKeys.posts.list(), previous);
+          if (previous) queryClient.setQueryData(queryKeys.posts.list(accountId), previous);
         },
       });
     },
-    [posts, queryClient, reorderPosts],
+    [accountId, posts, queryClient, reorderPosts],
   );
 
   const updateDropTarget = useCallback(

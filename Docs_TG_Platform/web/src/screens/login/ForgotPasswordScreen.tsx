@@ -20,7 +20,12 @@ import {
 
 type Step = "email" | "code" | "password";
 
-export function ForgotPasswordScreen() {
+type Props = {
+  variant?: "page" | "overlay";
+  onOpenLogin?: () => void;
+};
+
+export function ForgotPasswordScreen({ variant = "page", onOpenLogin }: Props = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [step, setStep] = useState<Step>("email");
@@ -68,7 +73,8 @@ export function ForgotPasswordScreen() {
         password: password.trim(),
       });
       showToast({ message: "Пароль обновлён. Войдите с новым паролем.", variant: "info" });
-      router.replace(routes.login());
+      if (onOpenLogin) onOpenLogin();
+      else router.replace(routes.login());
     } catch (error) {
       showToast({
         message: getApiErrorMessage(error, "Не удалось сменить пароль"),
@@ -79,10 +85,15 @@ export function ForgotPasswordScreen() {
     }
   };
 
+  const openLogin = () => {
+    if (onOpenLogin) onOpenLogin();
+    else router.push(routes.login());
+  };
+
   return (
     <AuthShell
       title="Восстановление пароля"
-      titleAction={<AuthHeaderLink onClick={() => router.push(routes.login())}>Вход</AuthHeaderLink>}
+      titleAction={<AuthHeaderLink onClick={openLogin}>Вход</AuthHeaderLink>}
     >
       <AuthDemoHint>Демо: код подтверждения — {DEMO_EMAIL_CODE}</AuthDemoHint>
 

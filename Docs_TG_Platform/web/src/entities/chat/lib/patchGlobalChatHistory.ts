@@ -2,12 +2,14 @@ import type { QueryClient } from "@tanstack/react-query";
 
 import { queryKeys } from "@/shared/api/queryKeys";
 import type { ChatsRepository, GlobalChatPatch } from "@/shared/api/repositories";
+import { getQueryAccountIdFromAuth } from "@/shared/lib/auth/queryAccountScope";
 import { lastUserPreviewFromVisibleHistory, normalizeBranchedHistory } from "@/shared/lib/chatPaths";
 import type { ChatMessage, GlobalChat } from "@/shared/types";
 
 /** Синхронизировать список global chats в React Query с ответом API. */
 export function syncGlobalChatInCache(queryClient: QueryClient, updated: GlobalChat): void {
-  queryClient.setQueryData<GlobalChat[]>(queryKeys.globalChats.list(), (prev) =>
+  const accountId = getQueryAccountIdFromAuth();
+  queryClient.setQueryData<GlobalChat[]>(queryKeys.globalChats.list(accountId), (prev) =>
     prev?.map((c) => (c.id === updated.id ? updated : c)),
   );
 }
@@ -18,8 +20,9 @@ export async function fetchGlobalChat(
   chats: ChatsRepository,
   chatId: string,
 ): Promise<GlobalChat> {
+  const accountId = getQueryAccountIdFromAuth();
   const list = await queryClient.fetchQuery({
-    queryKey: queryKeys.globalChats.list(),
+    queryKey: queryKeys.globalChats.list(accountId),
     queryFn: () => chats.listGlobal(),
   });
   const chat = list.find((c) => c.id === chatId);

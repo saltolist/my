@@ -18,7 +18,17 @@ import {
   AuthShell,
 } from "@/screens/_ui/auth-shell";
 
-export function LoginScreen() {
+type Props = {
+  variant?: "page" | "overlay";
+  onOpenRegister?: () => void;
+  onOpenForgot?: () => void;
+};
+
+export function LoginScreen({
+  variant = "page",
+  onOpenRegister,
+  onOpenForgot,
+}: Props = {}) {
   const router = useRouter();
   const { setSession } = useAuth();
   const [email, setEmail] = useState(DEMO_EMAIL);
@@ -32,7 +42,7 @@ export function LoginScreen() {
     try {
       const session = await login({ email: email.trim(), password });
       setSession(session);
-      router.replace(routes.feed());
+      router.replace(routes.home());
     } catch (error) {
       showToast({
         message: getApiErrorMessage(error, "Не удалось войти"),
@@ -43,12 +53,20 @@ export function LoginScreen() {
     }
   };
 
+  const openRegister = () => {
+    if (onOpenRegister) onOpenRegister();
+    else router.push(routes.register());
+  };
+
+  const openForgot = () => {
+    if (onOpenForgot) onOpenForgot();
+    else router.push(routes.loginForgot());
+  };
+
   return (
     <AuthShell
       title="Вход"
-      titleAction={
-        <AuthHeaderLink onClick={() => router.push(routes.register())}>Регистрация</AuthHeaderLink>
-      }
+      titleAction={<AuthHeaderLink onClick={openRegister}>Регистрация</AuthHeaderLink>}
       subtitle="Демо-аккаунт уже заполнен — нажмите «Войти» или измените данные."
     >
       <form className="auth-form" onSubmit={handleSubmit}>
@@ -73,9 +91,7 @@ export function LoginScreen() {
           <button type="submit" className="btn btn-primary" disabled={submitting}>
             {submitting ? "Вход…" : "Войти"}
           </button>
-          <AuthSecondaryLink onClick={() => router.push(routes.loginForgot())}>
-            Не помню пароль
-          </AuthSecondaryLink>
+          <AuthSecondaryLink onClick={openForgot}>Не помню пароль</AuthSecondaryLink>
         </AuthPrimaryActions>
       </form>
     </AuthShell>

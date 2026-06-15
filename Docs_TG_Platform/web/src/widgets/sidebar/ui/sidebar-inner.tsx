@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/app/providers/AuthProvider";
 import { useSidebar } from "@/widgets/sidebar/model/useSidebar";
 import { SidebarNavItem } from "@/widgets/sidebar/ui/SidebarNavItem";
 import { NavIconProfile } from "@/shared/ui/nav-icons";
@@ -12,6 +13,7 @@ type SidebarInnerProps = {
 
 export function SidebarInner({ onNavigate }: SidebarInnerProps) {
   const sb = useSidebar({ onNavigate });
+  const { session, openAuthOverlay } = useAuth();
 
   return (
     <>
@@ -29,13 +31,23 @@ export function SidebarInner({ onNavigate }: SidebarInnerProps) {
         </div>
 
         <div className="sidebar-bottom">
-          <SidebarNavItem
-            id="profile"
-            label="Профиль"
-            icon={<NavIconProfile />}
-            active={sb.isScreenActive("profile")}
-            onClick={() => sb.navigateScreen("profile")}
-          />
+          {session ? (
+            <SidebarNavItem
+              id="profile"
+              label="Профиль"
+              icon={<NavIconProfile />}
+              active={sb.isScreenActive("profile")}
+              onClick={() => sb.navigateScreen("profile")}
+            />
+          ) : (
+            <SidebarNavItem
+              id="login"
+              label="Войти"
+              icon={<NavIconProfile />}
+              active={false}
+              onClick={openAuthOverlay}
+            />
+          )}
         </div>
       </nav>
       {sb.scheduleModal}

@@ -16,7 +16,7 @@ export default function UserBlock() {
 
   const handleLogout = async () => {
     await logout();
-    router.replace(routes.login());
+    router.replace(routes.home());
   };
 
   return (

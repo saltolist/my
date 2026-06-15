@@ -1,5 +1,4 @@
 import type { NavigationState, RouteNavigationPatch } from "@/app/model/store/navigation/types";
-import { queryKeys } from "@/shared/api/queryKeys";
 import { isNoteDirty, noteIdentityKey } from "@/shared/lib/noteDraft";
 import {
   buildRoutePatch,
@@ -190,13 +189,14 @@ export function routeNeedsCachedData(pathname: string): boolean {
 
 /** Which list query updates should trigger note cache resync for this path. */
 export function isNoteRouteDataQuery(pathname: string, queryKey: readonly unknown[]): boolean {
-  if (queryKey[1] !== "list") return false;
+  if (queryKey[0] !== "account" || queryKey[3] !== "list") return false;
+  const resource = queryKey[2];
   const parsed = parseAppPath(pathname);
   if (parsed.noteGlobalId) {
-    return queryKey[0] === queryKeys.globalNotes.all[0];
+    return resource === "globalNotes";
   }
   if (parsed.notePostId != null && parsed.noteId != null) {
-    return queryKey[0] === queryKeys.posts.all[0];
+    return resource === "posts";
   }
   return false;
 }

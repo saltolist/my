@@ -15,3 +15,10 @@ export const DEMO_KANAL_TITLE = DEMO_CHANNEL_TITLE;
 
 /** Stub verification code for MSW (register / forgot password). */
 export const DEMO_EMAIL_CODE = "000000";
+
+export const PRESENTATION_ACCOUNT_ID = "presentation";
+export const PRESENTATION_EMAIL = "prezentaciya@mail.ru";
+export const PRESENTATION_CHANNEL_HANDLE = "@prezentaciya";
+export const PRESENTATION_CHANNEL_TITLE = "Презентация";
+/** Bearer token for unauthenticated presentation browsing (MSW account id = presentation). */
+export const PRESENTATION_GUEST_TOKEN = "presentation:guest";

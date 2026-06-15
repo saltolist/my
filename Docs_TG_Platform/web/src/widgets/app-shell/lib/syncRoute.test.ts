@@ -200,14 +200,16 @@ describe("routeNeedsCachedData", () => {
 });
 
 describe("isNoteRouteDataQuery", () => {
+  const accountId = "demo-full";
+
   it("matches global note list only for global note path", () => {
-    const key = queryKeys.globalNotes.list();
+    const key = queryKeys.globalNotes.list(accountId);
     expect(isNoteRouteDataQuery("/note/global/gn1/", key)).toBe(true);
     expect(isNoteRouteDataQuery("/note/post/1/10/", key)).toBe(false);
   });
 
   it("matches posts list only for post note path", () => {
-    const key = queryKeys.posts.list();
+    const key = queryKeys.posts.list(accountId);
     expect(isNoteRouteDataQuery("/note/post/1/10/", key)).toBe(true);
     expect(isNoteRouteDataQuery("/note/global/gn1/", key)).toBe(false);
   });

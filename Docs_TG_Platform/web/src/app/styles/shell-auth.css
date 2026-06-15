@@ -140,6 +140,64 @@
   color: var(--red);
 }
 
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 16px 40px;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.auth-overlay-close {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1201;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--text2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-overlay-close-icon {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.auth-overlay-close:hover,
+.auth-overlay-close:active {
+  color: var(--text);
+  background: none;
+  border: none;
+}
+
+.auth-overlay-close:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.auth-overlay-panel {
+  width: min(420px, 100%);
+  max-height: calc(100dvh - 80px);
+  overflow-y: auto;
+}
+
 @media (max-width: 480px) {
   .auth-layout {
     padding: 20px 12px 32px;

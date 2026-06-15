@@ -1,4 +1,6 @@
-import { channelMetrics110d } from "@/shared/data/analytics-seed";
+import { channelMetrics110d, type ChannelMetricsDataset } from "@/shared/data/analytics-seed";
+import { presentationChannelMetrics } from "@/shared/data/presentation-analytics-seed";
+import { DEMO_ACCOUNT_ID, PRESENTATION_ACCOUNT_ID } from "@/shared/lib/auth/constants";
 import {
   formatTrendChartRangeFromStart,
   formatTrendPointPeriod,
@@ -23,22 +25,38 @@ export type ChannelMetricsDatabase = {
   days: ChannelDayRecord[];
 };
 
-const db: ChannelMetricsDatabase = {
-  version: channelMetrics110d.version,
-  dayCount: channelMetrics110d.dayCount,
-  startTotals: { ...channelMetrics110d.startTotals },
-  endTotals: { ...channelMetrics110d.endTotals },
-  days: channelMetrics110d.days.map((day) => ({
-    subscribers: day.subscribers,
-    reactions: day.reactions,
-    views: day.views,
-    comments: day.comments,
-    reposts: day.reposts,
-    er: day.er,
-  })),
-};
+function cloneMetricsDataset(source: ChannelMetricsDataset): ChannelMetricsDatabase {
+  return {
+    version: source.version,
+    dayCount: source.dayCount,
+    startTotals: { ...source.startTotals },
+    endTotals: { ...source.endTotals },
+    days: source.days.map((day) => ({
+      subscribers: day.subscribers,
+      reactions: day.reactions,
+      views: day.views,
+      comments: day.comments,
+      reposts: day.reposts,
+      er: day.er,
+    })),
+  };
+}
 
-export const CHANNEL_METRICS_DB = db;
+let activeMetricsAccountId = DEMO_ACCOUNT_ID;
+let db = cloneMetricsDataset(channelMetrics110d);
+
+export function setChannelMetricsAccount(accountId: string) {
+  if (accountId === activeMetricsAccountId) return;
+  activeMetricsAccountId = accountId;
+  const source =
+    accountId === PRESENTATION_ACCOUNT_ID ? presentationChannelMetrics : channelMetrics110d;
+  db = cloneMetricsDataset(source);
+}
+
+export function getChannelMetricsDatabase(): ChannelMetricsDatabase {
+  return db;
+}
+
 export const CHANNEL_METRICS_DAY_COUNT = db.dayCount;
 
 const CHANNEL_ALL_TIME_MAX_LABELS = 30;

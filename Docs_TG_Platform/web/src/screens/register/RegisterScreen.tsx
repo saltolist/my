@@ -21,7 +21,12 @@ import {
 
 type Step = "email" | "password" | "code";
 
-export function RegisterScreen() {
+type Props = {
+  variant?: "page" | "overlay";
+  onOpenLogin?: () => void;
+};
+
+export function RegisterScreen({ variant = "page", onOpenLogin }: Props = {}) {
   const router = useRouter();
   const { setSession } = useAuth();
   const [step, setStep] = useState<Step>("email");
@@ -68,7 +73,7 @@ export function RegisterScreen() {
     try {
       const session = await registerVerify({ email: email.trim(), code: code.trim() });
       setSession(session);
-      router.replace(routes.feed());
+      router.replace(routes.home());
     } catch (error) {
       showToast({
         message: getApiErrorMessage(error, "Не удалось подтвердить регистрацию"),
@@ -79,10 +84,15 @@ export function RegisterScreen() {
     }
   };
 
+  const openLogin = () => {
+    if (onOpenLogin) onOpenLogin();
+    else router.push(routes.login());
+  };
+
   return (
     <AuthShell
       title="Регистрация"
-      titleAction={<AuthHeaderLink onClick={() => router.push(routes.login())}>Вход</AuthHeaderLink>}
+      titleAction={<AuthHeaderLink onClick={openLogin}>Вход</AuthHeaderLink>}
     >
       <AuthDemoHint>Демо: код подтверждения — {DEMO_EMAIL_CODE}</AuthDemoHint>
 

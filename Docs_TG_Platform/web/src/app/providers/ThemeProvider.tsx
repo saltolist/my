@@ -20,6 +20,7 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
       attribute={["class", "data-theme"]}
       defaultTheme="system"
       enableSystem
+      storageKey="tg-platform-theme"
       disableTransitionOnChange
       scriptProps={scriptProps}
       {...props}

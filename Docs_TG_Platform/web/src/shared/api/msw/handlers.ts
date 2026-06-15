@@ -1,5 +1,5 @@
 import { http, HttpResponse } from "msw";
-import { API_V1 } from "@/shared/config/basePath";
+import { apiV1Path } from "@/shared/config/basePath";
 import { DEMO_CHANNEL_TITLE } from "@/shared/lib/auth/constants";
 import { appendToActiveHistory } from "@/shared/lib/chatPaths";
 import { getGlobalReply } from "@/shared/lib/replies";
@@ -10,8 +10,6 @@ import {
   isDemoKanalHandle,
 } from "./accountRegistry";
 import { authHandlers } from "./authHandlers";
-
-const v1 = API_V1;
 
 function notFound(message: string) {
   return HttpResponse.json({ error: message }, { status: 404 });
@@ -28,13 +26,13 @@ function requireStore(request: Request) {
 export const handlers = [
   ...authHandlers,
 
-  http.get(`${v1}/posts`, ({ request }) => {
+  http.get(apiV1Path("posts"), ({ request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     return HttpResponse.json(store.posts);
   }),
 
-  http.post(`${v1}/posts`, async ({ request }) => {
+  http.post(apiV1Path("posts"), async ({ request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     const post = (await request.json()) as Post;
@@ -42,7 +40,7 @@ export const handlers = [
     return HttpResponse.json(post, { status: 201 });
   }),
 
-  http.patch(`${v1}/posts/:id`, async ({ params, request }) => {
+  http.patch(apiV1Path("posts/:id"), async ({ params, request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     const id = Number(params.id);
@@ -53,7 +51,7 @@ export const handlers = [
     return HttpResponse.json(store.posts[idx]);
   }),
 
-  http.put(`${v1}/posts/reorder`, async ({ request }) => {
+  http.put(apiV1Path("posts/reorder"), async ({ request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     const body = (await request.json()) as { posts: Post[] };
@@ -61,7 +59,7 @@ export const handlers = [
     return HttpResponse.json(store.posts);
   }),
 
-  http.delete(`${v1}/posts/:id`, ({ params, request }) => {
+  http.delete(apiV1Path("posts/:id"), ({ params, request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     const id = Number(params.id);
@@ -71,13 +69,13 @@ export const handlers = [
     return new HttpResponse(null, { status: 204 });
   }),
 
-  http.get(`${v1}/global-chats`, ({ request }) => {
+  http.get(apiV1Path("global-chats"), ({ request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     return HttpResponse.json(store.globalChats);
   }),
 
-  http.post(`${v1}/global-chats`, async ({ request }) => {
+  http.post(apiV1Path("global-chats"), async ({ request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     const chat = (await request.json()) as GlobalChat;
@@ -85,7 +83,7 @@ export const handlers = [
     return HttpResponse.json(chat, { status: 201 });
   }),
 
-  http.post(`${v1}/global-chats/:chatId/messages`, async ({ params, request }) => {
+  http.post(apiV1Path("global-chats/:chatId/messages"), async ({ params, request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     const chatId = String(params.chatId);
@@ -111,7 +109,7 @@ export const handlers = [
     return HttpResponse.json(updated);
   }),
 
-  http.patch(`${v1}/global-chats/:chatId`, async ({ params, request }) => {
+  http.patch(apiV1Path("global-chats/:chatId"), async ({ params, request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     const chatId = String(params.chatId);
@@ -123,7 +121,7 @@ export const handlers = [
     return HttpResponse.json(updated);
   }),
 
-  http.delete(`${v1}/global-chats/:chatId`, ({ params, request }) => {
+  http.delete(apiV1Path("global-chats/:chatId"), ({ params, request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     const chatId = String(params.chatId);
@@ -133,13 +131,13 @@ export const handlers = [
     return new HttpResponse(null, { status: 204 });
   }),
 
-  http.get(`${v1}/global-notes`, ({ request }) => {
+  http.get(apiV1Path("global-notes"), ({ request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     return HttpResponse.json(store.globalNotes);
   }),
 
-  http.put(`${v1}/global-notes/:noteId`, async ({ params, request }) => {
+  http.put(apiV1Path("global-notes/:noteId"), async ({ params, request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     const noteId = String(params.noteId);
@@ -154,7 +152,7 @@ export const handlers = [
     return HttpResponse.json(note);
   }),
 
-  http.delete(`${v1}/global-notes/:noteId`, ({ params, request }) => {
+  http.delete(apiV1Path("global-notes/:noteId"), ({ params, request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     const noteId = String(params.noteId);
@@ -164,39 +162,39 @@ export const handlers = [
     return new HttpResponse(null, { status: 204 });
   }),
 
-  http.get(`${v1}/profile/channel`, ({ request }) => {
+  http.get(apiV1Path("profile/channel"), ({ request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     return HttpResponse.json(store.channelProfile);
   }),
 
-  http.put(`${v1}/profile/channel`, async ({ request }) => {
+  http.put(apiV1Path("profile/channel"), async ({ request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     store.channelProfile = (await request.json()) as typeof store.channelProfile;
     return HttpResponse.json(store.channelProfile);
   }),
 
-  http.get(`${v1}/profile/ai`, ({ request }) => {
+  http.get(apiV1Path("profile/ai"), ({ request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     return HttpResponse.json(store.aiProfile);
   }),
 
-  http.put(`${v1}/profile/ai`, async ({ request }) => {
+  http.put(apiV1Path("profile/ai"), async ({ request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     store.aiProfile = (await request.json()) as typeof store.aiProfile;
     return HttpResponse.json(store.aiProfile);
   }),
 
-  http.get(`${v1}/profile/telegram`, ({ request }) => {
+  http.get(apiV1Path("profile/telegram"), ({ request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     return HttpResponse.json(store.telegramProfile);
   }),
 
-  http.put(`${v1}/profile/telegram`, async ({ request }) => {
+  http.put(apiV1Path("profile/telegram"), async ({ request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
     const next = (await request.json()) as TelegramProfileConfig;

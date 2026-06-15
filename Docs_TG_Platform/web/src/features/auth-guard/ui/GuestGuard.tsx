@@ -11,7 +11,7 @@ export function GuestGuard({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!ready || !session) return;
-    router.replace(routes.feed());
+    router.replace(routes.home());
   }, [ready, router, session]);
 
   if (!ready) return null;
