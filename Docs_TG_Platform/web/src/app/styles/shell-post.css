@@ -1339,12 +1339,4 @@
   .post-msg-card {
     padding: 3px 12px 12px;
   }
-  .post-subpage-scroll .notes-grid-inner,
-  .post-subpage-scroll .post-chats-inner {
-    width: 100%;
-    max-width: 100%;
-    padding-left: 0;
-    padding-right: 0;
-    box-sizing: border-box;
-  }
 }

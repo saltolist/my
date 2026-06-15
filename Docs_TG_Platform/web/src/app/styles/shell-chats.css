@@ -58,10 +58,12 @@
 
 @media (max-width: 760px) {
   #screen-chats .chats-scroll-inner {
-    width: 90%;
-    max-width: 90%;
+    width: min(var(--composer-w), 100%);
+    max-width: none;
     margin-left: auto;
     margin-right: auto;
+    padding-left: 12px;
+    padding-right: 12px;
     box-sizing: border-box;
   }
 
