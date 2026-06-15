@@ -1336,9 +1336,6 @@
 }
 
 @media (max-width: 760px) {
-  .post-body .composer-scroll-body {
-    --scroll-pad-inline: 0;
-  }
   .post-msg-card {
     padding: 3px 12px 12px;
   }

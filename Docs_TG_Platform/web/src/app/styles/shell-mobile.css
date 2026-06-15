@@ -30,7 +30,7 @@
     --composer-mobile-gutter: 12px;
     --composer-gutter-inline: 12px;
     --composer-col-w: calc(100% - 2 * var(--composer-gutter-inline));
-    --feed-post-w: var(--composer-col-w);
+    --feed-post-w: 100%;
     --composer-overlay-h: 130px;
     --content-card-shadow-gutter: 12px;
     --scroll-pad-inline: 12px;
@@ -342,74 +342,8 @@ body.mobile-sidebar-open #sidebar {
     padding-left: 10px;
     padding-right: 10px;
   }
-/* ── Mobile composer column (эталон: лента) ── */
-.composer-scroll-wrap > :is(.feed-scroll, .post-body, .gchat-messages) {
-    width: var(--composer-col-w);
-    max-width: 100%;
-    margin-inline: auto;
-    box-sizing: border-box;
-  }
-.feed-scroll .composer-scroll-body,
-  .post-body .composer-scroll-body,
-  .gchat-messages .composer-scroll-body {
-    width: 100%;
-    padding-left: 0;
-    padding-right: 0;
-    box-sizing: border-box;
-  }
-#screen-feed .input-wrap,
-  #screen-gchat .input-wrap,
-  #screen-post .input-wrap,
-  #screen-home .input-wrap {
-    --input-wrap-pad-top: 12px;
-    --input-wrap-pad-bottom: 12px;
-    padding: 12px;
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    max-width: none;
-    box-sizing: border-box;
-  }
-#screen-feed .composer-backdrop,
-  #screen-gchat .composer-backdrop,
-  #screen-post .composer-backdrop {
-    left: 0;
-    right: 0;
-    width: auto;
-    max-width: none;
-    transform: none;
-  }
-#screen-gchat .input-box,
-  #screen-post .input-box,
-  #screen-home .input-box {
-    width: 100%;
-    max-width: 100%;
-  }
-.post-body-inner {
-    width: 100%;
-    padding-left: 0;
-    padding-right: 0;
-    box-sizing: border-box;
-  }
-.post-body-inner .post-msg-block {
-    width: 100%;
-    max-width: 100%;
-  }
 .post-card--draft-dnd .post-card-body {
     touch-action: manipulation;
-  }
-/* iOS/Android: font-size < 16px зумит страницу при фокусе */
-.input-box textarea,
-  .composer-editor,
-  .post-msg-textarea,
-  .profile-input-explicit,
-  .telegram-code-input,
-  .page-header-search-field,
-  .notes-search-input {
-    font-size: 16px;
-  }
-.composer-editor.is-empty::before {
-    font-size: 14px;
   }
 .profile-page .theme-switch {
     display: flex;

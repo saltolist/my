@@ -4,6 +4,8 @@ import { AppProviders } from "@/app/providers/AppProviders";
 import "./globals.css";
 /* Legacy parity: profile styles as a separate entry (see web-legacy layout.tsx) */
 import "./styles/shell-profile-page.css";
+/* Mobile composer + no-zoom — после profile, чтобы перебить 14px поля */
+import "./styles/shell-mobile-composer.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

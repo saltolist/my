@@ -112,12 +112,6 @@
 
   #screen-home .input-wrap {
     align-self: stretch;
-    padding: 14px 16px 18px;
-  }
-
-  #screen-home .input-box {
-    width: 100%;
-    max-width: 100%;
   }
 
   .home-logo {

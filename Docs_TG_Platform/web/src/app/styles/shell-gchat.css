@@ -223,15 +223,7 @@
   #screen-home > .page-header .page-header-right {
     display: none;
   }
-/* Главная и чаты: та же карточка composer, что на полноэкранной версии */
-#screen-home .input-wrap {
-    padding: 14px var(--composer-mobile-gutter) 18px;
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    max-width: none;
-    box-sizing: border-box;
-  }
+/* Главная: карточка composer — padding/ширина на mobile в shell-mobile-composer.css */
 #screen-home .input-wrap {
     position: static;
     background: transparent;
