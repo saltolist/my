@@ -15,6 +15,7 @@ import { logout as logoutApi } from "@/entities/auth";
 import { clearSession, readSession, writeSession } from "@/shared/lib/auth/session";
 import { useProfileDraftStore } from "@/app/model/store/profile-draft-store";
 import { useComposerTargetStore } from "@/app/model/store/composer-target-store";
+import { useUiStore } from "@/app/model/store/ui-store";
 
 type AuthContextValue = {
   session: AuthSession | null;
@@ -51,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         writeSession(next);
         useProfileDraftStore.getState().resetForLogout();
         useComposerTargetStore.getState().resetTargets();
+        useUiStore.getState().setMobileSidebarOpen(false);
         setAuthOverlayOpen(false);
       } else {
         clearSession();
