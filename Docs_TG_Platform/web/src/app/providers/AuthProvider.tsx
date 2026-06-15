@@ -14,6 +14,7 @@ import type { AuthSession } from "@/shared/lib/auth/types";
 import { logout as logoutApi } from "@/entities/auth";
 import { clearSession, readSession, writeSession } from "@/shared/lib/auth/session";
 import { useProfileDraftStore } from "@/app/model/store/profile-draft-store";
+import { useComposerTargetStore } from "@/app/model/store/composer-target-store";
 
 type AuthContextValue = {
   session: AuthSession | null;
@@ -49,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (next) {
         writeSession(next);
         useProfileDraftStore.getState().resetForLogout();
+        useComposerTargetStore.getState().resetTargets();
         setAuthOverlayOpen(false);
       } else {
         clearSession();
@@ -69,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSessionState(null);
     setAuthOverlayOpen(false);
     useProfileDraftStore.getState().resetForLogout();
+    useComposerTargetStore.getState().resetTargets();
     void queryClient.clear();
   }, [queryClient]);
 

@@ -37,19 +37,37 @@ export function createAuthToken(accountId: string): string {
   return `${accountId}:${randomId()}`;
 }
 
+function isFreshAccountId(accountId: string): boolean {
+  return accountId.startsWith("fresh-");
+}
+
+function isResolvableAccountId(accountId: string): boolean {
+  return accounts.has(accountId) || isFreshAccountId(accountId);
+}
+
 export function resolveAccountIdFromRequest(request: Request): string | null {
   const auth = request.headers.get("Authorization");
   if (!auth?.startsWith("Bearer ")) return null;
   const token = auth.slice(7);
   const accountId = token.split(":")[0];
-  if (!accountId || !accounts.has(accountId)) return null;
+  if (!accountId || !isResolvableAccountId(accountId)) return null;
   return accountId;
+}
+
+/** Fresh accounts live only in memory; recreate empty store after MSW worker reload. */
+export function getOrCreateAccountStore(accountId: string): MswStore | null {
+  const existing = accounts.get(accountId);
+  if (existing) return existing;
+  if (!isFreshAccountId(accountId)) return null;
+  const store = createEmptyAccountStore();
+  accounts.set(accountId, store);
+  return store;
 }
 
 export function getStoreForRequest(request: Request): MswStore | null {
   const accountId = resolveAccountIdFromRequest(request);
   if (!accountId) return null;
-  return accounts.get(accountId) ?? null;
+  return getOrCreateAccountStore(accountId);
 }
 
 export function createFreshAccount(): string {

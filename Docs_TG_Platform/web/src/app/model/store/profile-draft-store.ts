@@ -98,27 +98,27 @@ type ProfileDraftActions = {
   resetForLogout: () => void;
 };
 
-const emptyAccountBaselines = createEmptyAccountStore();
-
-const initialProfileDraftState: ProfileDraftState = {
-  aiProfileConfig: emptyAccountBaselines.aiProfile,
-  channelProfileConfig: emptyAccountBaselines.channelProfile,
-  telegramProfileConfig: emptyAccountBaselines.telegramProfile,
-  systemPromptSavedSnapshot: emptyAccountBaselines.aiProfile.systemPrompt,
-  modelSettingsSavedSnapshot: buildInitialAiSnapshot(emptyAccountBaselines.aiProfile),
-  channelProfileSavedSnapshot: JSON.stringify(emptyAccountBaselines.channelProfile),
-  telegramSettingsSavedSnapshot: buildInitialTelegramSnapshot(emptyAccountBaselines.telegramProfile),
-  hydrated: false,
-};
+function createInitialProfileDraftState(): ProfileDraftState {
+  const empty = createEmptyAccountStore();
+  return {
+    aiProfileConfig: structuredClone(empty.aiProfile),
+    channelProfileConfig: structuredClone(empty.channelProfile),
+    telegramProfileConfig: structuredClone(empty.telegramProfile),
+    systemPromptSavedSnapshot: empty.aiProfile.systemPrompt,
+    modelSettingsSavedSnapshot: buildInitialAiSnapshot(empty.aiProfile),
+    channelProfileSavedSnapshot: JSON.stringify(empty.channelProfile),
+    telegramSettingsSavedSnapshot: buildInitialTelegramSnapshot(empty.telegramProfile),
+    hydrated: false,
+  };
+}
 
 export const useProfileDraftStore = create<ProfileDraftState & ProfileDraftActions>((set, get) => ({
-  ...initialProfileDraftState,
+  ...createInitialProfileDraftState(),
   hydrateFromServer: (channel, ai, telegram) => {
-    if (get().hydrated) return;
     set({
-      channelProfileConfig: channel,
-      aiProfileConfig: ai,
-      telegramProfileConfig: telegram,
+      channelProfileConfig: structuredClone(channel),
+      aiProfileConfig: structuredClone(ai),
+      telegramProfileConfig: structuredClone(telegram),
       channelProfileSavedSnapshot: JSON.stringify(channel),
       modelSettingsSavedSnapshot: buildInitialAiSnapshot(ai),
       systemPromptSavedSnapshot: ai.systemPrompt,
@@ -139,7 +139,7 @@ export const useProfileDraftStore = create<ProfileDraftState & ProfileDraftActio
       telegramProfileConfig: patch.telegramProfileConfig,
     });
   },
-  resetForLogout: () => set({ ...initialProfileDraftState }),
+  resetForLogout: () => set(createInitialProfileDraftState()),
 }));
 
 export function selectChannelProfileConfig(state: ProfileDraftState) {

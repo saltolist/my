@@ -21,7 +21,6 @@ export function useChannelProfile() {
     queryFn: () => profile.getChannel(),
     enabled,
     staleTime: 5 * 60_000,
-    placeholderData: (previous) => previous,
   });
 }
 
@@ -48,7 +47,6 @@ export function useAiProfile() {
     queryFn: () => profile.getAi(),
     enabled,
     staleTime: 5 * 60_000,
-    placeholderData: (previous) => previous,
   });
 }
 
@@ -75,7 +73,6 @@ export function useTelegramProfile() {
     queryFn: () => profile.getTelegram(),
     enabled,
     staleTime: 5 * 60_000,
-    placeholderData: (previous) => previous,
   });
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { useQueryAccountScope } from "@/app/providers/useQueryAccountScope";
 import { useProfileDraftStore } from "@/app/model/store/profile-draft-store";
@@ -17,12 +17,18 @@ export function ProfileHydrator() {
   const { data: ai } = useAiProfile();
   const { data: telegram } = useTelegramProfile();
   const hydrateFromServer = useProfileDraftStore((s) => s.hydrateFromServer);
-  const hydrated = useProfileDraftStore((s) => s.hydrated);
+  const lastHydratedAccountRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (hydrated || !channel || !ai || !telegram) return;
+    lastHydratedAccountRef.current = null;
+  }, [accountId]);
+
+  useEffect(() => {
+    if (!channel || !ai || !telegram) return;
+    if (lastHydratedAccountRef.current === accountId) return;
     hydrateFromServer(channel, ai, telegram);
-  }, [accountId, ai, channel, hydrated, hydrateFromServer, telegram]);
+    lastHydratedAccountRef.current = accountId;
+  }, [accountId, ai, channel, hydrateFromServer, telegram]);
 
   return null;
 }
