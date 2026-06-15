@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 
 import { useNavigationStore, useUiStore } from "@/app/model/store";
+import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import { useScreenBack } from "@/widgets/app-shell/model/useScreenBack";
 import { FeedComposer } from "@/screens/feed/ui/FeedComposer";
 import { FeedPublishedSection } from "@/screens/feed/ui/FeedPublishedSection";
@@ -19,6 +20,7 @@ import { PageHeader, PageHeaderSelect } from "@/widgets/page-header";
 
 export function FeedScreen() {
   const onBack = useScreenBack();
+  const isMobile = useMobile760();
   const search = useNavigationStore((s) => s.feedSearch);
   const setFeedSearch = useNavigationStore((s) => s.setFeedSearch);
   const feedPostWidth = useUiStore((s) => s.feedCardWidth);
@@ -55,7 +57,9 @@ export function FeedScreen() {
         title="Лента"
         onBack={onBack}
         compactSearchAtWidth={804}
-        mobileSelect={<PageHeaderSelect {...feedPostWidthSelectProps} />}
+        mobileSelect={
+          !isMobile ? <PageHeaderSelect {...feedPostWidthSelectProps} /> : undefined
+        }
         search={createFeedHeaderSearchRow({
           value: search,
           onChange: setFeedSearch,
