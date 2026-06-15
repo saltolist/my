@@ -5,7 +5,7 @@ const LOAD_TIMEOUT = 30_000;
 test("presentation mode opens home without login", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL(/\/$/, { timeout: LOAD_TIMEOUT });
-  await expect(page.getByRole("heading", { name: "Чем помочь сегодня?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Над чем работаем?" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Войти" })).toBeVisible();
 });
 
@@ -23,7 +23,7 @@ test("demo login opens home", async ({ page }) => {
   await page.getByLabel("Основная навигация").getByRole("button", { name: "Войти" }).click();
   await page.getByLabel("Вход и регистрация").getByRole("button", { name: "Войти" }).click();
   await expect(page).toHaveURL(/\/$/, { timeout: LOAD_TIMEOUT });
-  await expect(page.getByRole("heading", { name: "Чем помочь сегодня?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Над чем работаем?" })).toBeVisible();
   await expect(page.getByLabel("Основная навигация").getByRole("button", { name: "Профиль" })).toBeVisible();
 });
 
@@ -38,6 +38,6 @@ test("logout returns to presentation home", async ({ page }) => {
 
   await expect(page).toHaveURL(/\/$/, { timeout: LOAD_TIMEOUT });
   await expect(page.getByRole("button", { name: "Войти" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Чем помочь сегодня?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Над чем работаем?" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Вход" })).not.toBeVisible();
 });

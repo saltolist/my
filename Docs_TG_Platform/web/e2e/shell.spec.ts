@@ -9,13 +9,13 @@ test.beforeEach(async ({ page }) => {
 
 test("home page loads", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await expect(page.getByText("Над чем работаем?")).toBeVisible({ timeout: LOAD_TIMEOUT });
 });
 
 test("home composer sends message to new gchat", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
-  const editor = page.getByRole("textbox", { name: /Сообщение|Чем помочь|контент/i });
+  await expect(page.getByText("Над чем работаем?")).toBeVisible({ timeout: LOAD_TIMEOUT });
+  const editor = page.getByRole("textbox", { name: /Сообщение|контент/i });
   await editor.click();
   await editor.fill("контент-план на неделю");
   await page.locator(".send-btn").click();
@@ -25,7 +25,7 @@ test("home composer sends message to new gchat", async ({ page }) => {
 
 test("navigate feed from sidebar", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await expect(page.getByText("Над чем работаем?")).toBeVisible({ timeout: LOAD_TIMEOUT });
   await page.locator("#nav-feed").click();
   await expect(page.getByRole("heading", { name: "Лента" })).toBeVisible({ timeout: LOAD_TIMEOUT });
   await expect(page.getByText("Опубликованные")).toBeVisible({ timeout: LOAD_TIMEOUT });
@@ -39,12 +39,12 @@ test("navigate chats and back to home", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Новый чат" })).toBeVisible();
   await page.getByRole("button", { name: "Назад" }).click();
   await expect(page).toHaveURL(/\/?$/, { timeout: LOAD_TIMEOUT });
-  await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await expect(page.getByText("Над чем работаем?")).toBeVisible({ timeout: LOAD_TIMEOUT });
 });
 
 test("navigate notes from sidebar", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByText("Чем помочь сегодня?")).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await expect(page.getByText("Над чем работаем?")).toBeVisible({ timeout: LOAD_TIMEOUT });
   await page.locator("#nav-notes .nav-item-chats-main").click();
   await expect(page.getByRole("heading", { name: "Заметки" })).toBeVisible({ timeout: LOAD_TIMEOUT });
   await expect(page.locator(".notes-filter-row").getByRole("button", { name: "Все" })).toBeVisible();

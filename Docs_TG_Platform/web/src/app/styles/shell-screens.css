@@ -23,27 +23,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   padding: 10px 20px;
-}
-
-.home-logo {
-  width: 56px;
-  height: 56px;
-  background: linear-gradient(135deg, var(--accent), var(--purple));
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  margin-bottom: 6px;
-  color: #fff;
+  max-width: 420px;
 }
 
 .home-intro h3 {
   font-size: 20px;
   font-weight: 600;
   color: var(--text);
+  text-align: center;
 }
 
 .screen-placeholder {
@@ -112,13 +101,6 @@
 
   #screen-home .input-wrap {
     align-self: stretch;
-  }
-
-  .home-logo {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    font-size: 24px;
   }
 
   .home-intro h3 {

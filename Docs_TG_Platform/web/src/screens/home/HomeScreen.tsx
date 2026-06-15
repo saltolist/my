@@ -26,8 +26,7 @@ export function HomeScreen() {
       />
       <div className="home-layout">
         <div className="home-intro">
-          <div className="home-logo">✦</div>
-          <h3>Чем помочь сегодня?</h3>
+          <h3>Над чем работаем?</h3>
         </div>
         <Composer scope="home" onSubmit={sendHome} />
       </div>
