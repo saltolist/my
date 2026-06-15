@@ -15,6 +15,7 @@ type Props = {
   onModelChange: (idx: number, patch: Partial<LlmModel>) => void;
   onModelRemove: (idx: number) => void;
   onAdd: () => void;
+  onApiKeyBlur?: () => void;
   showDivider?: boolean;
 };
 
@@ -29,6 +30,7 @@ export default function AiModelListSection({
   onModelChange,
   onModelRemove,
   onAdd,
+  onApiKeyBlur,
   showDivider = true,
 }: Props) {
   return (
@@ -52,6 +54,7 @@ export default function AiModelListSection({
             showMultiToggle={showMultiToggle}
             onChange={(patch) => onModelChange(idx, patch)}
             onRemove={() => onModelRemove(idx)}
+            onApiKeyBlur={onApiKeyBlur}
           />
         ))}
         <button className="btn btn-ghost btn-sm" onClick={onAdd} type="button">

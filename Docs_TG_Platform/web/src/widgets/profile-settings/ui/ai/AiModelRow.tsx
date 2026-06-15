@@ -15,6 +15,7 @@ type Props = {
   showMultiToggle?: boolean;
   onChange: (patch: Partial<LlmModel>) => void;
   onRemove?: () => void;
+  onApiKeyBlur?: () => void;
 };
 
 export default function AiModelRow({
@@ -24,6 +25,7 @@ export default function AiModelRow({
   showMultiToggle = true,
   onChange,
   onRemove,
+  onApiKeyBlur,
 }: Props) {
   const [apiKeyVisible, setApiKeyVisible] = useState(false);
   const hasProvider = !!model.provider;
@@ -70,6 +72,7 @@ export default function AiModelRow({
           placeholder="API key"
           disabled={!hasProvider}
           onChange={(e) => onChange({ apiKey: e.target.value })}
+          onBlur={() => onApiKeyBlur?.()}
         />
         <button
           type="button"

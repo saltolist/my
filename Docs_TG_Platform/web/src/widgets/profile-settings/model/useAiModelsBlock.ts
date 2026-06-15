@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import {
   normalizeExclusiveModels,
   snapshotAiConfig,
   updateExclusiveModel,
 } from "@/shared/lib/profile/aiModelsSnapshot";
-import { restoreAiConfigFromSnapshot } from "@/shared/lib/profileDiscard";
+import { registerAiModelsAutosaveFlush } from "@/shared/lib/profile/aiModelsAutosave";
 import { buildMultiResponsePairs } from "@/shared/config/composer";
 import {
   domainActions,
@@ -17,6 +17,7 @@ import {
   useDomainSelector,
   useUi,
 } from "@/app/model/store";
+import { useProfileDraftStore } from "@/app/model/store/profile-draft-store";
 import { useUpdateAiProfile } from "@/entities/channel";
 import type { AiProfileConfig, LlmModel } from "@/shared/types";
 
@@ -37,24 +38,27 @@ export function useAiModelsBlock() {
   const currentSnapshot = snapshotAiConfig(cfg);
   const dirty = currentSnapshot !== modelSettingsSavedSnapshot;
 
+  const flushSave = useCallback(async () => {
+    const state = useProfileDraftStore.getState();
+    const nextCfg = state.aiProfileConfig;
+    const snapshot = snapshotAiConfig(nextCfg);
+    if (snapshot === state.modelSettingsSavedSnapshot) return;
+    state.applyPatch({ modelSettingsSavedSnapshot: snapshot });
+    await updateAiProfile.mutateAsync(nextCfg);
+  }, [updateAiProfile]);
+
   useEffect(() => {
     setDirty("profile-ai", dirty);
   }, [dirty, setDirty]);
 
   useEffect(() => {
-    return () => setDirty("profile-ai", false);
-  }, [setDirty]);
-
-  const save = () => {
-    if (!dirty) return;
-    applyPatch({ modelSettingsSavedSnapshot: currentSnapshot });
-    void updateAiProfile.mutateAsync(cfg);
-  };
-
-  const cancel = () => {
-    if (!dirty) return;
-    update(restoreAiConfigFromSnapshot(cfg, modelSettingsSavedSnapshot));
-  };
+    registerAiModelsAutosaveFlush(flushSave);
+    return () => {
+      registerAiModelsAutosaveFlush(null);
+      void flushSave();
+      setDirty("profile-ai", false);
+    };
+  }, [flushSave, setDirty]);
 
   const setLlms = (llmModels: LlmModel[]) => update({ ...cfg, llmModels });
   const setWebs = (webSearchModels: LlmModel[]) => update({ ...cfg, webSearchModels });
@@ -93,12 +97,10 @@ export function useAiModelsBlock() {
 
   return {
     cfg,
-    dirty,
     multiEligible,
     multiResponsePairs,
     update,
-    save,
-    cancel,
+    flushSave,
     setLlms,
     setWebs,
     setOrchestrators,

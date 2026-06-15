@@ -2,7 +2,8 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useNavigation } from "@/app/model/store";
-import { useUi } from "@/app/model/store";
+import { useUiStore } from "@/app/model/store";
+import { flushAiModelsAutosave } from "@/shared/lib/profile/aiModelsAutosave";
 import { useCompactHeader1000 } from "@/shared/lib/hooks/useCompactHeader1000";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
 import { confirmDialog } from "@/shared/ui/dialog";
@@ -13,7 +14,6 @@ export function useProfileScreen() {
   const [tab, setTab] = useState(0);
   const [platformPeriod, setPlatformPeriod] = useState(2);
   const { screen, discardProfileEdits } = useNavigation();
-  const { profileChannelDirty, profileSettingsDirty } = useUi();
   const profileScreenActive = screen === "profile";
   const isMobile = useMobile760();
   const isCompactHeader = useCompactHeader1000();
@@ -24,7 +24,11 @@ export function useProfileScreen() {
 
   const switchTab = useCallback(
     async (next: number) => {
-      if (tab === 0 && next !== 0 && profileSettingsDirty) {
+      await flushAiModelsAutosave();
+      const dirtyMap = useUiStore.getState().dirtyMap;
+      const settingsDirty =
+        dirtyMap["profile-ai"] || dirtyMap["profile-prompt"] || dirtyMap["profile-telegram"];
+      if (tab === 0 && next !== 0 && settingsDirty) {
         const ok = await confirmDialog({
           message: "Есть несохранённые изменения в настройках профиля. Перейти без сохранения?",
           confirmLabel: "Перейти",
@@ -33,7 +37,7 @@ export function useProfileScreen() {
         if (!ok) return;
         discardProfileEdits();
       }
-      if (tab === 1 && next !== 1 && profileChannelDirty) {
+      if (tab === 1 && next !== 1 && dirtyMap["profile-channel"]) {
         const ok = await confirmDialog({
           message: "Есть несохранённые изменения в профиле канала. Перейти без сохранения?",
           confirmLabel: "Перейти",
@@ -44,7 +48,7 @@ export function useProfileScreen() {
       }
       setTab(next);
     },
-    [discardProfileEdits, profileChannelDirty, profileSettingsDirty, tab],
+    [discardProfileEdits, tab],
   );
 
   const profileTabSelectProps = useMemo(

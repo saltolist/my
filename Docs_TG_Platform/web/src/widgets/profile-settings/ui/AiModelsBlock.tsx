@@ -26,6 +26,7 @@ export default function AiModelsBlock() {
         }
         onModelRemove={(idx) => ai.setLlms(cfg.llmModels.filter((_, i) => i !== idx))}
         onAdd={ai.addLlm}
+        onApiKeyBlur={() => void ai.flushSave()}
       />
 
       <AiModelListSection
@@ -39,6 +40,7 @@ export default function AiModelsBlock() {
         }
         onModelRemove={(idx) => ai.setWebs(cfg.webSearchModels.filter((_, i) => i !== idx))}
         onAdd={ai.addWeb}
+        onApiKeyBlur={() => void ai.flushSave()}
       />
 
       <AiModelListSection
@@ -53,6 +55,7 @@ export default function AiModelsBlock() {
         }
         onModelRemove={(idx) => ai.setOrchestrators(cfg.orchestratorModels.filter((_, i) => i !== idx))}
         onAdd={ai.addOrchestrator}
+        onApiKeyBlur={() => void ai.flushSave()}
       />
 
       <AiModelListSection
@@ -67,6 +70,7 @@ export default function AiModelsBlock() {
         }
         onModelRemove={(idx) => ai.setWebReasoners(cfg.webReasonerModels.filter((_, i) => i !== idx))}
         onAdd={ai.addWebReasoner}
+        onApiKeyBlur={() => void ai.flushSave()}
       />
 
       <AiModelListSection
@@ -81,6 +85,7 @@ export default function AiModelsBlock() {
         }
         onModelRemove={(idx) => ai.setRagReasoners(cfg.ragReasonerModels.filter((_, i) => i !== idx))}
         onAdd={ai.addRagReasoner}
+        onApiKeyBlur={() => void ai.flushSave()}
       />
 
       <div className="profile-ai-divider" />
@@ -103,16 +108,6 @@ export default function AiModelsBlock() {
             </>
           )}
         </div>
-      </div>
-      <div className="profile-action-buttons profile-action-buttons--ai">
-        <button className="btn btn-primary" disabled={!ai.dirty} onClick={ai.save} type="button">
-          Сохранить
-        </button>
-        {ai.dirty ? (
-          <button className="btn btn-ghost" onClick={ai.cancel} type="button">
-            Отменить
-          </button>
-        ) : null}
       </div>
     </div>
   );
