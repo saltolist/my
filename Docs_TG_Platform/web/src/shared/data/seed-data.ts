@@ -4,17 +4,9 @@ import type {
   GlobalChat,
   GlobalNote,
   Post,
-  PostMedia,
   TelegramProfileConfig,
 } from "@/shared/types";
-
-function svgMedia(name: string, svg: string): PostMedia {
-  return {
-    name,
-    url: `data:image/svg+xml;utf8,${encodeURIComponent(svg.trim())}`,
-    type: "image/svg+xml",
-  };
-}
+import { svgMedia } from "@/shared/data/demo-media";
 
 const mediaFirstStep = svgMedia(
   "Первый шаг.svg",

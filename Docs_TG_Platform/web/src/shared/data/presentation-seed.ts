@@ -6,21 +6,41 @@ import type {
   Post,
   TelegramProfileConfig,
 } from "@/shared/types";
+import { themedPostMedia } from "@/shared/data/demo-media";
 import {
   PRESENTATION_CHANNEL_HANDLE,
   PRESENTATION_CHANNEL_TITLE,
 } from "@/shared/lib/auth/constants";
 import type { MswStore } from "@/shared/api/msw/store";
 
-export const PRESENTATION_POST_IDS = [21, 22, 23, 24] as const;
+export const PRESENTATION_POST_IDS = [21, 22, 23, 24, 25, 26, 27, 28, 29] as const;
 export const PRESENTATION_GLOBAL_NOTE_IDS = ["pn1", "pn2", "pn3"] as const;
 export const PRESENTATION_GLOBAL_CHAT_IDS = ["pc1", "pc2"] as const;
+
+const mediaWelcome = themedPostMedia("IMG_2101.jpg", "workspace-hub");
+
+const mediaFeedA = themedPostMedia("IMG_2102.jpg", "feed-timeline");
+const mediaFeedB = themedPostMedia("IMG_2103.jpg", "feed-sections");
+
+const mediaNotesA = themedPostMedia("IMG_2104.jpg", "notes-stack");
+const mediaNotesB = themedPostMedia("IMG_2105.jpg", "ai-dialogue");
+
+const mediaAnalyticsA = themedPostMedia("IMG_2107.jpg", "chart-growth");
+const mediaAnalyticsB = themedPostMedia("IMG_2108.jpg", "heatmap-grid");
+
+const mediaScheduleIntro = themedPostMedia("IMG_2111.jpg", "clock-pending");
+const mediaScheduleHowA = themedPostMedia("IMG_2112.jpg", "calendar-slot");
+const mediaScheduleHowB = themedPostMedia("IMG_2113.jpg", "postpone-flow");
+
+const mediaDraftIntro = themedPostMedia("IMG_2114.jpg", "draft-post-edit");
+const mediaDraftDndA = themedPostMedia("IMG_2115.jpg", "draft-top-handle");
+const mediaDraftDndB = themedPostMedia("IMG_2116.jpg", "draft-reorder");
 
 const presentationPosts: Post[] = [
   {
     id: 21,
     status: "published",
-    date: "12 июн · 10:00",
+    date: "10 июн · 10:00",
     rubric: "Обзор",
     metrics: {
       views: "1 240",
@@ -35,6 +55,7 @@ const presentationPosts: Post[] = [
 Здесь вы ведёте ленту, планируете публикации, собираете заметки и общаетесь с ИИ в контексте канала. Всё в одном интерфейсе: без переключения между десятком сервисов.
 
 Это демо-канал «Презентация»: посты ниже показывают, как устроена платформа. Нажмите «Войти» внизу слева, чтобы создать свой аккаунт или войти в демо.`,
+    media: [mediaWelcome],
     notes: [],
     comments: [],
     chats: [],
@@ -42,7 +63,7 @@ const presentationPosts: Post[] = [
   {
     id: 22,
     status: "published",
-    date: "12 июн · 11:15",
+    date: "11 июн · 11:15",
     rubric: "Лента",
     metrics: { views: "980", reposts: 5, reactions: [{ emoji: "📰", count: 31 }] },
     text: `Лента — центр работы с контентом канала.
@@ -53,6 +74,7 @@ const presentationPosts: Post[] = [
 ✦ Клик по посту открывает чат, заметки и комментарии
 
 После подключения своего Telegram-канала в настройках сюда подтягиваются реальные публикации.`,
+    media: [mediaFeedA, mediaFeedB],
     notes: [],
     comments: [],
     chats: [],
@@ -60,7 +82,7 @@ const presentationPosts: Post[] = [
   {
     id: 23,
     status: "published",
-    date: "12 июн · 12:30",
+    date: "12 июн · 10:30",
     rubric: "ИИ",
     metrics: { views: "860", reposts: 4, reactions: [{ emoji: "🤖", count: 27 }] },
     text: `Заметки и чаты с ИИ помогают готовить контент осознанно.
@@ -68,6 +90,7 @@ const presentationPosts: Post[] = [
 Заметки бывают глобальными (для всего канала) и локальными (привязаны к посту). Чаты — глобальные обсуждения и локальные диалоги внутри поста.
 
 ИИ видит базу знаний канала, системный промпт и выбранные модели из настроек. Вы сами решаете, какие заметки включать в контекст.`,
+    media: [mediaNotesA, mediaNotesB],
     notes: [],
     comments: [],
     chats: [],
@@ -83,6 +106,84 @@ const presentationPosts: Post[] = [
 В разделе аналитики — динамика канала, тепловая карта активности и топ постов. В профиле — подключение Telegram, ИИ-движок, база знаний канала и метрики использования моделей.
 
 Создайте аккаунт через «Войти», подключите канал и начните с чистого листа — или войдите в полное демо с готовым наполнением.`,
+    media: [mediaAnalyticsA, mediaAnalyticsB],
+    notes: [],
+    comments: [],
+    chats: [],
+  },
+  {
+    id: 25,
+    status: "scheduled",
+    date: "14 июн · 12:00",
+    rubric: "Планирование",
+    text: `Посты можно откладывать — не обязательно публиковать сразу.
+
+Отложенная публикация удобна, когда текст уже готов, а выходить он должен в конкретный день и час: утренний дайджест, вечерний разбор, пост к событию.
+
+В ленте такие посты живут в отдельной секции «Отложенные» — их видно до выхода, можно отредактировать или перенести время.`,
+    media: [mediaScheduleIntro],
+    notes: [],
+    comments: [],
+    chats: [],
+  },
+  {
+    id: 26,
+    status: "scheduled",
+    date: "17 июн · 18:00",
+    rubric: "Планирование",
+    text: `Как устроено откладывание в TG Platform:
+
+1. Создайте пост или откройте черновик
+2. В меню поста выберите «Отложить» и укажите дату с временем
+3. Пост попадёт в секцию отложенных — с иконкой часов и меткой времени
+4. В нужный момент публикация уйдёт в канал (после подключения Telegram)
+
+Так же можно перенести уже отложенный пост или вернуть его в черновик.`,
+    media: [mediaScheduleHowA, mediaScheduleHowB],
+    notes: [],
+    comments: [],
+    chats: [],
+  },
+  {
+    id: 27,
+    status: "draft",
+    created: "12 июн",
+    rubric: "Черновики",
+    text: `Черновики — место для незавершённых идей.
+
+Текст можно дописывать сколько угодно, прикреплять медиа и не бояться случайной публикации. Черновик не виден подписчикам, пока вы сами не опубликуете или не отложите его.
+
+Создать черновик: напишите в композере внизу ленты и нажмите «В черновик» — карточка появится в секции «Черновики».`,
+    media: [mediaDraftIntro],
+    notes: [],
+    comments: [],
+    chats: [],
+  },
+  {
+    id: 28,
+    status: "draft",
+    created: "12 июн",
+    rubric: "Черновики",
+    text: `Черновики в ленте можно менять местами перетаскиванием.
+
+Сверху по центру карточки — ручка из шести точек (сетка 3×2). Зажмите её и потяните черновик вверх или вниз: порядок в секции «Черновики» обновится. Так удобно выстраивать очередь публикаций или контент-план.
+
+Тянуть нужно именно за ручку — клик по тексту по-прежнему открывает пост.`,
+    media: [mediaDraftDndA, mediaDraftDndB],
+    notes: [],
+    comments: [],
+    chats: [],
+  },
+  {
+    id: 29,
+    status: "draft",
+    created: "12 июн",
+    rubric: "Контент-план",
+    text: `Так можно собирать контент-план прямо в ленте.
+
+Держите в черновиках заготовки на неделю: темы, тезисы, черновые тексты. Когда материал готов — публикуйте сразу или откладывайте на нужный день.
+
+Черновик → правки → отложенная публикация → аналитика после выхода. Весь цикл в одном интерфейсе, без таблиц и сторонних сервисов.`,
     notes: [],
     comments: [],
     chats: [],
@@ -180,6 +281,11 @@ const emptyChannelProfile = (): ChannelProfileConfig => ({
       id: "rubric-workflow",
       title: "Рабочий процесс",
       description: "Лента, заметки, чаты и аналитика в одном месте.",
+    },
+    {
+      id: "rubric-planning",
+      title: "Планирование",
+      description: "Черновики и отложенные публикации.",
     },
   ],
 });

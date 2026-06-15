@@ -167,7 +167,11 @@ export function getPostMediaItems(post: Post | null | undefined): PostMedia[] {
 }
 
 export function isImageMedia(m: PostMedia): boolean {
-  return m.type.startsWith("image/") || /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(m.name);
+  return (
+    m.type.startsWith("image/") ||
+    /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(m.name) ||
+    /^data:image\//i.test(m.url)
+  );
 }
 
 export function isVideoMedia(m: PostMedia): boolean {
