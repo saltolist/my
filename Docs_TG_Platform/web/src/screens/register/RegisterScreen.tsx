@@ -32,10 +32,15 @@ export function RegisterScreen({ variant = "page", onOpenLogin }: Props = {}) {
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [code, setCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const passwordStrength = checkPasswordStrength(password);
+  const canSendCode =
+    password.trim().length > 0 &&
+    password.trim() === passwordConfirm.trim() &&
+    !passwordStrength.isWeak;
   const mailRuHint = email.includes("@") && !email.toLowerCase().endsWith("@mail.ru");
 
   const handleEmailNext = () => {
@@ -49,6 +54,10 @@ export function RegisterScreen({ variant = "page", onOpenLogin }: Props = {}) {
   const handleSendCode = async () => {
     if (passwordStrength.isWeak || !password.trim()) {
       showToast({ message: passwordStrength.message ?? PASSWORD_REQUIREMENTS_HINT, variant: "error" });
+      return;
+    }
+    if (password.trim() !== passwordConfirm.trim()) {
+      showToast({ message: "Пароли не совпадают", variant: "error" });
       return;
     }
     if (submitting) return;
@@ -130,12 +139,20 @@ export function RegisterScreen({ variant = "page", onOpenLogin }: Props = {}) {
               onChange={(e) => setPassword(e.target.value)}
             />
           </AuthField>
+          <AuthField label="Повторите пароль">
+            <AuthPasswordInput
+              autoComplete="new-password"
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
+              toggleLabel="повтор пароля"
+            />
+          </AuthField>
           <AuthPrimaryActions>
             <button
               type="button"
               className="btn btn-primary"
               onClick={handleSendCode}
-              disabled={submitting}
+              disabled={!canSendCode || submitting}
             >
               Отправить код на почту
             </button>
