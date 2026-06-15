@@ -5,6 +5,7 @@ import { useCallback, useMemo } from "react";
 
 import { useNavigationStore } from "@/app/model/store";
 import { useGlobalNotes, useUpsertGlobalNote } from "@/entities/note";
+import { useChannelConnected } from "@/entities/channel";
 import { usePosts, useTogglePostNoteAi } from "@/entities/post";
 import { guardedPush } from "@/widgets/app-shell/lib/guardedNavigation";
 import { useMobile760 } from "@/shared/lib/hooks/useMobile760";
@@ -26,18 +27,20 @@ export function useNotesScreen() {
 
   const { data: globalNotes = [], isLoading: globalLoading } = useGlobalNotes();
   const { data: posts = [], isLoading: postsLoading } = usePosts();
+  const { isConnected: isChannelConnected, isLoading: isChannelLoading } = useChannelConnected();
   const upsertGlobalNote = useUpsertGlobalNote();
   const togglePostNoteAi = useTogglePostNoteAi();
 
-  const items = useMemo(
-    () => filterNotesByScope(buildAnyNoteItems(globalNotes, posts), scope),
-    [scope, globalNotes, posts],
-  );
+  const allItems = useMemo(() => buildAnyNoteItems(globalNotes, posts), [globalNotes, posts]);
+  const items = useMemo(() => filterNotesByScope(allItems, scope), [allItems, scope]);
 
   const filtered = useMemo(
     () => filterAnyNotes(items, { filter, searchQuery: search }),
     [filter, items, search],
   );
+
+  const showConnectChannel =
+    !isChannelLoading && !isChannelConnected && !search.trim() && allItems.length === 0;
 
   const openNote = useCallback(
     (n: AnyNote) => {
@@ -68,6 +71,7 @@ export function useNotesScreen() {
       filter,
       filtered,
       emptyLabel: notesEmptyLabel(scope),
+      showConnectChannel,
       isLoading: globalLoading || postsLoading,
     },
     ui: {

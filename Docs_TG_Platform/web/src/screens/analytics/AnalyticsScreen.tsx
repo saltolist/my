@@ -1,6 +1,8 @@
 "use client";
 
 import { ChannelAnalyticsSection } from "@/widgets/analytics-dashboard";
+import { useChannelConnected } from "@/entities/channel";
+import { ConnectChannelEmptyState } from "@/features/connect-channel";
 import { useAnalyticsScreen } from "@/screens/analytics/model/useAnalyticsScreen";
 import AnalyticsHeatmap from "@/screens/analytics/ui/AnalyticsHeatmap";
 import AnalyticsTopPostsTable from "@/screens/analytics/ui/AnalyticsTopPostsTable";
@@ -11,6 +13,7 @@ import { PageHeader, PageHeaderSelect } from "@/widgets/page-header";
 export function AnalyticsScreen() {
   const onBack = useScreenBack();
   const { data, ui, actions } = useAnalyticsScreen();
+  const { isConnected: isChannelConnected, isLoading: isChannelLoading } = useChannelConnected();
 
   return (
     <ScreenShell
@@ -24,20 +27,28 @@ export function AnalyticsScreen() {
       }
     >
       <div className="analytics-scroll-inner">
-        <ChannelAnalyticsSection
-          periodIndex={data.periodIndex}
-          periods={data.periods}
-          onPeriodChange={actions.setPeriod}
-        />
-        <AnalyticsHeatmap />
-        <AnalyticsTopPostsTable
-          isMobile={ui.isMobile}
-          posts={data.rankedTopPosts}
-          metrics={data.topPostsTableMetrics}
-          wrapStyle={data.topPostsTableWrapStyle}
-          gridStyle={data.topPostsDesktopGridStyle}
-          onOpenPost={actions.openPost}
-        />
+        {isChannelLoading ? (
+          <p className="screen-placeholder">Загрузка аналитики…</p>
+        ) : !isChannelConnected ? (
+          <ConnectChannelEmptyState feature="аналитике канала" icon="📊" />
+        ) : (
+          <>
+            <ChannelAnalyticsSection
+              periodIndex={data.periodIndex}
+              periods={data.periods}
+              onPeriodChange={actions.setPeriod}
+            />
+            <AnalyticsHeatmap />
+            <AnalyticsTopPostsTable
+              isMobile={ui.isMobile}
+              posts={data.rankedTopPosts}
+              metrics={data.topPostsTableMetrics}
+              wrapStyle={data.topPostsTableWrapStyle}
+              gridStyle={data.topPostsDesktopGridStyle}
+              onOpenPost={actions.openPost}
+            />
+          </>
+        )}
       </div>
     </ScreenShell>
   );

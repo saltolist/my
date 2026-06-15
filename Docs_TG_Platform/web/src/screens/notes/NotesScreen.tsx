@@ -59,6 +59,7 @@ export function NotesScreen() {
   const gridProps = {
     notes: data.filtered,
     emptyLabel: data.emptyLabel,
+    showConnectChannel: data.showConnectChannel,
     onOpen: actions.openNote,
     onToggleAi: actions.toggleAi,
   };

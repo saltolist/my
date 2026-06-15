@@ -1,6 +1,7 @@
 import { importDemoKanalContent } from "@/shared/data/channel-pools/demo-kanal-content";
 import { createEmptyAccountStore } from "@/shared/data/empty-account-state";
 import { DEMO_ACCOUNT_ID } from "@/shared/lib/auth/constants";
+import { isDemoChannelHandle } from "@/shared/lib/channel/isDemoChannelHandle";
 import { randomId } from "@/shared/lib/randomId";
 import { createInitialMswStore, type MswStore } from "./store";
 
@@ -51,8 +52,7 @@ export function createFreshAccount(): string {
 }
 
 export function isDemoKanalHandle(channel: string): boolean {
-  const handle = channel.replace(/^@/, "").toLowerCase();
-  return handle === "demochannel" || handle === "demokanal" || handle === "demo_kanal";
+  return isDemoChannelHandle(channel);
 }
 
 export function importDemoKanalPosts(store: MswStore): number {

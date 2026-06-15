@@ -38,8 +38,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const setSession = useCallback(
     (next: AuthSession | null) => {
-      if (next) writeSession(next);
-      else clearSession();
+      if (next) {
+        writeSession(next);
+        useProfileDraftStore.setState({ hydrated: false });
+      } else {
+        clearSession();
+      }
       setSessionState(next);
       void queryClient.invalidateQueries();
     },

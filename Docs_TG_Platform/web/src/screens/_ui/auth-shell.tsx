@@ -17,13 +17,6 @@ type AuthShellProps = {
 export function AuthShell({ title, titleAction, subtitle, children, footer }: AuthShellProps) {
   return (
     <div className="auth-page">
-      <div className="auth-page-brand">
-        <div className="auth-page-logo" aria-hidden>
-          ✦
-        </div>
-        <div className="auth-page-name">TG Platform</div>
-      </div>
-
       <div className="profile-page auth-profile-scope">
         <div className="profile-section auth-card">
           <div className="auth-page-header">

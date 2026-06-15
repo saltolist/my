@@ -48,7 +48,6 @@ export default function AiModelListSection({
             key={m.id}
             model={m}
             providerMap={providerMap}
-            canRemove={models.length > 1}
             showActiveToggle={showActiveToggle}
             showMultiToggle={showMultiToggle}
             onChange={(patch) => onModelChange(idx, patch)}

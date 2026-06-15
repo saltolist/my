@@ -7,6 +7,8 @@ import { FeedComposer } from "@/screens/feed/ui/FeedComposer";
 import { FeedPublishedSection } from "@/screens/feed/ui/FeedPublishedSection";
 import { FeedScheduledSection } from "@/screens/feed/ui/FeedScheduledSection";
 import { useFeedScreen } from "@/screens/feed/model/useFeedScreen";
+import { useChannelConnected } from "@/entities/channel";
+import { ConnectChannelEmptyState } from "@/features/connect-channel";
 import { FeedDraftsSection } from "@/widgets/feed";
 import {
   createFeedHeaderSearchRow,
@@ -22,6 +24,7 @@ export function FeedScreen() {
   const feedPostWidth = useUiStore((s) => s.feedCardWidth);
   const setFeedPostWidth = useUiStore((s) => s.setFeedCardWidth);
   const { data, ui, actions } = useFeedScreen();
+  const { isConnected: isChannelConnected, isLoading: isChannelLoading } = useChannelConnected();
   const {
     layoutClassName,
     layoutStyle,
@@ -67,8 +70,10 @@ export function FeedScreen() {
           <div className="feed-scroll" id="feed-scroll" ref={feedScrollRef}>
             <div className="composer-scroll-body">
               <div className="feed-inner">
-                {data.isLoading ? (
+                {data.isLoading || isChannelLoading ? (
                   <p className="screen-placeholder">Загрузка ленты…</p>
+                ) : !isChannelConnected ? (
+                  <ConnectChannelEmptyState feature="ленте" icon="📰" />
                 ) : data.isEmpty && search.trim() ? (
                   <p className="screen-placeholder">Ничего не найдено по запросу «{search.trim()}»</p>
                 ) : (
@@ -86,10 +91,12 @@ export function FeedScreen() {
             </div>
           </div>
         </div>
-        <FeedComposer
-          ui={{ composerReady, taRef, draft, setDraft, pendingMedia }}
-          actions={{ submitDraft, removePendingMedia, handleDraftKeyDown, handleAttach }}
-        />
+        {isChannelConnected ? (
+          <FeedComposer
+            ui={{ composerReady, taRef, draft, setDraft, pendingMedia }}
+            actions={{ submitDraft, removePendingMedia, handleDraftKeyDown, handleAttach }}
+          />
+        ) : null}
       </div>
     </div>
   );

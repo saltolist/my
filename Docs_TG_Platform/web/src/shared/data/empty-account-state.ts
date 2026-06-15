@@ -4,7 +4,7 @@ import type {
   TelegramProfileConfig,
 } from "@/shared/types";
 import { DEMO_CHANNEL_HANDLE } from "@/shared/lib/auth/constants";
-import { createInitialMswStore, type MswStore } from "@/shared/api/msw/store";
+import type { MswStore } from "@/shared/api/msw/store";
 
 function emptyChannelProfile(): ChannelProfileConfig {
   return {
@@ -29,11 +29,14 @@ function emptyChannelProfile(): ChannelProfileConfig {
 }
 
 function emptyAiProfile(): AiProfileConfig {
-  const seed = createInitialMswStore().aiProfile;
   return {
-    ...seed,
-    systemPrompt: "",
+    llmModels: [],
+    webSearchModels: [],
+    orchestratorModels: [],
+    webReasonerModels: [],
+    ragReasonerModels: [],
     multiResponseEnabled: false,
+    systemPrompt: "",
   };
 }
 

@@ -11,7 +11,6 @@ import type { LlmModel } from "@/shared/types";
 type Props = {
   model: LlmModel;
   providerMap: Record<string, string[]>;
-  canRemove?: boolean;
   showActiveToggle?: boolean;
   showMultiToggle?: boolean;
   onChange: (patch: Partial<LlmModel>) => void;
@@ -21,7 +20,6 @@ type Props = {
 export default function AiModelRow({
   model,
   providerMap,
-  canRemove = false,
   showActiveToggle = true,
   showMultiToggle = true,
   onChange,
@@ -111,9 +109,8 @@ export default function AiModelRow({
           <button
             type="button"
             className="profile-model-remove"
-            disabled={!canRemove}
             aria-label="Удалить модель"
-            title={canRemove ? "Удалить модель" : "Нельзя удалить последнюю модель"}
+            title="Удалить модель"
             onClick={() => {
               void (async () => {
                 const label = model.model || model.provider || "модель";

@@ -1,6 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useUpdateTelegramProfile } from "@/entities/channel";
+import { isDemoChannelHandle } from "@/shared/lib/channel/isDemoChannelHandle";
+import { refreshPostsAfterChannelImport } from "@/widgets/profile-settings/lib/syncProfileDraftAfterChannelImport";
 import {
   getTelegramStatusLabel,
   normalizeTelegramValue,
@@ -18,6 +22,7 @@ import {
 } from "@/app/model/store";
 import type { TelegramProfileConfig } from "@/shared/types";
 import { confirmDialog } from "@/shared/ui/dialog";
+import { showToast } from "@/shared/ui/toast";
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
@@ -27,6 +32,8 @@ export function useTelegramBlock() {
   const dispatch = useDomainDispatch();
   const { applyPatch } = useDomainActions();
   const { setDirty } = useUi();
+  const updateTelegramProfile = useUpdateTelegramProfile();
+  const queryClient = useQueryClient();
   const [code, setCode] = useState("");
   const [syncing, setSyncing] = useState(false);
   const [apiHashVisible, setApiHashVisible] = useState(false);
@@ -181,9 +188,22 @@ export function useTelegramBlock() {
       lastSync: "только что",
       importedPosts: Math.max(cfg.importedPosts, 128),
     };
+    const merged = { ...cfg, ...next };
     update(next);
-    applyPatch({ telegramSettingsSavedSnapshot: telegramConfigSnapshot({ ...cfg, ...next }) });
     setSyncing(true);
+    try {
+      const saved = await updateTelegramProfile.mutateAsync(merged);
+      update(saved);
+      applyPatch({ telegramSettingsSavedSnapshot: telegramConfigSnapshot(saved) });
+      if (saved.channelStatus === "connected" && isDemoChannelHandle(saved.channel)) {
+        await refreshPostsAfterChannelImport(queryClient);
+      }
+    } catch {
+      update(cfg);
+      showToast({ message: "Не удалось подключить канал", variant: "error" });
+      setSyncing(false);
+      return;
+    }
     syncTimerRef.current = window.setTimeout(() => {
       setSyncing(false);
       syncTimerRef.current = null;

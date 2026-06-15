@@ -6,3 +6,4 @@ export {
   useTelegramProfile,
   useUpdateTelegramProfile,
 } from "./model/useProfile";
+export { useChannelConnected } from "./model/useChannelConnected";

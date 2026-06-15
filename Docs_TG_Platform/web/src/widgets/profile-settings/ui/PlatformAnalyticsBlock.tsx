@@ -4,6 +4,8 @@ import PlatformActivitySection from "@/widgets/profile-settings/ui/analytics/Pla
 import PlatformModelUsageSection from "@/widgets/profile-settings/ui/analytics/PlatformModelUsageSection";
 import PlatformModelsChartSection from "@/widgets/profile-settings/ui/analytics/PlatformModelsChartSection";
 import { usePlatformAnalyticsBlock } from "@/widgets/profile-settings/model/usePlatformAnalyticsBlock";
+import { useChannelConnected } from "@/entities/channel";
+import { ConnectChannelEmptyState } from "@/features/connect-channel";
 
 type Props = {
   period: number;
@@ -17,6 +19,15 @@ export default function PlatformAnalyticsBlock({
   periodInHeader = false,
 }: Props) {
   const analytics = usePlatformAnalyticsBlock({ period, onPeriodChange, periodInHeader });
+  const { isConnected: isChannelConnected, isLoading: isChannelLoading } = useChannelConnected();
+
+  if (isChannelLoading) {
+    return <p className="screen-placeholder">Загрузка аналитики…</p>;
+  }
+
+  if (!isChannelConnected) {
+    return <ConnectChannelEmptyState feature="аналитике платформы" icon="📈" />;
+  }
 
   return (
     <>
