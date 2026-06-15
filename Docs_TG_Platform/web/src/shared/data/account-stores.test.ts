@@ -54,7 +54,7 @@ describe("createEmptyAccountStore (fresh)", () => {
 });
 
 describe("importDemoKanalContent", () => {
-  it("imports channel posts without notes and leaves knowledge base untouched", () => {
+  it("imports channel posts without notes or local chats and leaves knowledge base untouched", () => {
     const store = createEmptyAccountStore();
     store.globalNotes.push({
       id: "user-note",
@@ -69,6 +69,7 @@ describe("importDemoKanalContent", () => {
 
     expect(count).toBe(initialPosts.length);
     expect(store.posts.every((p) => p.notes.length === 0)).toBe(true);
+    expect(store.posts.every((p) => p.chats.length === 0)).toBe(true);
     expect(store.posts.some((p) => (p.comments?.length ?? 0) > 0)).toBe(true);
     expect(store.globalNotes).toHaveLength(1);
     expect(store.globalChats).toHaveLength(0);

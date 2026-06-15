@@ -6,12 +6,12 @@ function cloneSeed<T>(value: T): T {
   return structuredClone(value);
 }
 
-function channelPostsWithoutNotes(posts: Post[]): Post[] {
-  return posts.map((post) => ({ ...post, notes: [] }));
+function channelPostsForImport(posts: Post[]): Post[] {
+  return posts.map((post) => ({ ...post, notes: [], chats: [] }));
 }
 
-/** Channel feed posts for @demochannel connect. Notes belong to the account, not the channel. */
+/** Channel feed posts for @demochannel connect. Notes and local chats belong to the account, not the channel. */
 export function importDemoKanalContent(target: MswStore): number {
-  target.posts = channelPostsWithoutNotes(cloneSeed(initialPosts));
+  target.posts = channelPostsForImport(cloneSeed(initialPosts));
   return target.posts.length;
 }
