@@ -68,12 +68,14 @@ export function useFeedScreen() {
 
   useLayoutEffect(() => {
     const el = feedScrollRef.current;
-    if (!el || !onFeed) return;
+    if (!el || !onFeed || showPostsLoading) return;
 
     setComposerReady(false);
 
+    const maxScroll = () => Math.max(0, el.scrollHeight - el.clientHeight);
+
     const pinToBottom = () => {
-      el.scrollTop = el.scrollHeight;
+      el.scrollTop = maxScroll();
       setFeedScrollTop(el.scrollTop);
     };
 
@@ -82,8 +84,14 @@ export function useFeedScreen() {
     };
 
     const syncScroll = () => {
-      if (!getFeedSessionDidInitialScroll()) pinToBottom();
-      else restoreScroll();
+      if (!getFeedSessionDidInitialScroll()) {
+        if (maxScroll() > 0) {
+          pinToBottom();
+          markFeedSessionInitialScrollDone();
+        }
+        return;
+      }
+      restoreScroll();
     };
 
     syncScroll();
@@ -101,10 +109,6 @@ export function useFeedScreen() {
       syncScroll();
       raf2 = requestAnimationFrame(() => {
         syncScroll();
-        if (!getFeedSessionDidInitialScroll()) {
-          pinToBottom();
-          markFeedSessionInitialScrollDone();
-        }
         setComposerReady(true);
       });
     });
@@ -114,7 +118,7 @@ export function useFeedScreen() {
       cancelAnimationFrame(raf2);
       ro?.disconnect();
     };
-  }, [onFeed, posts.length, search]);
+  }, [onFeed, search, showPostsLoading]);
 
   const submitDraft = useCallback(() => {
     if (!canSubmitFeedDraft(draft, pendingMedia.length)) return;

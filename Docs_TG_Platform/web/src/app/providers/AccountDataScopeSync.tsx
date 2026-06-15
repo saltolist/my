@@ -8,6 +8,7 @@ import { useProfileDraftStore } from "@/app/model/store/profile-draft-store";
 import { useQueryAccountScope } from "@/app/providers/useQueryAccountScope";
 import { queryKeys } from "@/shared/api/queryKeys";
 import { setChannelMetricsAccount } from "@/shared/lib/channelMetricsDb";
+import { resetFeedScrollSession } from "@/shared/lib/feed/feedScrollSession";
 
 /** Keeps derived analytics DB and profile draft aligned with the active MSW account. */
 export function AccountDataScopeSync() {
@@ -20,6 +21,7 @@ export function AccountDataScopeSync() {
     if (prevAccountIdRef.current !== undefined && prevAccountIdRef.current !== accountId) {
       useProfileDraftStore.getState().resetForLogout();
       useComposerTargetStore.getState().resetTargets();
+      resetFeedScrollSession();
       void queryClient.removeQueries({ queryKey: queryKeys.profile.all(prevAccountIdRef.current) });
     }
     prevAccountIdRef.current = accountId;
