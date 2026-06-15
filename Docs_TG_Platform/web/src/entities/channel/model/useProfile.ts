@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api/queryKeys";
 import { useRepositories } from "@/app/providers/RepositoryProvider";
+import { useAuthenticatedQueryEnabled } from "@/app/providers/useAuthenticatedQueryEnabled";
 import type {
   AiProfileConfig,
   ChannelProfileConfig,
@@ -11,10 +12,12 @@ import type {
 
 export function useChannelProfile() {
   const { profile } = useRepositories();
+  const enabled = useAuthenticatedQueryEnabled();
 
   return useQuery({
     queryKey: queryKeys.profile.channel(),
     queryFn: () => profile.getChannel(),
+    enabled,
   });
 }
 
@@ -32,10 +35,12 @@ export function useUpdateChannelProfile() {
 
 export function useAiProfile() {
   const { profile } = useRepositories();
+  const enabled = useAuthenticatedQueryEnabled();
 
   return useQuery({
     queryKey: queryKeys.profile.ai(),
     queryFn: () => profile.getAi(),
+    enabled,
   });
 }
 
@@ -53,10 +58,12 @@ export function useUpdateAiProfile() {
 
 export function useTelegramProfile() {
   const { profile } = useRepositories();
+  const enabled = useAuthenticatedQueryEnabled();
 
   return useQuery({
     queryKey: queryKeys.profile.telegram(),
     queryFn: () => profile.getTelegram(),
+    enabled,
   });
 }
 

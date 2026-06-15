@@ -1,6 +1,11 @@
 import { expect, test } from "@playwright/test";
+import { loginAsDemo } from "./helpers/auth";
 
 const LOAD_TIMEOUT = 30_000;
+
+test.beforeEach(async ({ page }) => {
+  await loginAsDemo(page);
+});
 
 test("home page loads", async ({ page }) => {
   await page.goto("/");

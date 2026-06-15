@@ -7,9 +7,10 @@ type Props = {
   email: string;
   flow: UserPasswordFlow;
   onStartChangePassword: () => void;
+  onLogout?: () => void;
 };
 
-export default function UserSummary({ nick, email, flow, onStartChangePassword }: Props) {
+export default function UserSummary({ nick, email, flow, onStartChangePassword, onLogout }: Props) {
   return (
     <div className="profile-user-summary">
       <div className="profile-user-summary-row">
@@ -23,9 +24,16 @@ export default function UserSummary({ nick, email, flow, onStartChangePassword }
         </div>
       </div>
       {flow === "idle" ? (
-        <button type="button" className="profile-user-change-text" onClick={onStartChangePassword}>
-          Сменить пароль
-        </button>
+        <div className="profile-user-text-actions">
+          <button type="button" className="profile-user-change-text" onClick={onStartChangePassword}>
+            Сменить пароль
+          </button>
+          {onLogout ? (
+            <button type="button" className="profile-user-change-text profile-user-change-text--danger" onClick={onLogout}>
+              Выйти
+            </button>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

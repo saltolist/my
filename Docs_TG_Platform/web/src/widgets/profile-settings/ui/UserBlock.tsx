@@ -1,13 +1,23 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import UserEmailCodeStep from "@/widgets/profile-settings/ui/user/UserEmailCodeStep";
 import UserPasswordStep from "@/widgets/profile-settings/ui/user/UserPasswordStep";
 import UserSendCodePrompt from "@/widgets/profile-settings/ui/user/UserSendCodePrompt";
 import { UserSummary } from "@/entities/user";
+import { useAuth } from "@/app/providers/AuthProvider";
+import { routes } from "@/shared/lib/routes";
 import { useUserBlock } from "@/widgets/profile-settings/model/useUserBlock";
 
 export default function UserBlock() {
   const user = useUserBlock();
+  const { session, logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace(routes.login());
+  };
 
   return (
     <div className="profile-section profile-user-section">
@@ -15,9 +25,10 @@ export default function UserBlock() {
 
       <UserSummary
         nick={user.defaultUser.nick}
-        email={user.defaultUser.email}
+        email={session?.email ?? user.defaultUser.email}
         flow={user.flow}
         onStartChangePassword={user.startChangePassword}
+        onLogout={handleLogout}
       />
 
       {user.flow === "confirm-send" ? (

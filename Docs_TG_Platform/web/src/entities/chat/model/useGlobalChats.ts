@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api/queryKeys";
 import type { GlobalChatPatch } from "@/shared/api/repositories";
 import { useRepositories } from "@/app/providers/RepositoryProvider";
+import { useAuthenticatedQueryEnabled } from "@/app/providers/useAuthenticatedQueryEnabled";
 import {
   patchGlobalChatHistory,
   syncGlobalChatInCache,
@@ -14,10 +15,12 @@ import type { ChatMessage, GlobalChat } from "@/shared/types";
 
 export function useGlobalChats() {
   const { chats } = useRepositories();
+  const enabled = useAuthenticatedQueryEnabled();
 
   return useQuery({
     queryKey: queryKeys.globalChats.list(),
     queryFn: () => chats.listGlobal(),
+    enabled,
   });
 }
 

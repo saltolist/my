@@ -19,7 +19,7 @@ const OPTIONS: {
 
 export default function ThemeBlock() {
   const { theme, setTheme } = useTheme();
-  const activeTheme = (theme ?? "dark") as ThemeMode;
+  const activeTheme = (theme ?? "system") as ThemeMode;
   const isCompact = useMediaQuery("(max-width: 360px)");
 
   return (

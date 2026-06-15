@@ -49,4 +49,5 @@ export function resetMswStore(): void {
   mswStore.channelProfile = fresh.channelProfile;
   mswStore.aiProfile = fresh.aiProfile;
   mswStore.telegramProfile = fresh.telegramProfile;
+  void import("./accountRegistry").then(({ resetAccountRegistry }) => resetAccountRegistry());
 }

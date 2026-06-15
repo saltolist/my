@@ -99,6 +99,7 @@ type ProfileDraftActions = {
   updateTelegramConfig: (config: TelegramProfileConfig) => void;
   applyPatch: (patch: ProfileSnapshotPatch) => void;
   discardEdits: () => void;
+  resetForLogout: () => void;
 };
 
 const initialProfileDraftState: ProfileDraftState = {
@@ -140,6 +141,7 @@ export const useProfileDraftStore = create<ProfileDraftState & ProfileDraftActio
       telegramProfileConfig: patch.telegramProfileConfig,
     });
   },
+  resetForLogout: () => set({ ...initialProfileDraftState }),
 }));
 
 export function selectChannelProfileConfig(state: ProfileDraftState) {

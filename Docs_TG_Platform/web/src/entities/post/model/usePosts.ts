@@ -3,20 +3,24 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api/queryKeys";
 import { useRepositories } from "@/app/providers/RepositoryProvider";
+import { useAuthenticatedQueryEnabled } from "@/app/providers/useAuthenticatedQueryEnabled";
 import type { Post } from "@/shared/types";
 
 export function usePosts() {
   const { posts } = useRepositories();
+  const enabled = useAuthenticatedQueryEnabled();
 
   return useQuery({
     queryKey: queryKeys.posts.list(),
     queryFn: () => posts.list(),
+    enabled,
   });
 }
 
 export function usePost(id: number) {
   const { posts } = useRepositories();
   const queryClient = useQueryClient();
+  const enabled = useAuthenticatedQueryEnabled();
 
   return useQuery({
     queryKey: queryKeys.posts.detail(id),
@@ -32,7 +36,7 @@ export function usePost(id: number) {
       const list = queryClient.getQueryData<Post[]>(queryKeys.posts.list());
       return list?.find((p) => p.id === id);
     },
-    enabled: Number.isFinite(id) && id > 0,
+    enabled: enabled && Number.isFinite(id) && id > 0,
   });
 }
 

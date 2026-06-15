@@ -141,6 +141,9 @@ export const routes = {
   notes: () => "/notes/",
   analytics: () => "/analytics/",
   profile: () => "/profile/",
+  login: () => "/login/",
+  loginForgot: () => "/login/forgot/",
+  register: () => "/register/",
   gchat: (id: string) => `/gchat/?${GCHAT_ID_PARAM}=${encodeURIComponent(id)}`,
   post: (id: number, chatId?: number | null) => {
     const base = `/post/${id}/`;
