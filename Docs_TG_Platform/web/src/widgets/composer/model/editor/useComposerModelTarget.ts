@@ -12,6 +12,7 @@ export function useComposerModelTarget(scope: ComposerScope) {
   const cfg = useProfileDraftStore(selectAiProfileConfig);
   const target = useComposerTargetStore((s) => s.targets[scope]);
   const setLlmId = useComposerTargetStore((s) => s.setLlmId);
+  const setWebId = useComposerTargetStore((s) => s.setWebId);
   const { setComposerLlm, setComposerWeb } = useComposer();
 
   const llmOptions = useMemo(
@@ -30,6 +31,13 @@ export function useComposerModelTarget(scope: ComposerScope) {
   );
   const selectedLlm = llmOptions.find((m) => m.id === target.llmId);
   const webOptions = webOptionsAll.filter((m) => isWebSearchVisibleForLlm(m, selectedLlm));
+
+  useEffect(() => {
+    const webIdValid = target.webId && webOptions.some((m) => m.id === target.webId);
+    if (webIdValid || webOptions.length === 0) return;
+    setWebId(scope, webOptions[0]!.id);
+  }, [scope, setWebId, target.webId, webOptions]);
+
   const webValue =
     target.webId && webOptions.some((m) => m.id === target.webId) ? target.webId : "";
 
