@@ -67,17 +67,20 @@
     padding-right: 0;
   }
 
+  /* Карточки постов: телефонная ширина (270px) задаётся --feed-post-w на screen-wrap */
+  .post-body-inner .post-msg-block,
+  .post-body-inner > .post-msg-card {
+    width: var(--feed-post-w, 270px);
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
   .post-body-inner {
     width: 100%;
     max-width: 100%;
     padding-left: 0;
     padding-right: 0;
     box-sizing: border-box;
-  }
-  .post-body-inner .post-msg-block,
-  .post-body-inner > .post-msg-card {
-    width: 100%;
-    max-width: 100%;
   }
 
   /* iOS/Android: зум при font-size < 16px на самих полях ввода */
@@ -101,5 +104,35 @@
   }
   .composer-editor.is-empty::before {
     font-size: 14px;
+  }
+
+  /* Полоса «Комментарии»: inset = horizontal padding карточки (12px на mobile) */
+  .post-card .post-comments-row,
+  .post-msg-card .post-comments-row {
+    --post-comments-inset-x: 12px;
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+
+  /* P2: переключатель темы на mobile */
+  .profile-page .theme-switch {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .profile-page .theme-switch-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 8px 8px;
+    font-size: 12px;
+    justify-content: center;
+    gap: 4px;
+  }
+  .profile-page .theme-switch-btn > span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

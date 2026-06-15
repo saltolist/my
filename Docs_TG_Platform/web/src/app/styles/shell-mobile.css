@@ -30,7 +30,6 @@
     --composer-mobile-gutter: 12px;
     --composer-gutter-inline: 12px;
     --composer-col-w: calc(100% - 2 * var(--composer-gutter-inline));
-    --feed-post-w: 100%;
     --composer-overlay-h: 130px;
     --content-card-shadow-gutter: 12px;
     --scroll-pad-inline: 12px;
@@ -344,25 +343,5 @@ body.mobile-sidebar-open #sidebar {
   }
 .post-card--draft-dnd .post-card-body {
     touch-action: manipulation;
-  }
-.profile-page .theme-switch {
-    display: flex;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-.profile-page .theme-switch-btn {
-    flex: 1 1 0;
-    min-width: 0;
-    padding: 8px 8px;
-    font-size: 12px;
-    justify-content: center;
-  }
-html[data-platform-android] .profile-page .theme-switch-icon {
-    display: none;
-  }
-.post-comments-row {
-    margin-top: 8px;
-    padding-top: 8px;
   }
 }

@@ -621,9 +621,6 @@
   .post-card-footer {
     gap: 5px;
   }
-.post-comments-row {
-    --post-comments-inset-x: 12px;
-  }
 }
 @media (max-width: 430px) {
 .post-card {

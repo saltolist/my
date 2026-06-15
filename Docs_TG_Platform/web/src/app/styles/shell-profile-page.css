@@ -338,7 +338,20 @@
   -webkit-backdrop-filter: var(--profile-control-blur);
   backdrop-filter: var(--profile-control-blur);
 }
-.theme-switch-icon { font-size: 15px; line-height: 1; }
+.theme-switch-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  line-height: 1;
+  color: currentColor;
+}
+.theme-switch-icon svg {
+  width: 15px;
+  height: 15px;
+}
 .profile-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
 .profile-user-summary {
   display: flex;
