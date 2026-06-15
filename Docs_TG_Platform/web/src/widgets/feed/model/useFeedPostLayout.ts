@@ -21,7 +21,9 @@ export function useFeedPostLayout() {
     effectiveWidth,
     phoneFormat,
     layoutClassName: phoneFormat ? " post-format-phone" : "",
-    layoutStyle: { "--feed-post-w": `${effectiveWidth}px` } as CSSProperties,
+    layoutStyle: (isMobile
+      ? undefined
+      : { "--feed-post-w": `${effectiveWidth}px` }) as CSSProperties | undefined,
   };
 }
 

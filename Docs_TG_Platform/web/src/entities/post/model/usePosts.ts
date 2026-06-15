@@ -16,14 +16,21 @@ export function usePosts() {
 
 export function usePost(id: number) {
   const { posts } = useRepositories();
+  const queryClient = useQueryClient();
 
   return useQuery({
     queryKey: queryKeys.posts.detail(id),
     queryFn: async () => {
+      const cached = queryClient.getQueryData<Post>(queryKeys.posts.detail(id));
+      if (cached) return cached;
       const list = await posts.list();
       const post = list.find((p) => p.id === id);
       if (!post) throw new Error(`Post ${id} not found`);
       return post;
+    },
+    placeholderData: () => {
+      const list = queryClient.getQueryData<Post[]>(queryKeys.posts.list());
+      return list?.find((p) => p.id === id);
     },
     enabled: Number.isFinite(id) && id > 0,
   });
@@ -35,7 +42,22 @@ export function useCreatePost() {
 
   return useMutation({
     mutationFn: (post: Post) => posts.create(post),
-    onSuccess: () => {
+    onMutate: async (post) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.posts.all });
+      const previous = queryClient.getQueryData<Post[]>(queryKeys.posts.list());
+      queryClient.setQueryData<Post[]>(queryKeys.posts.list(), (prev = []) => [
+        post,
+        ...prev.filter((p) => p.id !== post.id),
+      ]);
+      queryClient.setQueryData(queryKeys.posts.detail(post.id), post);
+      return { previous };
+    },
+    onError: (_error, _post, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKeys.posts.list(), context.previous);
+      }
+    },
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
     },
   });

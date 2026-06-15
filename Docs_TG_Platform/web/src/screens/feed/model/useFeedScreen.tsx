@@ -30,6 +30,7 @@ export function useFeedScreen() {
   const pathname = usePathname() ?? "/";
   const onFeed = isFeedPath(pathname);
   const search = useNavigationStore((s) => s.feedSearch);
+  const setNav = useNavigationStore((s) => s.setNav);
   const { data: posts = [], isLoading } = usePosts();
   const createPost = useCreatePost();
   const setPostMode = usePostNavigationStore((s) => s.setMode);
@@ -153,9 +154,10 @@ export function useFeedScreen() {
   const openPost = useCallback(
     (id: number) => {
       setPostMode(id, "chat");
+      setNav({ isEditing: false });
       router.push(routes.post(id));
     },
-    [router, setPostMode],
+    [router, setNav, setPostMode],
   );
 
   const openPostComments = useCallback(

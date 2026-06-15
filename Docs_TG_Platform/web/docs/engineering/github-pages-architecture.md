@@ -108,6 +108,7 @@
 
 ## Связанные документы
 
+- [mobile-ux-fix-plan.md](./mobile-ux-fix-plan.md) — mobile UX + черновики (post-Pages QA)
 - [deploy.md](./deploy.md) — env, nginx, checklist
 - [pre-pages-execution-plan.md](./pre-pages-execution-plan.md) — исторический план (этапы 3–6 опциональны)
 - [local-first.md](./local-first.md) — MSW / seed / http

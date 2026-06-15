@@ -123,6 +123,23 @@ test("feed composer creates draft", async ({ page }) => {
   await expect(page.getByText(draftText)).toBeVisible({ timeout: LOAD_TIMEOUT });
 });
 
+test("feed draft opens on post screen with text", async ({ page }) => {
+  await page.goto("/feed/");
+  await expect(page.getByRole("heading", { name: "Лента" })).toBeVisible({ timeout: LOAD_TIMEOUT });
+  const draftText = `E2E open draft ${Date.now()}`;
+  await page.locator("#feed-input").fill(draftText);
+  await page.locator("#screen-feed .send-btn").click();
+  const draftCard = page.locator(".feed-section", { hasText: "Черновики" }).locator(".post-card", {
+    hasText: draftText,
+  });
+  await expect(draftCard).toBeVisible({ timeout: LOAD_TIMEOUT });
+  await draftCard.click();
+  await expect(page).toHaveURL(/\/post\/\d+\//, { timeout: LOAD_TIMEOUT });
+  await expect(page.locator("#screen-post .post-msg-card")).toContainText(draftText, {
+    timeout: LOAD_TIMEOUT,
+  });
+});
+
 test("post switches notes and chats modes", async ({ page }) => {
   await page.goto("/post/1/");
   await expect(page.locator("#screen-post .post-msg-card")).toBeVisible({ timeout: LOAD_TIMEOUT });

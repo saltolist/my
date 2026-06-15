@@ -1337,38 +1337,17 @@
 
 @media (max-width: 760px) {
   .post-body .composer-scroll-body {
-    --scroll-pad-inline: 12px;
-    padding-left: var(--scroll-pad-inline);
-    padding-right: var(--scroll-pad-inline);
-  }
-  .post-body-inner {
-    width: 100%;
-    padding-left: 12px;
-    padding-right: 12px;
-    box-sizing: border-box;
-  }
-  .post-body-inner .post-msg-block {
-    width: var(--feed-post-w, 270px);
-    max-width: 100%;
+    --scroll-pad-inline: 0;
   }
   .post-msg-card {
     padding: 3px 12px 12px;
-  }
-  #screen-post .input-wrap {
-    --input-wrap-pad-top: 14px;
-    --input-wrap-pad-bottom: 18px;
-    padding: 14px var(--composer-mobile-gutter) 18px;
-  }
-  #screen-post .input-box {
-    width: 100%;
-    max-width: 100%;
   }
   .post-subpage-scroll .notes-grid-inner,
   .post-subpage-scroll .post-chats-inner {
     width: 100%;
     max-width: 100%;
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-left: 0;
+    padding-right: 0;
     box-sizing: border-box;
   }
 }
