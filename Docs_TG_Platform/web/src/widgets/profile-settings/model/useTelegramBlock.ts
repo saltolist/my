@@ -6,6 +6,7 @@ import { useUpdateTelegramProfile } from "@/entities/channel";
 import { DEMO_CHANNEL_TITLE } from "@/shared/lib/auth/constants";
 import { isDemoChannelHandle } from "@/shared/lib/channel/isDemoChannelHandle";
 import { refreshPostsAfterChannelImport } from "@/widgets/profile-settings/lib/syncProfileDraftAfterChannelImport";
+import { isTelegramPhoneComplete } from "@/shared/lib/format-telegram-phone";
 import {
   getTelegramStatusLabel,
   normalizeTelegramValue,
@@ -40,6 +41,7 @@ export function useTelegramBlock() {
   const [apiHashVisible, setApiHashVisible] = useState(false);
   const [botApiTokenVisible, setBotApiTokenVisible] = useState(false);
   const [resendCooldownSec, setResendCooldownSec] = useState(0);
+  const [credentialsFlashNonce, setCredentialsFlashNonce] = useState(0);
   const syncTimerRef = useRef<number | null>(null);
   const resendIntervalRef = useRef<number | null>(null);
   const authBeforeCodeSentRef = useRef<Partial<TelegramProfileConfig> | null>(null);
@@ -106,16 +108,35 @@ export function useTelegramBlock() {
   const apiChangedFromSaved = apiIdChangedFromSaved || apiHashChangedFromSaved;
   const phoneChangedFromSaved = normalizeTelegramValue(cfg.phone) !== normalizeTelegramValue(savedSnapshot.phone);
   const channelChangedFromSaved = normalizeTelegramValue(cfg.channel) !== normalizeTelegramValue(savedSnapshot.channel);
-  const sendCodeDisabled = isAuthorized && !phoneChangedFromSaved;
+  const phoneIncomplete = !isTelegramPhoneComplete(cfg.phone);
+  const sendCodeDisabled = phoneIncomplete || (isAuthorized && !phoneChangedFromSaved);
   const connectChannelDisabled = isConnected && !channelChangedFromSaved;
   const isBotConnected = cfg.botStatus === "connected";
   const botTokenTrimmed = cfg.botApiToken.trim();
   const botTokenChangedFromSaved =
     normalizeTelegramValue(cfg.botApiToken) !== normalizeTelegramValue(savedSnapshot.botApiToken || "");
   const addBotDisabled = !botTokenTrimmed || (isBotConnected && !botTokenChangedFromSaved);
+  const apiIdMissing = !normalizeTelegramValue(cfg.apiId);
+  const apiHashMissing = !normalizeTelegramValue(cfg.apiHash);
+
+  const flashCredentialsMarks = () => setCredentialsFlashNonce((n) => n + 1);
+
+  const rejectSendCodeValidation = () => {
+    if (apiIdMissing || apiHashMissing) {
+      flashCredentialsMarks();
+      showToast({ message: "Заполните поля api_id и api_hash", variant: "error" });
+      return true;
+    }
+    if (phoneIncomplete) {
+      showToast({ message: "Заполните номер телефона", variant: "error" });
+      return true;
+    }
+    return false;
+  };
 
   const startAuth = async () => {
     if (sendCodeDisabled) return;
+    if (rejectSendCodeValidation()) return;
     if (isAuthorized && phoneChangedFromSaved) {
       const ok = await confirmDialog({
         message:
@@ -150,6 +171,7 @@ export function useTelegramBlock() {
 
   const resendCode = () => {
     if (resendCooldownSec > 0 || sendCodeDisabled || cfg.authStatus !== "code-sent") return;
+    if (rejectSendCodeValidation()) return;
     beginResendCooldown();
   };
 
@@ -231,6 +253,7 @@ export function useTelegramBlock() {
       syncTimerRef.current = null;
     }
     setSyncing(false);
+    setCredentialsFlashNonce(0);
     update({
       authStatus: "idle",
       authStep: "credentials",
@@ -279,6 +302,9 @@ export function useTelegramBlock() {
     setBotApiTokenVisible,
     resendCooldownSec,
     apiChangedFromSaved,
+    apiIdMissing,
+    apiHashMissing,
+    credentialsFlashNonce,
     sendCodeDisabled,
     connectChannelDisabled,
     isBotConnected,

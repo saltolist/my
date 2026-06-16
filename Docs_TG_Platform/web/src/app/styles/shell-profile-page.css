@@ -785,6 +785,23 @@
   width: 16px;
   height: 16px;
 }
+.telegram-api-required-mark {
+  font-weight: 400;
+  color: var(--text3);
+}
+.telegram-api-required-mark--flash {
+  animation: telegram-api-required-flash 0.85s ease;
+}
+@keyframes telegram-api-required-flash {
+  0%,
+  100% {
+    color: var(--text3);
+  }
+  18%,
+  55% {
+    color: var(--red);
+  }
+}
 .profile-val { font-size: 14px; color: var(--text); }
 .profile-input { background: transparent; border: none; color: var(--text); font-family: var(--font); font-size: 14px; padding: 8px 12px; width: 100%; outline: none; }
 .profile-input:focus { border-color: transparent; }

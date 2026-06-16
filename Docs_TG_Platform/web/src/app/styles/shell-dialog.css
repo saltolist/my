@@ -45,11 +45,18 @@
 
 .app-toast-host {
   position: fixed;
-  right: 16px;
-  bottom: 16px;
+  top: calc(var(--hdr) + 12px);
+  left: var(--nav-w);
+  right: 0;
+  display: flex;
+  justify-content: center;
   z-index: calc(var(--ui-z-modal) + 10);
-  max-width: min(420px, calc(100vw - 32px));
+  max-width: none;
   pointer-events: none;
+}
+
+.app-toast-host .app-toast {
+  max-width: min(420px, calc(100vw - var(--nav-w) - 32px));
 }
 
 .app-toast {
@@ -61,6 +68,33 @@
   font-size: 13px;
   line-height: 1.4;
   color: var(--text);
+  animation: app-toast-in 0.22s ease;
+}
+
+.app-toast--leaving {
+  animation: app-toast-out 0.45s ease forwards;
+}
+
+@keyframes app-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes app-toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
 }
 
 .app-toast--error {

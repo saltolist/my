@@ -4,32 +4,45 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 
 import { registerToastBridge, type ToastOptions } from "./toastBridge";
 
-const TOAST_MS = 4500;
+const TOAST_VISIBLE_MS = 2200;
+const TOAST_FADE_MS = 450;
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<ToastOptions | null>(null);
-  const timerRef = useRef<number | null>(null);
+  const [leaving, setLeaving] = useState(false);
+  const visibleTimerRef = useRef<number | null>(null);
+  const fadeTimerRef = useRef<number | null>(null);
 
-  const clearTimer = () => {
-    if (timerRef.current !== null) {
-      window.clearTimeout(timerRef.current);
-      timerRef.current = null;
+  const clearTimers = () => {
+    if (visibleTimerRef.current !== null) {
+      window.clearTimeout(visibleTimerRef.current);
+      visibleTimerRef.current = null;
+    }
+    if (fadeTimerRef.current !== null) {
+      window.clearTimeout(fadeTimerRef.current);
+      fadeTimerRef.current = null;
     }
   };
 
   const show = useCallback((options: ToastOptions) => {
-    clearTimer();
+    clearTimers();
+    setLeaving(false);
     setToast(options);
-    timerRef.current = window.setTimeout(() => {
-      setToast(null);
-      timerRef.current = null;
-    }, TOAST_MS);
+    visibleTimerRef.current = window.setTimeout(() => {
+      setLeaving(true);
+      fadeTimerRef.current = window.setTimeout(() => {
+        setToast(null);
+        setLeaving(false);
+        fadeTimerRef.current = null;
+      }, TOAST_FADE_MS);
+      visibleTimerRef.current = null;
+    }, TOAST_VISIBLE_MS);
   }, []);
 
   useEffect(() => {
     registerToastBridge({ show });
     return () => {
-      clearTimer();
+      clearTimers();
       registerToastBridge(null);
     };
   }, [show]);
@@ -39,7 +52,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       {toast ? (
         <div className="app-toast-host" role="status" aria-live="polite">
-          <div className={`app-toast app-toast--${toast.variant ?? "info"}`}>{toast.message}</div>
+          <div
+            className={`app-toast app-toast--${toast.variant ?? "info"}${leaving ? " app-toast--leaving" : ""}`}
+          >
+            {toast.message}
+          </div>
         </div>
       ) : null}
     </>

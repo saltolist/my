@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 import ProfileEyeIcon from "@/widgets/profile-settings/ui/ProfileEyeIcon";
 import type { TelegramProfileConfig } from "@/shared/types";
 import { useModSaveUndo } from "@/shared/lib/hooks/useModSaveUndo";
@@ -9,6 +9,9 @@ type Props = {
   active?: boolean;
   cfg: TelegramProfileConfig;
   apiChangedFromSaved: boolean;
+  apiIdMissing: boolean;
+  apiHashMissing: boolean;
+  credentialsFlashNonce: number;
   apiHashVisible: boolean;
   onApiIdChange: (apiId: string) => void;
   onApiHashChange: (apiHash: string) => void;
@@ -17,10 +20,38 @@ type Props = {
   onCancel: () => void;
 };
 
+function TelegramApiFieldLabel({
+  children,
+  showRequired,
+  flashNonce,
+}: {
+  children: ReactNode;
+  showRequired: boolean;
+  flashNonce: number;
+}) {
+  return (
+    <div className="profile-label">
+      {children}
+      {showRequired ? (
+        <span
+          key={flashNonce}
+          className={`telegram-api-required-mark${flashNonce > 0 ? " telegram-api-required-mark--flash" : ""}`}
+          aria-hidden
+        >
+          {" !"}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
 export default function TelegramApiCredentialsSection({
   active = true,
   cfg,
   apiChangedFromSaved,
+  apiIdMissing,
+  apiHashMissing,
+  credentialsFlashNonce,
   apiHashVisible,
   onApiIdChange,
   onApiHashChange,
@@ -37,7 +68,9 @@ export default function TelegramApiCredentialsSection({
       ref={scopeRef}
     >
       <div className="profile-row telegram-api-id-row">
-        <div className="profile-label">api_id</div>
+        <TelegramApiFieldLabel showRequired={apiIdMissing} flashNonce={credentialsFlashNonce}>
+          api_id
+        </TelegramApiFieldLabel>
         <input
           className="profile-input profile-input-explicit telegram-input telegram-api-id-input"
           value={cfg.apiId}
@@ -47,7 +80,9 @@ export default function TelegramApiCredentialsSection({
       </div>
 
       <div className="profile-row telegram-api-hash-row">
-        <div className="profile-label">api_hash</div>
+        <TelegramApiFieldLabel showRequired={apiHashMissing} flashNonce={credentialsFlashNonce}>
+          api_hash
+        </TelegramApiFieldLabel>
         <div className="telegram-input-wrap telegram-api-hash-input-wrap">
           <input
             className="profile-input profile-input-explicit telegram-input telegram-api-hash-input telegram-input-with-toggle"

@@ -27,6 +27,9 @@ export default function TelegramBlock({ active = true }: { active?: boolean }) {
           active={active}
           cfg={tg.cfg}
           apiChangedFromSaved={tg.apiChangedFromSaved}
+          apiIdMissing={tg.apiIdMissing}
+          apiHashMissing={tg.apiHashMissing}
+          credentialsFlashNonce={tg.credentialsFlashNonce}
           apiHashVisible={tg.apiHashVisible}
           onApiIdChange={(apiId) => tg.update({ apiId })}
           onApiHashChange={(apiHash) => tg.update({ apiHash })}

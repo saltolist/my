@@ -3,6 +3,14 @@ const PHONE_DIGIT_LIMIT = 11;
 /** Длина отформатированного номера: +7 999 000-00-00 */
 export const TELEGRAM_PHONE_FORMATTED_MAX_LENGTH = 16;
 
+export function countTelegramPhoneDigits(phone: string): number {
+  return phone.replace(/\D/g, "").length;
+}
+
+export function isTelegramPhoneComplete(phone: string): boolean {
+  return countTelegramPhoneDigits(phone) >= PHONE_DIGIT_LIMIT;
+}
+
 export function formatTelegramPhoneInput(raw: string): string {
   if (!raw) return "";
 
