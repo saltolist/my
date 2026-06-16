@@ -288,6 +288,21 @@
   padding: 20px 22px;
 }
 
+@media (max-width: 760px) {
+  #screen-note .note-page {
+    padding: 16px max(12px, var(--content-card-shadow-gutter)) 18px;
+  }
+
+  #screen-note .note-shell-header {
+    gap: 8px;
+    padding: 12px 14px;
+  }
+
+  #screen-note .note-shell-content {
+    padding: 16px 14px;
+  }
+}
+
 /* Не переопределять .note-title-edit здесь — ломает .title-single-line (line-height: 34px) из shell-notes.css */
 
 #screen-note .note-ctrl {

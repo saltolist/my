@@ -1081,9 +1081,8 @@ button.filter-tab {
   }
 
   .note-page {
-    --note-mobile-gutter: 18px;
-    --note-body-inset: 12px;
-    padding: 16px var(--note-mobile-gutter) 18px;
+    --note-body-inset: 0;
+    padding: 16px max(12px, var(--content-card-shadow-gutter)) 18px;
   }
 
   .note-shell {
@@ -1109,7 +1108,7 @@ button.filter-tab {
   }
 
   .note-shell-content {
-    padding: 16px calc(14px + var(--note-body-inset, 12px));
+    padding: 16px 14px;
   }
 
   .note-title-static,
