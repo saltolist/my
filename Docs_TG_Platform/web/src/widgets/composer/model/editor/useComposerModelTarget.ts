@@ -21,8 +21,9 @@ export function useComposerModelTarget(scope: ComposerScope) {
   );
 
   useEffect(() => {
-    const currentValid = target.llmId && llmOptions.some((model) => model.id === target.llmId);
-    if (currentValid || llmOptions.length === 0) return;
+    if (llmOptions.length === 0) return;
+    const valid = target.llmId && llmOptions.some((model) => model.id === target.llmId);
+    if (valid) return;
     setLlmId(scope, llmOptions[0]!.id);
   }, [llmOptions, scope, setLlmId, target.llmId]);
 

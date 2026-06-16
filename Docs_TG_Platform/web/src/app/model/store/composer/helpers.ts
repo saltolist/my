@@ -26,22 +26,8 @@ export function hasActiveConfiguredModel(models: LlmModel[]): boolean {
   return models.some((model) => !!model.provider?.trim() && !!model.model?.trim() && model.active);
 }
 
-export function listActiveConfiguredModels(models: LlmModel[]): LlmModel[] {
-  return models.filter((model) => !!model.provider?.trim() && !!model.model?.trim() && model.active);
-}
-
-/** Picks a valid active LLM for composer send (falls back to the first active model). */
-export function resolveComposerLlmId(cfg: AiProfileConfig, targetLlmId: string): string {
-  const activeLlms = listActiveConfiguredModels(cfg.llmModels);
-  if (activeLlms.length === 0) return "";
-  if (targetLlmId && activeLlms.some((model) => model.id === targetLlmId)) return targetLlmId;
-  return activeLlms[0]!.id;
-}
-
-export function hasLlmIncludedInMulti(cfg: AiProfileConfig): boolean {
-  return cfg.llmModels.some(
-    (model) => !!model.provider?.trim() && !!model.model?.trim() && model.active && model.includeInMulti,
-  );
+function isConfiguredModel(model: LlmModel): boolean {
+  return !!model.provider?.trim() && !!model.model?.trim();
 }
 
 export function getLlmSendValidationMessage(
@@ -51,9 +37,17 @@ export function getLlmSendValidationMessage(
 ): string | null {
   if (hasLlmForComposerScope(cfg, scope, targetLlmId)) return null;
   if (!hasConfiguredModel(cfg.llmModels)) return "Добавьте LLM модель.";
-  if (!hasActiveConfiguredModel(cfg.llmModels)) return "Активируйте LLM модель.";
-  if (cfg.multiResponseEnabled) return "Включите LLM модели в мультиответ.";
-  return "Активируйте LLM модель.";
+
+  if (cfg.multiResponseEnabled) {
+    return "Активируйте LLM модель.";
+  }
+
+  if (!targetLlmId) return "Выберите LLM модель.";
+  const selected = cfg.llmModels.find((model) => model.id === targetLlmId);
+  if (selected && isConfiguredModel(selected) && !selected.active) {
+    return "Активируйте LLM модель.";
+  }
+  return "Добавьте LLM модель.";
 }
 
 export function getOrchestratorSendValidationMessage(cfg: AiProfileConfig): string | null {
@@ -79,9 +73,12 @@ export function hasLlmForComposerScope(
   targetLlmId: string,
 ): boolean {
   if (cfg.multiResponseEnabled) {
-    return hasLlmIncludedInMulti(cfg);
+    return cfg.llmModels.some((m) => m.provider && m.model && m.active && m.includeInMulti);
   }
-  return resolveComposerLlmId(cfg, targetLlmId) !== "";
+  if (!targetLlmId) return false;
+  return cfg.llmModels.some(
+    (m) => m.id === targetLlmId && !!m.provider?.trim() && !!m.model?.trim() && m.active,
+  );
 }
 
 export function buildAiReplyMessage(

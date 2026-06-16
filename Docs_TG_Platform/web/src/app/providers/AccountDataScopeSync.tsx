@@ -20,10 +20,10 @@ export function AccountDataScopeSync() {
     setChannelMetricsAccount(accountId);
     if (prevAccountIdRef.current !== undefined && prevAccountIdRef.current !== accountId) {
       useProfileDraftStore.getState().resetForLogout();
-      useComposerTargetStore.getState().resetTargets();
       resetFeedScrollSession();
       void queryClient.removeQueries({ queryKey: queryKeys.profile.all(prevAccountIdRef.current) });
     }
+    useComposerTargetStore.getState().hydrateForAccount(accountId);
     prevAccountIdRef.current = accountId;
   }, [accountId, queryClient]);
 

@@ -48,7 +48,25 @@ describe("chat send validation", () => {
     expect(getLlmSendValidationMessage(cfg, "gchat", "")).toBe("Добавьте LLM модель.");
   });
 
-  it("asks to activate LLM when configured but inactive", () => {
+  it("asks to select LLM when nothing is chosen in composer", () => {
+    const cfg = {
+      ...initialAiProfileConfig,
+      multiResponseEnabled: false,
+      llmModels: [
+        {
+          id: "llm-1",
+          provider: "OpenAI",
+          model: "gpt-4o",
+          apiKey: "",
+          active: true,
+          includeInMulti: false,
+        },
+      ],
+    };
+    expect(getLlmSendValidationMessage(cfg, "gchat", "")).toBe("Выберите LLM модель.");
+  });
+
+  it("asks to activate selected LLM when it is configured but inactive", () => {
     const cfg = {
       ...initialAiProfileConfig,
       multiResponseEnabled: false,
@@ -66,7 +84,7 @@ describe("chat send validation", () => {
     expect(getLlmSendValidationMessage(cfg, "gchat", "llm-1")).toBe("Активируйте LLM модель.");
   });
 
-  it("passes when active LLM exists but composer target is empty", () => {
+  it("passes when selected LLM in composer is active", () => {
     const cfg = {
       ...initialAiProfileConfig,
       multiResponseEnabled: false,
@@ -81,43 +99,7 @@ describe("chat send validation", () => {
         },
       ],
     };
-    expect(getLlmSendValidationMessage(cfg, "gchat", "")).toBeNull();
-  });
-
-  it("passes when active LLM exists but composer target is stale", () => {
-    const cfg = {
-      ...initialAiProfileConfig,
-      multiResponseEnabled: false,
-      llmModels: [
-        {
-          id: "llm-new",
-          provider: "OpenAI",
-          model: "gpt-4o",
-          apiKey: "",
-          active: true,
-          includeInMulti: false,
-        },
-      ],
-    };
-    expect(getLlmSendValidationMessage(cfg, "gchat", "llm-old")).toBeNull();
-  });
-
-  it("asks to include LLM in multi-response when active but not selected for multi", () => {
-    const cfg = {
-      ...initialAiProfileConfig,
-      multiResponseEnabled: true,
-      llmModels: [
-        {
-          id: "llm-1",
-          provider: "OpenAI",
-          model: "gpt-4o",
-          apiKey: "",
-          active: true,
-          includeInMulti: false,
-        },
-      ],
-    };
-    expect(getLlmSendValidationMessage(cfg, "gchat", "")).toBe("Включите LLM модели в мультиответ.");
+    expect(getLlmSendValidationMessage(cfg, "gchat", "llm-1")).toBeNull();
   });
 
   it("asks to add orchestrator when list is empty", () => {
