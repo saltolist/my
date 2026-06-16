@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import { useAuth } from "@/app/providers/AuthProvider";
 import { LoginScreen } from "@/screens/login/LoginScreen";
@@ -12,6 +12,10 @@ type AuthOverlayView = "login" | "register" | "forgot";
 export function AuthOverlay() {
   const { authOverlayOpen, closeAuthOverlay } = useAuth();
   const [view, setView] = useState<AuthOverlayView>("login");
+
+  useEffect(() => {
+    if (authOverlayOpen) setView("login");
+  }, [authOverlayOpen]);
 
   if (!authOverlayOpen) return null;
 

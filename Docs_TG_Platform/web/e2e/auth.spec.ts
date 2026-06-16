@@ -18,6 +18,18 @@ test("login overlay opens and closes", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Вход" })).not.toBeVisible();
 });
 
+test("login overlay always opens on login form after register view", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Войти" }).click();
+  await page.getByLabel("Вход и регистрация").getByRole("button", { name: "Регистрация" }).click();
+  await expect(page.getByRole("heading", { name: "Регистрация" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Закрыть" }).click();
+  await page.getByRole("button", { name: "Войти" }).click();
+  await expect(page.getByRole("heading", { name: "Вход" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Регистрация" })).not.toBeVisible();
+});
+
 test("demo login opens home", async ({ page }) => {
   await page.goto("/");
   await page.getByLabel("Основная навигация").getByRole("button", { name: "Войти" }).click();
