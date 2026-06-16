@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import AiModelRow from "@/widgets/profile-settings/ui/ai/AiModelRow";
+import { hasAvailableModelSlots } from "@/shared/lib/profile/filterAiModelOptions";
 import type { LlmModel } from "@/shared/types";
 
 type Props = {
@@ -33,6 +34,8 @@ export default function AiModelListSection({
   onApiKeyBlur,
   showDivider = true,
 }: Props) {
+  const canAddMore = hasAvailableModelSlots(providerMap, models);
+
   return (
     <>
       {showDivider ? <div className="profile-ai-divider" /> : null}
@@ -48,6 +51,8 @@ export default function AiModelListSection({
         {models.map((m, idx) => (
           <AiModelRow
             key={m.id}
+            rowIndex={idx}
+            allModels={models}
             model={m}
             providerMap={providerMap}
             showActiveToggle={showActiveToggle}
@@ -57,7 +62,7 @@ export default function AiModelListSection({
             onApiKeyBlur={onApiKeyBlur}
           />
         ))}
-        <button className="btn btn-ghost btn-sm" onClick={onAdd} type="button">
+        <button className="btn btn-ghost btn-sm" onClick={onAdd} type="button" disabled={!canAddMore}>
           {addLabel}
         </button>
       </div>

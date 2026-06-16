@@ -1,14 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ModelPicker from "@/shared/ui/model-picker";
 import { MessageTrashIcon } from "@/entities/message";
 import { confirmDialog } from "@/shared/ui/dialog";
+import {
+  filterAvailableModels,
+  filterAvailableProviders,
+} from "@/shared/lib/profile/filterAiModelOptions";
 import ProfileCheckbox from "@/widgets/profile-settings/ui/ProfileCheckbox";
 import ProfileEyeIcon from "@/widgets/profile-settings/ui/ProfileEyeIcon";
 import type { LlmModel } from "@/shared/types";
 
 type Props = {
+  rowIndex: number;
+  allModels: LlmModel[];
   model: LlmModel;
   providerMap: Record<string, string[]>;
   showActiveToggle?: boolean;
@@ -19,6 +25,8 @@ type Props = {
 };
 
 export default function AiModelRow({
+  rowIndex,
+  allModels,
   model,
   providerMap,
   showActiveToggle = true,
@@ -29,8 +37,22 @@ export default function AiModelRow({
 }: Props) {
   const [apiKeyVisible, setApiKeyVisible] = useState(false);
   const hasProvider = !!model.provider;
-  const providerOptions = Object.keys(providerMap).map((p) => ({ id: p, label: p }));
-  const modelOptions = (providerMap[model.provider] || []).map((m) => ({ id: m, label: m }));
+
+  const providerOptions = useMemo(() => {
+    return filterAvailableProviders(providerMap, allModels, rowIndex).map((provider) => ({
+      id: provider,
+      label: provider,
+    }));
+  }, [allModels, providerMap, rowIndex]);
+
+  const modelOptions = useMemo(() => {
+    return filterAvailableModels(providerMap, allModels, rowIndex, model.provider).map(
+      (modelName) => ({
+        id: modelName,
+        label: modelName,
+      }),
+    );
+  }, [allModels, model.provider, providerMap, rowIndex]);
 
   return (
     <div className="profile-model-row">
@@ -43,10 +65,12 @@ export default function AiModelRow({
           placeholderLabel="Провайдер"
           placement="down"
           onChange={(provider) => {
-            const next = provider ? providerMap[provider]?.[0] || "" : "";
+            const nextModel = provider
+              ? filterAvailableModels(providerMap, allModels, rowIndex, provider)[0] || ""
+              : "";
             onChange({
               provider,
-              model: next,
+              model: nextModel,
               apiKey: provider ? model.apiKey : "",
               active: provider ? model.active : false,
               includeInMulti: provider ? model.includeInMulti : false,
@@ -58,7 +82,7 @@ export default function AiModelRow({
           className="profile-model-picker profile-model-name"
           value={model.model}
           options={modelOptions}
-          disabled={!hasProvider}
+          disabled={!hasProvider || modelOptions.length === 0}
           placeholderLabel="Выберите модель"
           placement="down"
           onChange={(value) => onChange({ model: value })}
