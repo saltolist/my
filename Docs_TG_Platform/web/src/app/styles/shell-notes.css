@@ -876,6 +876,10 @@ button.filter-tab {
   box-sizing: border-box;
   width: var(--note-ai-toggle-size);
   height: var(--note-ai-toggle-size);
+  min-width: var(--note-ai-toggle-size);
+  min-height: var(--note-ai-toggle-size);
+  max-width: var(--note-ai-toggle-size);
+  max-height: var(--note-ai-toggle-size);
   flex-shrink: 0;
   padding: 0;
   margin: 0;
@@ -885,7 +889,7 @@ button.filter-tab {
   -webkit-backdrop-filter: var(--profile-control-blur);
   backdrop-filter: var(--profile-control-blur);
   position: relative;
-  overflow: visible;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -907,10 +911,15 @@ button.filter-tab {
   transition: opacity 0.12s ease;
 }
 .note-ai-toggle .model-icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
   width: var(--note-ai-toggle-icon);
   height: var(--note-ai-toggle-icon);
   display: block;
-  flex-shrink: 0;
+  flex: none;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 .note-ai-toggle.off {
   color: var(--text3);
