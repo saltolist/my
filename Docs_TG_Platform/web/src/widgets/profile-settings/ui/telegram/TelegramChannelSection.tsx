@@ -58,7 +58,7 @@ export default function TelegramChannelSection({
               onClick={onConnectChannel}
               type="button"
             >
-              Подключить канал
+              Подключить
             </button>
           </div>
         </div>
