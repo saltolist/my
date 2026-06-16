@@ -846,6 +846,7 @@ button.filter-tab {
   display: flex; flex-direction: column; gap: 8px;
   height: 200px;
   box-shadow: var(--content-card-shadow);
+  container-type: inline-size;
 }
 .note-card-page:hover { border-color: var(--border2); }
 .note-card-page-head {

@@ -1,19 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { createMediaQueryHook } from "@/shared/lib/hooks/createMediaQueryHook";
 
 const MQ = "(max-width: 760px)";
 
 export function useMobile760(): boolean {
-  const [mobile, setMobile] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia(MQ);
-    const update = () => setMobile(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
-  return mobile;
+  return useMobile760Hook();
 }
+
+const useMobile760Hook = createMediaQueryHook(MQ);

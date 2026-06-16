@@ -29,7 +29,7 @@ export default function PostNotesList({
   });
 
   return (
-    <div id="post-notes" className="notes-grid visible">
+    <div id="post-notes" className="notes-grid notes-grid--screen visible">
       <div className="notes-grid-inner">
         {post.notes.length === 0 ? (
           <EmptyState icon="📝" message="Нет заметок для этого поста" />
