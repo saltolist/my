@@ -49,40 +49,6 @@ export default function AiModelsBlock() {
       />
 
       <AiModelListSection
-        icon={<VisionIcon />}
-        title="Модели компьютерного зрения"
-        models={cfg.visionModels}
-        providerMap={VISION_PROVIDER_MODELS}
-        addLabel="Добавить модель компьютерного зрения"
-        showMultiToggle={false}
-        onModelChange={(idx, patch) =>
-          ai.setVisionModels(cfg.visionModels.map((row, i) => (i === idx ? { ...row, ...patch } : row)))
-        }
-        onModelRemove={(idx) => ai.setVisionModels(cfg.visionModels.filter((_, i) => i !== idx))}
-        onAdd={ai.addVision}
-        onApiKeyBlur={() => void ai.flushSave()}
-      />
-
-      <AiModelListSection
-        icon={<ImageGenIcon />}
-        title="Модели генерации изображений"
-        models={cfg.imageGenerationModels}
-        providerMap={IMAGE_GENERATION_PROVIDER_MODELS}
-        addLabel="Добавить модель генерации изображений"
-        showMultiToggle={false}
-        onModelChange={(idx, patch) =>
-          ai.setImageGenerationModels(
-            cfg.imageGenerationModels.map((row, i) => (i === idx ? { ...row, ...patch } : row)),
-          )
-        }
-        onModelRemove={(idx) =>
-          ai.setImageGenerationModels(cfg.imageGenerationModels.filter((_, i) => i !== idx))
-        }
-        onAdd={ai.addImageGeneration}
-        onApiKeyBlur={() => void ai.flushSave()}
-      />
-
-      <AiModelListSection
         icon={<BrainIcon />}
         title="Оркестратор"
         models={cfg.orchestratorModels}
@@ -124,6 +90,40 @@ export default function AiModelsBlock() {
         }
         onModelRemove={(idx) => ai.setRagReasoners(cfg.ragReasonerModels.filter((_, i) => i !== idx))}
         onAdd={ai.addRagReasoner}
+        onApiKeyBlur={() => void ai.flushSave()}
+      />
+
+      <AiModelListSection
+        icon={<VisionIcon />}
+        title="Модели компьютерного зрения"
+        models={cfg.visionModels}
+        providerMap={VISION_PROVIDER_MODELS}
+        addLabel="Добавить модель компьютерного зрения"
+        showMultiToggle={false}
+        onModelChange={(idx, patch) =>
+          ai.setVisionModels(cfg.visionModels.map((row, i) => (i === idx ? { ...row, ...patch } : row)))
+        }
+        onModelRemove={(idx) => ai.setVisionModels(cfg.visionModels.filter((_, i) => i !== idx))}
+        onAdd={ai.addVision}
+        onApiKeyBlur={() => void ai.flushSave()}
+      />
+
+      <AiModelListSection
+        icon={<ImageGenIcon />}
+        title="Модели генерации изображений"
+        models={cfg.imageGenerationModels}
+        providerMap={IMAGE_GENERATION_PROVIDER_MODELS}
+        addLabel="Добавить модель генерации изображений"
+        showMultiToggle={false}
+        onModelChange={(idx, patch) =>
+          ai.setImageGenerationModels(
+            cfg.imageGenerationModels.map((row, i) => (i === idx ? { ...row, ...patch } : row)),
+          )
+        }
+        onModelRemove={(idx) =>
+          ai.setImageGenerationModels(cfg.imageGenerationModels.filter((_, i) => i !== idx))
+        }
+        onAdd={ai.addImageGeneration}
         onApiKeyBlur={() => void ai.flushSave()}
       />
 

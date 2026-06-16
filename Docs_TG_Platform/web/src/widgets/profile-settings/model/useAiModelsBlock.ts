@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect } from "react";
 import {
+  normalizeAiProfileConfig,
   normalizeExclusiveModels,
   snapshotAiConfig,
   updateExclusiveModel,
 } from "@/shared/lib/profile/aiModelsSnapshot";
+import { reportMutationError } from "@/shared/ui/toast";
 import { registerAiModelsAutosaveFlush } from "@/shared/lib/profile/aiModelsAutosave";
 import { buildMultiResponsePairs } from "@/shared/config/composer";
 import {
@@ -40,12 +42,25 @@ export function useAiModelsBlock() {
 
   const flushSave = useCallback(async () => {
     const state = useProfileDraftStore.getState();
-    const nextCfg = state.aiProfileConfig;
+    if (!state.hydrated) return;
+
+    const nextCfg = normalizeAiProfileConfig(state.aiProfileConfig);
     const snapshot = snapshotAiConfig(nextCfg);
     if (snapshot === state.modelSettingsSavedSnapshot) return;
+
+    const previousSnapshot = state.modelSettingsSavedSnapshot;
     state.applyPatch({ modelSettingsSavedSnapshot: snapshot });
-    await updateAiProfile.mutateAsync(nextCfg);
-  }, [updateAiProfile]);
+
+    try {
+      const saved = await updateAiProfile.mutateAsync(nextCfg);
+      const savedSnapshot = snapshotAiConfig(normalizeAiProfileConfig(saved));
+      state.applyPatch({ modelSettingsSavedSnapshot: savedSnapshot });
+      dispatch(domainActions.updateAiConfig(normalizeAiProfileConfig(saved)));
+    } catch (error) {
+      state.applyPatch({ modelSettingsSavedSnapshot: previousSnapshot });
+      reportMutationError(error, "Не удалось сохранить настройки ИИ");
+    }
+  }, [dispatch, updateAiProfile]);
 
   useEffect(() => {
     setDirty("profile-ai", dirty);

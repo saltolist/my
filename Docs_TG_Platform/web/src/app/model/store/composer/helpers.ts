@@ -3,7 +3,7 @@ import {
   formatWebSearchComposerLabel,
   VARIANT_TAILS,
 } from "@/shared/config/composer";
-import type { AiProfileConfig, AiVariant, ChatMessage, ComposerScope } from "@/shared/types";
+import type { AiProfileConfig, AiVariant, ChatMessage, ComposerScope, LlmModel } from "@/shared/types";
 
 export function resolveLlmLabel(cfg: AiProfileConfig, id: string): string {
   const model = cfg.llmModels.find((m) => m.id === id);
@@ -18,16 +18,70 @@ export function resolveWebLabel(cfg: AiProfileConfig, id: string): string {
     : "Нет";
 }
 
+export function hasConfiguredModel(models: LlmModel[]): boolean {
+  return models.some((model) => !!model.provider?.trim() && !!model.model?.trim());
+}
+
+export function hasActiveConfiguredModel(models: LlmModel[]): boolean {
+  return models.some((model) => !!model.provider?.trim() && !!model.model?.trim() && model.active);
+}
+
+export function listActiveConfiguredModels(models: LlmModel[]): LlmModel[] {
+  return models.filter((model) => !!model.provider?.trim() && !!model.model?.trim() && model.active);
+}
+
+/** Picks a valid active LLM for composer send (falls back to the first active model). */
+export function resolveComposerLlmId(cfg: AiProfileConfig, targetLlmId: string): string {
+  const activeLlms = listActiveConfiguredModels(cfg.llmModels);
+  if (activeLlms.length === 0) return "";
+  if (targetLlmId && activeLlms.some((model) => model.id === targetLlmId)) return targetLlmId;
+  return activeLlms[0]!.id;
+}
+
+export function hasLlmIncludedInMulti(cfg: AiProfileConfig): boolean {
+  return cfg.llmModels.some(
+    (model) => !!model.provider?.trim() && !!model.model?.trim() && model.active && model.includeInMulti,
+  );
+}
+
+export function getLlmSendValidationMessage(
+  cfg: AiProfileConfig,
+  scope: ComposerScope,
+  targetLlmId: string,
+): string | null {
+  if (hasLlmForComposerScope(cfg, scope, targetLlmId)) return null;
+  if (!hasConfiguredModel(cfg.llmModels)) return "Добавьте LLM модель.";
+  if (!hasActiveConfiguredModel(cfg.llmModels)) return "Активируйте LLM модель.";
+  if (cfg.multiResponseEnabled) return "Включите LLM модели в мультиответ.";
+  return "Активируйте LLM модель.";
+}
+
+export function getOrchestratorSendValidationMessage(cfg: AiProfileConfig): string | null {
+  if (hasActiveConfiguredModel(cfg.orchestratorModels)) return null;
+  if (hasConfiguredModel(cfg.orchestratorModels)) return "Активируйте модель оркестратора.";
+  return "Добавьте модель оркестратора.";
+}
+
+export function getChatSendValidationMessage(
+  cfg: AiProfileConfig,
+  scope: ComposerScope,
+  targetLlmId: string,
+): string | null {
+  return (
+    getLlmSendValidationMessage(cfg, scope, targetLlmId) ??
+    getOrchestratorSendValidationMessage(cfg)
+  );
+}
+
 export function hasLlmForComposerScope(
   cfg: AiProfileConfig,
   scope: ComposerScope,
   targetLlmId: string,
 ): boolean {
   if (cfg.multiResponseEnabled) {
-    return cfg.llmModels.some((m) => m.provider && m.model && m.active && m.includeInMulti);
+    return hasLlmIncludedInMulti(cfg);
   }
-  if (!targetLlmId) return false;
-  return cfg.llmModels.some((m) => m.id === targetLlmId && m.provider && m.model && m.active);
+  return resolveComposerLlmId(cfg, targetLlmId) !== "";
 }
 
 export function buildAiReplyMessage(

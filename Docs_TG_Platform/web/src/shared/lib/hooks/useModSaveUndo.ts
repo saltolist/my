@@ -9,7 +9,7 @@ function isEditableTarget(target: EventTarget | null): boolean {
   if (typeof el.tagName !== "string") return false;
   const tag = el.tagName;
   if (tag === "INPUT" || tag === "TEXTAREA") return true;
-  if (target.isContentEditable) return true;
+  if (el.isContentEditable) return true;
   return false;
 }
 

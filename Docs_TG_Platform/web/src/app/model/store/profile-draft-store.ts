@@ -173,6 +173,10 @@ export function selectModelSettingsSavedSnapshot(state: ProfileDraftState) {
   return state.modelSettingsSavedSnapshot;
 }
 
+export function selectProfileHydrated(state: ProfileDraftState) {
+  return state.hydrated;
+}
+
 export function selectSystemPromptSavedSnapshot(state: ProfileDraftState) {
   return state.systemPromptSavedSnapshot;
 }

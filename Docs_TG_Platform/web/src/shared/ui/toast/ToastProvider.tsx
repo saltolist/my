@@ -12,7 +12,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const [leaving, setLeaving] = useState(false);
   const visibleTimerRef = useRef<number | null>(null);
   const fadeTimerRef = useRef<number | null>(null);
-
   const clearTimers = () => {
     if (visibleTimerRef.current !== null) {
       window.clearTimeout(visibleTimerRef.current);

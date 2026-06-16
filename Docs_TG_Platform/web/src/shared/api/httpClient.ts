@@ -23,6 +23,11 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     throw new ApiError("NEXT_PUBLIC_API_BASE_URL is not configured", 0);
   }
 
+  if (USE_MSW && typeof window !== "undefined") {
+    const { ensureMswStarted } = await import("@/shared/api/msw/browser");
+    await ensureMswStarted();
+  }
+
   const { method = "GET", body, signal } = options;
   const headers: HeadersInit = {};
   const token = getApiAuthToken();
@@ -49,7 +54,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     } catch {
       payload = await res.text().catch(() => undefined);
     }
-    throw new ApiError(`API ${method} ${path} failed`, res.status, payload);
+    throw new ApiError(`API ${method} ${path} failed (${res.status})`, res.status, payload);
   }
 
   if (res.status === 204) return undefined as T;

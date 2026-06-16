@@ -14,21 +14,33 @@ export type PendingRegistration = {
 const accounts = new Map<string, MswStore>();
 export const pendingRegistrations = new Map<string, PendingRegistration>();
 
-export function initAccountRegistry(): void {
+let registryInitialized = false;
+
+function ensureAccountRegistry(): void {
+  if (registryInitialized) return;
+  registryInitialized = true;
   accounts.clear();
   pendingRegistrations.clear();
   accounts.set(DEMO_ACCOUNT_ID, createInitialMswStore());
   accounts.set(PRESENTATION_ACCOUNT_ID, createPresentationMswStore());
 }
 
-initAccountRegistry();
+export function initAccountRegistry(): void {
+  accounts.clear();
+  pendingRegistrations.clear();
+  accounts.set(DEMO_ACCOUNT_ID, createInitialMswStore());
+  accounts.set(PRESENTATION_ACCOUNT_ID, createPresentationMswStore());
+  registryInitialized = true;
+}
 
 export function resetAccountRegistry(): void {
+  registryInitialized = false;
   initAccountRegistry();
 }
 
 /** Restore demo-full from seed (runs inside the MSW worker on login). */
 export function resetDemoFullAccount(): void {
+  ensureAccountRegistry();
   accounts.set(DEMO_ACCOUNT_ID, createInitialMswStore());
 }
 
@@ -46,6 +58,7 @@ function isResolvableAccountId(accountId: string): boolean {
 }
 
 export function resolveAccountIdFromRequest(request: Request): string | null {
+  ensureAccountRegistry();
   const auth = request.headers.get("Authorization");
   if (!auth?.startsWith("Bearer ")) return null;
   const token = auth.slice(7);
@@ -56,6 +69,7 @@ export function resolveAccountIdFromRequest(request: Request): string | null {
 
 /** Fresh accounts live only in memory; recreate empty store after MSW worker reload. */
 export function getOrCreateAccountStore(accountId: string): MswStore | null {
+  ensureAccountRegistry();
   const existing = accounts.get(accountId);
   if (existing) return existing;
   if (!isFreshAccountId(accountId)) return null;
@@ -71,6 +85,7 @@ export function getStoreForRequest(request: Request): MswStore | null {
 }
 
 export function createFreshAccount(): string {
+  ensureAccountRegistry();
   const accountId = `fresh-${randomId()}`;
   accounts.set(accountId, createEmptyAccountStore());
   return accountId;
@@ -85,5 +100,6 @@ export function importDemoKanalPosts(store: MswStore): number {
 }
 
 export function getDemoFullStore(): MswStore {
+  ensureAccountRegistry();
   return accounts.get(DEMO_ACCOUNT_ID)!;
 }

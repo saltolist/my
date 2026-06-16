@@ -10,10 +10,11 @@ import {
 } from "react";
 import { useUiStore } from "@/app/model/store/ui-store";
 import { useComposerTargetStore } from "@/app/model/store/composer-target-store";
-import { alertDialog } from "@/shared/ui/dialog";
 import {
   buildAiReplyMessage,
+  getChatSendValidationMessage,
   hasLlmForComposerScope,
+  resolveComposerLlmId,
   resolveLlmLabel,
   resolveWebLabel,
 } from "@/app/model/store/composer/helpers";
@@ -24,6 +25,7 @@ import { getGlobalReply, getPostReply } from "@/shared/lib/replies";
 import { routes } from "@/shared/lib/routes";
 import { truncate } from "@/shared/lib/helpers";
 import { buildMultiResponsePairs } from "@/shared/config/composer";
+import { showToast } from "@/shared/ui/toast";
 import type { ComposerScope, GlobalChat, LocalChat } from "@/shared/types";
 
 export type ComposerNavBridge = {
@@ -68,14 +70,34 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const assertLlm = useCallback((scope: ComposerScope) => {
-    const cfg = aiProfileRef.current;
-    if (!cfg) return false;
-    const target = getTarget(scope);
-    if (hasLlmForComposerScope(cfg, scope, target.llmId)) return true;
-    void alertDialog({ message: "Активируйте LLM модель.", title: "Composer" });
-    return false;
-  }, [getTarget]);
+  const resolveSendTarget = useCallback(
+    (scope: ComposerScope) => {
+      const cfg = aiProfileRef.current;
+      const target = getTarget(scope);
+      if (!cfg) return target;
+      return {
+        ...target,
+        llmId: resolveComposerLlmId(cfg, target.llmId),
+      };
+    },
+    [getTarget],
+  );
+
+  const assertCanSend = useCallback(
+    (scope: ComposerScope) => {
+      const cfg = aiProfileRef.current;
+      if (!cfg) return false;
+      const message = getChatSendValidationMessage(
+        cfg,
+        scope,
+        resolveSendTarget(scope).llmId,
+      );
+      if (!message) return true;
+      showToast({ message, variant: "error" });
+      return false;
+    },
+    [resolveSendTarget],
+  );
 
   const setComposerLlm = useCallback(
     (scope: ComposerScope, llmId: string) => setLlmId(scope, llmId),
@@ -91,9 +113,9 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
     (scope: ComposerScope) => {
       const cfg = aiProfileRef.current;
       if (!cfg) return false;
-      return hasLlmForComposerScope(cfg, scope, getTarget(scope).llmId);
+      return hasLlmForComposerScope(cfg, scope, resolveSendTarget(scope).llmId);
     },
-    [getTarget],
+    [resolveSendTarget],
   );
 
   const sendHome = useCallback(
@@ -101,7 +123,7 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
       const bridge = navBridgeRef.current;
       const cfg = aiProfileRef.current;
       if (!text.trim() || !bridge || !cfg) return false;
-      if (!assertLlm("home")) return false;
+      if (!assertCanSend("home")) return false;
       setMobileSidebarOpen(false);
 
       const id = `gc${Date.now()}`;
@@ -116,14 +138,14 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
       void createChat.mutateAsync(newChat).then(() => {
         bridge.goToHref(routes.gchat(id));
         window.setTimeout(() => {
-          const reply = buildAiReplyMessage(cfg, getGlobalReply(text), "home", getTarget("home"));
+          const reply = buildAiReplyMessage(cfg, getGlobalReply(text), "home", resolveSendTarget("home"));
           void pushMessage.mutateAsync({ chatId: id, message: reply });
         }, 900);
       });
 
       return true;
     },
-    [assertLlm, createChat, getTarget, pushMessage, setMobileSidebarOpen],
+    [assertCanSend, createChat, pushMessage, resolveSendTarget, setMobileSidebarOpen],
   );
 
   const sendGChat = useCallback(
@@ -132,15 +154,15 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
       const cfg = aiProfileRef.current;
       const chatId = bridge?.getCurrentGChatId();
       if (!text.trim() || !chatId || !cfg) return false;
-      if (!assertLlm("gchat")) return false;
+      if (!assertCanSend("gchat")) return false;
       void pushMessage.mutateAsync({ chatId, message: { role: "user", text } });
       window.setTimeout(() => {
-        const reply = buildAiReplyMessage(cfg, getGlobalReply(text), "gchat", getTarget("gchat"));
+        const reply = buildAiReplyMessage(cfg, getGlobalReply(text), "gchat", resolveSendTarget("gchat"));
         void pushMessage.mutateAsync({ chatId, message: reply });
       }, 900);
       return true;
     },
-    [assertLlm, getTarget, pushMessage],
+    [assertCanSend, pushMessage, resolveSendTarget],
   );
 
   const sendPost = useCallback(
@@ -150,7 +172,7 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
       if (!bridge || !cfg) return false;
       const postId = bridge.getCurrentPostId();
       if (!text.trim() || postId == null) return false;
-      if (!assertLlm("post")) return false;
+      if (!assertCanSend("post")) return false;
 
       let chatId = bridge.getCurrentPostChatId();
       if (chatId == null) {
@@ -173,13 +195,13 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
 
       const replyChatId = chatId;
       window.setTimeout(() => {
-        const reply = buildAiReplyMessage(cfg, getPostReply(text), "post", getTarget("post"));
+        const reply = buildAiReplyMessage(cfg, getPostReply(text), "post", resolveSendTarget("post"));
         void pushLocalChatMessage(postId, replyChatId, reply);
       }, 800);
 
       return true;
     },
-    [addLocalChat, assertLlm, getTarget, pushLocalChatMessage],
+    [addLocalChat, assertCanSend, pushLocalChatMessage, resolveSendTarget],
   );
 
   const value = useMemo<ComposerContextValue>(
