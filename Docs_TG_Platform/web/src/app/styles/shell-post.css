@@ -527,15 +527,11 @@
     justify-content: center;
   }
 
-  .page-header--post-search-overlay .page-header-right.page-header-right--mobile {
-    gap: 8px;
-  }
-
   .page-header--post .page-header-search-toggle + .page-header-toolbar-slot,
   .page-header--post .page-header-search-toggle-slot + .page-header-toolbar-slot,
   .page-header--post .page-header-search-toggle + .page-header-actions--mobile,
   .page-header--post .page-header-search-toggle-slot + .page-header-actions--mobile {
-    margin-left: 0;
+    margin-left: -2px;
   }
 
   .page-header--post-search-overlay.page-header--search-open {

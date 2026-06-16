@@ -284,6 +284,10 @@ body.mobile-sidebar-open #sidebar {
     min-width: 0;
   }
 .page-header-right--mobile {
+    gap: 0;
+  }
+/* Лента: исходный зазор в кластере справа */
+#screen-feed .page-header-right--mobile {
     gap: 10px;
   }
 .page-header-right--mobile .page-header-toolbar-slot {
