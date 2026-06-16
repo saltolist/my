@@ -6,6 +6,7 @@
   --telegram-phone-input-w: calc(12.5rem - 24px);
   --telegram-code-input-w: var(--telegram-phone-input-w);
   --telegram-auth-row-w: calc(var(--telegram-phone-input-w) + 12px + 160px);
+  --telegram-stack-gap: 12px;
   --profile-control-fg: var(--text);
   --profile-control-fg-muted: var(--text2);
   --profile-field-border: var(--border2);
@@ -1410,8 +1411,16 @@
 .telegram-form-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 10px 12px;
+  gap: var(--telegram-stack-gap);
   min-width: 0;
+}
+/* Строки внутри Telegram-формы не добавляют свой margin-bottom — ритм задаёт grid/stack-gap */
+.telegram-form-grid > .telegram-api-credentials .profile-row,
+.telegram-form-grid .telegram-phone-desktop-row,
+.telegram-form-grid .telegram-code-desktop-row,
+.telegram-auth-mobile .profile-row,
+.telegram-channel-section .profile-row {
+  margin-bottom: 0;
 }
 .telegram-form-grid > .profile-row:nth-child(1),
 .telegram-form-grid > .profile-row:nth-child(2) {
@@ -1517,7 +1526,7 @@ html[data-page-header-le-841] .telegram-api-credentials .telegram-api-actions {
   grid-column: 1 / -1;
   grid-row: 2;
   margin-top: 7px;
-  margin-bottom: 8px;
+  margin-bottom: 0;
 }
 
 @media (max-width: 760px) {
@@ -1540,7 +1549,7 @@ html[data-page-header-le-841] .telegram-api-credentials .telegram-api-actions {
     justify-content: flex-start;
     gap: 12px;
     margin-top: 7px;
-    margin-bottom: 8px;
+    margin-bottom: 0;
   }
   .telegram-api-credentials .telegram-api-action-btn {
     flex: 0 0 auto;
@@ -1853,10 +1862,8 @@ html[data-page-header-le-841] .telegram-api-credentials .telegram-api-actions {
     max-width: none;
   }
 
-  .telegram-form-grid:has(.telegram-code-desktop-row)
-    + .telegram-channel-section.hidden
-    + .telegram-section-divider {
-    margin-top: 12px;
+  .telegram-form-grid + .telegram-channel-section.hidden + .telegram-section-divider {
+    margin-top: var(--telegram-stack-gap);
   }
 }
 .telegram-omnibot-mobile {
@@ -1928,10 +1935,17 @@ html[data-content-adapt-le-1000] .telegram-channel-input {
 .telegram-channel-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--telegram-stack-gap);
   border-top: 1px solid var(--border);
-  padding-top: 16px;
-  margin-top: 4px;
+  padding-top: var(--telegram-stack-gap);
+  margin-top: 0;
+}
+.telegram-form-grid + .telegram-channel-section:not(.hidden) {
+  margin-top: var(--telegram-stack-gap);
+}
+.telegram-form-grid + .telegram-channel-section.hidden + .telegram-section-divider,
+.telegram-channel-section.hidden + .telegram-section-divider {
+  margin-top: var(--telegram-stack-gap);
 }
 .telegram-channel-card {
   margin-top: 0;
@@ -1952,7 +1966,7 @@ html[data-content-adapt-le-1000] .telegram-channel-input {
 .telegram-section-divider {
   width: 100%;
   height: 1px;
-  margin: 20px 0;
+  margin: var(--telegram-stack-gap) 0;
   background: var(--profile-control-border);
 }
 .telegram-omnibot-section {
@@ -2617,7 +2631,7 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
   }
 
   .telegram-auth-mobile .telegram-phone-row:has(+ .telegram-code-action-row) {
-    margin-bottom: 12px;
+    margin-bottom: var(--telegram-stack-gap);
   }
 
   .telegram-auth-mobile .telegram-code-block .telegram-resend-code {
@@ -2755,21 +2769,10 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
 
   .telegram-channel-section {
     border-top-color: var(--profile-control-border);
-    padding-top: 20px;
-    margin-top: 20px;
-  }
-
-  .telegram-section-divider {
-    margin-top: 20px;
-    margin-bottom: 0;
-  }
-
-  .telegram-channel-section.hidden + .telegram-section-divider {
-    margin-top: 4px;
   }
 
   .telegram-section-divider + .telegram-omnibot-section {
-    margin-top: 20px;
+    margin-top: 0;
   }
 
   .telegram-form-grid {
