@@ -208,6 +208,9 @@ html.sidebar-collapsed {
   --page-header-control-bg-hover: color-mix(in srgb, var(--bg4) 66%, transparent);
   --page-header-control-bg-focus: color-mix(in srgb, var(--bg4) 72%, transparent);
   --page-header-control-border: color-mix(in srgb, var(--border2) 58%, transparent);
+  --reaction-pill-bg: rgb(225, 238, 246);
+  --reaction-pill-border: transparent;
+  --reaction-pill-fg: rgb(65, 135, 200);
   --profile-control-fg: #3a3a3a;
   --profile-control-fg-muted: #3a3a3a;
   --profile-control-bg: var(--page-header-control-bg);
@@ -279,6 +282,9 @@ html.sidebar-collapsed {
     --page-header-control-bg-hover: color-mix(in srgb, var(--bg4) 66%, transparent);
     --page-header-control-bg-focus: color-mix(in srgb, var(--bg4) 72%, transparent);
     --page-header-control-border: color-mix(in srgb, var(--border2) 58%, transparent);
+    --reaction-pill-bg: rgb(225, 238, 246);
+    --reaction-pill-border: transparent;
+    --reaction-pill-fg: rgb(65, 135, 200);
     --profile-control-fg: #3a3a3a;
     --profile-control-fg-muted: #3a3a3a;
     --profile-control-bg: var(--page-header-control-bg);
