@@ -1889,10 +1889,10 @@ html[data-page-header-le-841] .telegram-api-credentials .telegram-api-actions {
 }
 
 /*
- * content-adapt-w ≤ 1000 и сайдбар в колонке: поле канала сжимается.
- * Overlay (≤760 viewport): ширина «как телефон + Отправить код», без растягивания.
+ * content-adapt-w ≤ 1000: поле канала сжимается, когда ряд не помещается
+ * (десктоп с сайдбаром в колонке и overlay-сайдбар в шапке).
  */
-html[data-content-adapt-le-1000]:not([data-shell-overlay]) .telegram-channel-input {
+html[data-content-adapt-le-1000] .telegram-channel-input {
   flex: 1 1 0;
   width: auto;
   min-width: 0;
@@ -2586,10 +2586,22 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
 
   html[data-content-adapt-ge-761] .telegram-channel-desktop {
     display: block;
+    min-width: 0;
+    max-width: 100%;
   }
 
   html[data-content-adapt-ge-761] .telegram-channel-mobile {
     display: none;
+  }
+
+  html[data-content-adapt-ge-761] .telegram-channel-desktop-row,
+  html[data-content-adapt-ge-761] .telegram-channel-desktop-fields {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  html[data-content-adapt-ge-761] .telegram-channel-desktop-fields {
+    width: 100%;
   }
 
   .telegram-auth-mobile {
@@ -2648,6 +2660,44 @@ html[data-profile-header-trash-compact][data-profile-ai-tier="compact"] .profile
     min-width: 0;
     max-width: 100%;
     margin-bottom: 0;
+  }
+
+  /*
+   * Канал (mobile): поле — ширина как у телефона; сжимается только когда ряд
+   * не помещается в блок (кнопка «Подключить» не выходит за край).
+   */
+  .telegram-channel-mobile .telegram-inline-field-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .telegram-channel-mobile .telegram-inline-field-row .telegram-input {
+    flex: 0 1 var(--telegram-phone-input-w);
+    width: auto;
+    min-width: 0;
+    max-width: var(--telegram-phone-input-w);
+    min-height: 36px;
+    height: auto;
+    box-sizing: border-box;
+  }
+
+  .telegram-channel-mobile .telegram-inline-field-row .telegram-inline-button {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    min-height: 36px;
+    height: auto;
+    padding: 8px 10px;
+    line-height: 1.2;
+    white-space: nowrap;
+    box-sizing: border-box;
   }
 
   .telegram-inline-field-row .telegram-input-wrap {
