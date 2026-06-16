@@ -20,7 +20,7 @@ export default function ProfileSettingsPanel({ active, settingsTabActive }: Prop
       <UserBlock />
       <AiModelsBlock />
       <SystemPromptBlock active={settingsTabActive} />
-      <TelegramBlock />
+      <TelegramBlock active={settingsTabActive} />
     </div>
   );
 }

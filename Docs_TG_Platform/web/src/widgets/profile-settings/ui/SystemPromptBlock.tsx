@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useProfileTextareaAutoResize } from "@/shared/lib/use-profile-textarea-auto-resize";
+import { useModSaveUndo } from "@/shared/lib/hooks/useModSaveUndo";
 import {
   domainActions,
   selectAiProfileConfig,
@@ -14,6 +15,7 @@ import {
 } from "@/app/model/store";
 
 export default function SystemPromptBlock({ active = true }: { active?: boolean }) {
+  const scopeRef = useRef<HTMLDivElement | null>(null);
   const aiProfileConfig = useDomainSelector(selectAiProfileConfig);
   const systemPromptSavedSnapshot = useDomainSelector(selectSystemPromptSavedSnapshot);
   const dispatch = useDomainDispatch();
@@ -53,8 +55,10 @@ export default function SystemPromptBlock({ active = true }: { active?: boolean 
     setDraft(systemPromptSavedSnapshot);
   };
 
+  useModSaveUndo({ active, dirty, onSave: save, scopeRef });
+
   return (
-    <div className="profile-section">
+    <div className="profile-section" ref={scopeRef}>
       <div className="profile-section-title">Системный промпт</div>
       <div className="profile-row">
         <textarea

@@ -7,7 +7,7 @@ import TelegramOmnibotSection from "@/widgets/profile-settings/ui/telegram/Teleg
 import TelegramStatusHeader from "@/widgets/profile-settings/ui/telegram/TelegramStatusHeader";
 import { useTelegramBlock } from "@/widgets/profile-settings/model/useTelegramBlock";
 
-export default function TelegramBlock() {
+export default function TelegramBlock({ active = true }: { active?: boolean }) {
   const tg = useTelegramBlock();
 
   return (
@@ -24,6 +24,7 @@ export default function TelegramBlock() {
 
       <div className="telegram-form-grid">
         <TelegramApiCredentialsSection
+          active={active}
           cfg={tg.cfg}
           apiChangedFromSaved={tg.apiChangedFromSaved}
           apiHashVisible={tg.apiHashVisible}

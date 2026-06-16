@@ -1,9 +1,12 @@
 "use client";
 
+import { useRef } from "react";
 import { RubricNoteFields } from "@/widgets/profile-settings/ui/channel/ChannelFormPrimitives";
 import type { ChannelProfileConfig } from "@/shared/types";
+import { useModSaveUndo } from "@/shared/lib/hooks/useModSaveUndo";
 
 type Props = {
+  active: boolean;
   cfg: ChannelProfileConfig;
   rubricsDirty: boolean;
   onAddRubric: () => void;
@@ -14,6 +17,7 @@ type Props = {
 };
 
 export default function ChannelRubricsSection({
+  active,
   cfg,
   rubricsDirty,
   onAddRubric,
@@ -22,8 +26,11 @@ export default function ChannelRubricsSection({
   onSave,
   onReset,
 }: Props) {
+  const scopeRef = useRef<HTMLDivElement | null>(null);
+  useModSaveUndo({ active, dirty: rubricsDirty, onSave, scopeRef });
+
   return (
-    <div className="profile-section profile-rubrics-section">
+    <div className="profile-section profile-rubrics-section" ref={scopeRef}>
       <div className="profile-section-title">Рубрики</div>
       <div className="profile-rubrics-grid">
         {cfg.rubrics.map((rubric) => (

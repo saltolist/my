@@ -1,9 +1,12 @@
 "use client";
 
+import { useRef } from "react";
 import ProfileEyeIcon from "@/widgets/profile-settings/ui/ProfileEyeIcon";
 import type { TelegramProfileConfig } from "@/shared/types";
+import { useModSaveUndo } from "@/shared/lib/hooks/useModSaveUndo";
 
 type Props = {
+  active?: boolean;
   cfg: TelegramProfileConfig;
   apiChangedFromSaved: boolean;
   apiHashVisible: boolean;
@@ -15,6 +18,7 @@ type Props = {
 };
 
 export default function TelegramApiCredentialsSection({
+  active = true,
   cfg,
   apiChangedFromSaved,
   apiHashVisible,
@@ -24,9 +28,13 @@ export default function TelegramApiCredentialsSection({
   onSave,
   onCancel,
 }: Props) {
+  const scopeRef = useRef<HTMLDivElement | null>(null);
+  useModSaveUndo({ active, dirty: apiChangedFromSaved, onSave, scopeRef });
+
   return (
     <div
       className={`telegram-api-credentials${apiChangedFromSaved ? " telegram-api-credentials--dirty" : ""}`}
+      ref={scopeRef}
     >
       <div className="profile-row telegram-api-id-row">
         <div className="profile-label">api_id</div>

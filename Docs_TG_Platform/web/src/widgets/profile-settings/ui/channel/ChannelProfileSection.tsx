@@ -1,8 +1,10 @@
 "use client";
 
+import { useRef } from "react";
 import ProfileSyncRow from "@/widgets/profile-settings/ui/ProfileSyncRow";
 import { Area, ChannelSubsection } from "@/widgets/profile-settings/ui/channel/ChannelFormPrimitives";
 import type { ChannelProfileConfig } from "@/shared/types";
+import { useModSaveUndo } from "@/shared/lib/hooks/useModSaveUndo";
 
 type Props = {
   active: boolean;
@@ -24,8 +26,11 @@ export default function ChannelProfileSection({
   onSave,
   onReset,
 }: Props) {
+  const scopeRef = useRef<HTMLDivElement | null>(null);
+  useModSaveUndo({ active, dirty: channelProfileDirty, onSave, scopeRef });
+
   return (
-    <div className="profile-section profile-channel-combined-section">
+    <div className="profile-section profile-channel-combined-section" ref={scopeRef}>
       <ChannelSubsection title="Ядро канала">
         <div className="profile-grid">
           <ProfileSyncRow active={active} syncKey={`${cfg.core.topic}\u0000${cfg.core.angle}`}>

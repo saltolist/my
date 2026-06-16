@@ -38,6 +38,7 @@ export default function ChannelTab({ active }: { active: boolean }) {
           />
 
           <ChannelRubricsSection
+            active={active}
             cfg={ch.cfg}
             rubricsDirty={ch.rubricsDirty}
             onAddRubric={ch.addRubric}
