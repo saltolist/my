@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 
 import { useAddPostComment } from "@/entities/post/model/usePostCommentMutations";
 import { PostMediaBlock } from "@/entities/post";
+import { randomId } from "@/shared/lib/randomId";
 import { PostReactionPills, PostViewsReposts } from "@/widgets/feed";
 import type { Post, PostComment, PostMedia, PostMetrics } from "@/shared/types";
 
@@ -36,9 +37,9 @@ export default function PostCommentsPanel({
 
   async function addComment(text: string, commentMedia: PostMedia[]) {
     const comment: PostComment = {
-      id: Date.now(),
+      id: randomId(),
       author: "Вы",
-      date: "сейчас",
+      date: new Date().toISOString(),
       text,
       ...(commentMedia.length > 0 ? { media: [...commentMedia] } : {}),
       ...(replyTo ? { replyToId: replyTo.id } : {}),

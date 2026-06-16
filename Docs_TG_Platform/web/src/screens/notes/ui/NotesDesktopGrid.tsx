@@ -1,6 +1,7 @@
 "use client";
 
 import { NoteCardAiToggle } from "@/entities/note";
+import { formatStoredDate } from "@/shared/lib/helpers";
 import type { AnyNote } from "@/shared/lib/notes/noteList";
 import { ConnectChannelEmptyState } from "@/features/connect-channel";
 import { EmptyState } from "@/shared/ui/empty-state";
@@ -57,7 +58,7 @@ export function NotesDesktopGrid({
                 <NoteCardAiToggle ai={n.ai} onClick={() => onToggleAi(n)} />
               </div>
               <span className="note-card-meta-pg">
-                {n.date} · {n.isGlobal ? "Глобальная" : "Локальная"}
+                {formatStoredDate(n.date)} · {n.isGlobal ? "Глобальная" : "Локальная"}
               </span>
             </div>
           </div>

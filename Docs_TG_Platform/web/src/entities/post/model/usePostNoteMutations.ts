@@ -13,7 +13,7 @@ export function useAddPostNote() {
   const queryClient = useQueryClient();
 
   return useCallback(
-    async (postId: number, note: LocalNote) => {
+    async (postId: string, note: LocalNote) => {
       const post = getCachedPost(queryClient, postId);
       if (!post) return;
       const notes = [...(post.notes ?? []), note];
@@ -30,7 +30,7 @@ export function useUpdatePostNote() {
   const queryClient = useQueryClient();
 
   return useCallback(
-    async (postId: number, noteId: number, patch: Partial<LocalNote>) => {
+    async (postId: string, noteId: string, patch: Partial<LocalNote>) => {
       const post = getCachedPost(queryClient, postId);
       if (!post) return;
       const notes = (post.notes ?? []).map((n) => (n.id === noteId ? { ...n, ...patch } : n));
@@ -47,7 +47,7 @@ export function useDeletePostNote() {
   const queryClient = useQueryClient();
 
   return useCallback(
-    async (postId: number, noteId: number) => {
+    async (postId: string, noteId: string) => {
       const post = getCachedPost(queryClient, postId);
       if (!post) return;
       const notes = (post.notes ?? []).filter((n) => n.id !== noteId);
@@ -64,7 +64,7 @@ export function useTogglePostNoteAi() {
   const queryClient = useQueryClient();
 
   return useCallback(
-    async (postId: number, noteId: number) => {
+    async (postId: string, noteId: string) => {
       const post = getCachedPost(queryClient, postId);
       const note = post?.notes?.find((n) => n.id === noteId);
       if (!note) return;

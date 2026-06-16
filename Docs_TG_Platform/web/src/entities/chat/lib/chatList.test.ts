@@ -16,14 +16,14 @@ const chat: GlobalChat = {
 };
 
 const post: Post = {
-  id: 1,
+  id: "1",
   status: "draft",
   rubric: null,
   text: "My post",
   notes: [],
   chats: [
     {
-      id: 5,
+      id: "5",
       title: "Chat A",
       preview: "hello",
       date: "d",

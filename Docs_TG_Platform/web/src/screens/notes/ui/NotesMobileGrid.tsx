@@ -1,6 +1,7 @@
 "use client";
 
 import { NoteListCard } from "@/entities/note";
+import { formatStoredDate } from "@/shared/lib/helpers";
 import type { AnyNote } from "@/shared/lib/notes/noteList";
 import { ConnectChannelEmptyState } from "@/features/connect-channel";
 import { EmptyState } from "@/shared/ui/empty-state";
@@ -36,7 +37,7 @@ export function NotesMobileGrid({
               key={`${n.isGlobal ? "g" : `l-${n.postId}`}-${n.id}`}
               title={n.title}
               body={n.body}
-              meta={`${n.date} · ${n.isGlobal ? "Глобальная" : "Локальная"}`}
+              meta={`${formatStoredDate(n.date)} · ${n.isGlobal ? "Глобальная" : "Локальная"}`}
               ai={n.ai}
               onClick={() => onOpen(n)}
               onToggleAi={() => onToggleAi(n)}

@@ -9,7 +9,7 @@ import { useRenameChat } from "@/features/rename-chat";
 
 type Props =
   | { scope: "global"; chatId: string; title: string }
-  | { scope: "local"; postId: number; chatId: number; title: string };
+  | { scope: "local"; postId: string; chatId: string; title: string };
 
 export default function ChatListCardMenu(props: Props) {
   const renameChat = useRenameChat();

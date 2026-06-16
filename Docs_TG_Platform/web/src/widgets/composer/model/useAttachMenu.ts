@@ -136,7 +136,7 @@ export function useAttachMenu({
   );
 
   const attachMediaFromPinned = useCallback(
-    (item: { postId: number; postTitle: string; media: { name: string } }) => {
+    (item: { postId: string; postTitle: string; media: { name: string } }) => {
       onAttach({
         id: nextAttachMenuId(),
         kind: "media",

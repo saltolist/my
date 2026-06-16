@@ -17,11 +17,11 @@ const globalNote: GlobalNote = {
 };
 
 const post: Post = {
-  id: 1,
+  id: "1",
   status: "draft",
   rubric: null,
   text: "post",
-  notes: [{ id: 10, title: "Local note", body: "local body", ai: false, date: "d" }],
+  notes: [{ id: "10", title: "Local note", body: "local body", ai: false, date: "d" }],
   chats: [],
 };
 

@@ -158,7 +158,7 @@ export function useFeedScreen() {
   }, []);
 
   const openPost = useCallback(
-    (id: number) => {
+    (id: string) => {
       setPostMode(id, "chat");
       setNav({ isEditing: false });
       router.push(routes.post(id));
@@ -167,7 +167,7 @@ export function useFeedScreen() {
   );
 
   const openPostComments = useCallback(
-    (id: number) => {
+    (id: string) => {
       setPostMode(id, "comments");
       router.push(routes.post(id));
     },

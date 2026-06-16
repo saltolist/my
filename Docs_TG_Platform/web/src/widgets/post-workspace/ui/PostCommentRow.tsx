@@ -1,6 +1,7 @@
 "use client";
 
 import { PostMediaBlock } from "@/entities/post";
+import { formatStoredDate } from "@/shared/lib/helpers";
 import { avatarHue, avatarInitials } from "@/shared/lib/postComments";
 import type { PostComment } from "@/shared/types";
 
@@ -24,7 +25,7 @@ export default function PostCommentRow({ comment, parent, onReply }: Props) {
       <div className="post-comment-main">
         <div className="post-comment-head">
           <span className="post-comment-author">{comment.author}</span>
-          <span className="post-comment-date">{comment.date}</span>
+          <span className="post-comment-date">{formatStoredDate(comment.date)}</span>
         </div>
         {parent ? (
           <div className="post-comment-quote">

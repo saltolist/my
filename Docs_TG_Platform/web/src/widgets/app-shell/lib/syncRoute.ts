@@ -20,15 +20,15 @@ export type RouteSyncData = {
 };
 
 export type PostModeSync = {
-  postId: number;
+  postId: string;
   mode: PostMode;
-  chatId: number | null;
+  chatId: string | null;
 };
 
 type PostModeStore = {
-  getMode: (postId: number) => PostMode;
-  getCurrentPostChatId: (postId: number) => number | null;
-  setMode: (postId: number, mode: PostMode, chatId?: number | null) => void;
+  getMode: (postId: string) => PostMode;
+  getCurrentPostChatId: (postId: string) => string | null;
+  setMode: (postId: string, mode: PostMode, chatId?: string | null) => void;
 };
 
 /** Route sync must not re-call setMode when mode already matches — setMode toggles tab modes. */
@@ -46,7 +46,7 @@ export type SyncRouteResult =
 export type SyncRouteOptions = {
   /** Resolved from legacy redirect or post-navigation store before sync. */
   postModeOverride?: PostMode | null;
-  getPostMode?: (postId: number) => PostMode;
+  getPostMode?: (postId: string) => PostMode;
 };
 
 export function syncRouteFromUrl(
@@ -89,13 +89,13 @@ export function syncRouteFromUrl(
   const chatId = parseChatSearchParam(searchParams.get("chat"));
   const fromParam = searchParams.get("from");
   const noteFrom: NoteFromScreen = fromParam === "post" ? "post" : "notes";
-  const notePostId = Number(searchParams.get("postId"));
+  const notePostIdParam = searchParams.get("postId");
   const parsedNote = {
     ...parsed,
     gchatId,
     notePostId:
-      parsed.noteIsNew && Number.isFinite(notePostId) && notePostId > 0
-        ? notePostId
+      parsed.noteIsNew && notePostIdParam
+        ? notePostIdParam
         : parsed.notePostId,
   };
 

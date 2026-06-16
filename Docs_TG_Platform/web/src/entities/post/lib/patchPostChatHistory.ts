@@ -13,7 +13,7 @@ function chatPreviewFromHistory(history: ChatMessage[]): string {
 
 function patchLocalChatInList(
   chats: LocalChat[],
-  chatId: number,
+  chatId: string,
   updater: (history: ChatMessage[]) => ChatMessage[],
 ): LocalChat[] {
   return chats.map((chat) => {
@@ -23,7 +23,7 @@ function patchLocalChatInList(
       ...chat,
       history,
       preview: chatPreviewFromHistory(history),
-      date: "сейчас",
+      date: new Date().toISOString(),
     };
   });
 }
@@ -32,7 +32,7 @@ function patchLocalChatInList(
 export async function fetchPost(
   queryClient: QueryClient,
   posts: PostsRepository,
-  postId: number,
+  postId: string,
 ): Promise<Post> {
   const accountId = getQueryAccountIdFromAuth();
   return queryClient.fetchQuery({
@@ -54,8 +54,8 @@ export type PatchPostChatHistoryOptions = {
 export async function patchPostChatHistory(
   queryClient: QueryClient,
   posts: PostsRepository,
-  postId: number,
-  chatId: number,
+  postId: string,
+  chatId: string,
   updater: (history: ChatMessage[]) => ChatMessage[],
   options?: PatchPostChatHistoryOptions,
 ): Promise<Post> {

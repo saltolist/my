@@ -9,7 +9,7 @@ import { breadcrumbItemClassName } from "@/shared/ui/breadcrumb";
 import type { ActiveNote, LocalChat, Post } from "@/shared/types";
 
 const post: Post = {
-  id: 1,
+  id: "1",
   status: "published",
   rubric: null,
   text: "Post body",
@@ -18,7 +18,7 @@ const post: Post = {
 };
 
 const activeChat: LocalChat = {
-  id: 10,
+  id: "10",
   title: "Chat title",
   preview: "",
   date: "d",
@@ -107,7 +107,7 @@ describe("buildPostBreadcrumbTrail", () => {
   it("truncates active chat title", () => {
     const items = buildPostBreadcrumbTrail({
       ...base,
-      currentPostChatId: 10,
+      currentPostChatId: "10",
       activeChat,
     });
     expect(items).toHaveLength(3);

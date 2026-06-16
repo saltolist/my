@@ -1,7 +1,7 @@
 "use client";
 
 import { GlobalChatCard, LocalChatCard, type LocalChatRow } from "@/entities/chat/ui/ChatCards";
-import { chatListAssistantLine, chatListUserLine } from "@/shared/lib/helpers";
+import { chatListAssistantLine, chatListUserLine, formatStoredDate } from "@/shared/lib/helpers";
 import { isOmnichannelChat } from "@/shared/lib/omnichannel";
 import { routes } from "@/shared/lib/routes";
 import { NavIconChats, NavIconFeed, NavIconSend } from "@/shared/ui/nav-icons";
@@ -22,7 +22,7 @@ export function GlobalChatCardView({ chat, onOpen }: GlobalProps) {
     <GlobalChatCard
       userLine={userLine}
       assistantLine={assistantLine}
-      date={chat.date}
+      date={formatStoredDate(chat.date)}
       onOpen={() => onOpen(chat.id)}
       iconRail={
         omnichannel ? <NavIconSend strokeWidth={1.5} /> : <NavIconChats strokeWidth={1.5} />
@@ -45,7 +45,7 @@ export function LocalChatCardView({ row, onNavigate }: LocalProps) {
     <LocalChatCard
       userLine={userLine}
       assistantLine={assistantLine}
-      date={row.date}
+      date={formatStoredDate(row.date)}
       titleAttr={`Пост: ${row.postTitle}`}
       onOpen={() => onNavigate(routes.post(row.postId, row.chatId))}
       iconRail={<NavIconFeed strokeWidth={1.5} outerStrokeWidth={1.5} />}

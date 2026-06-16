@@ -10,6 +10,7 @@ import {
   useUpdatePostNote,
 } from "@/entities/post/model/usePostNoteMutations";
 import { useUpsertGlobalNote } from "@/entities/note";
+import { randomId } from "@/shared/lib/randomId";
 import { normalizeNoteBody } from "@/shared/lib/noteEmbeds";
 import {
   buildNoteSnapshot,
@@ -105,11 +106,11 @@ export function useNoteEditor(note: ActiveNote) {
     if (note.isNew) {
       if (note.isGlobal) {
         const saved = {
-          id: `gn${Date.now()}`,
+          id: randomId(),
           title: finalTitle,
           body,
           ai: note.ai,
-          date: "сейчас",
+          date: new Date().toISOString(),
           files,
         };
         void upsertGlobalNote.mutateAsync(saved);
@@ -120,11 +121,11 @@ export function useNoteEditor(note: ActiveNote) {
         });
       } else {
         const saved = {
-          id: Date.now(),
+          id: randomId(),
           title: finalTitle,
           body,
           ai: note.ai,
-          date: "сейчас",
+          date: new Date().toISOString(),
           files,
         };
         void addPostNote(note.postId, saved);

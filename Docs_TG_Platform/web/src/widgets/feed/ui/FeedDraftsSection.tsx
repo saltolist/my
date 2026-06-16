@@ -7,7 +7,7 @@ import DraftsCardStack from "./drafts/DraftsCardStack";
 
 type Props = {
   drafts: Post[];
-  onOpen: (id: number) => void;
+  onOpen: (id: string) => void;
 };
 
 export function FeedDraftsSection({ drafts, onOpen }: Props) {

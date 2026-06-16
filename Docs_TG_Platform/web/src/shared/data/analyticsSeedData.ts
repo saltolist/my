@@ -1,5 +1,5 @@
 export type AnalyticsTopPostRow = {
-  id: number;
+  id: string;
   title: string;
   subscribers: number;
   reactions: number;
@@ -21,7 +21,7 @@ export const ANALYTICS_HEATMAP_ROWS = [
 
 export const ANALYTICS_TOP_POSTS_SEED: AnalyticsTopPostRow[] = [
   {
-    id: 1,
+    id: "1",
     title: "Синдром чистого листа с деньгами",
     subscribers: 51,
     reactions: 917,
@@ -31,7 +31,7 @@ export const ANALYTICS_TOP_POSTS_SEED: AnalyticsTopPostRow[] = [
     er: 6.4,
   },
   {
-    id: 2,
+    id: "2",
     title: "Почему ИИС — не страшно",
     subscribers: 34,
     reactions: 612,
@@ -41,7 +41,7 @@ export const ANALYTICS_TOP_POSTS_SEED: AnalyticsTopPostRow[] = [
     er: 5.1,
   },
   {
-    id: 5,
+    id: "5",
     title: "Личный опыт с ETF",
     subscribers: 28,
     reactions: 488,

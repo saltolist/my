@@ -1,3 +1,39 @@
+import type {
+  AiVariant,
+  ChatMessage,
+  GlobalChat,
+  GlobalChatKind,
+  GlobalNote,
+  LocalChat,
+  LocalNote,
+  NoteFile,
+  Post,
+  PostComment,
+  PostMedia,
+  PostMetrics,
+  PostReaction,
+  PostStatus,
+  UserMessageBranch,
+} from "@/shared/api/schemas";
+
+export type {
+  Post,
+  PostStatus,
+  PostReaction,
+  PostMetrics,
+  PostMedia,
+  NoteFile,
+  LocalNote,
+  LocalChat,
+  PostComment,
+  ChatMessage,
+  AiVariant,
+  UserMessageBranch,
+  GlobalChat,
+  GlobalChatKind,
+  GlobalNote,
+} from "@/shared/api/schemas";
+
 export type ScreenId =
   | "home"
   | "gchat"
@@ -11,108 +47,7 @@ export type ScreenId =
 
 export type ComposerScope = "home" | "gchat" | "post";
 
-export type PostStatus = "published" | "scheduled" | "draft";
-
-export type AiVariant = {
-  key: string;
-  label: string;
-  text: string;
-  llmCaption?: string;
-  webCaption?: string;
-};
-
 export type ChatRole = "user" | "ai";
-
-export type UserMessageBranch = {
-  text: string;
-  continuation: ChatMessage[];
-};
-
-export type ChatMessage = {
-  role: ChatRole;
-  text?: string;
-  userBranches?: UserMessageBranch[];
-  activeUserBranch?: number;
-  variants?: AiVariant[];
-  selectedVariant?: number;
-  mode?: "single" | "multi";
-  targetLabel?: string;
-  llmLabel?: string;
-  webLabel?: string;
-};
-
-export type NoteFile = { id?: string; name: string; type: string; url?: string };
-
-export type LocalNote = {
-  id: number;
-  title: string;
-  date: string;
-  ai: boolean;
-  body: string;
-  files?: NoteFile[];
-};
-
-export type GlobalNote = {
-  id: string;
-  title: string;
-  ai: boolean;
-  date: string;
-  body: string;
-  files?: NoteFile[];
-};
-
-export type PostReaction = { emoji: string; count: number };
-
-export type PostMetrics = { views: string; reposts: number; reactions: PostReaction[] };
-
-export type PostComment = {
-  id: number;
-  author: string;
-  text: string;
-  date: string;
-  replyToId?: number;
-  media?: PostMedia[];
-};
-
-export type PostMedia = {
-  name: string;
-  url: string;
-  type: string;
-};
-
-export type LocalChat = {
-  id: number;
-  title: string;
-  preview: string;
-  date: string;
-  history: ChatMessage[];
-  ai: boolean;
-};
-
-export type Post = {
-  id: number;
-  status: PostStatus;
-  date?: string;
-  created?: string;
-  rubric: string | null;
-  metrics?: PostMetrics;
-  text: string;
-  media?: PostMedia[];
-  notes: LocalNote[];
-  chats: LocalChat[];
-  comments?: PostComment[];
-};
-
-export type GlobalChatKind = "default" | "omnichannel";
-
-export type GlobalChat = {
-  id: string;
-  kind?: GlobalChatKind;
-  title: string;
-  preview: string;
-  date: string;
-  history: ChatMessage[];
-};
 
 export type LlmModel = {
   id: string;
@@ -200,12 +135,12 @@ export type NoteFromScreen = "notes" | "post";
 
 export type ActiveNote =
   | (GlobalNote & { isGlobal: true; files: NoteFile[]; isNew?: boolean })
-  | (LocalNote & { isGlobal: false; postId: number; files: NoteFile[]; isNew?: boolean });
+  | (LocalNote & { isGlobal: false; postId: string; files: NoteFile[]; isNew?: boolean });
 
 export type ComposerAttachment =
-  | { id: string; kind: "post"; postId: number; title: string }
+  | { id: string; kind: "post"; postId: string; title: string }
   | { id: string; kind: "file"; name: string; file?: File }
-  | { id: string; kind: "media"; postId: number; postTitle: string; media: string };
+  | { id: string; kind: "media"; postId: string; postTitle: string; media: string };
 
 export type ThemeMode = "light" | "system" | "dark";
 

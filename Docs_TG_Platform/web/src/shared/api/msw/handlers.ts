@@ -2,7 +2,7 @@ import { http, HttpResponse } from "msw";
 import { apiV1MswPath } from "@/shared/config/basePath";
 import { DEMO_CHANNEL_TITLE } from "@/shared/lib/auth/constants";
 import { appendToActiveHistory } from "@/shared/lib/chatPaths";
-import { getGlobalReply } from "@/shared/lib/replies";
+import { getGlobalReply, getPostReply } from "@/shared/api/assistantReplies";
 import type { GlobalChat, GlobalNote, Post, TelegramProfileConfig } from "@/shared/types";
 import {
   getStoreForRequest,
@@ -43,7 +43,7 @@ export const handlers = [
   http.patch(apiV1MswPath("posts/:id"), async ({ params, request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
-    const id = Number(params.id);
+    const id = String(params.id);
     const patch = (await request.json()) as Partial<Post>;
     const idx = store.posts.findIndex((p) => p.id === id);
     if (idx < 0) return notFound(`Post ${id} not found`);
@@ -62,7 +62,7 @@ export const handlers = [
   http.delete(apiV1MswPath("posts/:id"), ({ params, request }) => {
     const store = requireStore(request);
     if (!store) return unauthorized();
-    const id = Number(params.id);
+    const id = String(params.id);
     const before = store.posts.length;
     store.posts = store.posts.filter((p) => p.id !== id);
     if (store.posts.length === before) return notFound(`Post ${id} not found`);
@@ -103,7 +103,7 @@ export const handlers = [
       ...chat,
       history,
       preview: aiText.slice(0, 80),
-      date: "сейчас",
+      date: new Date().toISOString(),
     };
     store.globalChats = store.globalChats.map((c) => (c.id === chatId ? updated : c));
     return HttpResponse.json(updated);
@@ -208,10 +208,20 @@ export const handlers = [
     ) {
       const count = importDemoKanalPosts(store);
       store.telegramProfile.importedPosts = count;
-      store.telegramProfile.lastSync = "только что";
+      store.telegramProfile.lastSync = new Date().toISOString();
       store.telegramProfile.channelTitle = DEMO_CHANNEL_TITLE;
     }
 
     return HttpResponse.json(store.telegramProfile);
+  }),
+
+  http.post(apiV1MswPath("ai/reply"), async ({ request }) => {
+    const store = requireStore(request);
+    if (!store) return unauthorized();
+    const body = (await request.json()) as { text: string; scope: "global" | "post" };
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const text =
+      body.scope === "post" ? getPostReply(body.text) : getGlobalReply(body.text);
+    return HttpResponse.json({ text });
   }),
 ];

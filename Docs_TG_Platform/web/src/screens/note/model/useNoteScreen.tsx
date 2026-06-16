@@ -151,7 +151,7 @@ export function useNoteScreen(note: ActiveNote | null) {
   }, [deleteNote, discardNewNote, note, setNoteAi]);
 
   const openPost = useCallback(
-    (postId: number) => {
+    (postId: string) => {
       setPostMode(postId, "chat");
       navigateWithConfirm(routes.post(postId));
     },

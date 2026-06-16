@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { NoteBodyEditor, NoteFilesPanel, NoteHeaderToolbar } from "@/widgets/note-editor";
 import { useNoteEditor } from "@/screens/note/model/useNoteEditor";
 import type { ActiveNote } from "@/shared/types";
+import { formatStoredDate } from "@/shared/lib/helpers";
 import { useModSaveUndo } from "@/shared/lib/hooks/useModSaveUndo";
 
 export default function NoteEditor({ note }: { note: ActiveNote }) {
@@ -59,7 +60,8 @@ export default function NoteEditor({ note }: { note: ActiveNote }) {
         </div>
       </div>
       <div className="note-timestamps">
-        Создана: {note.date} &nbsp;•&nbsp; Изменена: {editor.changed ? "сейчас" : note.date}
+        Создана: {formatStoredDate(note.date)} &nbsp;•&nbsp; Изменена:{" "}
+        {editor.changed ? "сейчас" : formatStoredDate(note.date)}
       </div>
       {!editor.isView ? (
         <input

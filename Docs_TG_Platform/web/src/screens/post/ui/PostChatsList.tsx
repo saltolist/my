@@ -2,13 +2,13 @@
 
 import { ChatListCardMenu } from "@/widgets/chat-thread";
 import { EmptyState } from "@/shared/ui/empty-state";
-import { chatListAssistantLine, chatListUserLine } from "@/shared/lib/helpers";
+import { chatListAssistantLine, chatListUserLine, formatStoredDate } from "@/shared/lib/helpers";
 import type { Post } from "@/shared/types";
 
 type Props = {
   post: Post;
   search: string;
-  onOpenChat: (chatId: number) => void;
+  onOpenChat: (chatId: string) => void;
 };
 
 export default function PostChatsList({ post, search, onOpenChat }: Props) {
@@ -48,7 +48,7 @@ export default function PostChatsList({ post, search, onOpenChat }: Props) {
                     </div>
                     <div className="chat-card-row2">
                       <div className="chat-card-preview">{assistantLine || "—"}</div>
-                      <div className="chat-card-date">{c.date}</div>
+                      <div className="chat-card-date">{formatStoredDate(c.date)}</div>
                     </div>
                   </div>
                 </div>

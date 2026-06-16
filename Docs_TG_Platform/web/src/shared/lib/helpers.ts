@@ -22,22 +22,6 @@ export function attachmentPostTitle(post: Pick<Post, "text">): string {
   return extractTitle(post.text) || "(без названия)";
 }
 
-const RU_MONTHS_3: Record<string, number> = {
-  янв: 0,
-  фев: 1,
-  мар: 2,
-  апр: 3,
-  май: 4,
-  мая: 4,
-  июн: 5,
-  июл: 6,
-  авг: 7,
-  сен: 8,
-  окт: 9,
-  ноя: 10,
-  дек: 11,
-};
-
 const RU_MONTHS_FULL = [
   "января",
   "февраля",
@@ -69,27 +53,16 @@ const RU_MONTHS_SHORT_GENITIVE = [
   "дек",
 ] as const;
 
-/** Парсит строку даты поста: «28 апр · 14:22». */
+/** Парсит ISO-8601 дату из модельного слоя. */
 export function parsePostDateTime(raw: string | undefined | null): Date | null {
-  const s = (raw || "").trim().toLowerCase();
-  if (!s) return null;
-  const m =
-    s.match(/(\d{1,2})\s+([а-яё]+)\s+(\d{1,2}):(\d{2})/) ||
-    s.match(/(\d{1,2})\s+([а-яё]+)(?:\s*[·•]\s*(\d{1,2}):(\d{2}))?/);
-  if (!m) return null;
-  const day = parseInt(m[1], 10);
-  const month = RU_MONTHS_3[m[2].slice(0, 3)];
-  if (month === undefined) return null;
-  const year = new Date().getFullYear();
-  const hour = m[3] ? parseInt(m[3], 10) : 0;
-  const minute = m[4] ? parseInt(m[4], 10) : 0;
-  return new Date(year, month, day, hour, minute);
+  if (!raw) return null;
+  const d = new Date(raw);
+  return Number.isFinite(d.getTime()) ? d : null;
 }
 
 export function postFreshness(post: Post): number {
-  const raw = (post.date || post.created || "").trim().toLowerCase();
+  const raw = post.date || post.created;
   if (!raw) return 0;
-  if (/^(только что|сейчас|сегодня)/.test(raw)) return Date.now();
   return parsePostDateTime(raw)?.getTime() ?? 0;
 }
 
@@ -120,16 +93,55 @@ export function formatPostDateTime(date = new Date()): string {
   return `${day} ${mon} · ${h}:${m}`;
 }
 
+function formatPostDateTimeUtc(date: Date): string {
+  const day = date.getUTCDate();
+  const mon = RU_MONTHS_SHORT_GENITIVE[date.getUTCMonth()];
+  const h = String(date.getUTCHours()).padStart(2, "0");
+  const m = String(date.getUTCMinutes()).padStart(2, "0");
+  return `${day} ${mon} · ${h}:${m}`;
+}
+
+function formatPostDateUtc(date: Date): string {
+  const day = date.getUTCDate();
+  const mon = RU_MONTHS_SHORT_GENITIVE[date.getUTCMonth()];
+  return `${day} ${mon}`;
+}
+
+function isDateOnlyIso(raw: string): boolean {
+  return /T00:00:00(\.000)?Z?$/i.test(raw.trim());
+}
+
+/** Форматирует ISO-строку из модельного слоя для UI. */
+export function formatStoredDate(raw: string | undefined | null): string {
+  const trimmed = raw?.trim();
+  if (!trimmed) return "";
+  const d = parsePostDateTime(trimmed);
+  if (!d) return trimmed;
+  if (isDateOnlyIso(trimmed)) return formatPostDateUtc(d);
+  return formatPostDateTimeUtc(d);
+}
+
 export function postStatusIcon(post: Post): string {
   if (post.status === "published") return "📢";
   if (post.status === "scheduled") return "🕐";
   return "📝";
 }
 
+function formatModelDateTime(raw: string | undefined): string {
+  return formatStoredDate(raw);
+}
+
 export function postStatusLabel(post: Post): string {
-  if (post.status === "published") return `Опубликован${post.date ? ` · ${post.date}` : ""}`;
-  if (post.status === "scheduled") return `Отложен${post.date ? ` · ${post.date}` : ""}`;
-  return `Черновик${post.created ? ` · ${post.created}` : ""}`;
+  if (post.status === "published") {
+    const label = post.date ? formatModelDateTime(post.date) : "";
+    return `Опубликован${label ? ` · ${label}` : ""}`;
+  }
+  if (post.status === "scheduled") {
+    const label = post.date ? formatModelDateTime(post.date) : "";
+    return `Отложен${label ? ` · ${label}` : ""}`;
+  }
+  const label = post.created ? formatModelDateTime(post.created) : "";
+  return `Черновик${label ? ` · ${label}` : ""}`;
 }
 
 export function shortComposerLabel(value: string, maxLen = 22): string {

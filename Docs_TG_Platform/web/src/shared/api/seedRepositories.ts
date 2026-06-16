@@ -8,7 +8,7 @@ import {
   initialTelegramProfileConfig,
 } from "@/shared/data/seed-data";
 import { appendToActiveHistory } from "@/shared/lib/chatPaths";
-import { getGlobalReply } from "@/shared/lib/replies";
+import { getGlobalReply, getPostReply } from "@/shared/api/assistantReplies";
 import type {
   AiProfileConfig,
   ChannelProfileConfig,
@@ -72,7 +72,7 @@ export function createSeedRepositories(): RepositoryBundle {
           ...chat,
           history,
           preview: aiText.slice(0, 80),
-          date: "сейчас",
+          date: new Date().toISOString(),
         };
         globalChats = globalChats.map((c) => (c.id === chatId ? updated : c));
         return updated;
@@ -131,6 +131,14 @@ export function createSeedRepositories(): RepositoryBundle {
       async updateTelegram(config) {
         telegramProfile = config;
         return telegramProfile;
+      },
+    },
+    assistant: {
+      async getGlobalChatReply(text) {
+        return getGlobalReply(text);
+      },
+      async getPostChatReply(text) {
+        return getPostReply(text);
       },
     },
   };

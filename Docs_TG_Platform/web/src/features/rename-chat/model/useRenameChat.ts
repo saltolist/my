@@ -6,7 +6,7 @@ import { useRenameGlobalChat } from "@/entities/chat";
 import { useRenameLocalChat } from "@/entities/post";
 
 type GlobalTarget = { scope: "global"; chatId: string };
-type LocalTarget = { scope: "local"; postId: number; chatId: number };
+type LocalTarget = { scope: "local"; postId: string; chatId: string };
 
 export function useRenameChat() {
   const renameGlobalChat = useRenameGlobalChat();

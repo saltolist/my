@@ -13,7 +13,7 @@ import {
 } from "@/shared/lib/auth/constants";
 import type { MswStore } from "@/shared/api/msw/store";
 
-export const PRESENTATION_POST_IDS = [21, 22, 23, 24, 25, 26, 27, 28, 29] as const;
+export const PRESENTATION_POST_IDS = ["21", "22", "23", "24", "25", "26", "27", "28", "29"] as const;
 export const PRESENTATION_GLOBAL_NOTE_IDS = ["pn1", "pn2", "pn3"] as const;
 export const PRESENTATION_GLOBAL_CHAT_IDS = ["pc1", "pc2"] as const;
 
@@ -38,9 +38,9 @@ const mediaDraftDndB = themedPostMedia("IMG_2116.jpg", "draft-reorder");
 
 const presentationPosts: Post[] = [
   {
-    id: 21,
+    id: "21",
     status: "published",
-    date: "10 июн · 10:00",
+    date: "2026-06-10T10:00:00.000Z",
     rubric: "Обзор",
     metrics: {
       views: "1 240",
@@ -61,9 +61,9 @@ const presentationPosts: Post[] = [
     chats: [],
   },
   {
-    id: 22,
+    id: "22",
     status: "published",
-    date: "11 июн · 11:15",
+    date: "2026-06-11T11:15:00.000Z",
     rubric: "Лента",
     metrics: { views: "980", reposts: 5, reactions: [{ emoji: "📰", count: 31 }] },
     text: `Лента — центр работы с контентом канала.
@@ -80,9 +80,9 @@ const presentationPosts: Post[] = [
     chats: [],
   },
   {
-    id: 23,
+    id: "23",
     status: "published",
-    date: "12 июн · 10:30",
+    date: "2026-06-12T10:30:00.000Z",
     rubric: "ИИ",
     metrics: { views: "860", reposts: 4, reactions: [{ emoji: "🤖", count: 27 }] },
     text: `Заметки и чаты с ИИ помогают готовить контент осознанно.
@@ -96,9 +96,9 @@ const presentationPosts: Post[] = [
     chats: [],
   },
   {
-    id: 24,
+    id: "24",
     status: "published",
-    date: "12 июн · 14:00",
+    date: "2026-06-12T14:00:00.000Z",
     rubric: "Аналитика",
     metrics: { views: "720", reposts: 3, reactions: [{ emoji: "📊", count: 19 }] },
     text: `Аналитика и настройки закрывают цикл «планирую → публикую → смотрю результат».
@@ -112,9 +112,9 @@ const presentationPosts: Post[] = [
     chats: [],
   },
   {
-    id: 25,
+    id: "25",
     status: "scheduled",
-    date: "14 июн · 12:00",
+    date: "2026-06-14T12:00:00.000Z",
     rubric: "Планирование",
     text: `Посты можно откладывать — не обязательно публиковать сразу.
 
@@ -127,9 +127,9 @@ const presentationPosts: Post[] = [
     chats: [],
   },
   {
-    id: 26,
+    id: "26",
     status: "scheduled",
-    date: "17 июн · 18:00",
+    date: "2026-06-17T18:00:00.000Z",
     rubric: "Планирование",
     text: `Как устроено откладывание в TG Platform:
 
@@ -145,9 +145,9 @@ const presentationPosts: Post[] = [
     chats: [],
   },
   {
-    id: 27,
+    id: "27",
     status: "draft",
-    created: "12 июн",
+    created: "2026-06-12T00:00:00.000Z",
     rubric: "Черновики",
     text: `Черновики — место для незавершённых идей.
 
@@ -160,9 +160,9 @@ const presentationPosts: Post[] = [
     chats: [],
   },
   {
-    id: 28,
+    id: "28",
     status: "draft",
-    created: "12 июн",
+    created: "2026-06-12T00:00:00.000Z",
     rubric: "Черновики",
     text: `Черновики в ленте можно менять местами перетаскиванием.
 
@@ -175,9 +175,9 @@ const presentationPosts: Post[] = [
     chats: [],
   },
   {
-    id: 29,
+    id: "29",
     status: "draft",
-    created: "12 июн",
+    created: "2026-06-12T00:00:00.000Z",
     rubric: "Контент-план",
     text: `Так можно собирать контент-план прямо в ленте.
 
@@ -195,7 +195,7 @@ const presentationGlobalNotes: GlobalNote[] = [
     id: "pn1",
     title: "С чего начать на платформе",
     ai: true,
-    date: "12 июн",
+    date: "2026-06-12T00:00:00.000Z",
     body:
       "1. Изучите ленту и боковое меню\n2. Откройте заметки и чаты — там примеры работы с ИИ\n3. Загляните в аналитику\n4. Нажмите «Войти» и зарегистрируйте аккаунт\n5. В профиле подключите Telegram-канал",
   },
@@ -203,7 +203,7 @@ const presentationGlobalNotes: GlobalNote[] = [
     id: "pn2",
     title: "Навигация и разделы",
     ai: false,
-    date: "12 июн",
+    date: "2026-06-12T00:00:00.000Z",
     body:
       "Главная — быстрый глобальный чат. Лента — посты канала. Чаты и заметки — личное рабочее пространство. Аналитика — метрики канала. Профиль доступен после входа.",
   },
@@ -211,7 +211,7 @@ const presentationGlobalNotes: GlobalNote[] = [
     id: "pn3",
     title: "ИИ-движок в двух словах",
     ai: true,
-    date: "12 июн",
+    date: "2026-06-12T00:00:00.000Z",
     body:
       "В настройках профиля задаются LLM, веб-поиск, оркестраторы и системный промпт. База знаний канала — на отдельной вкладке. Каждый аккаунт настраивает ИИ под себя.",
   },
@@ -222,7 +222,7 @@ const presentationGlobalChats: GlobalChat[] = [
     id: "pc1",
     title: "Что умеет TG Platform?",
     preview: "Кратко перечисли возможности платформы для автора канала",
-    date: "12 июн",
+    date: "2026-06-12T00:00:00.000Z",
     history: [
       { role: "user", text: "Кратко перечисли возможности платформы для автора канала" },
       {
@@ -237,7 +237,7 @@ const presentationGlobalChats: GlobalChat[] = [
     id: "pc2",
     title: "Как перейти к своему аккаунту?",
     preview: "Я смотрю демо — что делать дальше?",
-    date: "12 июн",
+    date: "2026-06-12T00:00:00.000Z",
     history: [
       { role: "user", text: "Я смотрю демо — что делать дальше?" },
       {
@@ -356,7 +356,7 @@ const presentationTelegramProfile = (): TelegramProfileConfig => ({
   channelTitle: PRESENTATION_CHANNEL_TITLE,
   channelStatus: "connected",
   syncMode: "history-and-live",
-  lastSync: "только что",
+  lastSync: "2026-06-16T12:40:00.000Z",
   importedPosts: presentationPosts.length,
   botApiToken: "",
   botStatus: "idle",

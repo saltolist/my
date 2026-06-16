@@ -210,7 +210,7 @@ export function useTelegramBlock() {
       channelTitle: isDemoChannelHandle(cfg.channel)
         ? DEMO_CHANNEL_TITLE
         : cfg.channel.replace("@", "") || "Telegram канал",
-      lastSync: "только что",
+      lastSync: new Date().toISOString(),
     };
     const merged = { ...cfg, ...next };
     update(next);
@@ -240,7 +240,7 @@ export function useTelegramBlock() {
     const next: Partial<TelegramProfileConfig> = {
       botStatus: "connected",
       botUsername: `@omni_bot_${tokenHint}`,
-      botLastActivity: "только что",
+      botLastActivity: new Date().toISOString(),
       botMessageCount: 0,
     };
     update(next);

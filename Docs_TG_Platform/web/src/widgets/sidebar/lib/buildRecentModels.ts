@@ -23,7 +23,7 @@ const byNoteActivity = (a: RecentNoteRow, b: RecentNoteRow) =>
 
 export function buildRecentChatsModel(
   data: SidebarData,
-  sidebarPostId: number | null,
+  sidebarPostId: string | null,
 ): RecentChatsModel {
   const globalRows: RecentRow[] = [];
   let gSeq = 0;
@@ -115,7 +115,7 @@ export function buildRecentChatsModel(
 
 export function buildRecentNotesModel(
   data: SidebarData,
-  sidebarPostId: number | null,
+  sidebarPostId: string | null,
 ): RecentNotesModel {
   const globalRows: RecentNoteRow[] = [];
   let gSeq = 0;

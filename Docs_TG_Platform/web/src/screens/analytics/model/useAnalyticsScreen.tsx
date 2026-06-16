@@ -74,7 +74,7 @@ export function useAnalyticsScreen() {
   );
 
   const openPost = useCallback(
-    (postId: number) => {
+    (postId: string) => {
       router.push(routes.post(postId));
     },
     [router],

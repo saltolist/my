@@ -10,7 +10,7 @@ import type {
 } from "@/shared/types";
 
 export type NavigationState = {
-  currentPostId: number | null;
+  currentPostId: string | null;
   isEditing: boolean;
   currentNote: ActiveNote | null;
   noteMode: NoteMode;
@@ -26,7 +26,7 @@ export type NavigationState = {
 };
 
 export const initialNavigationState: NavigationState = {
-  currentPostId: null,
+  currentPostId: null as string | null,
   isEditing: false,
   currentNote: null,
   noteMode: "view",

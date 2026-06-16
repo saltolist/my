@@ -5,7 +5,7 @@ import { globalNoteSchema } from "./note";
 import { postSchema } from "./post";
 
 const validPost = {
-  id: 1,
+  id: "1",
   status: "published" as const,
   rubric: null,
   text: "Hello",
@@ -17,7 +17,7 @@ const validGlobalChat = {
   id: "gc1",
   title: "Test chat",
   preview: "Preview",
-  date: "1 мая",
+  date: "2026-05-01T00:00:00.000Z",
   history: [{ role: "user" as const, text: "Hi" }],
 };
 
@@ -25,13 +25,13 @@ const validGlobalNote = {
   id: "gn1",
   title: "Note",
   ai: true,
-  date: "1 мая",
+  date: "2026-05-01T00:00:00.000Z",
   body: "Body",
 };
 
 describe("postSchema", () => {
   it("accepts minimal valid post", () => {
-    expect(postSchema.parse(validPost)).toMatchObject({ id: 1, status: "published" });
+    expect(postSchema.parse(validPost)).toMatchObject({ id: "1", status: "published" });
   });
 
   it("rejects invalid status", () => {

@@ -44,7 +44,7 @@ export function usePostWorkspace() {
   const updatePost = useUpdatePost();
   const handleBack = useScreenBack();
 
-  const { data: post, isLoading, error } = usePost(postId ?? 0);
+  const { data: post, isLoading, error } = usePost(postId ?? "");
   const { phoneFormat, layoutClassName, layoutStyle } = useFeedPostLayout();
   const isMobile = useMobile760();
   const postHeaderCompact1000 = useCompactHeader1000();
@@ -63,7 +63,7 @@ export function usePostWorkspace() {
   const lastAssistantFlat = lastAssistantFlatIndex(flatMessages);
 
   const syncPostUrl = useCallback(
-    (mode: PostMode, chatId: number | null) => {
+    (mode: PostMode, chatId: string | null) => {
       if (postId == null) return;
       if (mode === "chat" && chatId != null) {
         router.replace(routes.post(postId, chatId));
@@ -75,7 +75,7 @@ export function usePostWorkspace() {
   );
 
   const applyPostView = useCallback(
-    (nextMode: PostMode, nextChatId: number | null = null) => {
+    (nextMode: PostMode, nextChatId: string | null = null) => {
       if (postId == null) return;
       setMode(postId, nextMode, nextChatId);
       setListSearch("");
@@ -91,7 +91,7 @@ export function usePostWorkspace() {
     [applyPostView, currentPostChatId],
   );
   const openLocalChat = useCallback(
-    (chatId: number) => applyPostView("chat", chatId),
+    (chatId: string) => applyPostView("chat", chatId),
     [applyPostView],
   );
   const startNewChat = useCallback(() => applyPostView("chat", null), [applyPostView]);
@@ -99,6 +99,7 @@ export function usePostWorkspace() {
     if (!post) return;
     router.push(routes.noteNew("post", post.id));
   }, [post, router]);
+
   const navigateFeed = useCallback(() => {
     router.push(routes.feed());
   }, [router]);
@@ -162,7 +163,7 @@ export function usePostWorkspace() {
   );
 
   const toggleNoteAi = useCallback(
-    (noteId: number) => {
+    (noteId: string) => {
       if (!post) return;
       const notes = post.notes.map((n) =>
         n.id === noteId ? { ...n, ai: !n.ai } : n,

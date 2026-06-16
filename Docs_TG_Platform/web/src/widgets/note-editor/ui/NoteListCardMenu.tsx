@@ -8,7 +8,7 @@ import { MessageRenameIcon, MessageTrashIcon } from "@/entities/message";
 
 type Props =
   | { isGlobal: true; noteId: string; title: string }
-  | { isGlobal: false; postId: number; noteId: number; title: string };
+  | { isGlobal: false; postId: string; noteId: string; title: string };
 
 export default function NoteListCardMenu(props: Props) {
   const renameNote = useRenameNote();

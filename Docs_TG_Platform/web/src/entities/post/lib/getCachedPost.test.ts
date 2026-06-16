@@ -13,7 +13,7 @@ vi.mock("@/shared/lib/auth/queryAccountScope", () => ({
 }));
 
 const post: Post = {
-  id: 1,
+  id: "1",
   text: "Hello",
   status: "draft",
   date: "сегодня",
@@ -27,18 +27,18 @@ describe("getCachedPost", () => {
   it("reads from list cache", () => {
     const qc = new QueryClient();
     qc.setQueryData(queryKeys.posts.list(TEST_ACCOUNT_ID), [post]);
-    expect(getCachedPost(qc, 1)).toEqual(post);
+    expect(getCachedPost(qc, "1")).toEqual(post);
   });
 
   it("falls back to detail cache when list is empty", () => {
     const qc = new QueryClient();
-    qc.setQueryData(queryKeys.posts.detail(TEST_ACCOUNT_ID, 1), post);
-    expect(getCachedPost(qc, 1)).toEqual(post);
+    qc.setQueryData(queryKeys.posts.detail(TEST_ACCOUNT_ID, "1"), post);
+    expect(getCachedPost(qc, "1")).toEqual(post);
   });
 
   it("returns undefined when post is missing", () => {
     const qc = new QueryClient();
-    expect(getCachedPost(qc, 1)).toBeUndefined();
+    expect(getCachedPost(qc, "1")).toBeUndefined();
   });
 });
 
@@ -47,11 +47,11 @@ describe("setCachedPost", () => {
     const qc = new QueryClient();
     const updated = { ...post, text: "Updated" };
     qc.setQueryData(queryKeys.posts.list(TEST_ACCOUNT_ID), [post]);
-    qc.setQueryData(queryKeys.posts.detail(TEST_ACCOUNT_ID, 1), post);
+    qc.setQueryData(queryKeys.posts.detail(TEST_ACCOUNT_ID, "1"), post);
 
     setCachedPost(qc, updated);
 
-    expect(qc.getQueryData(queryKeys.posts.detail(TEST_ACCOUNT_ID, 1))).toEqual(updated);
+    expect(qc.getQueryData(queryKeys.posts.detail(TEST_ACCOUNT_ID, "1"))).toEqual(updated);
     expect(qc.getQueryData<Post[]>(queryKeys.posts.list(TEST_ACCOUNT_ID))?.[0]).toEqual(updated);
   });
 });

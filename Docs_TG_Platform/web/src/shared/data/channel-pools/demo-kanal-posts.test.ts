@@ -12,8 +12,8 @@ describe("demoKanalPosts", () => {
   });
 
   it("is independent from demo-full seed workspace overlays", () => {
-    const demoFullPost1 = initialPosts.find((p) => p.id === 1);
-    const channelPost1 = demoKanalPosts.find((p) => p.id === 1);
+    const demoFullPost1 = initialPosts.find((p) => p.id === "1");
+    const channelPost1 = demoKanalPosts.find((p) => p.id === "1");
 
     expect(demoFullPost1?.notes.length).toBeGreaterThan(0);
     expect(demoFullPost1?.chats.length).toBeGreaterThan(0);

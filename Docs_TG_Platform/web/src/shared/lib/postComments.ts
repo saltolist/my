@@ -8,7 +8,7 @@ export function filterPostComments(comments: PostComment[], query: string): Post
   );
 }
 
-export function findPostComment(comments: PostComment[], id: number): PostComment | undefined {
+export function findPostComment(comments: PostComment[], id: string): PostComment | undefined {
   return comments.find((c) => c.id === id);
 }
 

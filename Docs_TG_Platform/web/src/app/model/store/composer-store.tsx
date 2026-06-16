@@ -18,21 +18,22 @@ import {
   resolveWebLabel,
 } from "@/app/model/store/composer/helpers";
 import { selectAiProfileConfig, useProfileDraftStore } from "@/app/model/store/profile-draft-store";
+import { useRepositories } from "@/app/providers/RepositoryProvider";
 import { useCreateGlobalChat, usePushGlobalChatMessage } from "@/entities/chat";
 import { useAddLocalChat, usePushLocalChatMessage } from "@/entities/post";
-import { getGlobalReply, getPostReply } from "@/shared/lib/replies";
 import { routes } from "@/shared/lib/routes";
 import { truncate } from "@/shared/lib/helpers";
 import { buildMultiResponsePairs } from "@/shared/config/composer";
+import { randomId } from "@/shared/lib/randomId";
 import { showToast } from "@/shared/ui/toast";
 import type { ComposerScope, GlobalChat, LocalChat } from "@/shared/types";
 
 export type ComposerNavBridge = {
   goToHref: (href: string, opts?: { replace?: boolean }) => boolean;
   getCurrentGChatId: () => string | null;
-  getCurrentPostId: () => number | null;
-  getCurrentPostChatId: () => number | null;
-  setCurrentPostChatId: (chatId: number) => void;
+  getCurrentPostId: () => string | null;
+  getCurrentPostChatId: () => string | null;
+  setCurrentPostChatId: (chatId: string) => void;
 };
 
 export type ComposerContextValue = {
@@ -48,6 +49,7 @@ export type ComposerContextValue = {
 const ComposerContext = createContext<ComposerContextValue | null>(null);
 
 export function ComposerProvider({ children }: { children: ReactNode }) {
+  const { assistant } = useRepositories();
   const aiProfile = useProfileDraftStore(selectAiProfileConfig);
   const createChat = useCreateGlobalChat();
   const pushMessage = usePushGlobalChatMessage();
@@ -108,26 +110,25 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
       if (!assertCanSend("home")) return false;
       setMobileSidebarOpen(false);
 
-      const id = `gc${Date.now()}`;
+      const id = randomId();
       const newChat: GlobalChat = {
         id,
         title: truncate(text, 40),
         preview: text,
-        date: "сейчас",
+        date: new Date().toISOString(),
         history: [{ role: "user", text }],
       };
 
-      void createChat.mutateAsync(newChat).then(() => {
+      void createChat.mutateAsync(newChat).then(async () => {
         bridge.goToHref(routes.gchat(id));
-        window.setTimeout(() => {
-          const reply = buildAiReplyMessage(cfg, getGlobalReply(text), "home", getTarget("home"));
-          void pushMessage.mutateAsync({ chatId: id, message: reply });
-        }, 900);
+        const replyText = await assistant.getGlobalChatReply(text);
+        const reply = buildAiReplyMessage(cfg, replyText, "home", getTarget("home"));
+        void pushMessage.mutateAsync({ chatId: id, message: reply });
       });
 
       return true;
     },
-    [assertCanSend, createChat, getTarget, pushMessage, setMobileSidebarOpen],
+    [assertCanSend, assistant, createChat, getTarget, pushMessage, setMobileSidebarOpen],
   );
 
   const sendGChat = useCallback(
@@ -137,14 +138,14 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
       const chatId = bridge?.getCurrentGChatId();
       if (!text.trim() || !chatId || !cfg) return false;
       if (!assertCanSend("gchat")) return false;
-      void pushMessage.mutateAsync({ chatId, message: { role: "user", text } });
-      window.setTimeout(() => {
-        const reply = buildAiReplyMessage(cfg, getGlobalReply(text), "gchat", getTarget("gchat"));
+      void pushMessage.mutateAsync({ chatId, message: { role: "user", text } }).then(async () => {
+        const replyText = await assistant.getGlobalChatReply(text);
+        const reply = buildAiReplyMessage(cfg, replyText, "gchat", getTarget("gchat"));
         void pushMessage.mutateAsync({ chatId, message: reply });
-      }, 900);
+      });
       return true;
     },
-    [assertCanSend, getTarget, pushMessage],
+    [assertCanSend, assistant, getTarget, pushMessage],
   );
 
   const sendPost = useCallback(
@@ -157,33 +158,37 @@ export function ComposerProvider({ children }: { children: ReactNode }) {
       if (!assertCanSend("post")) return false;
 
       let chatId = bridge.getCurrentPostChatId();
-      if (chatId == null) {
-        chatId = Date.now();
-        const newChat: LocalChat = {
-          id: chatId,
-          title: truncate(text, 40),
-          preview: text,
-          date: "сейчас",
-          ai: true,
-          history: [{ role: "user", text }],
-        };
-        void addLocalChat(postId, newChat).then(() => {
-          bridge.setCurrentPostChatId(chatId!);
-          bridge.goToHref(routes.post(postId, chatId), { replace: true });
-        });
-      } else {
-        void pushLocalChatMessage(postId, chatId, { role: "user", text });
-      }
+      const ensureChat = chatId
+        ? Promise.resolve(chatId)
+        : (() => {
+            const newChatId = randomId();
+            const newChat: LocalChat = {
+              id: newChatId,
+              title: truncate(text, 40),
+              preview: text,
+              date: new Date().toISOString(),
+              ai: true,
+              history: [{ role: "user", text }],
+            };
+            return addLocalChat(postId, newChat).then(() => {
+              bridge.setCurrentPostChatId(newChatId);
+              bridge.goToHref(routes.post(postId, newChatId), { replace: true });
+              return newChatId;
+            });
+          })();
 
-      const replyChatId = chatId;
-      window.setTimeout(() => {
-        const reply = buildAiReplyMessage(cfg, getPostReply(text), "post", getTarget("post"));
+      void ensureChat.then(async (replyChatId) => {
+        if (chatId != null) {
+          await pushLocalChatMessage(postId, replyChatId, { role: "user", text });
+        }
+        const replyText = await assistant.getPostChatReply(text);
+        const reply = buildAiReplyMessage(cfg, replyText, "post", getTarget("post"));
         void pushLocalChatMessage(postId, replyChatId, reply);
-      }, 800);
+      });
 
       return true;
     },
-    [addLocalChat, assertCanSend, getTarget, pushLocalChatMessage],
+    [addLocalChat, assertCanSend, assistant, getTarget, pushLocalChatMessage],
   );
 
   const value = useMemo<ComposerContextValue>(

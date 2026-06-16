@@ -27,7 +27,7 @@ export const noteFileSchema = z.object({
 });
 
 export const localNoteSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   title: z.string(),
   date: z.string(),
   ai: z.boolean(),
@@ -75,7 +75,7 @@ export const chatMessageSchema: z.ZodType<{
 );
 
 export const localChatSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   title: z.string(),
   preview: z.string(),
   date: z.string(),
@@ -84,16 +84,16 @@ export const localChatSchema = z.object({
 });
 
 export const postCommentSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   author: z.string(),
   text: z.string(),
   date: z.string(),
-  replyToId: z.number().optional(),
+  replyToId: z.string().optional(),
   media: z.array(postMediaSchema).optional(),
 });
 
 export const postSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   status: postStatusSchema,
   date: z.string().optional(),
   created: z.string().optional(),
@@ -108,4 +108,15 @@ export const postSchema = z.object({
 
 export const postsListSchema = z.array(postSchema);
 
-export type PostDto = z.infer<typeof postSchema>;
+export type PostStatus = z.infer<typeof postStatusSchema>;
+export type PostReaction = z.infer<typeof postReactionSchema>;
+export type PostMetrics = z.infer<typeof postMetricsSchema>;
+export type PostMedia = z.infer<typeof postMediaSchema>;
+export type NoteFile = z.infer<typeof noteFileSchema>;
+export type LocalNote = z.infer<typeof localNoteSchema>;
+export type AiVariant = z.infer<typeof aiVariantSchema>;
+export type UserMessageBranch = z.infer<typeof userMessageBranchSchema>;
+export type ChatMessage = z.infer<typeof chatMessageSchema>;
+export type LocalChat = z.infer<typeof localChatSchema>;
+export type PostComment = z.infer<typeof postCommentSchema>;
+export type Post = z.infer<typeof postSchema>;

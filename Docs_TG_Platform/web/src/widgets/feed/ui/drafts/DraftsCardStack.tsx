@@ -9,15 +9,15 @@ import PostCard from "../PostCard";
 
 type Props = {
   containerRef: RefObject<HTMLDivElement | null>;
-  cardRefs: RefObject<Map<number, HTMLDivElement>>;
-  draggingId: number | null;
+  cardRefs: RefObject<Map<string, HTMLDivElement>>;
+  draggingId: string | null;
   gapHeight: number;
   displayItems: DraftDisplayItem[];
   onDraftsDragOver: (e: ReactDragEvent) => void;
   onDrop: (e: ReactDragEvent) => void;
-  onDragStart: (id: number) => (e: ReactDragEvent) => void;
+  onDragStart: (id: string) => (e: ReactDragEvent) => void;
   onDragEnd: () => void;
-  onOpenPost: (id: number) => void;
+  onOpenPost: (id: string) => void;
 };
 
 export default function DraftsCardStack({
@@ -65,7 +65,7 @@ function DraftCardWrap({
   onDragEnd,
 }: {
   post: Post;
-  cardRefs: RefObject<Map<number, HTMLDivElement>>;
+  cardRefs: RefObject<Map<string, HTMLDivElement>>;
   onOpen: () => void;
   onDragStart: (e: ReactDragEvent) => void;
   onDragEnd: () => void;

@@ -13,12 +13,13 @@ export function useAddPostComment() {
   const queryClient = useQueryClient();
 
   return useCallback(
-    async (postId: number, comment: PostComment) => {
+    async (postId: string, comment: PostComment) => {
       const post = getCachedPost(queryClient, postId);
       if (!post) return;
       const comments = [...(post.comments ?? []), comment];
       const updated = { ...post, comments };
       await updatePost.mutateAsync({ id: postId, patch: { comments } });
+
       setCachedPost(queryClient, updated);
     },
     [queryClient, updatePost],

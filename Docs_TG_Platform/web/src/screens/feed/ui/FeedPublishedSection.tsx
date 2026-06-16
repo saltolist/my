@@ -5,8 +5,8 @@ import type { FeedDayGroup } from "@/shared/lib/feedTimeline";
 
 type Props = {
   groups: FeedDayGroup[];
-  onOpen: (id: number) => void;
-  onOpenComments: (id: number) => void;
+  onOpen: (id: string) => void;
+  onOpenComments: (id: string) => void;
 };
 
 export function FeedPublishedSection({ groups, onOpen, onOpenComments }: Props) {

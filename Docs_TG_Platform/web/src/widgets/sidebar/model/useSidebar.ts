@@ -194,7 +194,7 @@ export function useSidebar({ onNavigate }: UseSidebarOptions = {}) {
   );
 
   const openPost = useCallback(
-    (postId: number) => {
+    (postId: string) => {
       setPostMode(postId, "chat");
       goTo(routes.post(postId));
     },

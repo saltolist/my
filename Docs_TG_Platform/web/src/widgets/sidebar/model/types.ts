@@ -10,8 +10,8 @@ export type RecentRow =
   | {
       kind: "local";
       key: string;
-      postId: number;
-      chatId: number;
+      postId: string;
+      chatId: string;
       title: string;
       historyLen: number;
       seq: number;
@@ -33,8 +33,8 @@ export type RecentNoteRow =
   | {
       kind: "local";
       key: string;
-      postId: number;
-      noteId: number;
+      postId: string;
+      noteId: string;
       title: string;
       weight: number;
       seq: number;

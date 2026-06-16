@@ -5,15 +5,15 @@ import { initialNavigationState } from "./navigation/types";
 
 describe("applyNavigationPatch", () => {
   it("clears isEditing when leaving post screen", () => {
-    const state = { ...initialNavigationState, isEditing: true, currentPostId: 1 };
+    const state = { ...initialNavigationState, isEditing: true, currentPostId: "1" };
     const next = applyNavigationPatch(state, { screen: "feed" });
     expect(next.isEditing).toBe(false);
     expect(next).not.toHaveProperty("screen");
   });
 
   it("keeps isEditing when screen is post", () => {
-    const state = { ...initialNavigationState, isEditing: true, currentPostId: 1 };
-    const next = applyNavigationPatch(state, { screen: "post", currentPostId: 1 });
+    const state = { ...initialNavigationState, isEditing: true, currentPostId: "1" };
+    const next = applyNavigationPatch(state, { screen: "post", currentPostId: "1" });
     expect(next.isEditing).toBe(true);
   });
 

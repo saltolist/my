@@ -61,7 +61,7 @@ export default function PostChatView({ post, data, ui, actions }: Props) {
                   ctx={{
                     scope: "post",
                     postId: post.id,
-                    entityId: activeChat?.id ?? 0,
+                    entityId: activeChat?.id ?? "",
                     path,
                   }}
                   isLastAssistantMessage={m.role === "ai" && i === lastAssistantFlat}

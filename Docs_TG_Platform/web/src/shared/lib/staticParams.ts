@@ -9,7 +9,7 @@ import { POST_NEW_SLUG } from "@/shared/lib/routes";
 export { POST_NEW_SLUG };
 
 export const STATIC_POST_IDS = [
-  ...new Set([...initialPosts.map((p) => String(p.id)), ...PRESENTATION_POST_IDS.map(String)]),
+  ...new Set([...initialPosts.map((p) => p.id), ...PRESENTATION_POST_IDS.map(String)]),
 ];
 export const STATIC_GLOBAL_NOTE_IDS = [
   ...new Set([...initialGlobalNotes.map((n) => n.id), ...PRESENTATION_GLOBAL_NOTE_IDS]),

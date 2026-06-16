@@ -10,6 +10,7 @@ import {
 import { reportMutationError } from "@/shared/ui/toast";
 import { registerAiModelsAutosaveFlush } from "@/shared/lib/profile/aiModelsAutosave";
 import { buildMultiResponsePairs } from "@/shared/config/composer";
+import { randomId } from "@/shared/lib/randomId";
 import {
   domainActions,
   selectAiProfileConfig,
@@ -90,23 +91,23 @@ export function useAiModelsBlock() {
   const addLlm = () =>
     setLlms([
       ...cfg.llmModels,
-      { id: "llm-" + Date.now(), provider: "", model: "", apiKey: "", active: true, includeInMulti: false },
+      { id: randomId(), provider: "", model: "", apiKey: "", active: true, includeInMulti: false },
     ]);
   const addWeb = () =>
     setWebs([
       ...cfg.webSearchModels,
-      { id: "web-" + Date.now(), provider: "", model: "", apiKey: "", active: true, includeInMulti: false },
+      { id: randomId(), provider: "", model: "", apiKey: "", active: true, includeInMulti: false },
     ]);
   const addVision = () =>
     setVisionModels([
       ...cfg.visionModels,
-      { id: "vision-" + Date.now(), provider: "", model: "", apiKey: "", active: true, includeInMulti: false },
+      { id: randomId(), provider: "", model: "", apiKey: "", active: true, includeInMulti: false },
     ]);
   const addImageGeneration = () =>
     setImageGenerationModels([
       ...cfg.imageGenerationModels,
       {
-        id: "image-gen-" + Date.now(),
+        id: randomId(),
         provider: "",
         model: "",
         apiKey: "",
@@ -117,17 +118,17 @@ export function useAiModelsBlock() {
   const addOrchestrator = () =>
     setOrchestrators([
       ...cfg.orchestratorModels,
-      { id: "orchestrator-" + Date.now(), provider: "", model: "", apiKey: "", active: false, includeInMulti: false },
+      { id: randomId(), provider: "", model: "", apiKey: "", active: false, includeInMulti: false },
     ]);
   const addWebReasoner = () =>
     setWebReasoners([
       ...cfg.webReasonerModels,
-      { id: "web-reasoner-" + Date.now(), provider: "", model: "", apiKey: "", active: false, includeInMulti: false },
+      { id: randomId(), provider: "", model: "", apiKey: "", active: false, includeInMulti: false },
     ]);
   const addRagReasoner = () =>
     setRagReasoners([
       ...cfg.ragReasonerModels,
-      { id: "rag-reasoner-" + Date.now(), provider: "", model: "", apiKey: "", active: false, includeInMulti: false },
+      { id: randomId(), provider: "", model: "", apiKey: "", active: false, includeInMulti: false },
     ]);
 
   return {

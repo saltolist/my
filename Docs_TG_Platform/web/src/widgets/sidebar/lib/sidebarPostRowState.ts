@@ -1,31 +1,31 @@
 import type { ScreenId } from "@/shared/types";
 
 type PostRowRoute = {
-  postId: number | null;
-  notePostId: number | null;
-  postChatId: number | null;
+  postId: string | null;
+  notePostId: string | null;
+  postChatId: string | null;
 };
 
 export function resolveSidebarPostId(
   screen: ScreenId,
-  postId: number | null,
-  notePostId: number | null,
-): number | null {
+  postId: string | null,
+  notePostId: string | null,
+): string | null {
   if (screen === "post" && postId != null) return postId;
   if (screen === "note" && notePostId != null) return notePostId;
   return null;
 }
 
 export function shouldShowFeedPostRow(
-  sidebarPostId: number | null,
+  sidebarPostId: string | null,
   screen: ScreenId,
-  notePostId: number | null,
+  notePostId: string | null,
 ): boolean {
   return sidebarPostId != null && (screen === "post" || (screen === "note" && notePostId != null));
 }
 
 export function isSidebarPostFullActive(
-  sidebarPostId: number | null,
+  sidebarPostId: string | null,
   screen: ScreenId,
   route: PostRowRoute,
 ): boolean {
@@ -38,7 +38,7 @@ export function isSidebarPostFullActive(
 }
 
 export function isSidebarPostSubActive(
-  sidebarPostId: number | null,
+  sidebarPostId: string | null,
   screen: ScreenId,
   route: PostRowRoute,
 ): boolean {

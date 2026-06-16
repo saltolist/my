@@ -10,7 +10,7 @@ import { confirmDialog } from "@/shared/ui/dialog";
 import { routes, screenFromPath } from "@/shared/lib/routes";
 
 type GlobalTarget = { isGlobal: true; noteId: string; title: string };
-type LocalTarget = { isGlobal: false; postId: number; noteId: number; title: string };
+type LocalTarget = { isGlobal: false; postId: string; noteId: string; title: string };
 
 export function useDeleteNote() {
   const router = useRouter();

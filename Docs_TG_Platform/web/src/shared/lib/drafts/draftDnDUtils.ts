@@ -1,12 +1,12 @@
 import type { Post } from "@/shared/types";
 
-export type DraftDragItem = { id: number; r: DOMRect };
+export type DraftDragItem = { id: string; r: DOMRect };
 
 export type DraftDisplayItem = { kind: "card"; post: Post } | { kind: "gap"; key: string };
 
 export function collectDraftDragItems(
   drafts: Post[],
-  cardRefs: Map<number, HTMLDivElement>,
+  cardRefs: Map<string, HTMLDivElement>,
 ): DraftDragItem[] {
   return drafts
     .map((d) => {
@@ -82,8 +82,8 @@ export function stabilizeSlot(
 
 export function buildDraftDisplayList(
   drafts: Post[],
-  dragId: number | null,
-  beforeId: number | null,
+  dragId: string | null,
+  beforeId: string | null,
 ): DraftDisplayItem[] {
   if (dragId == null) {
     return drafts.map((post) => ({ kind: "card", post }));

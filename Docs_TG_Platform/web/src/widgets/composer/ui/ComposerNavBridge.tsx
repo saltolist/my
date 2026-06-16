@@ -35,7 +35,7 @@ export function ComposerNavBridge() {
         if (fromUrl != null) return fromUrl;
         return usePostNavigationStore.getState().getCurrentPostChatId(parsed.postId);
       },
-      setCurrentPostChatId: (chatId: number) => {
+      setCurrentPostChatId: (chatId: string) => {
         const parsed = parseAppPath(pathname);
         if (parsed.postId == null) return;
         usePostNavigationStore.getState().setMode(parsed.postId, "chat", chatId);

@@ -11,7 +11,7 @@ type Props = {
   metrics: AnalyticsScreenState["data"]["topPostsTableMetrics"];
   wrapStyle: CSSProperties;
   gridStyle: CSSProperties;
-  onOpenPost: (id: number) => void;
+  onOpenPost: (id: string) => void;
 };
 
 export default function AnalyticsTopPostsTable({

@@ -14,4 +14,5 @@ export const globalChatSchema = z.object({
 
 export const globalChatsListSchema = z.array(globalChatSchema);
 
-export type GlobalChatDto = z.infer<typeof globalChatSchema>;
+export type GlobalChatKind = z.infer<typeof globalChatKindSchema>;
+export type GlobalChat = z.infer<typeof globalChatSchema>;

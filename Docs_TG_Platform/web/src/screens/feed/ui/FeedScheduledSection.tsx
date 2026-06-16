@@ -5,7 +5,7 @@ import type { Post } from "@/shared/types";
 
 type Props = {
   posts: Post[];
-  onOpen: (id: number) => void;
+  onOpen: (id: string) => void;
 };
 
 export function FeedScheduledSection({ posts, onOpen }: Props) {

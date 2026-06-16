@@ -1,6 +1,14 @@
 import { apiV1Path } from "@/shared/config/basePath";
 import { apiRequest } from "@/shared/api/httpClient";
 import type { RepositoryBundle } from "@/shared/api/repositories";
+import {
+  globalChatsListSchema,
+  globalChatSchema,
+  globalNotesListSchema,
+  globalNoteSchema,
+  postsListSchema,
+  postSchema,
+} from "@/shared/api/schemas";
 import type {
   AiProfileConfig,
   ChannelProfileConfig,
@@ -13,46 +21,60 @@ import type {
 export function createHttpRepositories(): RepositoryBundle {
   return {
     posts: {
-      list: () => apiRequest<Post[]>(apiV1Path("posts")),
-      create: (post) => apiRequest<Post>(apiV1Path("posts"), { method: "POST", body: post }),
+      list: () =>
+        apiRequest<unknown>(apiV1Path("posts")).then((data) => postsListSchema.parse(data)),
+      create: (post) =>
+        apiRequest<unknown>(apiV1Path("posts"), { method: "POST", body: post }).then((data) =>
+          postSchema.parse(data),
+        ),
       update: (id, patch) =>
-        apiRequest<Post>(apiV1Path(`posts/${id}`), { method: "PATCH", body: patch }),
+        apiRequest<unknown>(apiV1Path(`posts/${id}`), { method: "PATCH", body: patch }).then(
+          (data) => postSchema.parse(data),
+        ),
       reorder: (posts) =>
-        apiRequest<Post[]>(apiV1Path("posts/reorder"), {
+        apiRequest<unknown>(apiV1Path("posts/reorder"), {
           method: "PUT",
           body: { posts },
-        }),
+        }).then((data) => postsListSchema.parse(data)),
       remove: (id) => apiRequest<void>(apiV1Path(`posts/${id}`), { method: "DELETE" }),
     },
     chats: {
-      listGlobal: () => apiRequest<GlobalChat[]>(apiV1Path("global-chats")),
+      listGlobal: () =>
+        apiRequest<unknown>(apiV1Path("global-chats")).then((data) =>
+          globalChatsListSchema.parse(data),
+        ),
       create: (chat) =>
-        apiRequest<GlobalChat>(apiV1Path("global-chats"), { method: "POST", body: chat }),
+        apiRequest<unknown>(apiV1Path("global-chats"), { method: "POST", body: chat }).then(
+          (data) => globalChatSchema.parse(data),
+        ),
       pushMessage: (chatId, text) =>
-        apiRequest<GlobalChat>(apiV1Path(`global-chats/${chatId}/messages`), {
+        apiRequest<unknown>(apiV1Path(`global-chats/${chatId}/messages`), {
           method: "POST",
           body: { text },
-        }),
+        }).then((data) => globalChatSchema.parse(data)),
       update: (chatId, patch) =>
-        apiRequest<GlobalChat>(apiV1Path(`global-chats/${chatId}`), {
+        apiRequest<unknown>(apiV1Path(`global-chats/${chatId}`), {
           method: "PATCH",
           body: patch,
-        }),
+        }).then((data) => globalChatSchema.parse(data)),
       rename: (chatId, title) =>
-        apiRequest<GlobalChat>(apiV1Path(`global-chats/${chatId}`), {
+        apiRequest<unknown>(apiV1Path(`global-chats/${chatId}`), {
           method: "PATCH",
           body: { title },
-        }),
+        }).then((data) => globalChatSchema.parse(data)),
       remove: (chatId) =>
         apiRequest<void>(apiV1Path(`global-chats/${chatId}`), { method: "DELETE" }),
     },
     notes: {
-      listGlobal: () => apiRequest<GlobalNote[]>(apiV1Path("global-notes")),
+      listGlobal: () =>
+        apiRequest<unknown>(apiV1Path("global-notes")).then((data) =>
+          globalNotesListSchema.parse(data),
+        ),
       upsert: (note) =>
-        apiRequest<GlobalNote>(apiV1Path(`global-notes/${note.id}`), {
+        apiRequest<unknown>(apiV1Path(`global-notes/${note.id}`), {
           method: "PUT",
           body: note,
-        }),
+        }).then((data) => globalNoteSchema.parse(data)),
       remove: (noteId) =>
         apiRequest<void>(apiV1Path(`global-notes/${noteId}`), { method: "DELETE" }),
     },
@@ -75,6 +97,18 @@ export function createHttpRepositories(): RepositoryBundle {
           method: "PUT",
           body: config,
         }),
+    },
+    assistant: {
+      getGlobalChatReply: (text) =>
+        apiRequest<{ text: string }>(apiV1Path("ai/reply"), {
+          method: "POST",
+          body: { text, scope: "global" },
+        }).then((r) => r.text),
+      getPostChatReply: (text) =>
+        apiRequest<{ text: string }>(apiV1Path("ai/reply"), {
+          method: "POST",
+          body: { text, scope: "post" },
+        }).then((r) => r.text),
     },
   };
 }

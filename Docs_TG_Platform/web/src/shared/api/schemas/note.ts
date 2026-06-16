@@ -12,4 +12,4 @@ export const globalNoteSchema = z.object({
 
 export const globalNotesListSchema = z.array(globalNoteSchema);
 
-export type GlobalNoteDto = z.infer<typeof globalNoteSchema>;
+export type GlobalNote = z.infer<typeof globalNoteSchema>;

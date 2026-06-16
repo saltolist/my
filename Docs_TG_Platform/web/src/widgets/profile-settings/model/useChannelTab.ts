@@ -10,6 +10,7 @@ import {
   useDomainSelector,
   useUi,
 } from "@/app/model/store";
+import { randomId } from "@/shared/lib/randomId";
 import type { ChannelProfileConfig, ChannelProfileRubric } from "@/shared/types";
 
 export function useChannelTab() {
@@ -94,7 +95,7 @@ export function useChannelTab() {
       rubrics: [
         ...cfg.rubrics,
         {
-          id: "rubric-" + Date.now(),
+          id: randomId(),
           title: "Новая рубрика",
           description: "",
         },

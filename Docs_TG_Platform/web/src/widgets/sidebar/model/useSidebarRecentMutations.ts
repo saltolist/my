@@ -11,19 +11,19 @@ type Params = {
   router: AppRouterInstance;
   screen: ScreenId;
   gchatIdFromUrl: string | null;
-  postChatIdFromUrl: number | null;
-  routePostId: number | null;
+  postChatIdFromUrl: string | null;
+  routePostId: string | null;
   currentNote: ActiveNote | null;
   noteFrom: NoteFromScreen | null;
   globalNotes: GlobalNote[];
   renameGlobalChat: { mutateAsync: (args: { chatId: string; title: string }) => Promise<unknown> };
   deleteGlobalChat: { mutateAsync: (id: string) => Promise<unknown> };
-  renameLocalChat: (postId: number, chatId: number, title: string) => void;
-  deleteLocalChat: (postId: number, chatId: number) => void;
+  renameLocalChat: (postId: string, chatId: string, title: string) => void;
+  deleteLocalChat: (postId: string, chatId: string) => void;
   upsertGlobalNote: { mutateAsync: (note: GlobalNote) => Promise<unknown> };
-  updatePostNote: (postId: number, noteId: number, patch: { title: string }) => void;
+  updatePostNote: (postId: string, noteId: string, patch: { title: string }) => void;
   deleteGlobalNote: { mutateAsync: (id: string) => Promise<unknown> };
-  deletePostNote: (postId: number, noteId: number) => void;
+  deletePostNote: (postId: string, noteId: string) => void;
 };
 
 export function useSidebarRecentMutations({

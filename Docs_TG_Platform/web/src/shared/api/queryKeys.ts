@@ -3,7 +3,7 @@ export const queryKeys = {
   posts: {
     all: (accountId: string) => [...queryKeys.scope(accountId), "posts"] as const,
     list: (accountId: string) => [...queryKeys.posts.all(accountId), "list"] as const,
-    detail: (accountId: string, id: number) =>
+    detail: (accountId: string, id: string) =>
       [...queryKeys.posts.all(accountId), "detail", id] as const,
   },
   globalChats: {

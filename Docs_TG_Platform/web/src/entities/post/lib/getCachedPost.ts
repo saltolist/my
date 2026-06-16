@@ -5,7 +5,7 @@ import { getQueryAccountIdFromAuth } from "@/shared/lib/auth/queryAccountScope";
 import type { Post } from "@/shared/types";
 
 /** Post screen uses `posts.detail`; other screens may only have `posts.list`. */
-export function getCachedPost(queryClient: QueryClient, postId: number): Post | undefined {
+export function getCachedPost(queryClient: QueryClient, postId: string): Post | undefined {
   const accountId = getQueryAccountIdFromAuth();
   const fromList = queryClient
     .getQueryData<Post[]>(queryKeys.posts.list(accountId))

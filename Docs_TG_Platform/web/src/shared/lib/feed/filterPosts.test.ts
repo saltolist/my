@@ -9,7 +9,7 @@ import {
 import type { Post } from "@/shared/types";
 
 const basePost = (overrides: Partial<Post> = {}): Post => ({
-  id: 1,
+  id: "1",
   status: "published",
   created: "2024-01-01",
   rubric: null,
@@ -33,9 +33,9 @@ describe("postMatchesSearch", () => {
 describe("buildFeedPostSections", () => {
   it("splits posts by status and search", () => {
     const posts = [
-      basePost({ id: 1, status: "published", text: "alpha" }),
-      basePost({ id: 2, status: "draft", text: "beta draft" }),
-      basePost({ id: 3, status: "scheduled", text: "gamma" }),
+      basePost({ id: "1", status: "published", text: "alpha" }),
+      basePost({ id: "2", status: "draft", text: "beta draft" }),
+      basePost({ id: "3", status: "scheduled", text: "gamma" }),
     ];
     const sections = buildFeedPostSections(posts, "beta");
     expect(sections.published).toHaveLength(0);
@@ -46,10 +46,10 @@ describe("buildFeedPostSections", () => {
 
 describe("createDraftPost", () => {
   it("creates draft with trimmed text", () => {
-    const post = createDraftPost({ text: "  hello  ", id: 42 });
+    const post = createDraftPost({ text: "  hello  ", id: "42" });
     expect(post.status).toBe("draft");
     expect(post.text).toBe("hello");
-    expect(post.id).toBe(42);
+    expect(post.id).toBe("42");
   });
 });
 

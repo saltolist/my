@@ -10,7 +10,7 @@ import {
   getDefaultScheduleDate,
 } from "@/features/post-context-menu/lib/buildItems";
 import { useDeletePost, useUpdatePost } from "@/entities/post";
-import { formatPostDateTime, parsePostDateTime, postTitle } from "@/shared/lib/helpers";
+import { parsePostDateTime, postTitle } from "@/shared/lib/helpers";
 import { routes } from "@/shared/lib/routes";
 import { confirmDialog } from "@/shared/ui/dialog";
 import type { CtxMenuItem } from "@/shared/ui/context-menu";
@@ -54,7 +54,7 @@ export function usePostCtxMenuItems(
         id: post.id,
         patch: {
           status: "scheduled",
-          date: formatPostDateTime(selected),
+          date: selected.toISOString(),
         },
       });
       setIsScheduleOpen(false);
@@ -82,7 +82,7 @@ export function usePostCtxMenuItems(
           id: post.id,
           patch: {
             status: "published",
-            date: formatPostDateTime(),
+            date: new Date().toISOString(),
             metrics: { views: "0", reposts: 0, reactions: [] },
           },
         });
@@ -93,7 +93,7 @@ export function usePostCtxMenuItems(
       onCancelPublish: () => {
         void updatePost.mutateAsync({
           id: post.id,
-          patch: { status: "draft", created: "сейчас" },
+          patch: { status: "draft", created: new Date().toISOString() },
         });
       },
       onDelete: () => {

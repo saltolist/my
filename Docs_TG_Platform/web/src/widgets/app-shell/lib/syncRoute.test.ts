@@ -15,12 +15,12 @@ import { EMPTY_NOTE_SNAPSHOT } from "@/shared/lib/noteDraft";
 
 const posts: Post[] = [
   {
-    id: 1,
+    id: "1",
     status: "published",
     date: "2024-01-01",
     rubric: null,
     text: "Post 1",
-    notes: [{ id: 10, title: "Note 10", date: "2024-01-01", ai: false, body: "" }],
+    notes: [{ id: "10", title: "Note 10", date: "2024-01-01", ai: false, body: "" }],
     chats: [],
   },
 ];
@@ -46,22 +46,22 @@ describe("syncPostModeFromRoute", () => {
       },
     };
 
-    syncPostModeFromRoute(store, { postId: 1, mode: "comments", chatId: null });
+    syncPostModeFromRoute(store, { postId: "1", mode: "comments", chatId: null });
     expect(setModeCalls).toBe(0);
   });
 
   it("calls setMode when route mode differs", () => {
-    let last: { postId: number; mode: PostMode; chatId: number | null } | null = null;
+    let last: { postId: string; mode: PostMode; chatId: string | null } | null = null;
     const store = {
       getMode: () => "chat" as const,
       getCurrentPostChatId: () => null,
-      setMode: (postId: number, mode: PostMode, chatId?: number | null) => {
+      setMode: (postId: string, mode: PostMode, chatId?: string | null) => {
         last = { postId, mode, chatId: chatId ?? null };
       },
     };
 
-    syncPostModeFromRoute(store, { postId: 1, mode: "comments", chatId: null });
-    expect(last).toEqual({ postId: 1, mode: "comments", chatId: null });
+    syncPostModeFromRoute(store, { postId: "1", mode: "comments", chatId: null });
+    expect(last).toEqual({ postId: "1", mode: "comments", chatId: null });
   });
 });
 
@@ -81,7 +81,7 @@ describe("syncRouteFromUrl", () => {
     expect(result.kind).toBe("redirect");
     if (result.kind !== "redirect") return;
     expect(result.href).toBe("/post/5/");
-    expect(result.postMode).toEqual({ postId: 5, mode: "notes", chatId: null });
+    expect(result.postMode).toEqual({ postId: "5", mode: "notes", chatId: null });
   });
 
   it("preserves chat query on legacy post redirect", () => {
@@ -94,7 +94,7 @@ describe("syncRouteFromUrl", () => {
     if (result.kind !== "redirect") return;
     expect(result.href).toBe("/post/5/?chat=2");
     expect(result.postMode?.mode).toBe("chats");
-    expect(result.postMode?.chatId).toBe(2);
+    expect(result.postMode?.chatId).toBe("2");
   });
 
   it("syncs gchat from query param", () => {
@@ -109,9 +109,9 @@ describe("syncRouteFromUrl", () => {
     const result = syncRouteFromUrl("/post/1/", new URLSearchParams("chat=2"), data);
     expect(result.kind).toBe("sync");
     if (result.kind !== "sync") return;
-    expect(result.patch.currentPostId).toBe(1);
+    expect(result.patch.currentPostId).toBe("1");
     expect(result.patch).not.toHaveProperty("currentPostChatId");
-    expect(result.postMode).toEqual({ postId: 1, mode: "chat", chatId: 2 });
+    expect(result.postMode).toEqual({ postId: "1", mode: "chat", chatId: "2" });
   });
 
   it("uses postModeOverride when provided", () => {
@@ -154,7 +154,7 @@ describe("syncRouteFromUrl", () => {
     expect(result.kind).toBe("sync");
     if (result.kind !== "sync") return;
     expect(result.patch.currentNote?.title).toBe("Note 10");
-    expect(result.patch.currentPostId).toBe(1);
+    expect(result.patch.currentPostId).toBe("1");
   });
 
   it("creates new note patch from query", () => {
@@ -167,7 +167,7 @@ describe("syncRouteFromUrl", () => {
     if (result.kind !== "sync") return;
     expect(result.patch.noteMode).toBe("edit");
     expect(result.patch.currentNote?.isNew).toBe(true);
-    expect(result.patch.currentPostId).toBe(1);
+    expect(result.patch.currentPostId).toBe("1");
   });
 
   it("does not reset list filters in patch", () => {

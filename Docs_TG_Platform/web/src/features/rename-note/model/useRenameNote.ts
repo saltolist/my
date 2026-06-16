@@ -6,7 +6,7 @@ import { useGlobalNotes, useUpsertGlobalNote } from "@/entities/note";
 import { useUpdatePostNote } from "@/entities/post/model/usePostNoteMutations";
 
 type GlobalTarget = { isGlobal: true; noteId: string };
-type LocalTarget = { isGlobal: false; postId: number; noteId: number };
+type LocalTarget = { isGlobal: false; postId: string; noteId: string };
 
 export function useRenameNote() {
   const { data: globalNotes = [] } = useGlobalNotes();

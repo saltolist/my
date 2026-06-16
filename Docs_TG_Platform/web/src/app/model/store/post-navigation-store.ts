@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type { PostMode } from "@/shared/types";
 
-export type PostViewEntry = { mode: PostMode; chatId: number | null };
+export type PostViewEntry = { mode: PostMode; chatId: string | null };
 
 const TAB_MODES: PostMode[] = ["notes", "chats", "comments"];
 
@@ -13,16 +13,16 @@ function resolvePostViewMode(currentMode: PostMode, nextMode: PostMode): PostMod
 }
 
 export type PostNavigationState = {
-  stacks: Record<number, PostViewEntry[]>;
-  modes: Record<number, PostMode>;
-  chatIds: Record<number, number | null>;
-  getMode: (postId: number) => PostMode;
-  getStack: (postId: number) => PostViewEntry[];
-  getCurrentPostChatId: (postId: number) => number | null;
-  pushMode: (postId: number, mode: PostMode, chatId?: number | null) => void;
-  popMode: (postId: number) => void;
-  resetStack: (postId: number) => void;
-  setMode: (postId: number, mode: PostMode, chatId?: number | null) => void;
+  stacks: Record<string, PostViewEntry[]>;
+  modes: Record<string, PostMode>;
+  chatIds: Record<string, string | null>;
+  getMode: (postId: string) => PostMode;
+  getStack: (postId: string) => PostViewEntry[];
+  getCurrentPostChatId: (postId: string) => string | null;
+  pushMode: (postId: string, mode: PostMode, chatId?: string | null) => void;
+  popMode: (postId: string) => void;
+  resetStack: (postId: string) => void;
+  setMode: (postId: string, mode: PostMode, chatId?: string | null) => void;
 };
 
 export const usePostNavigationStore = create<PostNavigationState>((set, get) => ({
@@ -70,7 +70,7 @@ export const usePostNavigationStore = create<PostNavigationState>((set, get) => 
   setMode: (postId, nextMode, chatId = null) => {
     const currentMode = get().getMode(postId);
     const mode = resolvePostViewMode(currentMode, nextMode);
-    let resolvedChatId: number | null = null;
+    let resolvedChatId: string | null = null;
     if (mode === "chat") {
       resolvedChatId = nextMode === "chat" ? chatId : get().getCurrentPostChatId(postId);
     }

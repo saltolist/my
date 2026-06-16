@@ -19,7 +19,7 @@ export function createOmnichannelChat(botUsername: string): GlobalChat {
     kind: "omnichannel",
     title: botUsername || "Омниканальный бот",
     preview: "",
-    date: "сейчас",
+    date: new Date().toISOString(),
     history: [],
   };
 }

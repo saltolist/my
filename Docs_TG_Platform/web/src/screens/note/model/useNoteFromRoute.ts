@@ -14,12 +14,12 @@ import { routeNeedsCachedData } from "@/widgets/app-shell/lib/syncRoute";
 
 function noteFromCache(
   parsed: ReturnType<typeof parseAppPath>,
-  notePostId: number | null,
+  notePostId: string | null,
   globalNotes: ReturnType<typeof useGlobalNotes>["data"],
   posts: ReturnType<typeof usePosts>["data"],
 ): ActiveNote | null {
   if (parsed.noteIsNew) {
-    if (notePostId != null && notePostId > 0) {
+    if (notePostId) {
       return createNewPostNote(notePostId);
     }
     return createNewGlobalNote();
@@ -44,7 +44,7 @@ function noteFromCache(
 export function useNoteFromRoute(pathname: string) {
   const searchParams = useSearchParams();
   const parsed = parseAppPath(pathname);
-  const notePostId = Number(searchParams.get("postId"));
+  const notePostIdParam = searchParams.get("postId");
   const storeNote = useNavigationStore((s) => s.currentNote);
 
   const { data: globalNotes, isLoading: globalNotesLoading } = useGlobalNotes();
@@ -54,11 +54,11 @@ export function useNoteFromRoute(pathname: string) {
     const route = parseAppPath(pathname);
     return noteFromCache(
       route,
-      Number.isFinite(notePostId) && notePostId > 0 ? notePostId : null,
+      notePostIdParam ?? null,
       globalNotes,
       posts,
     );
-  }, [globalNotes, notePostId, pathname, posts]);
+  }, [globalNotes, notePostIdParam, pathname, posts]);
 
   const note = storeNote ?? cachedNote;
   const needsCache = routeNeedsCachedData(pathname);

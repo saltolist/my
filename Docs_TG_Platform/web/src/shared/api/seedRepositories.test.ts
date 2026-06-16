@@ -14,15 +14,15 @@ describe("seedRepositories", () => {
     const repos = createSeedRepositories();
     const created = await repos.posts.create({
       ...initialPosts[0],
-      id: 9999,
+      id: "9999",
       text: "test",
       status: "draft",
       rubric: null,
       notes: [],
       chats: [],
     });
-    expect(created.id).toBe(9999);
+    expect(created.id).toBe("9999");
     const list = await repos.posts.list();
-    expect(list.some((p) => p.id === 9999)).toBe(true);
+    expect(list.some((p) => p.id === "9999")).toBe(true);
   });
 });

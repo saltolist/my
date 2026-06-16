@@ -50,7 +50,7 @@ export async function patchGlobalChatHistory(
   const patch: GlobalChatPatch = {
     history,
     preview: options?.preview ?? lastUserPreviewFromVisibleHistory(history).slice(0, 80),
-    date: "сейчас",
+    date: new Date().toISOString(),
   };
   const updated = await chats.update(chatId, patch);
   syncGlobalChatInCache(queryClient, updated);

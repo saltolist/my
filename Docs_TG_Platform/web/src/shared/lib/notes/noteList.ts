@@ -4,7 +4,7 @@ import type { GlobalNote, LocalNote, NoteListFilter, NoteScope, Post } from "@/s
 
 export type AnyNote =
   | (GlobalNote & { isGlobal: true })
-  | (LocalNote & { isGlobal: false; postId: number; postTitle: string });
+  | (LocalNote & { isGlobal: false; postId: string; postTitle: string });
 
 export function normalizeNoteSearchQuery(query: string): string {
   return query.trim().toLowerCase();

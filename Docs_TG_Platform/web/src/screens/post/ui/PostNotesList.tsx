@@ -3,6 +3,7 @@
 import { NoteListCard } from "@/entities/note";
 import { NoteListCardMenu } from "@/widgets/note-editor";
 import { EmptyState } from "@/shared/ui/empty-state";
+import { formatStoredDate } from "@/shared/lib/helpers";
 import { matchesListContextFilter } from "@/shared/lib/listContextFilter";
 import type { LocalNote, NoteListFilter, Post } from "@/shared/types";
 
@@ -11,7 +12,7 @@ type Props = {
   search: string;
   contextFilter: NoteListFilter;
   onOpenNote: (note: LocalNote) => void;
-  onToggleNoteAi: (noteId: number) => void;
+  onToggleNoteAi: (noteId: string) => void;
 };
 
 export default function PostNotesList({
@@ -44,7 +45,7 @@ export default function PostNotesList({
             key={n.id}
             title={n.title}
             body={n.body}
-            meta={n.date}
+            meta={formatStoredDate(n.date)}
             ai={n.ai}
             onClick={() => onOpenNote(n)}
             onToggleAi={() => onToggleNoteAi(n.id)}

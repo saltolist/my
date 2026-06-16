@@ -6,10 +6,10 @@ import { useCallback } from "react";
 import { useDeleteGlobalChat } from "@/entities/chat";
 import { useDeleteLocalChat } from "@/entities/post";
 import { confirmDialog } from "@/shared/ui/dialog";
-import { parseGChatSearchParam, routes, screenFromPath } from "@/shared/lib/routes";
+import { parseChatSearchParam, parseGChatSearchParam, routes, screenFromPath } from "@/shared/lib/routes";
 
 type GlobalTarget = { scope: "global"; chatId: string; title: string };
-type LocalTarget = { scope: "local"; postId: number; chatId: number; title: string };
+type LocalTarget = { scope: "local"; postId: string; chatId: string; title: string };
 
 export function useDeleteChat() {
   const router = useRouter();
@@ -17,17 +17,11 @@ export function useDeleteChat() {
   const searchParams = useSearchParams();
   const screen = screenFromPath(pathname);
   const gchatIdFromUrl = parseGChatSearchParam(searchParams.get("id"));
-  const postChatIdFromUrl = (() => {
-    const raw = searchParams.get("chat");
-    if (!raw) return null;
-    const n = Number(raw);
-    return Number.isFinite(n) ? n : null;
-  })();
+  const postChatIdFromUrl = parseChatSearchParam(searchParams.get("chat"));
   const routePostId = (() => {
-    const m = pathname.match(/^\/post\/(\d+)\/?$/);
-    if (!m) return null;
-    const n = Number(m[1]);
-    return Number.isFinite(n) ? n : null;
+    const m = pathname.match(/^\/post\/([^/]+)\/?$/);
+    if (!m || !m[1]) return null;
+    return m[1];
   })();
 
   const deleteGlobalChat = useDeleteGlobalChat();

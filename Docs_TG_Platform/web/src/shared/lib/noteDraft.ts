@@ -54,20 +54,20 @@ export function createNewGlobalNote(): ActiveNote {
     title: "",
     body: "",
     ai: false,
-    date: "сейчас",
+    date: new Date().toISOString(),
     isGlobal: true,
     files: [],
     isNew: true,
   };
 }
 
-export function createNewPostNote(postId: number): ActiveNote {
+export function createNewPostNote(postId: string): ActiveNote {
   return {
-    id: 0,
+    id: "",
     title: "",
     body: "",
     ai: false,
-    date: "сейчас",
+    date: new Date().toISOString(),
     isGlobal: false,
     postId,
     files: [],

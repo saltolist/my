@@ -14,9 +14,9 @@ export type GlobalChatPatch = Partial<
 export interface PostsRepository {
   list(): Promise<Post[]>;
   create(post: Post): Promise<Post>;
-  update(id: number, patch: Partial<Post>): Promise<Post>;
+  update(id: string, patch: Partial<Post>): Promise<Post>;
   reorder(posts: Post[]): Promise<Post[]>;
-  remove(id: number): Promise<void>;
+  remove(id: string): Promise<void>;
 }
 
 export interface ChatsRepository {
@@ -43,9 +43,15 @@ export interface ProfileRepository {
   updateTelegram(config: TelegramProfileConfig): Promise<TelegramProfileConfig>;
 }
 
+export interface AssistantRepository {
+  getGlobalChatReply(text: string): Promise<string>;
+  getPostChatReply(text: string): Promise<string>;
+}
+
 export type RepositoryBundle = {
   posts: PostsRepository;
   chats: ChatsRepository;
   notes: NotesRepository;
   profile: ProfileRepository;
+  assistant: AssistantRepository;
 };

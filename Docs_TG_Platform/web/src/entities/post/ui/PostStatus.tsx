@@ -1,4 +1,5 @@
 import { CheckIcon, ClockIcon, PencilIcon } from "@/shared/ui/icons/post-status-icons";
+import { formatStoredDate } from "@/shared/lib/helpers";
 import type { Post } from "@/shared/types";
 
 export function PostStatusIcon({
@@ -40,7 +41,9 @@ export default function PostStatus({
         <PostStatusIcon post={post} />
         <span className="post-status-text">
           <span className="post-status-title">Опубликован</span>
-          {post.date ? <span className="post-status-time">{post.date}</span> : null}
+          {post.date ? (
+            <span className="post-status-time">{formatStoredDate(post.date)}</span>
+          ) : null}
         </span>
       </span>
     );
@@ -51,7 +54,9 @@ export default function PostStatus({
         <PostStatusIcon post={post} />
         <span className="post-status-text">
           <span className="post-status-title">Отложено</span>
-          {post.date ? <span className="post-status-time">{post.date}</span> : null}
+          {post.date ? (
+            <span className="post-status-time">{formatStoredDate(post.date)}</span>
+          ) : null}
         </span>
       </span>
     );
@@ -61,7 +66,7 @@ export default function PostStatus({
       <PostStatusIcon post={post} />
       <span className="post-status-text">
         <span className="post-status-title">Черновик</span>
-        <span className="post-status-time">создан {post.created}</span>
+        <span className="post-status-time">создан {formatStoredDate(post.created)}</span>
       </span>
     </span>
   );

@@ -1,5 +1,6 @@
 import { postTitle } from "@/shared/lib/helpers";
 import { sortPostsByPublicationTime } from "@/shared/lib/feedTimeline";
+import { randomId } from "@/shared/lib/randomId";
 import type { Post, PostMedia, PostStatus } from "@/shared/types";
 
 export function normalizeSearchQuery(query: string): string {
@@ -43,15 +44,15 @@ export function buildFeedPostSections(posts: Post[], query = ""): FeedPostSectio
 export type CreateDraftPostInput = {
   text: string;
   pendingMedia?: PostMedia[];
-  id?: number;
+  id?: string;
   created?: string;
 };
 
 export function createDraftPost({
   text,
   pendingMedia = [],
-  id = Date.now(),
-  created = "только что",
+  id = randomId(),
+  created = new Date().toISOString(),
 }: CreateDraftPostInput): Post {
   const trimmed = text.trim();
   return {

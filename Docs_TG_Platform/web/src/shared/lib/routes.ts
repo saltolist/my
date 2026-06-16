@@ -20,14 +20,14 @@ export const GCHAT_ID_PARAM = "id";
 
 export type ParsedAppPath = {
   screen: ScreenId;
-  postId: number | null;
+  postId: string | null;
   postMode: PostMode;
   gchatId: string | null;
   noteGlobalId: string | null;
-  notePostId: number | null;
-  noteId: number | null;
+  notePostId: string | null;
+  noteId: string | null;
   noteIsNew: boolean;
-  chatId: number | null;
+  chatId: string | null;
 };
 
 function norm(pathname: string): string {
@@ -35,10 +35,10 @@ function norm(pathname: string): string {
   return pathname.endsWith("/") ? pathname : `${pathname}/`;
 }
 
-function parsePositiveInt(s: string | undefined): number | null {
-  if (!s) return null;
-  const n = Number(s);
-  return Number.isFinite(n) && n > 0 ? n : null;
+/** Parse a URL path segment into an ID string. Returns null for empty/reserved segments. */
+function parseSegmentId(s: string | undefined): string | null {
+  if (!s || s === "new") return null;
+  return s;
 }
 
 export function parseAppPath(pathname: string): ParsedAppPath {
@@ -72,7 +72,7 @@ export function parseAppPath(pathname: string): ParsedAppPath {
   }
 
   if (segments[0] === "post" && segments[1]) {
-    const postId = parsePositiveInt(segments[1]);
+    const postId = parseSegmentId(segments[1]);
     if (!postId) return empty;
     return {
       ...empty,
@@ -90,8 +90,8 @@ export function parseAppPath(pathname: string): ParsedAppPath {
       return { ...empty, screen: "note", noteGlobalId: segments[2] };
     }
     if (segments[1] === "post" && segments[2] && segments[3]) {
-      const notePostId = parsePositiveInt(segments[2]);
-      const noteId = parsePositiveInt(segments[3]);
+      const notePostId = parseSegmentId(segments[2]);
+      const noteId = parseSegmentId(segments[3]);
       if (notePostId && noteId) {
         return { ...empty, screen: "note", notePostId, noteId };
       }
@@ -104,20 +104,20 @@ export function parseAppPath(pathname: string): ParsedAppPath {
 /** Старые URL `/post/5/notes/` → редирект на `/post/5/` + режим во state. */
 export function parsePostLegacySub(
   pathname: string,
-): { postId: number; mode: PostMode } | null {
+): { postId: string; mode: PostMode } | null {
   const path = norm(pathname);
   const m = path.match(/^\/post\/([^/]+)\/(comments|notes|chats)\/$/);
   if (!m || m[1] === POST_NEW_SLUG) return null;
-  const postId = parsePositiveInt(m[1]);
+  const postId = parseSegmentId(m[1]);
   if (!postId) return null;
   const mode = m[2] as "comments" | "notes" | "chats";
   return { postId, mode };
 }
 
-export function parseChatSearchParam(raw: string | null): number | null {
+export function parseChatSearchParam(raw: string | null): string | null {
   if (!raw) return null;
-  const n = Number(raw);
-  return Number.isFinite(n) && n > 0 ? n : null;
+  const id = raw.trim();
+  return id.length > 0 ? id : null;
 }
 
 export function parseGChatSearchParam(raw: string | null): string | null {
@@ -145,23 +145,23 @@ export const routes = {
   loginForgot: () => "/login/forgot/",
   register: () => "/register/",
   gchat: (id: string) => `/gchat/?${GCHAT_ID_PARAM}=${encodeURIComponent(id)}`,
-  post: (id: number, chatId?: number | null) => {
+  post: (id: string, chatId?: string | null) => {
     const base = `/post/${id}/`;
     if (chatId != null) return `${base}?chat=${chatId}`;
     return base;
   },
   /** Устаревшие подпути — только для редиректа в RouteSync. */
-  postLegacySubPath: (id: number | string, sub: "comments" | "notes" | "chats") =>
+  postLegacySubPath: (id: string, sub: "comments" | "notes" | "chats") =>
     `/post/${id}/${sub}/`,
-  noteNew: (from?: NoteFromScreen, postId?: number) => {
+  noteNew: (from?: NoteFromScreen, postId?: string) => {
     const q = new URLSearchParams();
     if (from) q.set("from", from);
-    if (postId != null) q.set("postId", String(postId));
+    if (postId != null) q.set("postId", postId);
     const qs = q.toString();
     return qs ? `/note/${NOTE_NEW_SLUG}/?${qs}` : `/note/${NOTE_NEW_SLUG}/`;
   },
   noteGlobal: (id: string) => `/note/global/${encodeURIComponent(id)}/`,
-  notePost: (postId: number, noteId: number) => `/note/post/${postId}/${noteId}/`,
+  notePost: (postId: string, noteId: string) => `/note/post/${postId}/${noteId}/`,
 };
 
 export function screenToHref(screen: ScreenId): string {
@@ -202,9 +202,9 @@ export function getParentPath(pathname: string): string | null {
 
   if (path === "/gchat/" || path.startsWith("/gchat/")) return routes.chats();
   if (path.startsWith("/note/global/")) return routes.notes();
-  if (path.match(/^\/note\/post\/\d+\/\d+\/$/)) {
+  if (path.match(/^\/note\/post\/[^/]+\/[^/]+\/$/)) {
     const parts = path.split("/").filter(Boolean);
-    return routes.post(Number(parts[2]));
+    return routes.post(parts[2] ?? "");
   }
   if (path.startsWith(`/note/${NOTE_NEW_SLUG}/`)) return routes.notes();
 
@@ -232,7 +232,7 @@ export function buildRoutePatch(
   noteFromFallback: NoteFromScreen = "notes",
 ): Partial<{
   screen: ScreenId;
-  currentPostId: number | null;
+  currentPostId: string | null;
   postMode: PostMode;
   isEditing: boolean;
   currentNote: ActiveNote | null;
@@ -243,7 +243,7 @@ export function buildRoutePatch(
   const base = {
     screen: parsed.screen,
     isEditing: false,
-    currentPostId: null as number | null,
+    currentPostId: null as string | null,
     currentNote: null as ActiveNote | null,
   };
 
@@ -312,14 +312,14 @@ export function buildRoutePatch(
 export function statePatchToHref(
   patch: Partial<{
     screen: ScreenId;
-    currentPostId: number | null;
+    currentPostId: string | null;
     postMode: PostMode;
-    postChatId: number | null;
+    postChatId: string | null;
     gchatId: string | null;
     currentNote: ActiveNote | null;
     noteFrom: NoteFromScreen;
   }>,
-  cur: { screen: ScreenId; currentPostId: number | null; postMode: PostMode },
+  cur: { screen: ScreenId; currentPostId: string | null; postMode: PostMode },
 ): string | null {
   const screen = patch.screen ?? cur.screen;
 
@@ -337,7 +337,7 @@ export function statePatchToHref(
     const n = patch.currentNote;
     if (n.isNew) return routes.noteNew(patch.noteFrom);
     if (n.isGlobal && typeof n.id === "string") return routes.noteGlobal(n.id);
-    if (!n.isGlobal && n.postId != null) return routes.notePost(n.postId, n.id as number);
+    if (!n.isGlobal && n.postId != null) return routes.notePost(n.postId, n.id);
   }
 
   if (screen === "note") return routes.noteNew(patch.noteFrom);

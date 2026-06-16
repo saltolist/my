@@ -3,9 +3,9 @@
 import type { ReactNode } from "react";
 
 export type LocalChatRow = {
-  postId: number;
+  postId: string;
   postTitle: string;
-  chatId: number;
+  chatId: string;
   title: string;
   preview: string;
   date: string;

@@ -16,26 +16,26 @@ import {
 } from "@/shared/lib/drafts/draftDnDUtils";
 import type { Post } from "@/shared/types";
 
-export function useDraftsSection(drafts: Post[], onOpenPost: (id: number) => void) {
+export function useDraftsSection(drafts: Post[], onOpenPost: (id: string) => void) {
   const queryClient = useQueryClient();
   const accountId = useQueryAccountScope();
   const { data: posts = [] } = usePosts();
   const reorderPosts = useReorderPosts();
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
-  const draggingIdRef = useRef<number | null>(null);
-  const dropBeforeIdRef = useRef<number | null>(null);
+  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const draggingIdRef = useRef<string | null>(null);
+  const dropBeforeIdRef = useRef<string | null>(null);
   const committedSlotRef = useRef<number | null>(null);
   const gapHeightRef = useRef(120);
 
-  const [draggingId, setDraggingId] = useState<number | null>(null);
-  const [dropBeforeId, setDropBeforeId] = useState<number | null>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dropBeforeId, setDropBeforeId] = useState<string | null>(null);
   const [gapHeight, setGapHeight] = useState(120);
 
   const dragGhostRef = useRef<HTMLElement | null>(null);
 
-  const setDropTarget = useCallback((beforeId: number | null) => {
+  const setDropTarget = useCallback((beforeId: string | null) => {
     dropBeforeIdRef.current = beforeId;
     setDropBeforeId((prev) => (prev === beforeId ? prev : beforeId));
   }, []);
@@ -68,7 +68,7 @@ export function useDraftsSection(drafts: Post[], onOpenPost: (id: number) => voi
   }, []);
 
   const reorder = useCallback(
-    (sourceId: number, beforeId: number | null) => {
+    (sourceId: string, beforeId: string | null) => {
       if (sourceId === beforeId) return;
       const nextPosts = [...posts];
       const srcIdx = nextPosts.findIndex((p) => p.id === sourceId);
@@ -172,7 +172,7 @@ export function useDraftsSection(drafts: Post[], onOpenPost: (id: number) => voi
     dragGhostRef.current = null;
   }, [removeAllDragListeners, setDropTarget]);
 
-  const onDragStart = (id: number) => (e: ReactDragEvent) => {
+  const onDragStart = (id: string) => (e: ReactDragEvent) => {
     e.stopPropagation();
 
     const wrap = cardRefs.current.get(id);
@@ -190,7 +190,7 @@ export function useDraftsSection(drafts: Post[], onOpenPost: (id: number) => voi
 
     e.dataTransfer.effectAllowed = "move";
     try {
-      e.dataTransfer.setData("text/plain", String(id));
+      e.dataTransfer.setData("text/plain", id);
     } catch {
       /* ignore */
     }

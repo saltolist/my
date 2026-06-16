@@ -35,12 +35,15 @@ describe("createPresentationMswStore", () => {
     expect(drafts[1].media?.length).toBe(2);
     expect(drafts[2].media).toBeUndefined();
 
-    const publishedDays = new Set(
-      published.map((p) => (p.date ?? "").split("·")[0].trim()),
-    );
+    const dayKey = (raw: string) => {
+      const d = new Date(raw);
+      return Number.isFinite(d.getTime()) ? d.toISOString().slice(0, 10) : raw;
+    };
+
+    const publishedDays = new Set(published.map((p) => dayKey(p.date ?? "")));
     expect(publishedDays.size).toBe(3);
 
-    const scheduledDays = new Set(scheduled.map((p) => (p.date ?? "").split("·")[0].trim()));
+    const scheduledDays = new Set(scheduled.map((p) => dayKey(p.date ?? "")));
     expect(scheduledDays.size).toBe(2);
   });
 });

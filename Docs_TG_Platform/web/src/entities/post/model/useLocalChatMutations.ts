@@ -25,7 +25,7 @@ export function useAddLocalChat() {
   const queryClient = useQueryClient();
 
   return useCallback(
-    async (postId: number, chat: LocalChat) => {
+    async (postId: string, chat: LocalChat) => {
       const post = await fetchPost(queryClient, posts, postId);
       const updated = { ...post, chats: [...post.chats, chat] };
       await updatePost.mutateAsync({ id: postId, patch: { chats: updated.chats } });
@@ -40,7 +40,7 @@ export function usePushLocalChatMessage() {
   const queryClient = useQueryClient();
 
   return useCallback(
-    async (postId: number, chatId: number, message: ChatMessage) => {
+    async (postId: string, chatId: string, message: ChatMessage) => {
       await patchPostChatHistory(
         queryClient,
         posts,
@@ -59,7 +59,7 @@ export function useRenameLocalChat() {
   const queryClient = useQueryClient();
 
   return useCallback(
-    async (postId: number, chatId: number, title: string) => {
+    async (postId: string, chatId: string, title: string) => {
       const post = getCachedPost(queryClient, postId);
       if (!post) return;
       const chats = post.chats.map((chat) =>
@@ -78,7 +78,7 @@ export function useDeleteLocalChat() {
   const queryClient = useQueryClient();
 
   return useCallback(
-    async (postId: number, chatId: number) => {
+    async (postId: string, chatId: string) => {
       const post = getCachedPost(queryClient, postId);
       if (!post) return;
       const chats = post.chats.filter((chat) => chat.id !== chatId);

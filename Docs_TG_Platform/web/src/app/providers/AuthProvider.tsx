@@ -13,6 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { AuthSession } from "@/shared/lib/auth/types";
 import { logout as logoutApi } from "@/entities/auth";
 import { clearSession, readSession, writeSession } from "@/shared/lib/auth/session";
+import { clearUnauthorizedHandler, setUnauthorizedHandler } from "@/shared/api/httpClient";
 import { useProfileDraftStore } from "@/app/model/store/profile-draft-store";
 import { useComposerTargetStore } from "@/app/model/store/composer-target-store";
 import { useUiStore } from "@/app/model/store/ui-store";
@@ -76,6 +77,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useComposerTargetStore.getState().resetTargets();
     void queryClient.clear();
   }, [queryClient]);
+
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      void logout();
+    });
+    return () => clearUnauthorizedHandler();
+  }, [logout]);
 
   const value = useMemo(
     () => ({

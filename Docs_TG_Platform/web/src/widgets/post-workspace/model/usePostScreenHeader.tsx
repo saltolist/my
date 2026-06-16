@@ -12,7 +12,7 @@ import type { LocalChat, Post, PostMode } from "@/shared/types";
 type Args = {
   post: Post | null;
   postMode: PostMode;
-  currentPostChatId: number | null;
+  currentPostChatId: string | null;
   activeChat: LocalChat | null;
   isMobile: boolean;
   postHeaderCompact1000: boolean;

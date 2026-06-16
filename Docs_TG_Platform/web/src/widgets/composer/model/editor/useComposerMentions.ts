@@ -16,10 +16,10 @@ import type { ComposerScope, Post } from "@/shared/types";
 type Params = Pick<ComposerEditorRefs, "editorRef" | "inputBoxRef" | "mentionRef"> & {
   scope: ComposerScope;
   posts: Post[];
-  attachedPostIds: number[];
+  attachedPostIds: string[];
   removeChipById: (id: string) => void;
   refreshIsEmpty: () => void;
-  appendAttachment: (att: { id: string; kind: "post"; postId: number; title: string }) => void;
+  appendAttachment: (att: { id: string; kind: "post"; postId: string; title: string }) => void;
 };
 
 export function useComposerMentions({
@@ -48,7 +48,7 @@ export function useComposerMentions({
       if (scope === "post" && p.id === currentPostId) return false;
       return true;
     });
-    return [...base].sort((a, b) => postFreshness(b) - postFreshness(a) || b.id - a.id);
+    return [...base].sort((a, b) => postFreshness(b) - postFreshness(a) || a.id.localeCompare(b.id));
   }, [posts, currentPostId, scope, attachedPostIds]);
 
   const mentionMatches = useMemo<Post[]>(() => {

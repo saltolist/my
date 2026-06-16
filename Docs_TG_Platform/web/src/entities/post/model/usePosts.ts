@@ -20,7 +20,7 @@ export function usePosts() {
   });
 }
 
-export function usePost(id: number) {
+export function usePost(id: string) {
   const { posts } = useRepositories();
   const queryClient = useQueryClient();
   const enabled = useAuthenticatedQueryEnabled();
@@ -40,7 +40,7 @@ export function usePost(id: number) {
       const list = queryClient.getQueryData<Post[]>(queryKeys.posts.list(accountId));
       return list?.find((p) => p.id === id);
     },
-    enabled: enabled && Number.isFinite(id) && id > 0,
+    enabled: enabled && !!id,
   });
 }
 
@@ -75,7 +75,7 @@ export function useUpdatePost() {
   const accountId = useQueryAccountScope();
 
   return useMutation({
-    mutationFn: ({ id, patch }: { id: number; patch: Partial<Post> }) => posts.update(id, patch),
+    mutationFn: ({ id, patch }: { id: string; patch: Partial<Post> }) => posts.update(id, patch),
     onSuccess: (updatedPost) => {
       queryClient.setQueryData(queryKeys.posts.detail(accountId, updatedPost.id), updatedPost);
       queryClient.setQueryData<Post[]>(queryKeys.posts.list(accountId), (prev) =>
@@ -104,7 +104,7 @@ export function useDeletePost() {
   const accountId = useQueryAccountScope();
 
   return useMutation({
-    mutationFn: (id: number) => posts.remove(id),
+    mutationFn: (id: string) => posts.remove(id),
     onSuccess: (_data, id) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.posts.all(accountId) });
       queryClient.removeQueries({ queryKey: queryKeys.posts.detail(accountId, id) });

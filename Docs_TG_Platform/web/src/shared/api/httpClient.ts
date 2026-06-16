@@ -1,6 +1,16 @@
 import { API_BASE_URL, USE_MSW } from "@/shared/config/dataSource";
 import { getApiAuthToken } from "@/shared/lib/auth/session";
 
+let onUnauthorized: (() => void) | null = null;
+
+export function setUnauthorizedHandler(fn: () => void): void {
+  onUnauthorized = fn;
+}
+
+export function clearUnauthorizedHandler(): void {
+  onUnauthorized = null;
+}
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -48,6 +58,10 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      onUnauthorized?.();
+      throw new ApiError("Unauthorized", 401);
+    }
     let payload: unknown;
     try {
       payload = await res.json();

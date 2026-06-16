@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { postStatusSchema } from "@/shared/api/schemas/post";
-import { getGlobalReply, getPostReply } from "@/shared/lib/replies";
+import { getGlobalReply, getPostReply } from "@/shared/api/assistantReplies";
 import { buildDraftDisplayList } from "@/shared/lib/drafts/draftDnDUtils";
 import { recordAppNavigation, resetAppNavStackForTests } from "@/shared/lib/appNavStack";
 import { resolveScreenBackAction } from "@/shared/lib/hooks/useScreenBack";
@@ -44,7 +44,7 @@ describe("routes", () => {
   it("parses post path", () => {
     const parsed = parseAppPath("/post/1/");
     expect(parsed.screen).toBe("post");
-    expect(parsed.postId).toBe(1);
+    expect(parsed.postId).toBe("1");
   });
 
   it("parses gchat path", () => {
@@ -62,7 +62,7 @@ describe("routes", () => {
   });
 
   it("parsePostLegacySub", () => {
-    expect(parsePostLegacySub("/post/5/notes/")).toEqual({ postId: 5, mode: "notes" });
+    expect(parsePostLegacySub("/post/5/notes/")).toEqual({ postId: "5", mode: "notes" });
     expect(parsePostLegacySub("/post/new/notes/")).toBeNull();
   });
 
@@ -123,8 +123,8 @@ describe("routes", () => {
 
 describe("buildDraftDisplayList", () => {
   const drafts = [
-    { id: 1, status: "draft" as const, text: "a", date: "2024-01-01", rubric: null, notes: [], chats: [] },
-    { id: 2, status: "draft" as const, text: "b", date: "2024-01-02", rubric: null, notes: [], chats: [] },
+    { id: "1", status: "draft" as const, text: "a", date: "2024-01-01", rubric: null, notes: [], chats: [] },
+    { id: "2", status: "draft" as const, text: "b", date: "2024-01-02", rubric: null, notes: [], chats: [] },
   ];
 
   it("returns cards when not dragging", () => {
@@ -135,9 +135,9 @@ describe("buildDraftDisplayList", () => {
   });
 
   it("inserts gap when dragging", () => {
-    const items = buildDraftDisplayList(drafts, 1, 2);
+    const items = buildDraftDisplayList(drafts, "1", "2");
     expect(items.some((i) => i.kind === "gap")).toBe(true);
-    expect(items.filter((i) => i.kind === "card").map((i) => i.post.id)).toEqual([2]);
+    expect(items.filter((i) => i.kind === "card").map((i) => i.post.id)).toEqual(["2"]);
   });
 });
 

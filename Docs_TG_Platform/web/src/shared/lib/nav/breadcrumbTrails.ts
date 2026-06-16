@@ -8,7 +8,7 @@ export type NoteBreadcrumbTrailContext = {
   titleLabel?: string;
   onNavigateNotes: () => void;
   onNavigateFeed: () => void;
-  onOpenPost: (postId: number) => void;
+  onOpenPost: (postId: string) => void;
 };
 
 export function buildNoteBreadcrumbTrail({
@@ -58,7 +58,7 @@ export function buildGChatBreadcrumbTrail({
 export type PostBreadcrumbTrailContext = {
   post: Post;
   postMode: PostMode;
-  currentPostChatId: number | null;
+  currentPostChatId: string | null;
   activeChat: LocalChat | null;
   postSubPage: string | null;
   postIntermediateCrumb: string;
