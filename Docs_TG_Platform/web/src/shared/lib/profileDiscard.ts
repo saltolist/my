@@ -11,6 +11,8 @@ type AiModelSnapshot = {
 type AiSettingsSnapshot = {
   llmModels: AiModelSnapshot[];
   webSearchModels: AiModelSnapshot[];
+  visionModels?: AiModelSnapshot[];
+  imageGenerationModels?: AiModelSnapshot[];
   orchestratorModels: AiModelSnapshot[];
   webReasonerModels: AiModelSnapshot[];
   ragReasonerModels: AiModelSnapshot[];
@@ -56,6 +58,16 @@ export function restoreAiConfigFromSnapshot(
     ...current,
     llmModels: mapModels(current.llmModels, saved.llmModels, "llm"),
     webSearchModels: mapModels(current.webSearchModels, saved.webSearchModels, "web"),
+    visionModels: mapModels(
+      current.visionModels,
+      saved.visionModels ?? current.visionModels.map(currentModelSnapshot),
+      "vision",
+    ),
+    imageGenerationModels: mapModels(
+      current.imageGenerationModels,
+      saved.imageGenerationModels ?? current.imageGenerationModels.map(currentModelSnapshot),
+      "image-gen",
+    ),
     orchestratorModels: normalizeExclusiveModels(
       mapModels(
         current.orchestratorModels,

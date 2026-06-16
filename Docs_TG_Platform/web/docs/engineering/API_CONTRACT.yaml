@@ -216,6 +216,12 @@ components:
         webSearchModels:
           type: array
           items: { $ref: "#/components/schemas/LlmModel" }
+        visionModels:
+          type: array
+          items: { $ref: "#/components/schemas/LlmModel" }
+        imageGenerationModels:
+          type: array
+          items: { $ref: "#/components/schemas/LlmModel" }
         orchestratorModels:
           type: array
           items: { $ref: "#/components/schemas/LlmModel" }

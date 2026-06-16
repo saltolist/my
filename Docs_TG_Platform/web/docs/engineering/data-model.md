@@ -191,6 +191,8 @@ UI — вкладка «Канал» в профиле. Концептуальн
 |-------|------|
 | `llmModels` | `LlmModel[]` |
 | `webSearchModels` | `LlmModel[]` |
+| `visionModels` | `LlmModel[]` |
+| `imageGenerationModels` | `LlmModel[]` |
 | `orchestratorModels` | `LlmModel[]` |
 | `webReasonerModels` | `LlmModel[]` |
 | `ragReasonerModels` | `LlmModel[]` |

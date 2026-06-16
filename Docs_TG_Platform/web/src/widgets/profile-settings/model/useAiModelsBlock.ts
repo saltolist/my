@@ -62,6 +62,9 @@ export function useAiModelsBlock() {
 
   const setLlms = (llmModels: LlmModel[]) => update({ ...cfg, llmModels });
   const setWebs = (webSearchModels: LlmModel[]) => update({ ...cfg, webSearchModels });
+  const setVisionModels = (visionModels: LlmModel[]) => update({ ...cfg, visionModels });
+  const setImageGenerationModels = (imageGenerationModels: LlmModel[]) =>
+    update({ ...cfg, imageGenerationModels });
   const setOrchestrators = (orchestratorModels: LlmModel[]) =>
     update({ ...cfg, orchestratorModels: normalizeExclusiveModels(orchestratorModels) });
   const setWebReasoners = (webReasonerModels: LlmModel[]) =>
@@ -78,6 +81,23 @@ export function useAiModelsBlock() {
     setWebs([
       ...cfg.webSearchModels,
       { id: "web-" + Date.now(), provider: "", model: "", apiKey: "", active: true, includeInMulti: false },
+    ]);
+  const addVision = () =>
+    setVisionModels([
+      ...cfg.visionModels,
+      { id: "vision-" + Date.now(), provider: "", model: "", apiKey: "", active: true, includeInMulti: false },
+    ]);
+  const addImageGeneration = () =>
+    setImageGenerationModels([
+      ...cfg.imageGenerationModels,
+      {
+        id: "image-gen-" + Date.now(),
+        provider: "",
+        model: "",
+        apiKey: "",
+        active: true,
+        includeInMulti: false,
+      },
     ]);
   const addOrchestrator = () =>
     setOrchestrators([
@@ -103,11 +123,15 @@ export function useAiModelsBlock() {
     flushSave,
     setLlms,
     setWebs,
+    setVisionModels,
+    setImageGenerationModels,
     setOrchestrators,
     setWebReasoners,
     setRagReasoners,
     addLlm,
     addWeb,
+    addVision,
+    addImageGeneration,
     addOrchestrator,
     addWebReasoner,
     addRagReasoner,

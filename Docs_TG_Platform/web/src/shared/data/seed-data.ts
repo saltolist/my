@@ -386,6 +386,26 @@ export const initialAiProfileConfig: AiProfileConfig = {
       includeInMulti: false,
     },
   ],
+  visionModels: [
+    {
+      id: "vision-1",
+      provider: "OpenAI",
+      model: "gpt-4o",
+      apiKey: "sk-openai-demo",
+      active: true,
+      includeInMulti: false,
+    },
+  ],
+  imageGenerationModels: [
+    {
+      id: "image-gen-1",
+      provider: "OpenAI",
+      model: "dall-e-3",
+      apiKey: "sk-openai-demo",
+      active: true,
+      includeInMulti: false,
+    },
+  ],
   orchestratorModels: [
     {
       id: "orchestrator-1",

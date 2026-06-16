@@ -8,7 +8,7 @@ import type { ModelPickerProps } from "../model/types";
 import { useModelPicker } from "@/shared/ui/model-picker/model/useModelPicker";
 
 export type { ModelOption, ModelPickerSection } from "../model/types";
-export { BrainIcon, SearchIcon } from "./ModelPickerIcons";
+export { BrainIcon, SearchIcon, VisionIcon, ImageGenIcon } from "./ModelPickerIcons";
 
 export default function ModelPicker({
   icon,

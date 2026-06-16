@@ -2,8 +2,13 @@
 
 import AiModelListSection from "@/widgets/profile-settings/ui/ai/AiModelListSection";
 import ProfileCheckbox from "@/widgets/profile-settings/ui/ProfileCheckbox";
-import { BrainIcon, SearchIcon } from "@/shared/ui/model-picker";
-import { LLM_PROVIDER_MODELS, WEB_SEARCH_PROVIDER_MODELS } from "@/shared/config/composer";
+import { BrainIcon, ImageGenIcon, SearchIcon, VisionIcon } from "@/shared/ui/model-picker";
+import {
+  IMAGE_GENERATION_PROVIDER_MODELS,
+  LLM_PROVIDER_MODELS,
+  VISION_PROVIDER_MODELS,
+  WEB_SEARCH_PROVIDER_MODELS,
+} from "@/shared/config/composer";
 import { useAiModelsBlock } from "@/widgets/profile-settings/model/useAiModelsBlock";
 
 export default function AiModelsBlock() {
@@ -40,6 +45,40 @@ export default function AiModelsBlock() {
         }
         onModelRemove={(idx) => ai.setWebs(cfg.webSearchModels.filter((_, i) => i !== idx))}
         onAdd={ai.addWeb}
+        onApiKeyBlur={() => void ai.flushSave()}
+      />
+
+      <AiModelListSection
+        icon={<VisionIcon />}
+        title="Модели компьютерного зрения"
+        models={cfg.visionModels}
+        providerMap={VISION_PROVIDER_MODELS}
+        addLabel="Добавить модель компьютерного зрения"
+        showMultiToggle={false}
+        onModelChange={(idx, patch) =>
+          ai.setVisionModels(cfg.visionModels.map((row, i) => (i === idx ? { ...row, ...patch } : row)))
+        }
+        onModelRemove={(idx) => ai.setVisionModels(cfg.visionModels.filter((_, i) => i !== idx))}
+        onAdd={ai.addVision}
+        onApiKeyBlur={() => void ai.flushSave()}
+      />
+
+      <AiModelListSection
+        icon={<ImageGenIcon />}
+        title="Модели генерации изображений"
+        models={cfg.imageGenerationModels}
+        providerMap={IMAGE_GENERATION_PROVIDER_MODELS}
+        addLabel="Добавить модель генерации изображений"
+        showMultiToggle={false}
+        onModelChange={(idx, patch) =>
+          ai.setImageGenerationModels(
+            cfg.imageGenerationModels.map((row, i) => (i === idx ? { ...row, ...patch } : row)),
+          )
+        }
+        onModelRemove={(idx) =>
+          ai.setImageGenerationModels(cfg.imageGenerationModels.filter((_, i) => i !== idx))
+        }
+        onAdd={ai.addImageGeneration}
         onApiKeyBlur={() => void ai.flushSave()}
       />
 

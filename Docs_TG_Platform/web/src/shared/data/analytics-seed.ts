@@ -223,6 +223,8 @@ export function buildPlatformModelUsage(
   const models = [
     ...mapConfigModels(config.llmModels, "LLM"),
     ...mapConfigModels(config.webSearchModels, "Web Search"),
+    ...mapConfigModels(config.visionModels, "Компьютерное зрение"),
+    ...mapConfigModels(config.imageGenerationModels, "Генерация изображений"),
     ...mapConfigModels(config.orchestratorModels, "Оркестратор"),
     ...mapConfigModels(config.webReasonerModels, "Web Reasoner"),
     ...mapConfigModels(config.ragReasonerModels, "RAG Reasoner"),

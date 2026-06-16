@@ -8,6 +8,14 @@ type AiModelSnapshot = {
   includeInMulti: boolean;
 };
 
+export function normalizeAiProfileConfig(cfg: AiProfileConfig): AiProfileConfig {
+  return {
+    ...cfg,
+    visionModels: cfg.visionModels ?? [],
+    imageGenerationModels: cfg.imageGenerationModels ?? [],
+  };
+}
+
 export function normalizeExclusiveModels(models: LlmModel[]): LlmModel[] {
   let activeSeen = false;
   return models.map((model) => {
@@ -41,6 +49,8 @@ export function snapshotAiConfig(cfg: AiProfileConfig) {
   return JSON.stringify({
     llmModels: cfg.llmModels.map(modelSnapshot),
     webSearchModels: cfg.webSearchModels.map(modelSnapshot),
+    visionModels: cfg.visionModels.map(modelSnapshot),
+    imageGenerationModels: cfg.imageGenerationModels.map(modelSnapshot),
     orchestratorModels: normalizeExclusiveModels(cfg.orchestratorModels).map(modelSnapshot),
     webReasonerModels: normalizeExclusiveModels(cfg.webReasonerModels).map(modelSnapshot),
     ragReasonerModels: normalizeExclusiveModels(cfg.ragReasonerModels).map(modelSnapshot),

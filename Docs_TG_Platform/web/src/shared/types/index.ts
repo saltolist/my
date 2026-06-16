@@ -154,6 +154,8 @@ export type ChannelProfileConfig = {
 export type AiProfileConfig = {
   llmModels: LlmModel[];
   webSearchModels: WebSearchModel[];
+  visionModels: LlmModel[];
+  imageGenerationModels: LlmModel[];
   orchestratorModels: LlmModel[];
   webReasonerModels: LlmModel[];
   ragReasonerModels: LlmModel[];

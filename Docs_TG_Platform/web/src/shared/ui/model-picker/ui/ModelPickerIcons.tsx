@@ -34,6 +34,43 @@ export function SearchIcon() {
   );
 }
 
+export function VisionIcon() {
+  return (
+    <svg
+      className="model-icon"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+export function ImageGenIcon() {
+  return (
+    <svg
+      className="model-icon"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <circle cx="9" cy="10" r="1.5" />
+      <path d="m21 16-5.5-5.5L5 19" />
+    </svg>
+  );
+}
+
 export function ModelPickerChevron() {
   return (
     <svg

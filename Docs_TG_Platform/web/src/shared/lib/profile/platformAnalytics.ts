@@ -52,6 +52,8 @@ export function buildModelUsage(
   const models = [
     ...mapConfigModels(config.llmModels, "llm", "LLM"),
     ...mapConfigModels(config.webSearchModels, "web", "Web Search"),
+    ...mapConfigModels(config.visionModels, "vision", "Компьютерное зрение"),
+    ...mapConfigModels(config.imageGenerationModels, "imageGeneration", "Генерация изображений"),
     ...mapConfigModels(config.orchestratorModels, "orchestrator", "Оркестратор"),
     ...mapConfigModels(config.webReasonerModels, "webReasoner", "Web Reasoner"),
     ...mapConfigModels(config.ragReasonerModels, "ragReasoner", "RAG Reasoner"),
@@ -80,7 +82,7 @@ export function buildModelUsage(
 
   const totalsByType = usage.reduce<Record<ModelTypeId, number>>(
     (acc, model) => ({ ...acc, [model.type]: acc[model.type] + model.calls }),
-    { llm: 0, web: 0, orchestrator: 0, webReasoner: 0, ragReasoner: 0 },
+    { llm: 0, web: 0, vision: 0, imageGeneration: 0, orchestrator: 0, webReasoner: 0, ragReasoner: 0 },
   );
 
   return usage

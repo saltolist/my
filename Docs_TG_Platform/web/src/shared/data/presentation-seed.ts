@@ -335,6 +335,8 @@ const presentationAiProfile = (): AiProfileConfig => ({
       includeInMulti: false,
     },
   ],
+  visionModels: [],
+  imageGenerationModels: [],
   orchestratorModels: [],
   webReasonerModels: [],
   ragReasonerModels: [],

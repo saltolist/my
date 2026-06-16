@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 import { buildProfileDiscardPatch } from "@/shared/lib/profileDiscard";
-import { snapshotAiConfig } from "@/shared/lib/profile/aiModelsSnapshot";
+import { normalizeAiProfileConfig, snapshotAiConfig } from "@/shared/lib/profile/aiModelsSnapshot";
 import { telegramConfigSnapshot } from "@/shared/lib/profile/telegramSnapshot";
 import { createEmptyAccountStore } from "@/shared/data/empty-account-state";
 import type {
@@ -25,6 +25,20 @@ function buildInitialAiSnapshot(cfg: AiProfileConfig): string {
       apiKey: m.apiKey || "",
       active: !!m.active,
       includeInMulti: !!m.includeInMulti,
+    })),
+    visionModels: cfg.visionModels.map((m) => ({
+      provider: m.provider || "",
+      model: m.model || "",
+      apiKey: m.apiKey || "",
+      active: !!m.active,
+      includeInMulti: false,
+    })),
+    imageGenerationModels: cfg.imageGenerationModels.map((m) => ({
+      provider: m.provider || "",
+      model: m.model || "",
+      apiKey: m.apiKey || "",
+      active: !!m.active,
+      includeInMulti: false,
     })),
     orchestratorModels: cfg.orchestratorModels.map((m) => ({
       provider: m.provider || "",
@@ -115,13 +129,14 @@ function createInitialProfileDraftState(): ProfileDraftState {
 export const useProfileDraftStore = create<ProfileDraftState & ProfileDraftActions>((set, get) => ({
   ...createInitialProfileDraftState(),
   hydrateFromServer: (channel, ai, telegram) => {
+    const normalizedAi = normalizeAiProfileConfig(ai);
     set({
       channelProfileConfig: structuredClone(channel),
-      aiProfileConfig: structuredClone(ai),
+      aiProfileConfig: structuredClone(normalizedAi),
       telegramProfileConfig: structuredClone(telegram),
       channelProfileSavedSnapshot: JSON.stringify(channel),
-      modelSettingsSavedSnapshot: buildInitialAiSnapshot(ai),
-      systemPromptSavedSnapshot: ai.systemPrompt,
+      modelSettingsSavedSnapshot: buildInitialAiSnapshot(normalizedAi),
+      systemPromptSavedSnapshot: normalizedAi.systemPrompt,
       telegramSettingsSavedSnapshot: buildInitialTelegramSnapshot(telegram),
       hydrated: true,
     });

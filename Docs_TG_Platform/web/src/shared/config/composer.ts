@@ -19,6 +19,18 @@ export const WEB_SEARCH_PROVIDER_MODELS: Record<string, string[]> = {
   Exa: ["exa-neural"],
 };
 
+export const VISION_PROVIDER_MODELS: Record<string, string[]> = {
+  OpenAI: ["gpt-4o", "gpt-4.1"],
+  Anthropic: ["claude-3-7-sonnet", "claude-3-5-sonnet"],
+  Google: ["gemini-1.5-pro", "gemini-1.5-flash"],
+};
+
+export const IMAGE_GENERATION_PROVIDER_MODELS: Record<string, string[]> = {
+  OpenAI: ["dall-e-3", "gpt-image-1"],
+  Stability: ["stable-image-ultra", "stable-image-core"],
+  Google: ["imagen-3"],
+};
+
 export const OPENAI_WEB_SEARCH_MODEL = "responses-api-web-search";
 
 export function isOpenAiWebSearchModel(provider: string, model: string): boolean {

@@ -32,6 +32,8 @@ function emptyAiProfile(): AiProfileConfig {
   return {
     llmModels: [],
     webSearchModels: [],
+    visionModels: [],
+    imageGenerationModels: [],
     orchestratorModels: [],
     webReasonerModels: [],
     ragReasonerModels: [],
