@@ -55,12 +55,6 @@
     box-sizing: border-box;
   }
 
-  .comment-reply-banner {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-
   /* Главная: gutter только у input-wrap (как feed/post/gchat), без двойного inset */
   .home-layout {
     padding-left: 0;

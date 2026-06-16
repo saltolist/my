@@ -8,6 +8,13 @@ import { autoResize, readFileAsMedia } from "@/shared/lib/helpers";
 import type { PostComment, PostMedia } from "@/shared/types";
 import { AttachMenu } from "@/widgets/composer";
 
+function replyPreviewText(comment: PostComment): string {
+  const text = comment.text.trim();
+  if (text) return text;
+  if (comment.media?.length) return "Медиа";
+  return "Комментарий";
+}
+
 type Props = {
   replyTo: PostComment | null;
   onCancelReply: () => void;
@@ -42,22 +49,23 @@ export default function CommentComposer({ replyTo, onCancelReply, onSubmit }: Pr
   return (
     <div className="input-wrap post-comments-input-wrap" onMouseDown={onComposerShellMouseDown}>
       <div className="composer-backdrop" aria-hidden="true" />
-      {replyTo ? (
-        <div className="comment-reply-banner">
-          <span>
-            Ответ для <strong>{replyTo.author}</strong>
-          </span>
-          <button
-            className="comment-reply-cancel"
-            onClick={onCancelReply}
-            type="button"
-            aria-label="Отменить ответ"
-          >
-            ✕
-          </button>
-        </div>
-      ) : null}
-      <div className="input-box">
+      <div className={`input-box${replyTo ? " input-box--replying" : ""}`}>
+        {replyTo ? (
+          <div className="comment-composer-reply">
+            <div className="comment-composer-reply-line">
+              <span className="comment-composer-reply-author">{replyTo.author}</span>
+              <span className="comment-composer-reply-text">{replyPreviewText(replyTo)}</span>
+            </div>
+            <button
+              className="comment-composer-reply-cancel"
+              onClick={onCancelReply}
+              type="button"
+              aria-label="Отменить ответ"
+            >
+              ✕
+            </button>
+          </div>
+        ) : null}
         {pendingMedia.length > 0 ? (
           <PostMediaBlock media={pendingMedia} onRemove={removePendingMedia} />
         ) : null}
