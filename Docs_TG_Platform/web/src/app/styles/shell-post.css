@@ -1380,11 +1380,6 @@
 
 /* Узкая колонка поста: container query — колонка карточек при resize без remount вкладки. */
 @container post-subpage (max-width: 760px) {
-  .post-subpage-scroll .notes-grid.visible,
-  .post-subpage-scroll .post-chats.visible {
-    padding-top: 0;
-  }
-
   .post-subpage-scroll .notes-grid-inner,
   .post-subpage-scroll .post-chats-inner {
     flex-direction: column;
